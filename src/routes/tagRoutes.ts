@@ -19,7 +19,4 @@ router.put('/:id', tagController.updateTag.bind(tagController))
 // DELETE /api/tags/:id - Delete a specific tag
 router.delete('/:id', tagController.deleteTag.bind(tagController))
 
-// GET /api/tags/task/:taskId - Get all tags for a specific task
-router.get('/task/:taskId', tagController.getTagsByTaskId.bind(tagController))
-
 export default router
