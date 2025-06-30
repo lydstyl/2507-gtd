@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model Task {
+    id         String   @id @default(cuid())
+    name       String
+    link       String?
+    importance Int      @default(5) // 1-9, 1 being most important
+    urgency    Int      @default(5) // 1-9
+    priority   Int      @default(5) // 1-9
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    // Self-referencing relationship for subtasks
+    parentId String?
+    parent   Task?   @relation("TaskSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
+    subtasks Task[]  @relation("TaskSubtasks")
+
+    // Many-to-many relationship with tags
+    tags TaskTag[]
+
+    @@map("tasks")
+}
+
+model Tag {
+    id        String   @id @default(cuid())
+    name      String   @unique
+    color     String? // Optional color for UI
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Many-to-many relationship with tasks
+    tasks TaskTag[]
+
+    @@map("tags")
+}
+
+model TaskTag {
+    id     String @id @default(cuid())
+    taskId String
+    tagId  String
+
+    task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+    tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+    @@unique([taskId, tagId])
+    @@map("task_tags")
+}
