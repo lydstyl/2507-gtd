@@ -52,6 +52,9 @@ app.use(
 // Middleware pour les routes non trouvées
 //app.use('*', (req, res) => {
 //  res.status(404).json({ error: 'Route not found' })
-//})
+//}) // this make error /home/gbp2204/apps/2507-gtd/node_modules/path-to-regexp/src/index.ts:153
+// throw new TypeError(`Missing parameter name at ${i}: ${DEBUG_URL}`);
+//  ^
+//TypeError: Missing parameter name at 1: https://git.new/pathToRegexpError
 
 export default app
