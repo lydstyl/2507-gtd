@@ -1,6 +1,6 @@
 import express from 'express'
-import taskRoutes from './routes/taskRoutes'
-import tagRoutes from './routes/tagRoutes'
+// import taskRoutes from './routes/taskRoutes'
+//import tagRoutes from './routes/tagRoutes'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -15,8 +15,8 @@ app.use((req, res, next) => {
 })
 
 // Routes
-app.use('/api/tasks', taskRoutes)
-app.use('/api/tags', tagRoutes)
+// app.use('/api/tasks', taskRoutes)
+// app.use('/api/tags', tagRoutes)
 
 // Route de santé
 app.get('/health', (req, res) => {
@@ -50,8 +50,8 @@ app.use(
 )
 
 // Middleware pour les routes non trouvées
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' })
-})
+//app.use('*', (req, res) => {
+//  res.status(404).json({ error: 'Route not found' })
+//})
 
 export default app
