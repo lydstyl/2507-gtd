@@ -1,6 +1,7 @@
 import express from 'express'
-// import taskRoutes from './routes/taskRoutes'
-//import tagRoutes from './routes/tagRoutes'
+import { Container } from './infrastructure/container'
+import { createTaskRoutes } from './presentation/routes/taskRoutes'
+import { createTagRoutes } from './presentation/routes/tagRoutes'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -14,9 +15,12 @@ app.use((req, res, next) => {
   next()
 })
 
+// Dependency injection container
+const container = Container.getInstance()
+
 // Routes
-// app.use('/api/tasks', taskRoutes)
-// app.use('/api/tags', tagRoutes)
+app.use('/api/tasks', createTaskRoutes(container.getTaskController()))
+app.use('/api/tags', createTagRoutes(container.getTagController()))
 
 // Route de santé
 app.get('/health', (req, res) => {
