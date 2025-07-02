@@ -2,6 +2,7 @@ import express from 'express'
 import { Container } from './infrastructure/container'
 import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
+import authRoutes from './presentation/routes/authRoutes'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -21,6 +22,7 @@ const container = Container.getInstance()
 // Routes
 app.use('/api/tasks', createTaskRoutes(container.getTaskController()))
 app.use('/api/tags', createTagRoutes(container.getTagController()))
+app.use('/api/auth', authRoutes)
 
 // Route de santé
 app.get('/health', (req, res) => {

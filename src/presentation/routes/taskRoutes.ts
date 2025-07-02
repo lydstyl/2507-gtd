@@ -1,8 +1,11 @@
 import { Router } from 'express'
 import { TaskController } from '../controllers/TaskController'
+import { authMiddleware } from '../middleware/authMiddleware'
 
 export function createTaskRoutes(taskController: TaskController): Router {
   const router = Router()
+
+  router.use(authMiddleware)
 
   // GET /api/tasks - Get all tasks with optional filters
   router.get('/', taskController.getAllTasks.bind(taskController))

@@ -17,7 +17,13 @@ export class TaskController {
 
   async createTask(req: Request, res: Response): Promise<void> {
     try {
-      const task = await this.createTaskUseCase.execute(req.body)
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+      const taskData = { ...req.body, userId }
+      const task = await this.createTaskUseCase.execute(taskData)
       res.status(201).json(task)
     } catch (error) {
       if (error instanceof Error) {
@@ -31,7 +37,7 @@ export class TaskController {
   async getTaskById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params
-      const userId = (req as any).user?.id
+      const userId = (req as any).user?.userId
       const task = await this.getTaskUseCase.execute(id, userId)
       res.json(task)
     } catch (error) {
@@ -73,7 +79,7 @@ export class TaskController {
           : [req.query.tagIds as string]
       }
 
-      const userId = (req as any).user?.id
+      const userId = (req as any).user?.userId
       const tasks = await this.getAllTasksUseCase.execute(userId, filters)
       res.json(tasks)
     } catch (error) {
@@ -84,7 +90,13 @@ export class TaskController {
   async updateTask(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params
-      const task = await this.updateTaskUseCase.execute(id, req.body)
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+      const taskData = { ...req.body, userId }
+      const task = await this.updateTaskUseCase.execute(id, taskData)
       res.json(task)
     } catch (error) {
       if (error instanceof Error) {
@@ -98,7 +110,6 @@ export class TaskController {
       }
     }
   }
-  // remove this line
 
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
