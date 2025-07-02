@@ -3,8 +3,12 @@ import {
   TaskWithSubtasks,
   CreateTaskData,
   UpdateTaskData,
-  TaskFilters
+  TaskFilters as BaseTaskFilters
 } from '../../domain/entities/Task'
+
+export interface TaskFilters extends BaseTaskFilters {
+  userId?: string
+}
 
 export interface TaskRepository {
   /**

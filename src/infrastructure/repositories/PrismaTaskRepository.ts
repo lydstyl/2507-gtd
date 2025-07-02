@@ -115,6 +115,10 @@ export class PrismaTaskRepository implements TaskRepository {
       }
     }
 
+    if (filters?.userId) {
+      where.userId = filters.userId
+    }
+
     const tasks = await this.prisma.task.findMany({
       where,
       include: {

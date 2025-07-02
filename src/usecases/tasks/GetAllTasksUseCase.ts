@@ -4,7 +4,10 @@ import { TaskWithSubtasks, TaskFilters } from '../../domain/entities/Task'
 export class GetAllTasksUseCase {
   constructor(private taskRepository: TaskRepository) {}
 
-  async execute(filters?: TaskFilters): Promise<TaskWithSubtasks[]> {
-    return await this.taskRepository.findAll(filters)
+  async execute(
+    userId: string,
+    filters?: TaskFilters
+  ): Promise<TaskWithSubtasks[]> {
+    return await this.taskRepository.findAll({ ...filters, userId })
   }
 }

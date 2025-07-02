@@ -4,7 +4,7 @@ import { Tag } from '../../domain/entities/Tag'
 export class GetAllTagsUseCase {
   constructor(private tagRepository: TagRepository) {}
 
-  async execute(): Promise<Tag[]> {
-    return await this.tagRepository.findAll()
+  async execute(userId: string): Promise<Tag[]> {
+    return await this.tagRepository.findAll(userId)
   }
 }

@@ -24,8 +24,9 @@ export class PrismaTagRepository implements TagRepository {
     return tag
   }
 
-  async findAll(): Promise<Tag[]> {
+  async findAll(userId: string): Promise<Tag[]> {
     const tags = await this.prisma.tag.findMany({
+      where: { userId },
       orderBy: { name: 'asc' }
     })
 

@@ -4,11 +4,11 @@ import { TaskWithSubtasks } from '../../domain/entities/Task'
 export class GetTaskUseCase {
   constructor(private taskRepository: TaskRepository) {}
 
-  async execute(id: string): Promise<TaskWithSubtasks> {
+  async execute(id: string, userId: string): Promise<TaskWithSubtasks> {
     const task = await this.taskRepository.findById(id)
 
-    if (!task) {
-      throw new Error('Task not found')
+    if (!task || task.userId !== userId) {
+      throw new Error('Task not found or access denied')
     }
 
     return task
