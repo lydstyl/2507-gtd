@@ -7,7 +7,10 @@ export class PrismaTagRepository implements TagRepository {
 
   async create(data: CreateTagData): Promise<Tag> {
     const tag = await this.prisma.tag.create({
-      data
+      data: {
+        ...data,
+        userId: data.userId
+      }
     })
 
     return tag

@@ -20,6 +20,8 @@ export class PrismaTaskRepository implements TaskRepository {
         importance: taskData.importance || 5,
         urgency: taskData.urgency || 5,
         priority: taskData.priority || 5,
+        dueDate: taskData.dueDate ?? undefined,
+        userId: taskData.userId,
         tags: tagIds
           ? {
               create: tagIds.map((tagId) => ({
@@ -148,7 +150,11 @@ export class PrismaTaskRepository implements TaskRepository {
     const task = await this.prisma.$transaction(async (tx) => {
       const updatedTask = await tx.task.update({
         where: { id },
-        data: taskData,
+        data: {
+          ...taskData,
+          dueDate: taskData.dueDate ?? undefined,
+          userId: taskData.userId
+        },
         include: {
           tags: {
             include: {

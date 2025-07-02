@@ -13,7 +13,9 @@ export class CreateTaskUseCase {
       ...data,
       importance: data.importance || 5,
       urgency: data.urgency || 5,
-      priority: data.priority || 5
+      priority: data.priority || 5,
+      dueDate: data.dueDate,
+      userId: data.userId
     }
 
     return await this.taskRepository.create(taskData)

@@ -6,6 +6,7 @@ export class CreateTagUseCase {
 
   async execute(data: CreateTagData): Promise<Tag> {
     this.validateTagData(data)
+    if (!data.userId) throw new Error('userId is required for tag creation')
     return await this.tagRepository.create(data)
   }
 

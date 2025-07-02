@@ -1,4 +1,5 @@
 import { Tag } from './Tag'
+import { User } from './User'
 
 export interface Task {
   id: string
@@ -8,8 +9,11 @@ export interface Task {
   urgency: number // 1-9
   priority: number // 1-9
   parentId?: string
+  dueDate?: Date
   createdAt: Date
   updatedAt: Date
+  userId: string
+  user?: User
 }
 
 export interface TaskWithSubtasks extends Task {
@@ -25,6 +29,8 @@ export interface CreateTaskData {
   priority?: number
   parentId?: string
   tagIds?: string[]
+  userId: string
+  dueDate?: Date
 }
 
 export interface UpdateTaskData {
@@ -35,6 +41,8 @@ export interface UpdateTaskData {
   priority?: number
   parentId?: string
   tagIds?: string[]
+  userId?: string
+  dueDate?: Date
 }
 
 export interface TaskFilters {
