@@ -23,7 +23,8 @@ export class TagController {
 
   async getAllTags(req: Request, res: Response): Promise<void> {
     try {
-      const tags = await this.getAllTagsUseCase.execute()
+      const userId = (req as any).user?.id // Adaptation générique, à ajuster selon ton auth
+      const tags = await this.getAllTagsUseCase.execute(userId)
       res.json(tags)
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' })

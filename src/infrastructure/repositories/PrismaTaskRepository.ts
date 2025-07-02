@@ -1,11 +1,10 @@
 import { PrismaClient } from '@prisma/client'
-import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
+import { TaskRepository, TaskFilters } from '../../interfaces/repositories/TaskRepository'
 import {
   Task,
   TaskWithSubtasks,
   CreateTaskData,
-  UpdateTaskData,
-  TaskFilters
+  UpdateTaskData
 } from '../../domain/entities/Task'
 
 export class PrismaTaskRepository implements TaskRepository {
@@ -151,7 +150,7 @@ export class PrismaTaskRepository implements TaskRepository {
   async update(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks> {
     const { tagIds, ...taskData } = data
 
-    const task = await this.prisma.$transaction(async (tx) => {
+    const task = await this.prisma.$transaction(async (tx: any) => {
       const updatedTask = await tx.task.update({
         where: { id },
         data: {
@@ -243,6 +242,7 @@ export class PrismaTaskRepository implements TaskRepository {
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       parentId: task.parentId,
+      userId: task.userId,
       subtasks: task.subtasks.map((subtask: any) =>
         this.formatTaskWithSubtasks(subtask)
       ),

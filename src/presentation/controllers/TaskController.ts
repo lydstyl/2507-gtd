@@ -4,7 +4,7 @@ import { GetTaskUseCase } from '../../usecases/tasks/GetTaskUseCase'
 import { GetAllTasksUseCase } from '../../usecases/tasks/GetAllTasksUseCase'
 import { UpdateTaskUseCase } from '../../usecases/tasks/UpdateTaskUseCase'
 import { DeleteTaskUseCase } from '../../usecases/tasks/DeleteTaskUseCase'
-import { TaskFilters } from '../../domain/entities/Task'
+import { TaskFilters } from '../../interfaces/repositories/TaskRepository'
 
 export class TaskController {
   constructor(
@@ -31,7 +31,8 @@ export class TaskController {
   async getTaskById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params
-      const task = await this.getTaskUseCase.execute(id)
+      const userId = (req as any).user?.id
+      const task = await this.getTaskUseCase.execute(id, userId)
       res.json(task)
     } catch (error) {
       if (error instanceof Error) {
@@ -72,7 +73,8 @@ export class TaskController {
           : [req.query.tagIds as string]
       }
 
-      const tasks = await this.getAllTasksUseCase.execute(filters)
+      const userId = (req as any).user?.id
+      const tasks = await this.getAllTasksUseCase.execute(userId, filters)
       res.json(tasks)
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' })
