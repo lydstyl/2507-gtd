@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import { Container } from './infrastructure/container'
 import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
@@ -6,6 +7,16 @@ import authRoutes from './presentation/routes/authRoutes'
 
 const app = express()
 const PORT = process.env.PORT || 3000
+
+// Configuration CORS
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+)
 
 // Middleware pour parser le JSON
 app.use(express.json())
