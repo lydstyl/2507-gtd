@@ -47,7 +47,15 @@ export function CreateTaskModal({
     setError('')
 
     try {
-      await api.createTask(formData)
+      // Formater la date au format ISO-8601 complet si elle existe
+      const formattedData = {
+        ...formData,
+        dueDate: formData.dueDate
+          ? new Date(formData.dueDate).toISOString()
+          : undefined
+      }
+
+      await api.createTask(formattedData)
       onTaskCreated()
       onClose()
       // Reset form
