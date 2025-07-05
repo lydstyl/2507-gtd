@@ -73,14 +73,14 @@ export default function TaskListPage() {
       );
     }
 
-    // Filtre par importance
+    // Filtre par importance (au moins le niveau choisi)
     if (importanceFilter !== '') {
-      filtered = filtered.filter(task => task.importance === importanceFilter);
+      filtered = filtered.filter(task => task.importance <= importanceFilter);
     }
 
-    // Filtre par urgence
+    // Filtre par urgence (au moins le niveau choisi)
     if (urgencyFilter !== '') {
-      filtered = filtered.filter(task => task.urgency === urgencyFilter);
+      filtered = filtered.filter(task => task.urgency <= urgencyFilter);
     }
 
     // Filtre par tag
@@ -239,11 +239,11 @@ export default function TaskListPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             >
               <option value="">Toutes</option>
-              <option value="1">Critique (1)</option>
-              <option value="2">Très élevée (2)</option>
-              <option value="3">Élevée (3)</option>
-              <option value="4">Moyenne (4)</option>
-              <option value="5">Faible (5)</option>
+              <option value="1">Au moins Critique (1)</option>
+              <option value="2">Au moins Très élevée (1-2)</option>
+              <option value="3">Au moins Élevée (1-3)</option>
+              <option value="4">Au moins Moyenne (1-4)</option>
+              <option value="5">Au moins Faible (1-5)</option>
             </select>
           </div>
 
@@ -258,11 +258,11 @@ export default function TaskListPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             >
               <option value="">Toutes</option>
-              <option value="1">Très urgente (1)</option>
-              <option value="2">Urgente (2)</option>
-              <option value="3">Normale (3)</option>
-              <option value="4">Peu urgente (4)</option>
-              <option value="5">Non urgente (5)</option>
+              <option value="1">Au moins Très urgente (1)</option>
+              <option value="2">Au moins Urgente (1-2)</option>
+              <option value="3">Au moins Normale (1-3)</option>
+              <option value="4">Au moins Peu urgente (1-4)</option>
+              <option value="5">Au moins Non urgente (1-5)</option>
             </select>
           </div>
 
