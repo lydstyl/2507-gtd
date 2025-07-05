@@ -9,11 +9,12 @@ interface DashboardProps {
   tasks: Task[]
   onCreateTask: () => void
   onCreateTag: () => void
+  onManageTags: () => void
   onEditTask?: (task: Task) => void
   onDeleteTask?: (taskId: string) => void
 }
 
-export function Dashboard({ user, tasks, onCreateTask, onCreateTag, onEditTask, onDeleteTask }: DashboardProps) {
+export function Dashboard({ user, tasks, onCreateTask, onCreateTag, onManageTags, onEditTask, onDeleteTask }: DashboardProps) {
   const completedTasks = tasks.filter((task) => task.priority === 0)
   const activeTasks = tasks.filter((task) => task.priority > 0)
 
@@ -34,7 +35,7 @@ export function Dashboard({ user, tasks, onCreateTask, onCreateTag, onEditTask, 
             tagsCount={0}
           />
 
-          <QuickActions onCreateTask={onCreateTask} onCreateTag={onCreateTag} />
+          <QuickActions onCreateTask={onCreateTask} onCreateTag={onCreateTag} onManageTags={onManageTags} />
 
           <RecentTasks tasks={tasks} onEditTask={onEditTask} onDeleteTask={onDeleteTask} />
         </div>

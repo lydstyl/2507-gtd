@@ -10,6 +10,7 @@ import { UpdateTaskUseCase } from '../usecases/tasks/UpdateTaskUseCase'
 import { DeleteTaskUseCase } from '../usecases/tasks/DeleteTaskUseCase'
 import { CreateTagUseCase } from '../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../usecases/tags/GetAllTagsUseCase'
+import { DeleteTagUseCase } from '../usecases/tags/DeleteTagUseCase'
 import { TaskController } from '../presentation/controllers/TaskController'
 import { TagController } from '../presentation/controllers/TagController'
 
@@ -51,8 +52,9 @@ export class Container {
   getTagController(): TagController {
     const createTagUseCase = new CreateTagUseCase(this.tagRepository)
     const getAllTagsUseCase = new GetAllTagsUseCase(this.tagRepository)
+    const deleteTagUseCase = new DeleteTagUseCase(this.tagRepository)
 
-    return new TagController(createTagUseCase, getAllTagsUseCase)
+    return new TagController(createTagUseCase, getAllTagsUseCase, deleteTagUseCase)
   }
 
   async disconnect(): Promise<void> {

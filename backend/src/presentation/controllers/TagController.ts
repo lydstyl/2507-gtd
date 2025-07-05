@@ -1,11 +1,13 @@
 import { Request, Response } from 'express'
 import { CreateTagUseCase } from '../../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../../usecases/tags/GetAllTagsUseCase'
+import { DeleteTagUseCase } from '../../usecases/tags/DeleteTagUseCase'
 
 export class TagController {
   constructor(
     private createTagUseCase: CreateTagUseCase,
-    private getAllTagsUseCase: GetAllTagsUseCase
+    private getAllTagsUseCase: GetAllTagsUseCase,
+    private deleteTagUseCase: DeleteTagUseCase
   ) {}
 
   async createTag(req: Request, res: Response): Promise<void> {
@@ -34,6 +36,29 @@ export class TagController {
       res.json(tags)
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+
+  async deleteTag(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+      await this.deleteTagUseCase.execute(id, userId)
+      res.status(204).send()
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('not found') || error.message.includes('access denied')) {
+          res.status(404).json({ error: error.message })
+        } else {
+          res.status(400).json({ error: error.message })
+        }
+      } else {
+        res.status(500).json({ error: 'Internal server error' })
+      }
     }
   }
 }

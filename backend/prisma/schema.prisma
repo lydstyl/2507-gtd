@@ -50,7 +50,7 @@ model Task {
 
 model Tag {
     id        String   @id @default(cuid())
-    name      String   @unique
+    name      String
     color     String? // Optional color for UI
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -61,6 +61,7 @@ model Tag {
     // Many-to-many relationship with tasks
     tasks TaskTag[]
 
+    @@unique([name, userId])
     @@map("tags")
 }
 

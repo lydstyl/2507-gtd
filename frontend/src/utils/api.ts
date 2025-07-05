@@ -93,5 +93,10 @@ export const api = {
     apiCall<Tag>('/tags', {
       method: 'POST',
       body: JSON.stringify(data)
+    }),
+
+  deleteTag: (id: string) =>
+    apiCall<void>(`/tags/${id}`, {
+      method: 'DELETE'
     })
 }

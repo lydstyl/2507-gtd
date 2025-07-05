@@ -1,9 +1,10 @@
 interface QuickActionsProps {
   onCreateTask: () => void
   onCreateTag: () => void
+  onManageTags: () => void
 }
 
-export function QuickActions({ onCreateTask, onCreateTag }: QuickActionsProps) {
+export function QuickActions({ onCreateTask, onCreateTag, onManageTags }: QuickActionsProps) {
   return (
     <div className='mt-8'>
       <h3 className='text-lg font-semibold text-gray-900 mb-4'>
@@ -21,6 +22,12 @@ export function QuickActions({ onCreateTask, onCreateTag }: QuickActionsProps) {
           className='bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
         >
           + Nouveau tag
+        </button>
+        <button
+          onClick={onManageTags}
+          className='border border-purple-500 text-purple-700 hover:bg-purple-50 px-4 py-2 rounded-md text-sm font-medium transition-colors'
+        >
+          Gérer les tags
         </button>
         <button className='border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium transition-colors'>
           Voir toutes les tâches

@@ -9,8 +9,18 @@ const authHeader = { Authorization: 'Bearer dev-token' }
 
 describe('Task API', () => {
   let server: any
-  beforeAll((done) => {
-    server = app.listen(4000, done)
+  beforeAll(async () => {
+    // Crée l'utilisateur de test si besoin
+    await prisma.user.upsert({
+      where: { id: 'user-id' },
+      update: {},
+      create: {
+        id: 'user-id',
+        email: 'user@example.com',
+        password: 'hashed-password',
+      },
+    })
+    server = app.listen(4000)
   })
   afterAll(async () => {
     await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Tâche test e2e' } })

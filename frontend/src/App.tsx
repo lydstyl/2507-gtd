@@ -4,6 +4,7 @@ import { RegisterForm } from './components/RegisterForm'
 import { CreateTaskModal } from './components/CreateTaskModal'
 import { CreateTagModal } from './components/CreateTagModal'
 import { EditTaskModal } from './components/EditTaskModal'
+import { TagManagerModal } from './components/TagManagerModal'
 import { Header } from './components/Header'
 import { Dashboard } from './components/Dashboard'
 import { Footer } from './components/Footer'
@@ -22,6 +23,7 @@ function App() {
   const [isCreateTagModalOpen, setIsCreateTagModalOpen] = useState(false)
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [isTagManagerModalOpen, setIsTagManagerModalOpen] = useState(false)
 
   useEffect(() => {
     // Vérifier si l'utilisateur est déjà connecté
@@ -139,6 +141,7 @@ function App() {
         tasks={tasks} 
         onCreateTask={handleCreateTask}
         onCreateTag={handleCreateTag}
+        onManageTags={() => setIsTagManagerModalOpen(true)}
         onEditTask={handleEditTask}
         onDeleteTask={handleTaskDeleted}
       />
@@ -155,6 +158,11 @@ function App() {
         isOpen={isCreateTagModalOpen}
         onClose={() => setIsCreateTagModalOpen(false)}
         onTagCreated={handleTagCreated}
+      />
+
+      <TagManagerModal
+        isOpen={isTagManagerModalOpen}
+        onClose={() => setIsTagManagerModalOpen(false)}
       />
 
       <EditTaskModal
