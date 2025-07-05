@@ -13,7 +13,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "test": "jest --runInBand",
-    "insert-test-tasks": "ts-node scripts/insert-test-tasks.ts"
+    "insert-test-tasks": "ts-node scripts/insert-test-tasks.ts",
+    "import-tasks": "ts-node scripts/import-tasks-from-html.ts"
   },
   "keywords": [],
   "author": "",
