@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { TaskCard } from './TaskCard';
 import { CreateTaskModal } from './CreateTaskModal';
 import { EditTaskModal } from './EditTaskModal';
-import type { Task } from '../types/task';
+import type { Task, Tag } from '../types/task';
 import { api } from '../utils/api';
 
 export default function TaskListPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,6 +16,12 @@ export default function TaskListPage() {
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [createTaskParentId, setCreateTaskParentId] = useState<string | undefined>(undefined);
+
+  // Filtres
+  const [importanceFilter, setImportanceFilter] = useState<number | ''>('');
+  const [urgencyFilter, setUrgencyFilter] = useState<number | ''>('');
+  const [tagFilter, setTagFilter] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('');
 
   const loadTasks = async () => {
     try {
@@ -26,6 +33,15 @@ export default function TaskListPage() {
     }
   };
 
+  const loadTags = async () => {
+    try {
+      const tagsData = await api.getTags();
+      setTags(tagsData);
+    } catch (err: any) {
+      console.error('Erreur lors du chargement des tags:', err);
+    }
+  };
+
   // Gérer le changement de recherche
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -34,7 +50,7 @@ export default function TaskListPage() {
 
   useEffect(() => {
     setLoading(true);
-    loadTasks().finally(() => setLoading(false));
+    Promise.all([loadTasks(), loadTags()]).finally(() => setLoading(false));
   }, []);
 
   const handleTaskCreated = async () => {
@@ -46,17 +62,76 @@ export default function TaskListPage() {
     loadTasks();
   };
 
-  // Mettre à jour les tâches filtrées quand les tâches changent
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredTasks(tasks);
-    } else {
-      const filtered = tasks.filter(task => 
+  // Fonction de filtrage
+  const applyFilters = (tasksToFilter: Task[]) => {
+    let filtered = tasksToFilter;
+
+    // Filtre par recherche textuelle
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(task => 
         task.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredTasks(filtered);
     }
-  }, [tasks, searchTerm]);
+
+    // Filtre par importance
+    if (importanceFilter !== '') {
+      filtered = filtered.filter(task => task.importance === importanceFilter);
+    }
+
+    // Filtre par urgence
+    if (urgencyFilter !== '') {
+      filtered = filtered.filter(task => task.urgency === urgencyFilter);
+    }
+
+    // Filtre par tag
+    if (tagFilter) {
+      filtered = filtered.filter(task => 
+        task.tags.some(tag => tag.id === tagFilter)
+      );
+    }
+
+    // Filtre par date
+    if (dateFilter) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      filtered = filtered.filter(task => {
+        if (!task.dueDate) {
+          return dateFilter === 'no-date';
+        }
+
+        const taskDate = new Date(task.dueDate);
+        taskDate.setHours(0, 0, 0, 0);
+
+        switch (dateFilter) {
+          case 'overdue':
+            return taskDate < today;
+          case 'today':
+            return taskDate.getTime() === today.getTime();
+          case 'tomorrow':
+            return taskDate.getTime() === tomorrow.getTime();
+          case 'this-week':
+            const endOfWeek = new Date(today);
+            endOfWeek.setDate(today.getDate() + 7);
+            return taskDate >= today && taskDate <= endOfWeek;
+          case 'future':
+            return taskDate > tomorrow;
+          default:
+            return true;
+        }
+      });
+    }
+
+    return filtered;
+  };
+
+  // Mettre à jour les tâches filtrées quand les filtres changent
+  useEffect(() => {
+    const filtered = applyFilters(tasks);
+    setFilteredTasks(filtered);
+  }, [tasks, searchTerm, importanceFilter, urgencyFilter, tagFilter, dateFilter]);
 
   const handleTaskDeleted = async (taskId: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
@@ -95,6 +170,16 @@ export default function TaskListPage() {
     setCreateTaskParentId(undefined);
   };
 
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setImportanceFilter('');
+    setUrgencyFilter('');
+    setTagFilter('');
+    setDateFilter('');
+  };
+
+  const hasActiveFilters = searchTerm || importanceFilter !== '' || urgencyFilter !== '' || tagFilter || dateFilter;
+
   if (loading) return <div className="p-8 text-center">Chargement…</div>;
   if (error) return <div className="p-8 text-red-500">{error}</div>;
 
@@ -126,8 +211,104 @@ export default function TaskListPage() {
             </svg>
           </div>
         </div>
-        {searchTerm && (
-          <div className="mt-2 text-sm text-gray-600">
+      </div>
+
+      {/* Filtres */}
+      <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-gray-700">Filtres</h3>
+          {hasActiveFilters && (
+            <button
+              onClick={clearAllFilters}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Effacer tous les filtres
+            </button>
+          )}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Filtre par importance */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Importance
+            </label>
+            <select
+              value={importanceFilter}
+              onChange={(e) => setImportanceFilter(e.target.value === '' ? '' : Number(e.target.value))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="">Toutes</option>
+              <option value="1">Critique (1)</option>
+              <option value="2">Très élevée (2)</option>
+              <option value="3">Élevée (3)</option>
+              <option value="4">Moyenne (4)</option>
+              <option value="5">Faible (5)</option>
+            </select>
+          </div>
+
+          {/* Filtre par urgence */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Urgence
+            </label>
+            <select
+              value={urgencyFilter}
+              onChange={(e) => setUrgencyFilter(e.target.value === '' ? '' : Number(e.target.value))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="">Toutes</option>
+              <option value="1">Très urgente (1)</option>
+              <option value="2">Urgente (2)</option>
+              <option value="3">Normale (3)</option>
+              <option value="4">Peu urgente (4)</option>
+              <option value="5">Non urgente (5)</option>
+            </select>
+          </div>
+
+          {/* Filtre par tag */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tag
+            </label>
+            <select
+              value={tagFilter}
+              onChange={(e) => setTagFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="">Tous les tags</option>
+              {tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtre par date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date limite
+            </label>
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="">Toutes les dates</option>
+              <option value="overdue">En retard</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="tomorrow">Demain</option>
+              <option value="this-week">Cette semaine</option>
+              <option value="future">Plus tard</option>
+              <option value="no-date">Sans date</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Compteur de résultats */}
+        {(hasActiveFilters || filteredTasks.length !== tasks.length) && (
+          <div className="mt-4 text-sm text-gray-600">
             {filteredTasks.length} tâche{filteredTasks.length !== 1 ? 's' : ''} trouvée{filteredTasks.length !== 1 ? 's' : ''}
             {filteredTasks.length !== tasks.length && ` sur ${tasks.length}`}
           </div>
@@ -145,15 +326,15 @@ export default function TaskListPage() {
             Créer votre première tâche
           </button>
         </div>
-      ) : filteredTasks.length === 0 && searchTerm ? (
+      ) : filteredTasks.length === 0 && hasActiveFilters ? (
         <div className="text-gray-500 text-center py-8">
-          Aucune tâche ne correspond à votre recherche "{searchTerm}".
+          Aucune tâche ne correspond aux filtres sélectionnés.
           <br />
           <button
-            onClick={() => setSearchTerm('')}
+            onClick={clearAllFilters}
             className="text-blue-600 hover:text-blue-800 underline mt-2"
           >
-            Effacer la recherche
+            Effacer les filtres
           </button>
         </div>
       ) : (
