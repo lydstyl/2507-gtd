@@ -254,7 +254,18 @@ export class PrismaTaskRepository implements TaskRepository {
       if (!aIsQuickNoDate && bIsQuickNoDate) return 1
       if (aIsQuickNoDate && bIsQuickNoDate) return 0
 
-      // 2. Tâches d'aujourd'hui
+      // 2. Tâches en retard (dates passées)
+      const aIsOverdue = a.dueDate && new Date(a.dueDate) < today
+      const bIsOverdue = b.dueDate && new Date(b.dueDate) < today
+      
+      if (aIsOverdue && !bIsOverdue) return -1
+      if (!aIsOverdue && bIsOverdue) return 1
+      if (aIsOverdue && bIsOverdue) {
+        // Tri des tâches en retard par importance, urgence, priorité
+        return this.compareByPriority(a, b)
+      }
+
+      // 3. Tâches d'aujourd'hui
       const aIsToday = a.dueDate && new Date(a.dueDate).toDateString() === today.toDateString()
       const bIsToday = b.dueDate && new Date(b.dueDate).toDateString() === today.toDateString()
       
@@ -265,7 +276,7 @@ export class PrismaTaskRepository implements TaskRepository {
         return this.compareByPriority(a, b)
       }
 
-      // 3. Tâches de demain
+      // 4. Tâches de demain
       const aIsTomorrow = a.dueDate && new Date(a.dueDate).toDateString() === tomorrow.toDateString()
       const bIsTomorrow = b.dueDate && new Date(b.dueDate).toDateString() === tomorrow.toDateString()
       
@@ -276,7 +287,7 @@ export class PrismaTaskRepository implements TaskRepository {
         return this.compareByPriority(a, b)
       }
 
-      // 4. Tâches avec priorités définies (importance, urgence, priorité modifiées)
+      // 5. Tâches avec priorités définies (importance, urgence, priorité modifiées)
       const aHasPriority = a.importance !== 5 || a.urgency !== 5 || a.priority !== 5
       const bHasPriority = b.importance !== 5 || b.urgency !== 5 || b.priority !== 5
       
@@ -287,7 +298,7 @@ export class PrismaTaskRepository implements TaskRepository {
         return this.compareByPriority(a, b)
       }
 
-      // 5. Tâches rapides AVEC dates (en dernier, triées par date croissante)
+      // 6. Tâches rapides AVEC dates (en dernier, triées par date croissante)
       const aIsQuickWithDate = a.importance === 5 && a.urgency === 5 && a.priority === 5 && a.dueDate
       const bIsQuickWithDate = b.importance === 5 && b.urgency === 5 && b.priority === 5 && b.dueDate
       
@@ -298,7 +309,7 @@ export class PrismaTaskRepository implements TaskRepository {
         return new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
       }
 
-      // 6. Si aucune catégorie, trier par date de création
+      // 7. Si aucune catégorie, trier par date de création
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }).map(task => ({
       ...task,

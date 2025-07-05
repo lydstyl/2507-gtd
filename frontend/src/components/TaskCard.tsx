@@ -55,6 +55,17 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }:
     }
   }
 
+  const isOverdue = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      return date < today
+    } catch (error) {
+      return false
+    }
+  }
+
   const indentStyle = level > 0 ? { marginLeft: `${level * 24}px` } : {}
 
   return (
@@ -111,11 +122,11 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }:
             {/* Date */}
             {task.dueDate && (
               <div className='flex flex-col items-end space-y-1'>
-                <span className='text-sm font-medium text-gray-900'>
+                <span className={`text-sm font-medium ${isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-900'}`}>
                   {formatDate(task.dueDate)}
                 </span>
-                <span className='text-xs text-gray-500'>
-                  Date limite
+                <span className={`text-xs ${isOverdue(task.dueDate) ? 'text-red-500' : 'text-gray-500'}`}>
+                  {isOverdue(task.dueDate) ? 'En retard' : 'Date limite'}
                 </span>
               </div>
             )}
