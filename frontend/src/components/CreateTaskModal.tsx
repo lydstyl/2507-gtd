@@ -6,12 +6,14 @@ interface CreateTaskModalProps {
   isOpen: boolean
   onClose: () => void
   onTaskCreated: () => void
+  parentId?: string // ID de la tâche parente pour créer une sous-tâche
 }
 
 export function CreateTaskModal({
   isOpen,
   onClose,
-  onTaskCreated
+  onTaskCreated,
+  parentId
 }: CreateTaskModalProps) {
   const [formData, setFormData] = useState<CreateTaskData>({
     name: '',
@@ -20,7 +22,8 @@ export function CreateTaskModal({
     urgency: 1,
     priority: 1,
     dueDate: '',
-    tagIds: []
+    tagIds: [],
+    parentId: parentId // Initialiser avec le parentId si fourni
   })
   const [tags, setTags] = useState<Tag[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -66,7 +69,8 @@ export function CreateTaskModal({
         urgency: 1,
         priority: 1,
         dueDate: '',
-        tagIds: []
+        tagIds: [],
+        parentId: parentId // Reset parentId
       })
     } catch (err) {
       if (err instanceof ApiError) {
@@ -109,7 +113,7 @@ export function CreateTaskModal({
         <div className='px-6 py-4 border-b border-gray-200'>
           <div className='flex items-center justify-between'>
             <h3 className='text-lg font-semibold text-gray-900'>
-              Nouvelle tâche
+              {parentId ? 'Nouvelle sous-tâche' : 'Nouvelle tâche'}
             </h3>
             <button
               onClick={onClose}

@@ -24,6 +24,7 @@ function App() {
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isTagManagerModalOpen, setIsTagManagerModalOpen] = useState(false)
+  const [createTaskParentId, setCreateTaskParentId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     // Vérifier si l'utilisateur est déjà connecté
@@ -86,6 +87,12 @@ function App() {
   }
 
   const handleCreateTask = () => {
+    setCreateTaskParentId(undefined)
+    setIsCreateTaskModalOpen(true)
+  }
+
+  const handleCreateSubtask = (parentId: string) => {
+    setCreateTaskParentId(parentId)
     setIsCreateTaskModalOpen(true)
   }
 
@@ -101,6 +108,11 @@ function App() {
   const handleCloseEditModal = () => {
     setIsEditTaskModalOpen(false)
     setEditingTask(null)
+  }
+
+  const handleCloseCreateTaskModal = () => {
+    setIsCreateTaskModalOpen(false)
+    setCreateTaskParentId(undefined)
   }
 
   if (isLoading) {
@@ -144,15 +156,17 @@ function App() {
         onManageTags={() => setIsTagManagerModalOpen(true)}
         onEditTask={handleEditTask}
         onDeleteTask={handleTaskDeleted}
+        onCreateSubtask={handleCreateSubtask}
       />
 
       <Footer />
 
-      <CreateTaskModal
-        isOpen={isCreateTaskModalOpen}
-        onClose={() => setIsCreateTaskModalOpen(false)}
-        onTaskCreated={handleTaskCreated}
-      />
+              <CreateTaskModal
+          isOpen={isCreateTaskModalOpen}
+          onClose={handleCloseCreateTaskModal}
+          onTaskCreated={handleTaskCreated}
+          parentId={createTaskParentId}
+        />
 
       <CreateTagModal
         isOpen={isCreateTagModalOpen}

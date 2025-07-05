@@ -17,15 +17,22 @@ export class TaskController {
 
   async createTask(req: Request, res: Response): Promise<void> {
     try {
+      console.log('🔍 createTask appelé')
+      console.log('Body:', req.body)
+      
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })
         return
       }
       const taskData = { ...req.body, userId }
+      console.log('TaskData avec userId:', taskData)
+      
       const task = await this.createTaskUseCase.execute(taskData)
+      console.log('✅ Tâche créée:', task.id, 'ParentId:', task.parentId)
       res.status(201).json(task)
     } catch (error) {
+      console.error('❌ Erreur dans createTask:', error)
       if (error instanceof Error) {
         res.status(400).json({ error: error.message })
       } else {
@@ -55,6 +62,9 @@ export class TaskController {
 
   async getAllTasks(req: Request, res: Response): Promise<void> {
     try {
+      console.log('🔍 getAllTasks appelé')
+      console.log('User:', (req as any).user)
+      
       const filters: TaskFilters = {}
 
       // Parse query parameters
@@ -80,9 +90,20 @@ export class TaskController {
       }
 
       const userId = (req as any).user?.userId
+      console.log('UserId:', userId)
+      console.log('Filters:', filters)
+      
+      if (!userId) {
+        console.log('❌ UserId manquant')
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+      
       const tasks = await this.getAllTasksUseCase.execute(userId, filters)
+      console.log('✅ Tâches récupérées:', tasks.length)
       res.json(tasks)
     } catch (error) {
+      console.error('❌ Erreur dans getAllTasks:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

@@ -21,6 +21,7 @@ export class PrismaTaskRepository implements TaskRepository {
         priority: taskData.priority || 5,
         dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
         userId: taskData.userId,
+        parentId: taskData.parentId, // S'assurer que parentId est inclus
         tags: tagIds
           ? {
               create: tagIds.map((tagId) => ({
@@ -63,9 +64,11 @@ export class PrismaTaskRepository implements TaskRepository {
         },
         subtasks: {
           include: {
-            tags: {
+            tags: { include: { tag: true } },
+            subtasks: {
               include: {
-                tag: true
+                tags: { include: { tag: true } },
+                subtasks: true // profondeur 2 (suffisant pour la plupart des cas)
               }
             }
           }
@@ -79,9 +82,11 @@ export class PrismaTaskRepository implements TaskRepository {
   async findAll(filters?: TaskFilters): Promise<TaskWithSubtasks[]> {
     const where: any = {}
 
-    if (filters?.parentId) {
+    if (filters?.parentId !== undefined) {
+      // Si parentId est explicitement spécifié (même null), on l'utilise
       where.parentId = filters.parentId
-    } else if (filters?.parentId === null) {
+    } else {
+      // Par défaut, on ne récupère que les tâches principales (sans parent)
       where.parentId = null
     }
 
@@ -244,10 +249,10 @@ export class PrismaTaskRepository implements TaskRepository {
       updatedAt: task.updatedAt,
       parentId: task.parentId,
       userId: task.userId,
-      subtasks: task.subtasks.map((subtask: any) =>
+      subtasks: (task.subtasks || []).map((subtask: any) =>
         this.formatTaskWithSubtasks(subtask)
       ),
-      tags: task.tags.map((taskTag: any) => taskTag.tag)
+      tags: (task.tags || []).map((taskTag: any) => taskTag.tag)
     }
   }
 }
