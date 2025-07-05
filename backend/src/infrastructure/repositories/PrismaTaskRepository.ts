@@ -19,7 +19,7 @@ export class PrismaTaskRepository implements TaskRepository {
         importance: taskData.importance || 5,
         urgency: taskData.urgency || 5,
         priority: taskData.priority || 5,
-        dueDate: taskData.dueDate ?? undefined,
+        dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
         userId: taskData.userId,
         tags: tagIds
           ? {
@@ -155,7 +155,7 @@ export class PrismaTaskRepository implements TaskRepository {
         where: { id },
         data: {
           ...taskData,
-          dueDate: taskData.dueDate ?? undefined,
+          dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
           userId: taskData.userId
         },
         include: {
@@ -239,6 +239,7 @@ export class PrismaTaskRepository implements TaskRepository {
       importance: task.importance,
       urgency: task.urgency,
       priority: task.priority,
+      dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       parentId: task.parentId,

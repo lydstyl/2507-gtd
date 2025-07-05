@@ -66,6 +66,18 @@ function App() {
     loadTasks()
   }
 
+  const handleTaskDeleted = async (taskId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+      try {
+        await api.deleteTask(taskId)
+        loadTasks()
+      } catch (err) {
+        console.error('Erreur lors de la suppression de la tâche:', err)
+        alert('Erreur lors de la suppression de la tâche')
+      }
+    }
+  }
+
   const handleTagCreated = () => {
     // Optionnel : recharger les tags si nécessaire
     console.log('Tag créé avec succès')
@@ -128,6 +140,7 @@ function App() {
         onCreateTask={handleCreateTask}
         onCreateTag={handleCreateTag}
         onEditTask={handleEditTask}
+        onDeleteTask={handleTaskDeleted}
       />
 
       <Footer />

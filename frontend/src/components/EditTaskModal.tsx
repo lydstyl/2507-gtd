@@ -32,13 +32,25 @@ export function EditTaskModal({
     if (isOpen) {
       loadTags()
       if (task) {
+        // Formater la date pour l'input date (YYYY-MM-DD)
+        const formatDateForInput = (dateString: string) => {
+          try {
+            const date = new Date(dateString)
+            if (isNaN(date.getTime())) return ''
+            return date.toISOString().split('T')[0]
+          } catch (error) {
+            console.error('Erreur de formatage de date:', error)
+            return ''
+          }
+        }
+
         setFormData({
           name: task.name,
           link: task.link || '',
           importance: task.importance,
           urgency: task.urgency,
           priority: task.priority,
-          dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
+          dueDate: task.dueDate ? formatDateForInput(task.dueDate) : '',
           tagIds: task.tags?.map(tag => tag.id) || []
         })
       }
@@ -65,7 +77,7 @@ export function EditTaskModal({
       const formattedData = {
         ...formData,
         dueDate: formData.dueDate
-          ? new Date(formData.dueDate).toISOString()
+          ? new Date(formData.dueDate + 'T00:00:00').toISOString()
           : undefined
       }
 

@@ -114,11 +114,16 @@ export class TaskController {
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params
-      await this.deleteTaskUseCase.execute(id)
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+      await this.deleteTaskUseCase.execute(id, userId)
       res.status(204).send()
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message.includes('not found')) {
+        if (error.message.includes('not found') || error.message.includes('access denied')) {
           res.status(404).json({ error: error.message })
         } else {
           res.status(400).json({ error: error.message })

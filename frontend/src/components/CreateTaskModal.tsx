@@ -47,11 +47,11 @@ export function CreateTaskModal({
     setError('')
 
     try {
-      // Formater la date au format ISO-8601 complet si elle existe
+      // Formater la date correctement pour le backend
       const formattedData = {
         ...formData,
         dueDate: formData.dueDate
-          ? new Date(formData.dueDate).toISOString()
+          ? new Date(formData.dueDate + 'T00:00:00').toISOString()
           : undefined
       }
 
@@ -249,10 +249,10 @@ export function CreateTaskModal({
               htmlFor='dueDate'
               className='block text-sm font-medium text-gray-700 mb-1'
             >
-              Date d'échéance (optionnel)
+              Date limite (optionnel)
             </label>
             <input
-              type='datetime-local'
+              type='date'
               id='dueDate'
               name='dueDate'
               value={formData.dueDate}

@@ -4,9 +4,10 @@ import { TaskCard } from './TaskCard'
 interface RecentTasksProps {
   tasks: Task[]
   onEditTask?: (task: Task) => void
+  onDeleteTask?: (taskId: string) => void
 }
 
-export function RecentTasks({ tasks, onEditTask }: RecentTasksProps) {
+export function RecentTasks({ tasks, onEditTask, onDeleteTask }: RecentTasksProps) {
   if (tasks.length === 0) return null
 
   return (
@@ -16,7 +17,7 @@ export function RecentTasks({ tasks, onEditTask }: RecentTasksProps) {
       </h3>
       <div className='space-y-3'>
         {tasks.slice(0, 5).map((task) => (
-          <TaskCard key={task.id} task={task} onEdit={onEditTask} />
+          <TaskCard key={task.id} task={task} onEdit={onEditTask} onDelete={onDeleteTask} />
         ))}
       </div>
     </div>

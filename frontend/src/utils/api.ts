@@ -41,6 +41,11 @@ async function apiCall<T>(
     throw new ApiError(response.status, errorData.error || 'Request failed')
   }
 
+  // Pour les réponses vides (comme DELETE 204), ne pas essayer de parser du JSON
+  if (response.status === 204) {
+    return undefined as T
+  }
+
   return response.json()
 }
 
