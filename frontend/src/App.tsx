@@ -41,7 +41,10 @@ function App() {
 
   const loadTasks = async () => {
     try {
+      console.log('🔄 Chargement des tâches...')
       const tasksData = await api.getTasks()
+      console.log('📋 Tâches reçues:', tasksData.length)
+      console.log('📋 Détail des tâches:', tasksData.map(t => ({ name: t.name, parentId: t.parentId, subtasks: t.subtasks.length })))
       setTasks(tasksData)
     } catch (err) {
       console.error('Erreur lors du chargement des tâches:', err)
@@ -61,7 +64,10 @@ function App() {
     setTasks([])
   }
 
-  const handleTaskCreated = () => {
+  const handleTaskCreated = async () => {
+    console.log('✅ Tâche créée, rechargement...')
+    // Petit délai pour s'assurer que le backend a traité la création
+    await new Promise(resolve => setTimeout(resolve, 500))
     loadTasks()
   }
 

@@ -35,6 +35,15 @@ export function CreateTaskModal({
     }
   }, [isOpen])
 
+  // Mettre à jour le parentId quand la prop change
+  useEffect(() => {
+    console.log('🔄 parentId changé:', parentId)
+    setFormData(prev => ({
+      ...prev,
+      parentId: parentId
+    }))
+  }, [parentId])
+
   const loadTags = async () => {
     try {
       const tagsData = await api.getTags()
@@ -50,6 +59,8 @@ export function CreateTaskModal({
     setError('')
 
     try {
+      console.log('📤 Envoi des données:', formData)
+      
       // Formater la date correctement pour le backend
       const formattedData = {
         ...formData,
