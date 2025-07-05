@@ -34,11 +34,22 @@ function App() {
     // Vérifier si l'utilisateur est déjà connecté
     const token = localStorage.getItem('token')
     if (token) {
-      // TODO: Vérifier la validité du token avec l'API
-      // Pour l'instant, on suppose qu'il est valide
-      setUser({ id: 'user-id', email: 'user@example.com' })
-      setAuthView('dashboard')
-      loadTasks()
+      try {
+        // Décoder le token JWT pour récupérer les informations de l'utilisateur
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        const userData = {
+          id: payload.userId,
+          email: payload.email
+        }
+        setUser(userData)
+        setAuthView('dashboard')
+        loadTasks()
+      } catch (error) {
+        console.error('Erreur lors du décodage du token:', error)
+        // Si le token est invalide, on le supprime et on redirige vers la connexion
+        localStorage.removeItem('token')
+        setAuthView('login')
+      }
     }
     setIsLoading(false)
   }, [])
