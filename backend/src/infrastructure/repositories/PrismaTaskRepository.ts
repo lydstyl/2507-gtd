@@ -133,9 +133,11 @@ export class PrismaTaskRepository implements TaskRepository {
         },
         subtasks: {
           include: {
-            tags: {
+            tags: { include: { tag: true } },
+            subtasks: {
               include: {
-                tag: true
+                tags: { include: { tag: true } },
+                subtasks: true // profondeur 2 (suffisant pour la plupart des cas)
               }
             }
           }
