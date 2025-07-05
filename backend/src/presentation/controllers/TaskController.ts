@@ -16,6 +16,10 @@ export class TaskController {
   ) {}
 
   async createTask(req: Request, res: Response): Promise<void> {
+
+
+    console.log('createTask', req.body) 
+
     try {
       const userId = (req as any).user?.userId
       if (!userId) {
@@ -24,6 +28,10 @@ export class TaskController {
       }
       const taskData = { ...req.body, userId }
       const task = await this.createTaskUseCase.execute(taskData)
+      
+      // Debug: log the task returned by the use case
+      console.log('Task created by use case:', JSON.stringify(task, null, 2))
+      
       res.status(201).json(task)
     } catch (error) {
       if (error instanceof Error) {
