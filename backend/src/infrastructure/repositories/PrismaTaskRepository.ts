@@ -243,6 +243,9 @@ export class PrismaTaskRepository implements TaskRepository {
     
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    const dayAfterTomorrow = new Date(today)
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
 
     return tasks.sort((a, b) => {
       // 1. Tâches rapides SANS date en premier (importance=5, urgence=5, priorité=5, pas de date)
@@ -286,29 +289,48 @@ export class PrismaTaskRepository implements TaskRepository {
         return this.compareByPriority(a, b)
       }
 
-      // 5. Tâches avec priorités définies (importance, urgence, priorité modifiées)
-      const aHasPriority = a.importance !== 5 || a.urgency !== 5 || a.priority !== 5
-      const bHasPriority = b.importance !== 5 || b.urgency !== 5 || b.priority !== 5
+      // 5. Tâches avec priorités définies (importance, urgence, priorité modifiées) - SANS date
+      const aHasPriorityNoDate = (a.importance !== 5 || a.urgency !== 5 || a.priority !== 5) && !a.dueDate
+      const bHasPriorityNoDate = (b.importance !== 5 || b.urgency !== 5 || b.priority !== 5) && !b.dueDate
       
-      if (aHasPriority && !bHasPriority) return -1
-      if (!aHasPriority && bHasPriority) return 1
-      if (aHasPriority && bHasPriority) {
+      if (aHasPriorityNoDate && !bHasPriorityNoDate) return -1
+      if (!aHasPriorityNoDate && bHasPriorityNoDate) return 1
+      if (aHasPriorityNoDate && bHasPriorityNoDate) {
         // Tri des tâches avec priorités par importance, urgence, priorité
         return this.compareByPriority(a, b)
       }
 
-      // 6. Tâches rapides AVEC dates (en dernier, triées par date croissante)
-      const aIsQuickWithDate = a.importance === 5 && a.urgency === 5 && a.priority === 5 && a.dueDate
-      const bIsQuickWithDate = b.importance === 5 && b.urgency === 5 && b.priority === 5 && b.dueDate
+      // 6. Tâches rapides AVEC dates éloignées (après demain) - en dernier, triées par date puis importance, urgence, priorité
+      const aIsQuickWithDistantDate = a.importance === 5 && a.urgency === 5 && a.priority === 5 && a.dueDate && new Date(a.dueDate) >= dayAfterTomorrow
+      const bIsQuickWithDistantDate = b.importance === 5 && b.urgency === 5 && b.priority === 5 && b.dueDate && new Date(b.dueDate) >= dayAfterTomorrow
       
-      if (aIsQuickWithDate && !bIsQuickWithDate) return -1
-      if (!aIsQuickWithDate && bIsQuickWithDate) return 1
-      if (aIsQuickWithDate && bIsQuickWithDate) {
-        // Trier par date (croissant - dates proches en premier)
-        return new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
+      if (aIsQuickWithDistantDate && !bIsQuickWithDistantDate) return -1
+      if (!aIsQuickWithDistantDate && bIsQuickWithDistantDate) return 1
+      if (aIsQuickWithDistantDate && bIsQuickWithDistantDate) {
+        // D'abord trier par date (croissant)
+        const dateComparison = new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
+        if (dateComparison !== 0) return dateComparison
+        
+        // Si même date, trier par importance, urgence, priorité
+        return this.compareByPriority(a, b)
       }
 
-      // 7. Si aucune catégorie, trier par date de création
+      // 7. Tâches avec priorités définies ET dates éloignées (après demain)
+      const aHasPriorityWithDistantDate = (a.importance !== 5 || a.urgency !== 5 || a.priority !== 5) && a.dueDate && new Date(a.dueDate) >= dayAfterTomorrow
+      const bHasPriorityWithDistantDate = (b.importance !== 5 || b.urgency !== 5 || b.priority !== 5) && b.dueDate && new Date(b.dueDate) >= dayAfterTomorrow
+      
+      if (aHasPriorityWithDistantDate && !bHasPriorityWithDistantDate) return -1
+      if (!aHasPriorityWithDistantDate && bHasPriorityWithDistantDate) return 1
+      if (aHasPriorityWithDistantDate && bHasPriorityWithDistantDate) {
+        // D'abord trier par date (croissant)
+        const dateComparison = new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
+        if (dateComparison !== 0) return dateComparison
+        
+        // Si même date, trier par importance, urgence, priorité
+        return this.compareByPriority(a, b)
+      }
+
+      // 8. Si aucune catégorie, trier par date de création
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     }).map(task => ({
       ...task,
