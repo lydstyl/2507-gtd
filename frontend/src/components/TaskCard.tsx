@@ -68,6 +68,35 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0, i
     }
   }
 
+  const getDayOfWeek = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      return date.getDay() // 0 = dimanche, 1 = lundi, ..., 6 = samedi
+    } catch (error) {
+      return -1
+    }
+  }
+
+  const getDateIndicator = (dateString: string) => {
+    const dayOfWeek = getDayOfWeek(dateString)
+    
+    if (dayOfWeek === 3) { // Mercredi
+      return {
+        icon: '🌿',
+        tooltip: 'Mercredi',
+        className: 'text-green-600'
+      }
+    } else if (dayOfWeek === 0 || dayOfWeek === 6) { // Dimanche ou Samedi
+      return {
+        icon: '🏖️',
+        tooltip: 'Week-end',
+        className: 'text-orange-600'
+      }
+    }
+    
+    return null
+  }
+
   const indentStyle = level > 0 ? { marginLeft: `${level * 24}px` } : {}
 
   return (
@@ -114,9 +143,19 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0, i
             {/* Date */}
             {task.dueDate && (
               <div className='flex flex-col items-end space-y-1'>
-                <span className={`text-sm font-medium ${isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-900'}`}>
-                  {formatDate(task.dueDate)}
-                </span>
+                <div className='flex items-center space-x-1'>
+                  {getDateIndicator(task.dueDate) && (
+                    <span 
+                      className={`text-sm ${getDateIndicator(task.dueDate)?.className}`}
+                      title={getDateIndicator(task.dueDate)?.tooltip}
+                    >
+                      {getDateIndicator(task.dueDate)?.icon}
+                    </span>
+                  )}
+                  <span className={`text-sm font-medium ${isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-900'}`}>
+                    {formatDate(task.dueDate)}
+                  </span>
+                </div>
                 <span className={`text-xs ${isOverdue(task.dueDate) ? 'text-red-500' : 'text-gray-500'}`}>
                   {isOverdue(task.dueDate) ? 'En retard' : 'Date limite'}
                 </span>
