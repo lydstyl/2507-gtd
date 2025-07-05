@@ -7,9 +7,10 @@ interface TaskCardProps {
   onDelete?: (taskId: string) => void
   onCreateSubtask?: (parentId: string) => void
   level?: number
+  isEven?: boolean
 }
 
-export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }: TaskCardProps) {
+export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0, isEven = false }: TaskCardProps) {
   const getPriorityColor = (importance: number) => {
     switch (importance) {
       case 1: return 'bg-black'      // Critique - noir
@@ -71,7 +72,7 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }:
 
   return (
     <div style={indentStyle}>
-      <div className='border border-gray-200 rounded-lg hover:bg-gray-50 mb-2'>
+      <div className={`border border-gray-200 rounded-lg hover:bg-gray-50 mb-2 ${isEven ? 'bg-gray-50' : 'bg-white'}`}>
         <div className='flex items-center justify-between p-4'>
           <div className='flex items-center space-x-3 flex-1'>
             <div className={`w-3 h-3 rounded-full ${getPriorityColor(task.importance)}`}></div>
@@ -175,6 +176,7 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }:
               onDelete={onDelete}
               onCreateSubtask={onCreateSubtask}
               level={level + 1}
+              isEven={isEven}
             />
           ))}
         </div>

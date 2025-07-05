@@ -31,7 +31,7 @@ export interface UpdateTaskData {
   importance?: number
   urgency?: number
   priority?: number
-  dueDate?: string
+  dueDate?: string | null
   parentId?: string
   tagIds?: string[]
 }

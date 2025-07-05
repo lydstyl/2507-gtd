@@ -339,7 +339,7 @@ export default function TaskListPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredTasks.map((task) => (
+          {filteredTasks.map((task, index) => (
             <TaskCard 
               key={task.id} 
               task={task} 
@@ -347,6 +347,7 @@ export default function TaskListPage() {
               onEdit={handleEditTask}
               onDelete={handleTaskDeleted}
               onCreateSubtask={handleCreateSubtask}
+              isEven={index % 2 === 1}
             />
           ))}
         </div>

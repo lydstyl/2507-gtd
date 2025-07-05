@@ -161,7 +161,7 @@ export class PrismaTaskRepository implements TaskRepository {
         where: { id },
         data: {
           ...taskData,
-          dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
+          dueDate: taskData.dueDate !== undefined ? (taskData.dueDate ? new Date(taskData.dueDate) : null) : undefined,
           userId: taskData.userId
         },
         include: {

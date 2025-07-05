@@ -42,7 +42,7 @@ export interface UpdateTaskData {
   parentId?: string
   tagIds?: string[]
   userId?: string
-  dueDate?: Date
+  dueDate?: Date | null
 }
 
 export interface TaskFilters {

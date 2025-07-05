@@ -78,7 +78,7 @@ export function EditTaskModal({
         ...formData,
         dueDate: formData.dueDate
           ? new Date(formData.dueDate + 'T00:00:00').toISOString()
-          : undefined
+          : null
       }
 
       await api.updateTask(task.id, formattedData)
@@ -266,14 +266,26 @@ export function EditTaskModal({
             >
               Date limite (optionnel)
             </label>
-            <input
-              type='date'
-              id='dueDate'
-              name='dueDate'
-              value={formData.dueDate}
-              onChange={handleChange}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-            />
+            <div className='flex space-x-2'>
+              <input
+                type='date'
+                id='dueDate'
+                name='dueDate'
+                value={formData.dueDate}
+                onChange={handleChange}
+                className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+              />
+              {formData.dueDate && (
+                <button
+                  type='button'
+                  onClick={() => setFormData(prev => ({ ...prev, dueDate: '' }))}
+                  className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors'
+                  title='Effacer la date'
+                >
+                  Effacer
+                </button>
+              )}
+            </div>
           </div>
 
           <div>
