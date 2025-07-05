@@ -1,4 +1,5 @@
 import type { Task } from '../types/task'
+import { Tag } from './Tag'
 
 interface TaskCardProps {
   task: Task
@@ -101,17 +102,7 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }:
               {task.tags && task.tags.length > 0 && (
                 <div className='flex flex-wrap gap-1 mt-2'>
                   {task.tags.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium'
-                      style={{
-                        backgroundColor: tag.color ? `${tag.color}20` : '#e5e7eb',
-                        color: tag.color || '#374151',
-                        border: `1px solid ${tag.color || '#d1d5db'}`
-                      }}
-                    >
-                      {tag.name}
-                    </span>
+                    <Tag key={tag.id} tag={tag} />
                   ))}
                 </div>
               )}
