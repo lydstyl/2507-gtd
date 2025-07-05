@@ -79,8 +79,11 @@ export class PrismaTaskRepository implements TaskRepository {
     return task ? this.formatTaskWithSubtasks(task) : null
   }
 
-  async findAll(filters?: TaskFilters): Promise<TaskWithSubtasks[]> {
+  async findAll(filters: TaskFilters): Promise<TaskWithSubtasks[]> {
     const where: any = {}
+
+    // userId est obligatoire pour la sécurité
+    where.userId = filters.userId
 
     if (filters?.parentId !== undefined) {
       // Si parentId est explicitement spécifié (même null), on l'utilise
@@ -117,10 +120,6 @@ export class PrismaTaskRepository implements TaskRepository {
           }
         }
       }
-    }
-
-    if (filters?.userId) {
-      where.userId = filters.userId
     }
 
     const tasks = await this.prisma.task.findMany({

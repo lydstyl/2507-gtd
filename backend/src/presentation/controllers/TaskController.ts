@@ -65,7 +65,16 @@ export class TaskController {
       console.log('🔍 getAllTasks appelé')
       console.log('User:', (req as any).user)
       
-      const filters: TaskFilters = {}
+      const userId = (req as any).user?.userId
+      console.log('UserId:', userId)
+      
+      if (!userId) {
+        console.log('❌ UserId manquant')
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+      
+      const filters: TaskFilters = { userId }
 
       // Parse query parameters
       if (req.query.parentId) {
@@ -89,15 +98,7 @@ export class TaskController {
           : [req.query.tagIds as string]
       }
 
-      const userId = (req as any).user?.userId
-      console.log('UserId:', userId)
       console.log('Filters:', filters)
-      
-      if (!userId) {
-        console.log('❌ UserId manquant')
-        res.status(401).json({ error: 'User not authenticated' })
-        return
-      }
       
       const tasks = await this.getAllTasksUseCase.execute(userId, filters)
       console.log('✅ Tâches récupérées:', tasks.length)

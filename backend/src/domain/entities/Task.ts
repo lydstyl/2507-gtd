@@ -46,6 +46,7 @@ export interface UpdateTaskData {
 }
 
 export interface TaskFilters {
+  userId: string // Obligatoire pour la sécurité
   parentId?: string
   tagIds?: string[]
   importance?: number

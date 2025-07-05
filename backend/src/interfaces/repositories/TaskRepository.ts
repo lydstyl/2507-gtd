@@ -7,7 +7,7 @@ import {
 } from '../../domain/entities/Task'
 
 export interface TaskFilters extends BaseTaskFilters {
-  userId?: string
+  // userId est maintenant obligatoire dans BaseTaskFilters
 }
 
 export interface TaskRepository {
@@ -16,7 +16,7 @@ export interface TaskRepository {
    */
   create(data: CreateTaskData): Promise<TaskWithSubtasks>
   findById(id: string): Promise<TaskWithSubtasks | null>
-  findAll(filters?: TaskFilters): Promise<TaskWithSubtasks[]>
+  findAll(filters: TaskFilters): Promise<TaskWithSubtasks[]>
   /**
    * Met à jour une tâche (dueDate et userId gérés)
    */
