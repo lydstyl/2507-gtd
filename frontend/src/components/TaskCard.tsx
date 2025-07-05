@@ -9,10 +9,15 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }: TaskCardProps) {
-  const getPriorityColor = (priority: number) => {
-    if (priority >= 4) return 'bg-red-500'
-    if (priority >= 3) return 'bg-yellow-500'
-    return 'bg-green-500'
+  const getPriorityColor = (importance: number) => {
+    switch (importance) {
+      case 1: return 'bg-black'      // Critique - noir
+      case 2: return 'bg-gray-800'   // Très élevée - gris très foncé
+      case 3: return 'bg-gray-600'   // Élevée - gris foncé
+      case 4: return 'bg-gray-400'   // Moyenne - gris moyen
+      case 5: return 'bg-gray-200'   // Faible - gris clair
+      default: return 'bg-gray-300'  // Valeur par défaut
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -57,7 +62,7 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, level = 0 }:
       <div className='border border-gray-200 rounded-lg hover:bg-gray-50 mb-2'>
         <div className='flex items-center justify-between p-4'>
           <div className='flex items-center space-x-3 flex-1'>
-            <div className={`w-3 h-3 rounded-full ${getPriorityColor(task.priority)}`}></div>
+            <div className={`w-3 h-3 rounded-full ${getPriorityColor(task.importance)}`}></div>
             <div className='flex-1'>
               <div className='flex items-center space-x-2'>
                 <h4 className='font-medium text-gray-900'>{task.name}</h4>
