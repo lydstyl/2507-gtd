@@ -144,14 +144,14 @@ export class PrismaTaskRepository implements TaskRepository {
         }
       },
       orderBy: [
-        { priority: 'asc' },
-        { importance: 'asc' },
-        { urgency: 'asc' },
-        { createdAt: 'desc' }
+        { createdAt: 'desc' } // Tri de base par date de création
       ]
     })
 
-    return tasks.map((task) => this.formatTaskWithSubtasks(task))
+    // Appliquer le tri personnalisé
+    const sortedTasks = this.sortTasksByPriority(tasks.map((task) => this.formatTaskWithSubtasks(task)))
+    
+    return sortedTasks
   }
 
   async update(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks> {
@@ -236,6 +236,80 @@ export class PrismaTaskRepository implements TaskRepository {
       select: { id: true }
     })
     return !!task
+  }
+
+  private sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    return tasks.sort((a, b) => {
+      // 1. Tâches rapides en premier (importance=5, urgence=5, priorité=5)
+      const aIsQuick = a.importance === 5 && a.urgency === 5 && a.priority === 5
+      const bIsQuick = b.importance === 5 && b.urgency === 5 && b.priority === 5
+      
+      if (aIsQuick && !bIsQuick) return -1
+      if (!aIsQuick && bIsQuick) return 1
+      if (aIsQuick && bIsQuick) return 0
+
+      // 2. Tâches d'aujourd'hui
+      const aIsToday = a.dueDate && new Date(a.dueDate).toDateString() === today.toDateString()
+      const bIsToday = b.dueDate && new Date(b.dueDate).toDateString() === today.toDateString()
+      
+      if (aIsToday && !bIsToday) return -1
+      if (!aIsToday && bIsToday) return 1
+      if (aIsToday && bIsToday) {
+        // Tri des tâches d'aujourd'hui par importance, urgence, priorité
+        return this.compareByPriority(a, b)
+      }
+
+      // 3. Tâches de demain
+      const aIsTomorrow = a.dueDate && new Date(a.dueDate).toDateString() === tomorrow.toDateString()
+      const bIsTomorrow = b.dueDate && new Date(b.dueDate).toDateString() === tomorrow.toDateString()
+      
+      if (aIsTomorrow && !bIsTomorrow) return -1
+      if (!aIsTomorrow && bIsTomorrow) return 1
+      if (aIsTomorrow && bIsTomorrow) {
+        // Tri des tâches de demain par importance, urgence, priorité
+        return this.compareByPriority(a, b)
+      }
+
+      // 4. Tâches normales triées par importance, urgence, priorité
+      return this.compareByPriority(a, b)
+    }).map(task => ({
+      ...task,
+      subtasks: this.sortSubtasksByPriority(task.subtasks)
+    }))
+  }
+
+  private sortSubtasksByPriority(subtasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
+    return subtasks.sort((a, b) => this.compareByPriority(a, b))
+      .map(subtask => ({
+        ...subtask,
+        subtasks: this.sortSubtasksByPriority(subtask.subtasks)
+      }))
+  }
+
+  private compareByPriority(a: TaskWithSubtasks, b: TaskWithSubtasks): number {
+    // Tri par importance (croissant)
+    if (a.importance !== b.importance) {
+      return a.importance - b.importance
+    }
+    
+    // Si importance égale, tri par urgence (croissant)
+    if (a.urgency !== b.urgency) {
+      return a.urgency - b.urgency
+    }
+    
+    // Si urgence égale, tri par priorité (croissant)
+    if (a.priority !== b.priority) {
+      return a.priority - b.priority
+    }
+    
+    // Si tout égal, tri par date de création (décroissant)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   }
 
   private formatTaskWithSubtasks(task: any): TaskWithSubtasks {

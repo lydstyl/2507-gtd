@@ -11,8 +11,9 @@ import { Footer } from './components/Footer'
 import type { User } from './types/auth'
 import type { Task } from './types/task'
 import { api } from './utils/api'
+import TaskListPage from './components/TaskListPage'
 
-type AuthView = 'login' | 'register' | 'dashboard'
+type AuthView = 'login' | 'register' | 'dashboard' | 'tasklist'
 
 function App() {
   const [authView, setAuthView] = useState<AuthView>('login')
@@ -25,6 +26,9 @@ function App() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isTagManagerModalOpen, setIsTagManagerModalOpen] = useState(false)
   const [createTaskParentId, setCreateTaskParentId] = useState<string | undefined>(undefined)
+
+  // Ajout d'un état pour afficher la page de liste complète
+  const [showTaskList, setShowTaskList] = useState(false)
 
   useEffect(() => {
     // Vérifier si l'utilisateur est déjà connecté
@@ -150,21 +154,37 @@ function App() {
     )
   }
 
+  // Affichage de la page de liste complète
+  if (authView === 'tasklist' || showTaskList) {
+    return (
+      <div className='min-h-screen bg-gray-50'>
+        <Header user={user} onLogout={handleLogout} />
+        <TaskListPage />
+        <Footer />
+        <button
+          className='fixed bottom-8 right-8 bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700'
+          onClick={() => setAuthView('dashboard')}
+        >
+          Retour au dashboard
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header user={user} onLogout={handleLogout} />
-      
       <Dashboard 
         user={user} 
         tasks={tasks} 
         onCreateTask={handleCreateTask}
         onCreateTag={handleCreateTag}
         onManageTags={() => setIsTagManagerModalOpen(true)}
+        onViewAllTasks={() => setAuthView('tasklist')}
         onEditTask={handleEditTask}
         onDeleteTask={handleTaskDeleted}
         onCreateSubtask={handleCreateSubtask}
       />
-
       <Footer />
 
               <CreateTaskModal
