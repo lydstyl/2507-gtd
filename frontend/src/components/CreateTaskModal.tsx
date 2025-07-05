@@ -18,9 +18,9 @@ export function CreateTaskModal({
   const [formData, setFormData] = useState<CreateTaskData>({
     name: '',
     link: '',
-    importance: 1,
-    urgency: 1,
-    priority: 1,
+    importance: 5, // Valeur par défaut pour tâches rapides
+    urgency: 5,    // Valeur par défaut pour tâches rapides
+    priority: 5,   // Valeur par défaut pour tâches rapides
     dueDate: '',
     tagIds: [],
     parentId: parentId // Initialiser avec le parentId si fourni
@@ -76,9 +76,9 @@ export function CreateTaskModal({
       setFormData({
         name: '',
         link: '',
-        importance: 1,
-        urgency: 1,
-        priority: 1,
+        importance: 5, // Valeur par défaut pour tâches rapides
+        urgency: 5,    // Valeur par défaut pour tâches rapides
+        priority: 5,   // Valeur par défaut pour tâches rapides
         dueDate: '',
         tagIds: [],
         parentId: parentId // Reset parentId
@@ -206,11 +206,11 @@ export function CreateTaskModal({
                 onChange={handleChange}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value={1}>1 - Faible</option>
-                <option value={2}>2 - Moyenne</option>
+                <option value={5}>5 - Faible</option>
+                <option value={4}>4 - Moyenne</option>
                 <option value={3}>3 - Élevée</option>
-                <option value={4}>4 - Très élevée</option>
-                <option value={5}>5 - Critique</option>
+                <option value={2}>2 - Très élevée</option>
+                <option value={1}>1 - Critique</option>
               </select>
             </div>
 
@@ -228,11 +228,11 @@ export function CreateTaskModal({
                 onChange={handleChange}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value={1}>1 - Faible</option>
-                <option value={2}>2 - Moyenne</option>
+                <option value={5}>5 - Faible</option>
+                <option value={4}>4 - Moyenne</option>
                 <option value={3}>3 - Élevée</option>
-                <option value={4}>4 - Très élevée</option>
-                <option value={5}>5 - Critique</option>
+                <option value={2}>2 - Très élevée</option>
+                <option value={1}>1 - Critique</option>
               </select>
             </div>
 
@@ -250,11 +250,11 @@ export function CreateTaskModal({
                 onChange={handleChange}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value={1}>1 - Faible</option>
-                <option value={2}>2 - Moyenne</option>
+                <option value={5}>5 - Faible</option>
+                <option value={4}>4 - Moyenne</option>
                 <option value={3}>3 - Élevée</option>
-                <option value={4}>4 - Très élevée</option>
-                <option value={5}>5 - Critique</option>
+                <option value={2}>2 - Très élevée</option>
+                <option value={1}>1 - Critique</option>
               </select>
             </div>
           </div>
