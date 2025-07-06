@@ -55,13 +55,43 @@ async function apiCallBlob(
 ): Promise<Blob> {
   const token = localStorage.getItem('token')
 
-  const config: RequestInit = {
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers
-    },
-    ...options
+  console.log('🔍 Debug token dans apiCallBlob:')
+  console.log('- Token présent:', !!token)
+  console.log(
+    '- Token valeur:',
+    token ? token.substring(0, 20) + '...' : 'null'
+  )
+
+  // Créer les headers manuellement pour éviter les problèmes de fusion
+  const headers: Record<string, string> = {}
+
+  console.log('🔍 Debug headers:')
+  console.log('- options.headers:', options.headers)
+
+  // Ajouter les headers des options
+  if (options.headers) {
+    Object.entries(options.headers).forEach(([key, value]) => {
+      headers[key] = value as string
+      console.log(`- Ajouté header: ${key} = ${value}`)
+    })
   }
+
+  // Ajouter le token d'authentification
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+    console.log(`- Ajouté Authorization: Bearer ${token.substring(0, 20)}...`)
+  } else {
+    console.log('- Pas de token, Authorization non ajouté')
+  }
+
+  console.log('- Headers finaux:', headers)
+
+  const config: RequestInit = {
+    ...options,
+    headers
+  }
+
+  console.log('🔑 Headers envoyés pour export:', config.headers)
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
 
