@@ -135,6 +135,12 @@ function App() {
     setIsEditTaskModalOpen(true)
   }
 
+  const handleAssignParent = (task: Task) => {
+    // Pour le dashboard, on peut rediriger vers la page de liste complète
+    // où le modal d'assignation de parent est disponible
+    setAuthView('tasklist')
+  }
+
   const handleCloseEditModal = () => {
     setIsEditTaskModalOpen(false)
     setEditingTask(null)
@@ -204,6 +210,7 @@ function App() {
         onEditTask={handleEditTask}
         onDeleteTask={handleTaskDeleted}
         onCreateSubtask={handleCreateSubtask}
+        onAssignParent={handleAssignParent}
         onRefreshTasks={loadTasks}
       />
       <Footer />

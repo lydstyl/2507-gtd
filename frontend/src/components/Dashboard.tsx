@@ -17,6 +17,7 @@ interface DashboardProps {
   onEditTask?: (task: Task) => void
   onDeleteTask?: (taskId: string) => void
   onCreateSubtask?: (parentId: string) => void
+  onAssignParent?: (task: Task) => void
   onRefreshTasks?: () => void
 }
 
@@ -30,6 +31,7 @@ export function Dashboard({
   onEditTask,
   onDeleteTask,
   onCreateSubtask,
+  onAssignParent,
   onRefreshTasks
 }: DashboardProps) {
   const completedTasks = tasks.filter((task) => task.priority === 0)
@@ -78,6 +80,7 @@ export function Dashboard({
             onEditTask={onEditTask}
             onDeleteTask={onDeleteTask}
             onCreateSubtask={onCreateSubtask}
+            onAssignParent={onAssignParent}
           />
 
           <div className='mt-8 flex flex-col gap-4'>

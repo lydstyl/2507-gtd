@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { TaskCard } from './TaskCard';
 import { CreateTaskModal } from './CreateTaskModal';
 import { EditTaskModal } from './EditTaskModal';
+import { AssignParentModal } from './AssignParentModal';
 import type { Task, Tag } from '../types/task';
 import { api } from '../utils/api';
 
@@ -16,6 +17,8 @@ export default function TaskListPage() {
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [createTaskParentId, setCreateTaskParentId] = useState<string | undefined>(undefined);
+  const [isAssignParentModalOpen, setIsAssignParentModalOpen] = useState(false);
+  const [assigningParentTask, setAssigningParentTask] = useState<Task | null>(null);
 
   // Filtres
   const [importanceFilter, setImportanceFilter] = useState<number | ''>('');
@@ -173,6 +176,16 @@ export default function TaskListPage() {
   const handleCloseCreateTaskModal = () => {
     setIsCreateTaskModalOpen(false);
     setCreateTaskParentId(undefined);
+  };
+
+  const handleAssignParent = (task: Task) => {
+    setAssigningParentTask(task);
+    setIsAssignParentModalOpen(true);
+  };
+
+  const handleCloseAssignParentModal = () => {
+    setIsAssignParentModalOpen(false);
+    setAssigningParentTask(null);
   };
 
   const clearAllFilters = () => {
@@ -352,6 +365,7 @@ export default function TaskListPage() {
               onEdit={handleEditTask}
               onDelete={handleTaskDeleted}
               onCreateSubtask={handleCreateSubtask}
+              onAssignParent={handleAssignParent}
               isEven={index % 2 === 1}
             />
           ))}
@@ -371,6 +385,13 @@ export default function TaskListPage() {
         onClose={handleCloseEditModal}
         onTaskUpdated={handleTaskUpdated}
         task={editingTask}
+      />
+
+      <AssignParentModal
+        isOpen={isAssignParentModalOpen}
+        onClose={handleCloseAssignParentModal}
+        task={assigningParentTask}
+        onParentAssigned={handleTaskUpdated}
       />
     </div>
   );

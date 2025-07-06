@@ -160,20 +160,22 @@ export class PrismaTaskRepository implements TaskRepository {
   }
 
   async update(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks> {
+    // Filtrer les champs qui ne doivent pas être envoyés à Prisma
     const { tagIds, ...taskData } = data
+    const { subtasks, tags, ...cleanTaskData } = taskData as any
 
     const task = await this.prisma.$transaction(async (tx: any) => {
       const updatedTask = await tx.task.update({
         where: { id },
         data: {
-          ...taskData,
+          ...cleanTaskData,
           dueDate:
-            taskData.dueDate !== undefined
-              ? taskData.dueDate
-                ? new Date(taskData.dueDate)
+            cleanTaskData.dueDate !== undefined
+              ? cleanTaskData.dueDate
+                ? new Date(cleanTaskData.dueDate)
                 : null
               : undefined,
-          userId: taskData.userId
+          userId: cleanTaskData.userId
         },
         include: {
           tags: {

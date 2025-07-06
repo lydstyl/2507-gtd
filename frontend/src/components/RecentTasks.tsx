@@ -6,9 +6,10 @@ interface RecentTasksProps {
   onEditTask?: (task: Task) => void
   onDeleteTask?: (taskId: string) => void
   onCreateSubtask?: (parentId: string) => void
+  onAssignParent?: (task: Task) => void
 }
 
-export function RecentTasks({ tasks, onEditTask, onDeleteTask, onCreateSubtask }: RecentTasksProps) {
+export function RecentTasks({ tasks, onEditTask, onDeleteTask, onCreateSubtask, onAssignParent }: RecentTasksProps) {
   if (tasks.length === 0) return null
 
   // Filtrer pour n'afficher que les tâches principales (sans parent)
@@ -29,6 +30,7 @@ export function RecentTasks({ tasks, onEditTask, onDeleteTask, onCreateSubtask }
             onEdit={onEditTask} 
             onDelete={onDeleteTask}
             onCreateSubtask={onCreateSubtask}
+            onAssignParent={onAssignParent}
           />
         ))}
       </div>
