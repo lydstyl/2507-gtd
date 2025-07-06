@@ -8,11 +8,12 @@ interface TaskCardProps {
   onDelete?: (taskId: string) => void
   onCreateSubtask?: (parentId: string) => void
   onAssignParent?: (task: Task) => void
+  onEditNote?: (task: Task) => void
   level?: number
   isEven?: boolean
 }
 
-export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, onAssignParent, level = 0, isEven = false }: TaskCardProps) {
+export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, onAssignParent, onEditNote, level = 0, isEven = false }: TaskCardProps) {
   const [showSubtasks, setShowSubtasks] = useState(true)
 
   const getPriorityColor = (importance: number) => {
@@ -196,6 +197,17 @@ export function TaskCard({ task, onEdit, onDelete, onCreateSubtask, onAssignPare
                 </svg>
               </button>
             )}
+
+            {/* Note button */}
+            <button
+              onClick={() => onEditNote?.(task)}
+              className='p-2 text-purple-400 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors'
+              title={task.note ? 'Modifier la note' : 'Ajouter une note'}
+            >
+              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' />
+              </svg>
+            </button>
 
             {/* Assign parent button */}
             {onAssignParent && (

@@ -3,6 +3,7 @@ import { TaskCard } from './TaskCard';
 import { CreateTaskModal } from './CreateTaskModal';
 import { EditTaskModal } from './EditTaskModal';
 import { AssignParentModal } from './AssignParentModal';
+import { NoteModal } from './NoteModal';
 import type { Task, Tag } from '../types/task';
 import { api } from '../utils/api';
 
@@ -19,6 +20,8 @@ export default function TaskListPage() {
   const [createTaskParentId, setCreateTaskParentId] = useState<string | undefined>(undefined);
   const [isAssignParentModalOpen, setIsAssignParentModalOpen] = useState(false);
   const [assigningParentTask, setAssigningParentTask] = useState<Task | null>(null);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [editingNoteTask, setEditingNoteTask] = useState<Task | null>(null);
 
   // Filtres
   const [importanceFilter, setImportanceFilter] = useState<number | ''>('');
@@ -186,6 +189,26 @@ export default function TaskListPage() {
   const handleCloseAssignParentModal = () => {
     setIsAssignParentModalOpen(false);
     setAssigningParentTask(null);
+  };
+
+  const handleEditNote = (task: Task) => {
+    setEditingNoteTask(task);
+    setIsNoteModalOpen(true);
+  };
+
+  const handleCloseNoteModal = () => {
+    setIsNoteModalOpen(false);
+    setEditingNoteTask(null);
+  };
+
+  const handleSaveNote = async (taskId: string, note: string) => {
+    try {
+      await api.updateTaskNote(taskId, note);
+      loadTasks();
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde de la note:', err);
+      alert('Erreur lors de la sauvegarde de la note');
+    }
   };
 
   const clearAllFilters = () => {
@@ -366,6 +389,7 @@ export default function TaskListPage() {
               onDelete={handleTaskDeleted}
               onCreateSubtask={handleCreateSubtask}
               onAssignParent={handleAssignParent}
+              onEditNote={handleEditNote}
               isEven={index % 2 === 1}
             />
           ))}
@@ -392,6 +416,13 @@ export default function TaskListPage() {
         onClose={handleCloseAssignParentModal}
         task={assigningParentTask}
         onParentAssigned={handleTaskUpdated}
+      />
+
+      <NoteModal
+        isOpen={isNoteModalOpen}
+        onClose={handleCloseNoteModal}
+        task={editingNoteTask!}
+        onSave={handleSaveNote}
       />
     </div>
   );

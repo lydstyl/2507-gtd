@@ -137,6 +137,12 @@ export const api = {
       body: JSON.stringify(data)
     }),
 
+  updateTaskNote: (id: string, note: string) =>
+    apiCall<Task>(`/tasks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ note })
+    }),
+
   deleteTask: (id: string) =>
     apiCall<void>(`/tasks/${id}`, {
       method: 'DELETE'

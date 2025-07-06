@@ -27,6 +27,7 @@ model Task {
     id         String    @id @default(cuid())
     name       String
     link       String?
+    note       String?   // Optional rich text note
     importance Int       @default(5) // 1-9, 1 being most important
     urgency    Int       @default(5) // 1-9
     priority   Int       @default(5) // 1-9

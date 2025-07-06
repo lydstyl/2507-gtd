@@ -457,6 +457,7 @@ export class PrismaTaskRepository implements TaskRepository {
       id: task.id,
       name: task.name,
       link: task.link,
+      note: task.note,
       importance: task.importance,
       urgency: task.urgency,
       priority: task.priority,

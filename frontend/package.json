@@ -10,6 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.16",
+    "@tiptap/extension-color": "^2.24.2",
+    "@tiptap/extension-heading": "^2.24.2",
+    "@tiptap/extension-link": "^2.24.2",
+    "@tiptap/extension-strike": "^2.24.2",
+    "@tiptap/extension-text-style": "^2.24.2",
+    "@tiptap/extension-underline": "^2.24.2",
+    "@tiptap/pm": "^2.24.2",
+    "@tiptap/react": "^2.24.2",
+    "@tiptap/starter-kit": "^2.24.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

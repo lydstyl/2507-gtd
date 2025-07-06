@@ -2,6 +2,7 @@ export interface Task {
   id: string
   name: string
   link?: string
+  note?: string
   importance: number
   urgency: number
   priority: number
@@ -17,6 +18,7 @@ export interface Task {
 export interface CreateTaskData {
   name: string
   link?: string
+  note?: string
   importance?: number
   urgency?: number
   priority?: number
@@ -28,6 +30,7 @@ export interface CreateTaskData {
 export interface UpdateTaskData {
   name?: string
   link?: string
+  note?: string
   importance?: number
   urgency?: number
   priority?: number

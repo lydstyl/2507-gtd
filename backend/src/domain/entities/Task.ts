@@ -5,6 +5,7 @@ export interface Task {
   id: string
   name: string
   link?: string
+  note?: string // Optional rich text note
   importance: number // 1-9, 1 being most important
   urgency: number // 1-9
   priority: number // 1-9
@@ -24,6 +25,7 @@ export interface TaskWithSubtasks extends Task {
 export interface CreateTaskData {
   name: string
   link?: string
+  note?: string // Optional rich text note
   importance?: number
   urgency?: number
   priority?: number
@@ -36,6 +38,7 @@ export interface CreateTaskData {
 export interface UpdateTaskData {
   name?: string
   link?: string
+  note?: string // Optional rich text note
   importance?: number
   urgency?: number
   priority?: number

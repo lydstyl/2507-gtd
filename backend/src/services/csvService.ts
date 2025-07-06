@@ -1,8 +1,9 @@
 import { Task, Tag, TaskTag } from '@prisma/client'
 
-export interface TaskWithTags extends Task {
+export interface TaskWithTags extends Omit<Task, 'note'> {
   tags: (TaskTag & { tag: Tag })[]
   parentName?: string // Nom de la tâche parente pour l'import/export
+  note: string | null
 }
 
 export class CSVService {
@@ -14,6 +15,7 @@ export class CSVService {
       'ID',
       'Nom',
       'Lien',
+      'Note',
       'Importance',
       'Urgence',
       'Priorité',
@@ -29,6 +31,7 @@ export class CSVService {
       task.id,
       `"${task.name.replace(/"/g, '""')}"`, // Échapper les guillemets
       task.link ? `"${task.link.replace(/"/g, '""')}"` : '',
+      task.note ? `"${task.note.replace(/"/g, '""')}"` : '',
       task.importance,
       task.urgency,
       task.priority,
@@ -57,6 +60,7 @@ export class CSVService {
     tasks: Array<{
       name: string
       link?: string
+      note?: string
       importance: number
       urgency: number
       priority: number
@@ -71,6 +75,7 @@ export class CSVService {
     const tasks: Array<{
       name: string
       link?: string
+      note?: string
       importance: number
       urgency: number
       priority: number
@@ -84,8 +89,8 @@ export class CSVService {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 12) {
-        errors.push(`Ligne ${i + 1}: Nombre de colonnes insuffisant (${columns.length} au lieu de 12)`)
+      if (columns.length < 13) {
+        errors.push(`Ligne ${i + 1}: Nombre de colonnes insuffisant (${columns.length} au lieu de 13)`)
         continue
       }
 
@@ -94,6 +99,7 @@ export class CSVService {
           id, // Ignoré lors de l'import
           name,
           link,
+          note,
           importanceStr,
           urgencyStr,
           priorityStr,
@@ -152,6 +158,7 @@ export class CSVService {
         tasks.push({
           name: name.trim(),
           link: link && link.trim() !== '' ? link.trim() : undefined,
+          note: note && note.trim() !== '' ? note.trim() : undefined,
           importance,
           urgency,
           priority,
