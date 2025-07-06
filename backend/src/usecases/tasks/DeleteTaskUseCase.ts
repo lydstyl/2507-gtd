@@ -12,4 +12,8 @@ export class DeleteTaskUseCase {
 
     await this.taskRepository.delete(id)
   }
+
+  async deleteAllByUserId(userId: string): Promise<void> {
+    await this.taskRepository.deleteAllByUserId(userId)
+  }
 }

@@ -28,4 +28,5 @@ export interface TaskRepository {
   update(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks>
   delete(id: string): Promise<void>
   exists(id: string): Promise<boolean>
+  deleteAllByUserId(userId: string): Promise<void>
 }

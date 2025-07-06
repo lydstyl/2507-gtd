@@ -19,6 +19,9 @@ export function createTaskRoutes(taskController: TaskController): Router {
   // POST /api/tasks/import - Import tasks from CSV
   router.post('/import', taskController.importTasks.bind(taskController))
 
+  // DELETE /api/tasks/all - Supprimer toutes les tâches de l'utilisateur connecté
+  router.delete('/all', taskController.deleteAllUserTasks.bind(taskController))
+
   // GET /api/tasks/:id - Get a specific task by ID
   router.get('/:id', taskController.getTaskById.bind(taskController))
 

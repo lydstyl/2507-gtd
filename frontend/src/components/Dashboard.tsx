@@ -4,6 +4,8 @@ import { StatsGrid } from './StatsGrid'
 import { QuickActions } from './QuickActions'
 import { RecentTasks } from './RecentTasks'
 import { CSVImportExport } from './CSVImportExport'
+import { useState } from 'react'
+import { api } from '../utils/api'
 
 interface DashboardProps {
   user: User | null
@@ -32,6 +34,20 @@ export function Dashboard({
 }: DashboardProps) {
   const completedTasks = tasks.filter((task) => task.priority === 0)
   const activeTasks = tasks.filter((task) => task.priority > 0)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDeleteAllTasks = async () => {
+    if (!window.confirm('Voulez-vous vraiment supprimer TOUTES vos tâches ? Cette action est irréversible.')) return
+    setDeleting(true)
+    try {
+      await api.deleteAllTasks()
+      if (onRefreshTasks) onRefreshTasks()
+    } catch (e) {
+      alert('Erreur lors de la suppression des tâches.')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <main className='flex-1'>
@@ -64,8 +80,15 @@ export function Dashboard({
             onCreateSubtask={onCreateSubtask}
           />
 
-          <div className='mt-8'>
+          <div className='mt-8 flex flex-col gap-4'>
             <CSVImportExport onImportSuccess={onRefreshTasks || (() => {})} />
+            <button
+              className='bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow disabled:opacity-60'
+              onClick={handleDeleteAllTasks}
+              disabled={deleting}
+            >
+              {deleting ? 'Suppression en cours...' : 'Supprimer toutes mes tâches'}
+            </button>
           </div>
         </div>
       </div>

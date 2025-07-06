@@ -198,4 +198,18 @@ export class TaskController {
       res.status(500).json({ error: 'Internal server error' })
     }
   }
+
+  async deleteAllUserTasks(req: any, res: any) {
+    try {
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+      await this.deleteTaskUseCase.deleteAllByUserId(userId)
+      res.status(204).send()
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la suppression des tâches.' })
+    }
+  }
 }

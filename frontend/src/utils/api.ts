@@ -142,6 +142,11 @@ export const api = {
       method: 'DELETE'
     }),
 
+  deleteAllTasks: () =>
+    apiCall<void>('/tasks/all', {
+      method: 'DELETE'
+    }),
+
   // Tags
   getTags: () => apiCall<Tag[]>('/tags'),
 

@@ -240,6 +240,10 @@ export class PrismaTaskRepository implements TaskRepository {
     })
   }
 
+  async deleteAllByUserId(userId: string): Promise<void> {
+    await this.prisma.task.deleteMany({ where: { userId } })
+  }
+
   async exists(id: string): Promise<boolean> {
     const task = await this.prisma.task.findUnique({
       where: { id },
@@ -256,12 +260,20 @@ export class PrismaTaskRepository implements TaskRepository {
           include: {
             tag: true
           }
+        },
+        parent: {
+          select: {
+            name: true
+          }
         }
       },
       orderBy: { createdAt: 'desc' }
     })
 
-    return tasks as TaskWithTags[]
+    return tasks.map(task => ({
+      ...task,
+      parentName: task.parent?.name
+    })) as TaskWithTags[]
   }
 
   private sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {

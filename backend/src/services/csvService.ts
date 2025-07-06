@@ -2,6 +2,7 @@ import { Task, Tag, TaskTag } from '@prisma/client'
 
 export interface TaskWithTags extends Task {
   tags: (TaskTag & { tag: Tag })[]
+  parentName?: string // Nom de la tâche parente pour l'import/export
 }
 
 export class CSVService {
@@ -20,6 +21,7 @@ export class CSVService {
       'Date de création',
       'Date de modification',
       'Tâche parente',
+      'Nom tâche parente',
       'Tags'
     ]
 
@@ -34,6 +36,7 @@ export class CSVService {
       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
       task.parentId || '',
+      task.parentName || '',
       task.tags.map((t) => t.tag.name).join(';')
     ])
 
@@ -58,7 +61,7 @@ export class CSVService {
       urgency: number
       priority: number
       dueDate?: Date
-      parentId?: string
+      parentName?: string
       tagNames: string[]
     }>
     errors: string[]
@@ -72,7 +75,7 @@ export class CSVService {
       urgency: number
       priority: number
       dueDate?: Date
-      parentId?: string
+      parentName?: string
       tagNames: string[]
     }> = []
 
@@ -81,8 +84,8 @@ export class CSVService {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 8) {
-        errors.push(`Ligne ${i + 1}: Nombre de colonnes insuffisant`)
+      if (columns.length < 12) {
+        errors.push(`Ligne ${i + 1}: Nombre de colonnes insuffisant (${columns.length} au lieu de 12)`)
         continue
       }
 
@@ -97,7 +100,8 @@ export class CSVService {
           dueDateStr,
           createdAtStr, // Ignoré lors de l'import
           updatedAtStr, // Ignoré lors de l'import
-          parentId,
+          parentId, // Ignoré lors de l'import
+          parentName,
           tagNamesStr
         ] = columns
 
@@ -152,8 +156,8 @@ export class CSVService {
           urgency,
           priority,
           dueDate,
-          parentId:
-            parentId && parentId.trim() !== '' ? parentId.trim() : undefined,
+          parentName:
+            parentName && parentName.trim() !== '' ? parentName.trim() : undefined,
           tagNames
         })
       } catch (error) {

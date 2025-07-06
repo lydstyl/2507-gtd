@@ -127,7 +127,7 @@ describe('CSV Export Tests', () => {
 
     // Vérifier que le CSV contient les en-têtes attendus
     expect(csvContent).toContain(
-      'ID,Nom,Lien,Importance,Urgence,Priorité,Date limite,Date de création,Date de modification,Tâche parente,Tags'
+      'ID,Nom,Lien,Importance,Urgence,Priorité,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
     )
 
     // Vérifier que le CSV contient les tâches créées
@@ -169,7 +169,7 @@ describe('CSV Export Tests', () => {
     console.log("\n🔄 Test d'export CSV avec utilisateur sans tâches...")
 
     // Créer un nouvel utilisateur sans tâches
-    const emptyUserEmail = 'test-empty-user@example.com'
+    const emptyUserEmail = `test-empty-user-${Date.now()}@example.com`
     const emptyUserPassword = 'test-password-456'
 
     const emptyUser = await authService.register(
@@ -194,7 +194,7 @@ describe('CSV Export Tests', () => {
     const lines = csvContent.split('\n').filter((line) => line.trim())
     expect(lines).toHaveLength(1) // Seulement l'en-tête
     expect(lines[0]).toBe(
-      'ID,Nom,Lien,Importance,Urgence,Priorité,Date limite,Date de création,Date de modification,Tâche parente,Tags'
+      'ID,Nom,Lien,Importance,Urgence,Priorité,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
     )
 
     console.log('✅ Export CSV vide validé !')
