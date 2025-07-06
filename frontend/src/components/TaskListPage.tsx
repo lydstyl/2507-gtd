@@ -102,6 +102,11 @@ export default function TaskListPage() {
           return dateFilter === 'no-date';
         }
 
+        // Si on filtre pour "Sans date", exclure les tâches qui ont une date
+        if (dateFilter === 'no-date') {
+          return false;
+        }
+
         const taskDate = new Date(task.dueDate);
         taskDate.setHours(0, 0, 0, 0);
 
