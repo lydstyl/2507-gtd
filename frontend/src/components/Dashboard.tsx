@@ -18,6 +18,7 @@ interface DashboardProps {
   onDeleteTask?: (taskId: string) => void
   onCreateSubtask?: (parentId: string) => void
   onAssignParent?: (task: Task) => void
+  onEditNote?: (task: Task) => void
   onRefreshTasks?: () => void
 }
 
@@ -32,6 +33,7 @@ export function Dashboard({
   onDeleteTask,
   onCreateSubtask,
   onAssignParent,
+  onEditNote,
   onRefreshTasks
 }: DashboardProps) {
   const completedTasks = tasks.filter((task) => task.priority === 0)
@@ -39,7 +41,12 @@ export function Dashboard({
   const [deleting, setDeleting] = useState(false)
 
   const handleDeleteAllTasks = async () => {
-    if (!window.confirm('Voulez-vous vraiment supprimer TOUTES vos tâches ? Cette action est irréversible.')) return
+    if (
+      !window.confirm(
+        'Voulez-vous vraiment supprimer TOUTES vos tâches ? Cette action est irréversible.'
+      )
+    )
+      return
     setDeleting(true)
     try {
       await api.deleteAllTasks()
@@ -81,6 +88,7 @@ export function Dashboard({
             onDeleteTask={onDeleteTask}
             onCreateSubtask={onCreateSubtask}
             onAssignParent={onAssignParent}
+            onEditNote={onEditNote}
           />
 
           <div className='mt-8 flex flex-col gap-4'>
@@ -90,7 +98,9 @@ export function Dashboard({
               onClick={handleDeleteAllTasks}
               disabled={deleting}
             >
-              {deleting ? 'Suppression en cours...' : 'Supprimer toutes mes tâches'}
+              {deleting
+                ? 'Suppression en cours...'
+                : 'Supprimer toutes mes tâches'}
             </button>
           </div>
         </div>

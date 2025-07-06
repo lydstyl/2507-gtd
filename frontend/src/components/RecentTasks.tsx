@@ -7,13 +7,21 @@ interface RecentTasksProps {
   onDeleteTask?: (taskId: string) => void
   onCreateSubtask?: (parentId: string) => void
   onAssignParent?: (task: Task) => void
+  onEditNote?: (task: Task) => void
 }
 
-export function RecentTasks({ tasks, onEditTask, onDeleteTask, onCreateSubtask, onAssignParent }: RecentTasksProps) {
+export function RecentTasks({
+  tasks,
+  onEditTask,
+  onDeleteTask,
+  onCreateSubtask,
+  onAssignParent,
+  onEditNote
+}: RecentTasksProps) {
   if (tasks.length === 0) return null
 
   // Filtrer pour n'afficher que les tâches principales (sans parent)
-  const mainTasks = tasks.filter(task => !task.parentId)
+  const mainTasks = tasks.filter((task) => !task.parentId)
 
   if (mainTasks.length === 0) return null
 
@@ -24,16 +32,17 @@ export function RecentTasks({ tasks, onEditTask, onDeleteTask, onCreateSubtask, 
       </h3>
       <div className='space-y-3'>
         {mainTasks.slice(0, 5).map((task) => (
-          <TaskCard 
-            key={task.id} 
-            task={task} 
-            onEdit={onEditTask} 
+          <TaskCard
+            key={task.id}
+            task={task}
+            onEdit={onEditTask}
             onDelete={onDeleteTask}
             onCreateSubtask={onCreateSubtask}
             onAssignParent={onAssignParent}
+            onEditNote={onEditNote}
           />
         ))}
       </div>
     </div>
   )
-} 
+}

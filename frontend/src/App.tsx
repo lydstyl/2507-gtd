@@ -12,6 +12,7 @@ import type { User } from './types/auth'
 import type { Task } from './types/task'
 import { api } from './utils/api'
 import TaskListPage from './components/TaskListPage'
+import { NoteModal } from './components/NoteModal'
 
 type AuthView = 'login' | 'register' | 'dashboard' | 'tasklist'
 
@@ -24,6 +25,8 @@ function App() {
   const [isCreateTagModalOpen, setIsCreateTagModalOpen] = useState(false)
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false)
+  const [editingNoteTask, setEditingNoteTask] = useState<Task | null>(null)
   const [isTagManagerModalOpen, setIsTagManagerModalOpen] = useState(false)
   const [createTaskParentId, setCreateTaskParentId] = useState<
     string | undefined
@@ -135,10 +138,30 @@ function App() {
     setIsEditTaskModalOpen(true)
   }
 
-  const handleAssignParent = (_task: Task) => {
+  const handleAssignParent = () => {
     // Pour le dashboard, on peut rediriger vers la page de liste complète
     // où le modal d'assignation de parent est disponible
     setAuthView('tasklist')
+  }
+
+  const handleEditNote = (task: Task) => {
+    setEditingNoteTask(task)
+    setIsNoteModalOpen(true)
+  }
+
+  const handleCloseNoteModal = () => {
+    setIsNoteModalOpen(false)
+    setEditingNoteTask(null)
+  }
+
+  const handleSaveNote = async (taskId: string, note: string) => {
+    try {
+      await api.updateTaskNote(taskId, note)
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde de la note:', err)
+      alert('Erreur lors de la sauvegarde de la note')
+    }
   }
 
   const handleCloseEditModal = () => {
@@ -211,6 +234,7 @@ function App() {
         onDeleteTask={handleTaskDeleted}
         onCreateSubtask={handleCreateSubtask}
         onAssignParent={handleAssignParent}
+        onEditNote={handleEditNote}
         onRefreshTasks={loadTasks}
       />
       <Footer />
@@ -239,6 +263,15 @@ function App() {
         onTaskUpdated={handleTaskUpdated}
         task={editingTask}
       />
+
+      {editingNoteTask && (
+        <NoteModal
+          isOpen={isNoteModalOpen}
+          onClose={handleCloseNoteModal}
+          task={editingNoteTask}
+          onSave={handleSaveNote}
+        />
+      )}
     </div>
   )
 }
