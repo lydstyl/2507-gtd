@@ -179,8 +179,8 @@ describe('Full User Flow Tests', () => {
   test('should verify user isolation - another user cannot see first user data', async () => {
     console.log("\n🔄 Test d'isolation des utilisateurs...")
 
-    // Créer un deuxième utilisateur
-    const secondUserEmail = 'test-user-2@example.com'
+    // Créer un deuxième utilisateur avec un email unique
+    const secondUserEmail = `test-user-2+${Date.now()}@example.com`
     const secondUserPassword = 'test-password-456'
 
     console.log('📝 Création du deuxième utilisateur...')

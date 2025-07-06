@@ -1,6 +1,7 @@
 export interface CreateTaskRequest {
   name: string
   link?: string
+  note?: string
   importance?: number // 1-9, 1 being most important
   urgency?: number // 1-9
   priority?: number // 1-9
@@ -12,6 +13,7 @@ export interface CreateTaskRequest {
 export interface UpdateTaskRequest {
   name?: string
   link?: string
+  note?: string
   importance?: number
   urgency?: number
   priority?: number
@@ -34,6 +36,7 @@ export interface TaskWithSubtasks {
   id: string
   name: string
   link?: string
+  note?: string | null
   importance: number
   urgency: number
   priority: number

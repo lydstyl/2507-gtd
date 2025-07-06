@@ -272,10 +272,10 @@ export class PrismaTaskRepository implements TaskRepository {
       orderBy: { createdAt: 'desc' }
     })
 
-    return tasks.map(task => ({
+    return tasks.map((task) => ({
       ...task,
       parentName: task.parent?.name
-    })) as TaskWithTags[]
+    })) as unknown as TaskWithTags[]
   }
 
   private sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
