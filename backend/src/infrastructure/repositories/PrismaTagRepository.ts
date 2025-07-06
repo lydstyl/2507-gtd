@@ -56,4 +56,15 @@ export class PrismaTagRepository implements TagRepository {
 
     return taskTags.map((taskTag) => taskTag.tag)
   }
+
+  async findByNameAndUser(name: string, userId: string): Promise<Tag | null> {
+    const tag = await this.prisma.tag.findFirst({
+      where: {
+        name,
+        userId
+      }
+    })
+
+    return tag
+  }
 }

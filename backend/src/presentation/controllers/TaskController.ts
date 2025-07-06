@@ -4,6 +4,8 @@ import { GetTaskUseCase } from '../../usecases/tasks/GetTaskUseCase'
 import { GetAllTasksUseCase } from '../../usecases/tasks/GetAllTasksUseCase'
 import { UpdateTaskUseCase } from '../../usecases/tasks/UpdateTaskUseCase'
 import { DeleteTaskUseCase } from '../../usecases/tasks/DeleteTaskUseCase'
+import { ExportTasksUseCase } from '../../usecases/tasks/ExportTasksUseCase'
+import { ImportTasksUseCase } from '../../usecases/tasks/ImportTasksUseCase'
 import { TaskFilters } from '../../interfaces/repositories/TaskRepository'
 
 export class TaskController {
@@ -12,24 +14,20 @@ export class TaskController {
     private getTaskUseCase: GetTaskUseCase,
     private getAllTasksUseCase: GetAllTasksUseCase,
     private updateTaskUseCase: UpdateTaskUseCase,
-    private deleteTaskUseCase: DeleteTaskUseCase
+    private deleteTaskUseCase: DeleteTaskUseCase,
+    private exportTasksUseCase: ExportTasksUseCase,
+    private importTasksUseCase: ImportTasksUseCase
   ) {}
 
   async createTask(req: Request, res: Response): Promise<void> {
     try {
-      console.log('🔍 createTask appelé')
-      console.log('Body:', req.body)
-      
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })
         return
       }
       const taskData = { ...req.body, userId }
-      console.log('TaskData avec userId:', taskData)
-      
       const task = await this.createTaskUseCase.execute(taskData)
-      console.log('✅ Tâche créée:', task.id, 'ParentId:', task.parentId)
       res.status(201).json(task)
     } catch (error) {
       console.error('❌ Erreur dans createTask:', error)
@@ -62,18 +60,12 @@ export class TaskController {
 
   async getAllTasks(req: Request, res: Response): Promise<void> {
     try {
-      console.log('🔍 getAllTasks appelé')
-      console.log('User:', (req as any).user)
-      
       const userId = (req as any).user?.userId
-      console.log('UserId:', userId)
-      
       if (!userId) {
-        console.log('❌ UserId manquant')
         res.status(401).json({ error: 'User not authenticated' })
         return
       }
-      
+
       const filters: TaskFilters = { userId }
 
       // Parse query parameters
@@ -98,10 +90,7 @@ export class TaskController {
           : [req.query.tagIds as string]
       }
 
-      console.log('Filters:', filters)
-      
       const tasks = await this.getAllTasksUseCase.execute(userId, filters)
-      console.log('✅ Tâches récupérées:', tasks.length)
       res.json(tasks)
     } catch (error) {
       console.error('❌ Erreur dans getAllTasks:', error)
@@ -145,7 +134,10 @@ export class TaskController {
       res.status(204).send()
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message.includes('not found') || error.message.includes('access denied')) {
+        if (
+          error.message.includes('not found') ||
+          error.message.includes('access denied')
+        ) {
           res.status(404).json({ error: error.message })
         } else {
           res.status(400).json({ error: error.message })
@@ -153,6 +145,57 @@ export class TaskController {
       } else {
         res.status(500).json({ error: 'Internal server error' })
       }
+    }
+  }
+
+  async exportTasks(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const csvContent = await this.exportTasksUseCase.execute(userId)
+
+      // Définir les headers pour le téléchargement
+      res.setHeader('Content-Type', 'text/csv')
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename="tasks-export.csv"'
+      )
+
+      res.send(csvContent)
+    } catch (error) {
+      console.error('❌ Erreur dans exportTasks:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+
+  async importTasks(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const { csvContent } = req.body
+      if (!csvContent) {
+        res.status(400).json({ error: 'CSV content is required' })
+        return
+      }
+
+      const result = await this.importTasksUseCase.execute(userId, csvContent)
+
+      res.json({
+        message: `Import terminé. ${result.importedCount} tâches importées.`,
+        importedCount: result.importedCount,
+        errors: result.errors
+      })
+    } catch (error) {
+      console.error('❌ Erreur dans importTasks:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 }

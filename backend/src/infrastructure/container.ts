@@ -8,6 +8,8 @@ import { GetTaskUseCase } from '../usecases/tasks/GetTaskUseCase'
 import { GetAllTasksUseCase } from '../usecases/tasks/GetAllTasksUseCase'
 import { UpdateTaskUseCase } from '../usecases/tasks/UpdateTaskUseCase'
 import { DeleteTaskUseCase } from '../usecases/tasks/DeleteTaskUseCase'
+import { ExportTasksUseCase } from '../usecases/tasks/ExportTasksUseCase'
+import { ImportTasksUseCase } from '../usecases/tasks/ImportTasksUseCase'
 import { CreateTagUseCase } from '../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../usecases/tags/GetAllTagsUseCase'
 import { DeleteTagUseCase } from '../usecases/tags/DeleteTagUseCase'
@@ -39,13 +41,20 @@ export class Container {
     const getAllTasksUseCase = new GetAllTasksUseCase(this.taskRepository)
     const updateTaskUseCase = new UpdateTaskUseCase(this.taskRepository)
     const deleteTaskUseCase = new DeleteTaskUseCase(this.taskRepository)
+    const exportTasksUseCase = new ExportTasksUseCase(this.taskRepository)
+    const importTasksUseCase = new ImportTasksUseCase(
+      this.taskRepository,
+      this.tagRepository
+    )
 
     return new TaskController(
       createTaskUseCase,
       getTaskUseCase,
       getAllTasksUseCase,
       updateTaskUseCase,
-      deleteTaskUseCase
+      deleteTaskUseCase,
+      exportTasksUseCase,
+      importTasksUseCase
     )
   }
 
@@ -54,7 +63,11 @@ export class Container {
     const getAllTagsUseCase = new GetAllTagsUseCase(this.tagRepository)
     const deleteTagUseCase = new DeleteTagUseCase(this.tagRepository)
 
-    return new TagController(createTagUseCase, getAllTagsUseCase, deleteTagUseCase)
+    return new TagController(
+      createTagUseCase,
+      getAllTagsUseCase,
+      deleteTagUseCase
+    )
   }
 
   async disconnect(): Promise<void> {

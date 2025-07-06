@@ -25,10 +25,12 @@ function App() {
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isTagManagerModalOpen, setIsTagManagerModalOpen] = useState(false)
-  const [createTaskParentId, setCreateTaskParentId] = useState<string | undefined>(undefined)
+  const [createTaskParentId, setCreateTaskParentId] = useState<
+    string | undefined
+  >(undefined)
 
   // Ajout d'un état pour afficher la page de liste complète
-  const [showTaskList, setShowTaskList] = useState(false)
+  // const [showTaskList, setShowTaskList] = useState(false)
 
   useEffect(() => {
     // Vérifier si l'utilisateur est déjà connecté
@@ -59,14 +61,21 @@ function App() {
       console.log('🔄 Chargement des tâches...')
       const tasksData = await api.getTasks()
       console.log('📋 Tâches reçues:', tasksData.length)
-      console.log('📋 Détail des tâches:', tasksData.map(t => ({ name: t.name, parentId: t.parentId, subtasks: t.subtasks.length })))
+      console.log(
+        '📋 Détail des tâches:',
+        tasksData.map((t) => ({
+          name: t.name,
+          parentId: t.parentId,
+          subtasks: t.subtasks.length
+        }))
+      )
       setTasks(tasksData)
     } catch (err) {
       console.error('Erreur lors du chargement des tâches:', err)
     }
   }
 
-  const handleAuthSuccess = (token: string, userData: User) => {
+  const handleAuthSuccess = (_token: string, userData: User) => {
     setUser(userData)
     setAuthView('dashboard')
     loadTasks()
@@ -82,7 +91,7 @@ function App() {
   const handleTaskCreated = async () => {
     console.log('✅ Tâche créée, rechargement...')
     // Petit délai pour s'assurer que le backend a traité la création
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500))
     loadTasks()
   }
 
@@ -166,7 +175,7 @@ function App() {
   }
 
   // Affichage de la page de liste complète
-  if (authView === 'tasklist' || showTaskList) {
+  if (authView === 'tasklist') {
     return (
       <div className='min-h-screen bg-gray-50'>
         <Header user={user} onLogout={handleLogout} />
@@ -185,9 +194,9 @@ function App() {
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header user={user} onLogout={handleLogout} />
-      <Dashboard 
-        user={user} 
-        tasks={tasks} 
+      <Dashboard
+        user={user}
+        tasks={tasks}
         onCreateTask={handleCreateTask}
         onCreateTag={handleCreateTag}
         onManageTags={() => setIsTagManagerModalOpen(true)}
@@ -195,15 +204,16 @@ function App() {
         onEditTask={handleEditTask}
         onDeleteTask={handleTaskDeleted}
         onCreateSubtask={handleCreateSubtask}
+        onRefreshTasks={loadTasks}
       />
       <Footer />
 
-              <CreateTaskModal
-          isOpen={isCreateTaskModalOpen}
-          onClose={handleCloseCreateTaskModal}
-          onTaskCreated={handleTaskCreated}
-          parentId={createTaskParentId}
-        />
+      <CreateTaskModal
+        isOpen={isCreateTaskModalOpen}
+        onClose={handleCloseCreateTaskModal}
+        onTaskCreated={handleTaskCreated}
+        parentId={createTaskParentId}
+      />
 
       <CreateTagModal
         isOpen={isCreateTagModalOpen}

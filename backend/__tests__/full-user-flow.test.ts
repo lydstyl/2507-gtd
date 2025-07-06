@@ -47,7 +47,7 @@ describe('Full User Flow Tests', () => {
     console.log('\n🔄 Test du flux utilisateur complet...')
 
     // 1. Créer un utilisateur
-    console.log('📝 1. Création de l\'utilisateur...')
+    console.log("📝 1. Création de l'utilisateur...")
     const user = await authService.register(testEmail, testPassword)
     userId = user.id
     console.log('✅ Utilisateur créé:', { id: user.id, email: user.email })
@@ -66,12 +66,15 @@ describe('Full User Flow Tests', () => {
 
     // Vérifier que le token contient les bonnes informations
     const jwt = require('jsonwebtoken')
-    const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET || 'dev-secret')
+    const decodedToken = jwt.verify(
+      authToken,
+      process.env.JWT_SECRET || 'dev-secret'
+    )
     expect(decodedToken.userId).toBe(userId)
     expect(decodedToken.email).toBe(testEmail)
 
     // 3. Créer une tâche
-    console.log('📋 3. Création d\'une tâche...')
+    console.log("📋 3. Création d'une tâche...")
     const taskData = {
       name: 'Tâche de test du flux complet',
       importance: 1,
@@ -82,7 +85,10 @@ describe('Full User Flow Tests', () => {
     }
 
     const createdTask = await taskRepository.create(taskData)
-    console.log('✅ Tâche créée:', { id: createdTask.id, name: createdTask.name })
+    console.log('✅ Tâche créée:', {
+      id: createdTask.id,
+      name: createdTask.name
+    })
 
     // Vérifier que la tâche a été créée correctement
     expect(createdTask).toBeDefined()
@@ -105,9 +111,9 @@ describe('Full User Flow Tests', () => {
     expect(userTasks[0].userId).toBe(userId)
 
     // 5. Créer un tag
-    console.log('🏷️ 5. Création d\'un tag...')
+    console.log("🏷️ 5. Création d'un tag...")
     const tagData = {
-      name: 'Tag de test',
+      name: 'Tag de test flux complet',
       color: '#ff0000',
       userId: userId
     }
@@ -122,7 +128,7 @@ describe('Full User Flow Tests', () => {
     expect(createdTag.userId).toBe(userId)
 
     // 6. Créer une tâche avec le tag
-    console.log('📋 6. Création d\'une tâche avec tag...')
+    console.log("📋 6. Création d'une tâche avec tag...")
     const taskWithTagData = {
       name: 'Tâche avec tag',
       importance: 2,
@@ -133,7 +139,10 @@ describe('Full User Flow Tests', () => {
     }
 
     const taskWithTag = await taskRepository.create(taskWithTagData)
-    console.log('✅ Tâche avec tag créée:', { id: taskWithTag.id, name: taskWithTag.name })
+    console.log('✅ Tâche avec tag créée:', {
+      id: taskWithTag.id,
+      name: taskWithTag.name
+    })
 
     // Vérifier que la tâche a le bon tag
     expect(taskWithTag.tags).toHaveLength(1)
@@ -147,9 +156,9 @@ describe('Full User Flow Tests', () => {
 
     // Vérifier qu'on a bien 2 tâches
     expect(allUserTasks).toHaveLength(2)
-    
+
     // Vérifier que les tâches appartiennent bien à l'utilisateur
-    allUserTasks.forEach(task => {
+    allUserTasks.forEach((task) => {
       expect(task.userId).toBe(userId)
     })
 
@@ -168,18 +177,24 @@ describe('Full User Flow Tests', () => {
   })
 
   test('should verify user isolation - another user cannot see first user data', async () => {
-    console.log('\n🔄 Test d\'isolation des utilisateurs...')
+    console.log("\n🔄 Test d'isolation des utilisateurs...")
 
     // Créer un deuxième utilisateur
     const secondUserEmail = 'test-user-2@example.com'
     const secondUserPassword = 'test-password-456'
 
     console.log('📝 Création du deuxième utilisateur...')
-    const secondUser = await authService.register(secondUserEmail, secondUserPassword)
-    console.log('✅ Deuxième utilisateur créé:', { id: secondUser.id, email: secondUser.email })
+    const secondUser = await authService.register(
+      secondUserEmail,
+      secondUserPassword
+    )
+    console.log('✅ Deuxième utilisateur créé:', {
+      id: secondUser.id,
+      email: secondUser.email
+    })
 
     // Créer une tâche pour le deuxième utilisateur
-    console.log('📋 Création d\'une tâche pour le deuxième utilisateur...')
+    console.log("📋 Création d'une tâche pour le deuxième utilisateur...")
     const secondUserTask = await taskRepository.create({
       name: 'Tâche du deuxième utilisateur',
       importance: 3,
@@ -190,9 +205,11 @@ describe('Full User Flow Tests', () => {
     console.log('✅ Tâche du deuxième utilisateur créée')
 
     // Vérifier que le premier utilisateur ne voit que ses propres tâches
-    console.log('🔍 Vérification de l\'isolation...')
+    console.log("🔍 Vérification de l'isolation...")
     const firstUserTasks = await taskRepository.findAll({ userId })
-    const secondUserTasks = await taskRepository.findAll({ userId: secondUser.id })
+    const secondUserTasks = await taskRepository.findAll({
+      userId: secondUser.id
+    })
 
     console.log('📊 Résultats:')
     console.log(`- Premier utilisateur: ${firstUserTasks.length} tâches`)
@@ -203,23 +220,23 @@ describe('Full User Flow Tests', () => {
     expect(secondUserTasks.length).toBeGreaterThan(0)
 
     // Vérifier qu'il n'y a pas de mélange
-    const firstUserTaskIds = firstUserTasks.map(t => t.id)
-    const secondUserTaskIds = secondUserTasks.map(t => t.id)
+    const firstUserTaskIds = firstUserTasks.map((t) => t.id)
+    const secondUserTaskIds = secondUserTasks.map((t) => t.id)
 
-    firstUserTaskIds.forEach(taskId => {
+    firstUserTaskIds.forEach((taskId) => {
       expect(secondUserTaskIds).not.toContain(taskId)
     })
 
-    secondUserTaskIds.forEach(taskId => {
+    secondUserTaskIds.forEach((taskId) => {
       expect(firstUserTaskIds).not.toContain(taskId)
     })
 
     // Vérifier que chaque utilisateur ne voit que ses tâches
-    firstUserTasks.forEach(task => {
+    firstUserTasks.forEach((task) => {
       expect(task.userId).toBe(userId)
     })
 
-    secondUserTasks.forEach(task => {
+    secondUserTasks.forEach((task) => {
       expect(task.userId).toBe(secondUser.id)
     })
 
@@ -233,4 +250,4 @@ describe('Full User Flow Tests', () => {
       where: { id: secondUser.id }
     })
   })
-}) 
+})

@@ -5,6 +5,7 @@ import {
   UpdateTaskData,
   TaskFilters as BaseTaskFilters
 } from '../../domain/entities/Task'
+import { TaskWithTags } from '../../services/csvService'
 
 export interface TaskFilters extends BaseTaskFilters {
   // userId est maintenant obligatoire dans BaseTaskFilters
@@ -17,6 +18,10 @@ export interface TaskRepository {
   create(data: CreateTaskData): Promise<TaskWithSubtasks>
   findById(id: string): Promise<TaskWithSubtasks | null>
   findAll(filters: TaskFilters): Promise<TaskWithSubtasks[]>
+  /**
+   * Récupère toutes les tâches d'un utilisateur avec leurs tags pour l'export CSV
+   */
+  getAllTasksWithTags(userId: string): Promise<TaskWithTags[]>
   /**
    * Met à jour une tâche (dueDate et userId gérés)
    */

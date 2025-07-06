@@ -13,6 +13,12 @@ export function createTaskRoutes(taskController: TaskController): Router {
   // POST /api/tasks - Create a new task
   router.post('/', taskController.createTask.bind(taskController))
 
+  // GET /api/tasks/export - Export all tasks as CSV
+  router.get('/export', taskController.exportTasks.bind(taskController))
+
+  // POST /api/tasks/import - Import tasks from CSV
+  router.post('/import', taskController.importTasks.bind(taskController))
+
   // GET /api/tasks/:id - Get a specific task by ID
   router.get('/:id', taskController.getTaskById.bind(taskController))
 

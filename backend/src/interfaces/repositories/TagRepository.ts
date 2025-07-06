@@ -7,6 +7,10 @@ export interface TagRepository {
   create(data: CreateTagData): Promise<Tag>
   findById(id: string): Promise<Tag | null>
   findAll(userId: string): Promise<Tag[]>
+  /**
+   * Trouve un tag par nom et utilisateur
+   */
+  findByNameAndUser(name: string, userId: string): Promise<Tag | null>
   update(id: string, data: UpdateTagData): Promise<Tag>
   delete(id: string): Promise<void>
   findByTaskId(taskId: string): Promise<Tag[]>

@@ -49,6 +49,32 @@ async function apiCall<T>(
   return response.json()
 }
 
+async function apiCallBlob(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<Blob> {
+  const token = localStorage.getItem('token')
+
+  const config: RequestInit = {
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers
+    },
+    ...options
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
+
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => ({ error: 'Unknown error' }))
+    throw new ApiError(response.status, errorData.error || 'Request failed')
+  }
+
+  return response.blob()
+}
+
 export const api = {
   // Auth
   register: (data: { email: string; password: string }) =>
@@ -98,5 +124,22 @@ export const api = {
   deleteTag: (id: string) =>
     apiCall<void>(`/tags/${id}`, {
       method: 'DELETE'
-    })
+    }),
+
+  // CSV Export/Import
+  exportTasks: () =>
+    apiCallBlob('/tasks/export', {
+      headers: {
+        Accept: 'text/csv'
+      }
+    }),
+
+  importTasks: (csvContent: string) =>
+    apiCall<{ message: string; importedCount: number; errors: string[] }>(
+      '/tasks/import',
+      {
+        method: 'POST',
+        body: JSON.stringify({ csvContent })
+      }
+    )
 }

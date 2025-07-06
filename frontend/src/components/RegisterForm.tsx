@@ -37,7 +37,7 @@ export function RegisterForm({
     }
 
     try {
-      const response = await api.register(formData)
+      await api.register(formData)
       // Après inscription réussie, on se connecte automatiquement
       const loginResponse = await api.login(formData)
       localStorage.setItem('token', loginResponse.token)

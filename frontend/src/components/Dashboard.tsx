@@ -3,6 +3,7 @@ import type { Task } from '../types/task'
 import { StatsGrid } from './StatsGrid'
 import { QuickActions } from './QuickActions'
 import { RecentTasks } from './RecentTasks'
+import { CSVImportExport } from './CSVImportExport'
 
 interface DashboardProps {
   user: User | null
@@ -14,9 +15,21 @@ interface DashboardProps {
   onEditTask?: (task: Task) => void
   onDeleteTask?: (taskId: string) => void
   onCreateSubtask?: (parentId: string) => void
+  onRefreshTasks?: () => void
 }
 
-export function Dashboard({ user, tasks, onCreateTask, onCreateTag, onManageTags, onViewAllTasks, onEditTask, onDeleteTask, onCreateSubtask }: DashboardProps) {
+export function Dashboard({
+  user,
+  tasks,
+  onCreateTask,
+  onCreateTag,
+  onManageTags,
+  onViewAllTasks,
+  onEditTask,
+  onDeleteTask,
+  onCreateSubtask,
+  onRefreshTasks
+}: DashboardProps) {
   const completedTasks = tasks.filter((task) => task.priority === 0)
   const activeTasks = tasks.filter((task) => task.priority > 0)
 
@@ -37,16 +50,25 @@ export function Dashboard({ user, tasks, onCreateTask, onCreateTag, onManageTags
             tagsCount={0}
           />
 
-          <QuickActions onCreateTask={onCreateTask} onCreateTag={onCreateTag} onManageTags={onManageTags} onViewAllTasks={onViewAllTasks} />
+          <QuickActions
+            onCreateTask={onCreateTask}
+            onCreateTag={onCreateTag}
+            onManageTags={onManageTags}
+            onViewAllTasks={onViewAllTasks}
+          />
 
-          <RecentTasks 
-            tasks={tasks} 
-            onEditTask={onEditTask} 
+          <RecentTasks
+            tasks={tasks}
+            onEditTask={onEditTask}
             onDeleteTask={onDeleteTask}
             onCreateSubtask={onCreateSubtask}
           />
+
+          <div className='mt-8'>
+            <CSVImportExport onImportSuccess={onRefreshTasks || (() => {})} />
+          </div>
         </div>
       </div>
     </main>
   )
-} 
+}
