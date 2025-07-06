@@ -222,6 +222,16 @@ export default function TaskListPage() {
     }
   }
 
+  const handleDeleteNote = async (taskId: string) => {
+    try {
+      await api.deleteTaskNote(taskId)
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la suppression de la note:', err)
+      alert('Erreur lors de la suppression de la note')
+    }
+  }
+
   const clearAllFilters = () => {
     setSearchTerm('')
     setImportanceFilter('')
@@ -459,6 +469,7 @@ export default function TaskListPage() {
           onClose={handleCloseNoteModal}
           task={editingNoteTask}
           onSave={handleSaveNote}
+          onDelete={handleDeleteNote}
         />
       )}
     </div>

@@ -143,6 +143,12 @@ export const api = {
       body: JSON.stringify({ note })
     }),
 
+  deleteTaskNote: (id: string) =>
+    apiCall<Task>(`/tasks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ note: null })
+    }),
+
   deleteTask: (id: string) =>
     apiCall<void>(`/tasks/${id}`, {
       method: 'DELETE'

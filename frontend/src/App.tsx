@@ -164,6 +164,16 @@ function App() {
     }
   }
 
+  const handleDeleteNote = async (taskId: string) => {
+    try {
+      await api.deleteTaskNote(taskId)
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la suppression de la note:', err)
+      alert('Erreur lors de la suppression de la note')
+    }
+  }
+
   const handleCloseEditModal = () => {
     setIsEditTaskModalOpen(false)
     setEditingTask(null)
@@ -270,6 +280,7 @@ function App() {
           onClose={handleCloseNoteModal}
           task={editingNoteTask}
           onSave={handleSaveNote}
+          onDelete={handleDeleteNote}
         />
       )}
     </div>
