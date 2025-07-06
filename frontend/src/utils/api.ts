@@ -156,6 +156,12 @@ export const api = {
       body: JSON.stringify(data)
     }),
 
+  updateTag: (id: string, data: { name: string; color: string }) =>
+    apiCall<Tag>(`/tags/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    }),
+
   deleteTag: (id: string) =>
     apiCall<void>(`/tags/${id}`, {
       method: 'DELETE'

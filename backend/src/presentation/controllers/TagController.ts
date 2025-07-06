@@ -2,12 +2,14 @@ import { Request, Response } from 'express'
 import { CreateTagUseCase } from '../../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../../usecases/tags/GetAllTagsUseCase'
 import { DeleteTagUseCase } from '../../usecases/tags/DeleteTagUseCase'
+import { UpdateTagUseCase } from '../../usecases/tags/UpdateTagUseCase'
 
 export class TagController {
   constructor(
     private createTagUseCase: CreateTagUseCase,
     private getAllTagsUseCase: GetAllTagsUseCase,
-    private deleteTagUseCase: DeleteTagUseCase
+    private deleteTagUseCase: DeleteTagUseCase,
+    private updateTagUseCase: UpdateTagUseCase
   ) {}
 
   async createTag(req: Request, res: Response): Promise<void> {
@@ -49,6 +51,31 @@ export class TagController {
       }
       await this.deleteTagUseCase.execute(id, userId)
       res.status(204).send()
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('not found') || error.message.includes('access denied')) {
+          res.status(404).json({ error: error.message })
+        } else {
+          res.status(400).json({ error: error.message })
+        }
+      } else {
+        res.status(500).json({ error: 'Internal server error' })
+      }
+    }
+  }
+
+  async updateTag(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const tagData = req.body
+      const tag = await this.updateTagUseCase.execute(id, tagData, userId)
+      res.json(tag)
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('not found') || error.message.includes('access denied')) {

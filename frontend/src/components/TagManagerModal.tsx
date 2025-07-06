@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 import type { Tag } from '../types/task'
+import { EditTagModal } from './EditTagModal'
 
 interface TagManagerModalProps {
   isOpen: boolean
@@ -11,6 +12,8 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
   const [tags, setTags] = useState<Tag[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingTag, setEditingTag] = useState<Tag | null>(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -40,6 +43,16 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
         setError("Erreur lors de la suppression du tag")
       }
     }
+  }
+
+  const handleEditTag = (tag: Tag) => {
+    setEditingTag(tag)
+    setIsEditModalOpen(true)
+  }
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false)
+    setEditingTag(null)
   }
 
   if (!isOpen) return null
@@ -76,21 +89,39 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
                     ></span>
                     <span className='text-gray-900'>{tag.name}</span>
                   </div>
-                  <button
-                    onClick={() => handleDeleteTag(tag.id)}
-                    className='p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors'
-                    title='Supprimer le tag'
-                  >
-                    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
-                    </svg>
-                  </button>
+                  <div className='flex items-center space-x-1'>
+                    <button
+                      onClick={() => handleEditTag(tag)}
+                      className='p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors'
+                      title='Modifier le tag'
+                    >
+                      <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTag(tag.id)}
+                      className='p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors'
+                      title='Supprimer le tag'
+                    >
+                      <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
+                      </svg>
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
       </div>
+
+      <EditTagModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        tag={editingTag}
+        onTagUpdated={loadTags}
+      />
     </div>
   )
 } 

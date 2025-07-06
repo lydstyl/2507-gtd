@@ -135,7 +135,7 @@ function App() {
     setIsEditTaskModalOpen(true)
   }
 
-  const handleAssignParent = (task: Task) => {
+  const handleAssignParent = (_task: Task) => {
     // Pour le dashboard, on peut rediriger vers la page de liste complète
     // où le modal d'assignation de parent est disponible
     setAuthView('tasklist')

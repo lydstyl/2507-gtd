@@ -13,6 +13,7 @@ import { ImportTasksUseCase } from '../usecases/tasks/ImportTasksUseCase'
 import { CreateTagUseCase } from '../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../usecases/tags/GetAllTagsUseCase'
 import { DeleteTagUseCase } from '../usecases/tags/DeleteTagUseCase'
+import { UpdateTagUseCase } from '../usecases/tags/UpdateTagUseCase'
 import { TaskController } from '../presentation/controllers/TaskController'
 import { TagController } from '../presentation/controllers/TagController'
 
@@ -62,11 +63,13 @@ export class Container {
     const createTagUseCase = new CreateTagUseCase(this.tagRepository)
     const getAllTagsUseCase = new GetAllTagsUseCase(this.tagRepository)
     const deleteTagUseCase = new DeleteTagUseCase(this.tagRepository)
+    const updateTagUseCase = new UpdateTagUseCase(this.tagRepository)
 
     return new TagController(
       createTagUseCase,
       getAllTagsUseCase,
-      deleteTagUseCase
+      deleteTagUseCase,
+      updateTagUseCase
     )
   }
 

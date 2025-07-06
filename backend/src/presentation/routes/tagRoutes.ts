@@ -13,6 +13,9 @@ export function createTagRoutes(tagController: TagController): Router {
   // POST /api/tags - Create a new tag
   router.post('/', tagController.createTag.bind(tagController))
 
+  // PUT /api/tags/:id - Update a specific tag
+  router.put('/:id', tagController.updateTag.bind(tagController))
+
   // DELETE /api/tags/:id - Delete a specific tag
   router.delete('/:id', tagController.deleteTag.bind(tagController))
 
