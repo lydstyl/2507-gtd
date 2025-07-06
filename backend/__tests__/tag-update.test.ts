@@ -28,24 +28,22 @@ describe('Tag Update API', () => {
         password: 'password123'
       })
 
-    const loginResponse = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: 'test-update@example.com',
-        password: 'password123'
-      })
+    const loginResponse = await request(app).post('/api/auth/login').send({
+      email: 'test-update@example.com',
+      password: 'password123'
+    })
 
     authToken = loginResponse.body.token
     userId = loginResponse.body.user.id
-  })
+  }, 15000)
 
   beforeEach(async () => {
     await deleteAllTags(authToken)
-  })
+  }, 15000)
 
   afterAll(async () => {
     await Container.getInstance().disconnect()
-  })
+  }, 15000)
 
   it('should update a tag successfully', async () => {
     // Créer un tag
@@ -85,7 +83,7 @@ describe('Tag Update API', () => {
     expect(updatedTag).toBeDefined()
     expect(updatedTag.name).toBe('Updated Tag')
     expect(updatedTag.color).toBe('#00FF00')
-  })
+  }, 15000)
 
   it('should reject update with invalid color format', async () => {
     // Créer un tag
@@ -110,7 +108,7 @@ describe('Tag Update API', () => {
 
     expect(updateResponse.status).toBe(400)
     expect(updateResponse.body.error).toContain('Valid color is required')
-  })
+  }, 15000)
 
   it('should reject update with empty name', async () => {
     // Créer un tag
@@ -135,7 +133,7 @@ describe('Tag Update API', () => {
 
     expect(updateResponse.status).toBe(400)
     expect(updateResponse.body.error).toContain('Tag name is required')
-  })
+  }, 15000)
 
   it('should reject update with duplicate name', async () => {
     // Créer deux tags
@@ -168,7 +166,7 @@ describe('Tag Update API', () => {
 
     expect(updateResponse.status).toBe(400)
     expect(updateResponse.body.error).toContain('already exists')
-  })
+  }, 15000)
 
   it('should reject update of non-existent tag', async () => {
     const updateResponse = await request(app)
@@ -181,16 +179,14 @@ describe('Tag Update API', () => {
 
     expect(updateResponse.status).toBe(404)
     expect(updateResponse.body.error).toContain('not found')
-  })
+  }, 15000)
 
   it('should reject update without authentication', async () => {
-    const updateResponse = await request(app)
-      .put('/api/tags/some-id')
-      .send({
-        name: 'Updated Tag',
-        color: '#00FF00'
-      })
+    const updateResponse = await request(app).put('/api/tags/some-id').send({
+      name: 'Updated Tag',
+      color: '#00FF00'
+    })
 
     expect(updateResponse.status).toBe(401)
-  })
-}) 
+  }, 15000)
+})

@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: gtd-postgres
+    environment:
+      POSTGRES_DB: gtd_production
+      POSTGRES_USER: gtd_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-your_secure_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    networks:
+      - gtd-network
+
+  # Backend Node.js
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gtd-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://gtd_user:${DB_PASSWORD:-your_secure_password}@postgres:5432/gtd_production
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - gtd-network
+    volumes:
+      - ./logs:/app/logs
+
+  # Frontend React (optionnel - peut être servi par Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gtd-frontend
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - gtd-network
+
+  # Nginx Reverse Proxy (alternative au frontend)
+  nginx:
+    image: nginx:alpine
+    container_name: gtd-nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - gtd-network
+
+volumes:
+  postgres_data:
+
+networks:
+  gtd-network:
+    driver: bridge

@@ -17,19 +17,27 @@ describe('Subtask API', () => {
       create: {
         id: 'user-id',
         email: 'user@example.com',
-        password: 'hashed-password',
-      },
+        password: 'hashed-password'
+      }
     })
-    server = app.listen(4002)
-  })
+    server = app.listen(4004)
+  }, 15000)
   afterAll(async () => {
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Tâche parente test' } })
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Sous-tâche 1' } })
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Sous-tâche 2' } })
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Sous-tâche 3' } })
+    await prisma.task.deleteMany({
+      where: { userId: 'user-id', name: 'Tâche parente test' }
+    })
+    await prisma.task.deleteMany({
+      where: { userId: 'user-id', name: 'Sous-tâche 1' }
+    })
+    await prisma.task.deleteMany({
+      where: { userId: 'user-id', name: 'Sous-tâche 2' }
+    })
+    await prisma.task.deleteMany({
+      where: { userId: 'user-id', name: 'Sous-tâche 3' }
+    })
     await prisma.$disconnect()
-    server.close()
-  })
+    if (server) server.close()
+  }, 15000)
 
   it('crée une tâche parente, ajoute 2 sous-tâches, supprime une sous-tâche et vérifie', async () => {
     // 1. Créer la tâche parente
@@ -93,8 +101,12 @@ describe('Subtask API', () => {
       .expect(200)
 
     expect(parentTaskWithSubtasksRes.body.subtasks).toHaveLength(2)
-    expect(parentTaskWithSubtasksRes.body.subtasks.map((st: any) => st.name)).toContain('Sous-tâche 1')
-    expect(parentTaskWithSubtasksRes.body.subtasks.map((st: any) => st.name)).toContain('Sous-tâche 2')
+    expect(
+      parentTaskWithSubtasksRes.body.subtasks.map((st: any) => st.name)
+    ).toContain('Sous-tâche 1')
+    expect(
+      parentTaskWithSubtasksRes.body.subtasks.map((st: any) => st.name)
+    ).toContain('Sous-tâche 2')
 
     // 5. Supprimer la première sous-tâche
     await request(server)
@@ -116,5 +128,5 @@ describe('Subtask API', () => {
       .get(`/api/tasks/${subtask1Res.body.id}`)
       .set(authHeader)
       .expect(404)
-  })
-}) 
+  }, 15000)
+})

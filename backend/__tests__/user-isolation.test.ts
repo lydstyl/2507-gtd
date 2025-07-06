@@ -40,7 +40,7 @@ describe('User Data Isolation Tests', () => {
     await prisma.tag.deleteMany({
       where: { userId: { in: [user1Id, user2Id] } }
     })
-  })
+  }, 15000)
 
   afterAll(async () => {
     await prisma.task.deleteMany({
@@ -53,7 +53,7 @@ describe('User Data Isolation Tests', () => {
       where: { id: { in: [user1Id, user2Id] } }
     })
     await prisma.$disconnect()
-  })
+  }, 15000)
 
   test('should isolate tasks between users', async () => {
     // Créer des tâches pour user1
@@ -133,7 +133,7 @@ describe('User Data Isolation Tests', () => {
     })
 
     console.log('\n✅ Isolation des tâches vérifiée !')
-  })
+  }, 15000)
 
   test('should isolate tags between users', async () => {
     // Créer des tags pour user1

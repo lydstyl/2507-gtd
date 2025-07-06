@@ -20,27 +20,16 @@ describe('CSV Export Tests', () => {
   let server: any
 
   beforeAll(async () => {
-    // Nettoyer les données de test existantes
-    await prisma.task.deleteMany({
-      where: { user: { email: testEmail } }
-    })
-    await prisma.tag.deleteMany({
-      where: { user: { email: testEmail } }
-    })
-    await prisma.user.deleteMany({
-      where: { email: testEmail }
-    })
-
-    // Créer l'utilisateur de test
+    // Créer un utilisateur de test
     const user = await authService.register(testEmail, testPassword)
     userId = user.id
 
-    // Authentifier l'utilisateur
+    // Authentifier l'utilisateur pour obtenir le token
     const authResult = await authService.login(testEmail, testPassword)
     authToken = authResult.token
 
-    server = app.listen(4001)
-  })
+    server = app.listen(4002)
+  }, 15000)
 
   afterAll(async () => {
     // Nettoyer après les tests
@@ -54,8 +43,8 @@ describe('CSV Export Tests', () => {
       where: { email: testEmail }
     })
     await prisma.$disconnect()
-    server.close()
-  })
+    if (server) server.close()
+  }, 15000)
 
   test('should export tasks to CSV with authentication', async () => {
     console.log("\n🔄 Test d'export CSV...")

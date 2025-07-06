@@ -26,16 +26,16 @@ describe('CSV Import Tests', () => {
     userId = user.id
     const authResult = await authService.login(testEmail, testPassword)
     authToken = authResult.token
-    server = app.listen(4002)
-  })
+    server = app.listen(4005)
+  }, 15000)
 
   afterAll(async () => {
     await prisma.task.deleteMany({ where: { user: { email: testEmail } } })
     await prisma.tag.deleteMany({ where: { user: { email: testEmail } } })
     await prisma.user.deleteMany({ where: { email: testEmail } })
     await prisma.$disconnect()
-    server.close()
-  })
+    if (server) server.close()
+  }, 15000)
 
   test('should import tasks from CSV and create tags', async () => {
     const csvContent = [

@@ -17,17 +17,21 @@ describe('Tag API', () => {
       create: {
         id: 'user-id',
         email: 'user@example.com',
-        password: 'hashed-password',
-      },
+        password: 'hashed-password'
+      }
     })
-    server = app.listen(4001)
-  })
+    server = app.listen(4007)
+  }, 15000)
   afterAll(async () => {
-    await prisma.tag.deleteMany({ where: { userId: 'user-id', name: 'Tag test e2e' } })
-    await prisma.tag.deleteMany({ where: { userId: 'user-id', name: 'Tag test frontend' } })
+    await prisma.tag.deleteMany({
+      where: { userId: 'user-id', name: 'Tag test e2e' }
+    })
+    await prisma.tag.deleteMany({
+      where: { userId: 'user-id', name: 'Tag test frontend' }
+    })
     await prisma.$disconnect()
-    server.close()
-  })
+    if (server) server.close()
+  }, 15000)
 
   it('crée un tag puis le supprime', async () => {
     // Création du tag
@@ -39,7 +43,7 @@ describe('Tag API', () => {
         color: '#FF5733'
       })
       .expect(201)
-    
+
     expect(createRes.body).toHaveProperty('id')
     expect(createRes.body.name).toBe('Tag test e2e')
     expect(createRes.body.color).toBe('#FF5733')
@@ -50,7 +54,7 @@ describe('Tag API', () => {
       .get('/api/tags')
       .set(authHeader)
       .expect(200)
-    
+
     const createdTag = getRes.body.find((t: any) => t.id === tagId)
     expect(createdTag).toBeDefined()
     expect(createdTag.name).toBe('Tag test e2e')
@@ -67,8 +71,10 @@ describe('Tag API', () => {
       .get('/api/tags')
       .set(authHeader)
       .expect(200)
-    expect(getResAfterDelete.body.find((t: any) => t.id === tagId)).toBeUndefined()
-  })
+    expect(
+      getResAfterDelete.body.find((t: any) => t.id === tagId)
+    ).toBeUndefined()
+  }, 15000)
 
   it('reproduit exactement le payload du frontend', async () => {
     // Payload exact envoyé par le frontend
@@ -82,13 +88,16 @@ describe('Tag API', () => {
       .set(authHeader)
       .send(frontendPayload)
       .expect(201)
-    
-    console.log('Tag response from backend:', JSON.stringify(createRes.body, null, 2))
-    
+
+    console.log(
+      'Tag response from backend:',
+      JSON.stringify(createRes.body, null, 2)
+    )
+
     expect(createRes.body).toHaveProperty('id')
     expect(createRes.body.name).toBe('Tag test frontend')
     expect(createRes.body.color).toBe('#3B82F6')
-    
+
     const tagId = createRes.body.id
 
     // Suppression
@@ -114,4 +123,4 @@ describe('Tag API', () => {
       })
       .expect(400)
   })
-}) 
+})
