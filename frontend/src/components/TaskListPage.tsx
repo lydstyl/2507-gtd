@@ -26,6 +26,7 @@ export default function TaskListPage() {
   )
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false)
   const [editingNoteTask, setEditingNoteTask] = useState<Task | null>(null)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   // Filtres
   const [importanceFilter, setImportanceFilter] = useState<number | ''>('')
@@ -155,6 +156,132 @@ export default function TaskListPage() {
     dateFilter
   ])
 
+  // Gestion navigation clavier pour sélection
+  useEffect(() => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      if (filteredTasks.length === 0 && !selectedTaskId) return
+      // Navigation ↑/↓
+      if (["ArrowDown", "ArrowUp"].includes(e.key)) {
+        e.preventDefault()
+        let idx = filteredTasks.findIndex((t) => t.id === selectedTaskId)
+        if (e.key === "ArrowDown") {
+          if (idx === -1 || idx === filteredTasks.length - 1) {
+            setSelectedTaskId(filteredTasks[0].id)
+          } else {
+            setSelectedTaskId(filteredTasks[idx + 1].id)
+          }
+        } else if (e.key === "ArrowUp") {
+          if (idx === -1 || idx === 0) {
+            setSelectedTaskId(filteredTasks[filteredTasks.length - 1].id)
+          } else {
+            setSelectedTaskId(filteredTasks[idx - 1].id)
+          }
+        }
+        return
+      }
+
+      // Raccourcis édition rapide
+      if (!selectedTaskId) return
+      const task = tasks.find((t) => t.id === selectedTaskId)
+      if (!task) return
+      let update: any = {}
+      let handled = false
+      // Importance
+      if (e.key.toLowerCase() === "i") {
+        if (e.shiftKey) {
+          update.importance = Math.min(5, task.importance + 1)
+        } else {
+          update.importance = Math.max(1, task.importance - 1)
+        }
+        handled = true
+      }
+      // Urgence
+      if (e.key.toLowerCase() === "u") {
+        if (e.shiftKey) {
+          update.urgency = Math.min(5, task.urgency + 1)
+        } else {
+          update.urgency = Math.max(1, task.urgency - 1)
+        }
+        handled = true
+      }
+      // Priorité
+      if (e.key.toLowerCase() === "p") {
+        if (e.shiftKey) {
+          update.priority = Math.min(5, task.priority + 1)
+        } else {
+          update.priority = Math.max(1, task.priority - 1)
+        }
+        handled = true
+      }
+      // Due date +1j/-1j
+      if (e.key.toLowerCase() === "d") {
+        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
+        if (e.shiftKey) {
+          baseDate.setDate(baseDate.getDate() - 1)
+        } else {
+          baseDate.setDate(baseDate.getDate() + 1)
+        }
+        update.dueDate = baseDate.toISOString()
+        handled = true
+      }
+      // Due date +1 semaine
+      if (e.key.toLowerCase() === "w") {
+        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
+        baseDate.setDate(baseDate.getDate() + 7)
+        update.dueDate = baseDate.toISOString()
+        handled = true
+      }
+      // Due date +1 mois
+      if (e.key.toLowerCase() === "m") {
+        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
+        baseDate.setMonth(baseDate.getMonth() + 1)
+        update.dueDate = baseDate.toISOString()
+        handled = true
+      }
+      // Tags 1-9
+      if (/^[1-9]$/.test(e.key)) {
+        const idx = parseInt(e.key, 10) - 1
+        if (tags[idx]) {
+          const tagId = tags[idx].id
+          const hasTag = task.tags.some((t) => t.id === tagId)
+          update.tagIds = hasTag
+            ? task.tags.filter((t) => t.id !== tagId).map((t) => t.id)
+            : [...task.tags.map((t) => t.id), tagId]
+          handled = true
+        }
+      }
+      if (handled) {
+        e.preventDefault()
+        try {
+          await api.updateTask(task.id, update)
+          // Après modif, recharge les tâches
+          await loadTasks()
+          // Si la tâche n'est plus dans filteredTasks, focus spécial
+          setTimeout(() => {
+            const stillVisible = applyFilters(tasks).some((t) => t.id === task.id)
+            if (!stillVisible) {
+              setFocusTaskId(task.id)
+            } else {
+              setFocusTaskId(null)
+            }
+          }, 300)
+        } catch (err) {
+          alert("Erreur lors de la modification rapide de la tâche")
+        }
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [filteredTasks, selectedTaskId, tasks, tags])
+
+  // Focus spécial si la tâche modifiée sort des filtres
+  const [focusTaskId, setFocusTaskId] = useState<string | null>(null)
+
+  // Sélection par clic
+  const handleSelectTask = (taskId: string) => {
+    setSelectedTaskId(taskId)
+  }
+
   const handleTaskDeleted = async (taskId: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
       try {
@@ -261,6 +388,40 @@ export default function TaskListPage() {
           + Nouvelle tâche
         </button>
       </div>
+
+      {/* Aide raccourcis clavier */}
+      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
+        <div className="font-semibold mb-1">Raccourcis clavier (sur la tâche sélectionnée) :</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div><b>I</b> / <b>Shift+I</b> : Importance -/+</div>
+          <div><b>U</b> / <b>Shift+U</b> : Urgence -/+</div>
+          <div><b>P</b> / <b>Shift+P</b> : Priorité -/+</div>
+          <div><b>D</b> / <b>Shift+D</b> : Date +1j / -1j</div>
+          <div><b>W</b> : +1 semaine à la date</div>
+          <div><b>M</b> : +1 mois à la date</div>
+          <div><b>1-9</b> : Ajouter/enlever tag 1 à 9</div>
+          <div><b>↑ / ↓</b> : Sélectionner la tâche précédente/suivante</div>
+        </div>
+      </div>
+
+      {/* Affichage dynamique des tags 1-9 */}
+      {tags.length > 0 && (
+        <div className="mb-6">
+          <div className="text-xs text-gray-600 mb-1">Tags accessibles par raccourci :</div>
+          <div className="flex flex-wrap gap-2">
+            {tags.slice(0, 9).map((tag, idx) => (
+              <div key={tag.id} className="flex items-center px-2 py-1 rounded border border-gray-200 bg-gray-50 text-xs">
+                <span className="font-mono font-bold mr-1">{idx + 1}.</span>
+                <span
+                  className="w-3 h-3 rounded-full inline-block mr-1"
+                  style={{ backgroundColor: tag.color || '#6b7280' }}
+                ></span>
+                <span>{tag.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Barre de recherche */}
       <div className='mb-6'>
@@ -426,18 +587,38 @@ export default function TaskListPage() {
       ) : (
         <div className='space-y-4'>
           {filteredTasks.map((task, index) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              level={0}
-              onEdit={handleEditTask}
-              onDelete={handleTaskDeleted}
-              onCreateSubtask={handleCreateSubtask}
-              onAssignParent={handleAssignParent}
-              onEditNote={handleEditNote}
-              isEven={index % 2 === 1}
-            />
+            <div key={task.id} onClick={() => handleSelectTask(task.id)}>
+              <TaskCard
+                task={task}
+                level={0}
+                onEdit={handleEditTask}
+                onDelete={handleTaskDeleted}
+                onCreateSubtask={handleCreateSubtask}
+                onAssignParent={handleAssignParent}
+                onEditNote={handleEditNote}
+                isEven={index % 2 === 1}
+                isSelected={selectedTaskId === task.id}
+              />
+            </div>
           ))}
+        </div>
+      )}
+
+      {focusTaskId && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
+          <div className="mb-2 text-yellow-800 font-semibold">
+            Tâche modifiée hors de la vue filtrée
+          </div>
+          <TaskCard
+            task={tasks.find((t) => t.id === focusTaskId)!}
+            isSelected={true}
+          />
+          <button
+            className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+            onClick={() => setFocusTaskId(null)}
+          >
+            Revenir à la vue normale
+          </button>
         </div>
       )}
 

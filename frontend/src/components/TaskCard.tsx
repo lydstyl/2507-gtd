@@ -11,6 +11,7 @@ interface TaskCardProps {
   onEditNote?: (task: Task) => void
   level?: number
   isEven?: boolean
+  isSelected?: boolean // Ajouté pour la sélection
 }
 
 export function TaskCard({
@@ -21,7 +22,8 @@ export function TaskCard({
   onAssignParent,
   onEditNote,
   level = 0,
-  isEven = false
+  isEven = false,
+  isSelected = false // Ajouté pour la sélection
 }: TaskCardProps) {
   const [showSubtasks, setShowSubtasks] = useState(true)
 
@@ -138,7 +140,7 @@ export function TaskCard({
       <div
         className={`border border-gray-200 rounded-lg hover:bg-gray-50 mb-2 ${
           isEven ? 'bg-gray-50' : 'bg-white'
-        }`}
+        } ${isSelected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''}`}
       >
         <div className='flex items-center justify-between p-4'>
           <div className='flex items-center space-x-3 flex-1'>
