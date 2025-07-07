@@ -205,6 +205,14 @@ export default function TaskListPage() {
       if (!task) return
       let update: any = {}
       let handled = false
+      // Suppression de la tâche sélectionnée (Delete)
+      if (e.key === 'Delete') {
+        e.preventDefault()
+        if (window.confirm('Supprimer cette tâche ?')) {
+          await handleTaskDeleted(selectedTaskId)
+        }
+        return
+      }
       // Importance
       if (e.key.toLowerCase() === "i") {
         if (e.shiftKey) {
@@ -336,14 +344,12 @@ export default function TaskListPage() {
   }
 
   const handleTaskDeleted = async (taskId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
-      try {
-        await api.deleteTask(taskId)
-        loadTasks()
-      } catch (err) {
-        console.error('Erreur lors de la suppression de la tâche:', err)
-        alert('Erreur lors de la suppression de la tâche')
-      }
+    try {
+      await api.deleteTask(taskId)
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la suppression de la tâche:', err)
+      alert('Erreur lors de la suppression de la tâche')
     }
   }
 
