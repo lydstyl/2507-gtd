@@ -343,6 +343,58 @@ export default function TaskListPage() {
     setSelectedTaskId(taskId)
   }
 
+  // Gestion des actions rapides mobiles
+  const handleQuickAction = async (taskId: string, action: string) => {
+    const task = findTaskById(tasks, taskId)
+    if (!task) return
+
+    let update: any = {}
+    let shouldDelete = false
+
+    switch (action) {
+      case 'importance-up':
+        update.importance = Math.max(1, task.importance - 1)
+        break
+      case 'importance-down':
+        update.importance = Math.min(5, task.importance + 1)
+        break
+      case 'urgency-up':
+        update.urgency = Math.max(1, task.urgency - 1)
+        break
+      case 'urgency-down':
+        update.urgency = Math.min(5, task.urgency + 1)
+        break
+      case 'priority-up':
+        update.priority = Math.max(1, task.priority - 1)
+        break
+      case 'priority-down':
+        update.priority = Math.min(5, task.priority + 1)
+        break
+      case 'date-today':
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        update.dueDate = today.toISOString()
+        break
+      case 'date-remove':
+        update.dueDate = null
+        break
+      case 'delete':
+        shouldDelete = true
+        break
+    }
+
+    try {
+      if (shouldDelete) {
+        await handleTaskDeleted(taskId)
+      } else {
+        await api.updateTask(taskId, update)
+        await loadTasks()
+      }
+    } catch (err) {
+      alert("Erreur lors de l'action rapide")
+    }
+  }
+
   const handleTaskDeleted = async (taskId: string) => {
     try {
       await api.deleteTask(taskId)
@@ -690,6 +742,7 @@ export default function TaskListPage() {
                 isEven={index % 2 === 1}
                 onSelectTask={handleSelectTask}
                 selectedTaskId={selectedTaskId ?? undefined}
+                onQuickAction={handleQuickAction}
               />
             ))}
         </div>

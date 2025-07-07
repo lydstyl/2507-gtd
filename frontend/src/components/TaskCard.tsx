@@ -14,6 +14,7 @@ interface TaskCardProps {
   isSelected?: boolean // Ajouté pour la sélection
   onSelectTask?: (taskId: string) => void // Ajouté pour la sélection par clic
   selectedTaskId?: string // Ajouté pour la sélection profonde
+  onQuickAction?: (taskId: string, action: string) => void // Ajouté pour les actions rapides
 }
 
 export function TaskCard({
@@ -27,10 +28,12 @@ export function TaskCard({
   isEven = false,
   isSelected = false,
   onSelectTask,
-  selectedTaskId // Ajouté
+  selectedTaskId,
+  onQuickAction // Ajouté
 }: TaskCardProps) {
   if (!task) return null;
   const [showSubtasks, setShowSubtasks] = useState(true)
+  const [showQuickActions, setShowQuickActions] = useState(false)
 
   const getPriorityColor = (importance: number) => {
     switch (importance) {
@@ -390,8 +393,121 @@ export function TaskCard({
                 </svg>
               </button>
             )}
+
+            {/* Bouton actions rapides (mobile) */}
+            {onQuickAction && (
+              <button
+                onClick={() => setShowQuickActions(!showQuickActions)}
+                className='p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors md:hidden'
+                title='Actions rapides'
+              >
+                <svg
+                  className='w-4 h-4'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M13 10V3L4 14h7v7l9-11h-7z'
+                  />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
+        
+        {/* Menu actions rapides (mobile) */}
+        {showQuickActions && onQuickAction && (
+          <div className='border-t border-gray-200 p-4 bg-gray-50'>
+            <div className='text-sm font-medium text-gray-700 mb-3'>Actions rapides</div>
+            <div className='grid grid-cols-2 gap-2'>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'importance-up')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200'
+              >
+                ↑ Importance
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'importance-down')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200'
+              >
+                ↓ Importance
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'urgency-up')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200'
+              >
+                ↑ Urgence
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'urgency-down')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200'
+              >
+                ↓ Urgence
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'priority-up')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200'
+              >
+                ↑ Priorité
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'priority-down')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200'
+              >
+                ↓ Priorité
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'date-today')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200'
+              >
+                Date aujourd'hui
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'date-remove')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200'
+              >
+                Enlever date
+              </button>
+              <button
+                onClick={() => {
+                  onQuickAction(task.id, 'delete')
+                  setShowQuickActions(false)
+                }}
+                className='px-3 py-2 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200'
+              >
+                🗑️ Supprimer
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sous-tâches avec indentation */}
