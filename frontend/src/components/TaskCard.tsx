@@ -12,6 +12,8 @@ interface TaskCardProps {
   level?: number
   isEven?: boolean
   isSelected?: boolean // Ajouté pour la sélection
+  onSelectTask?: (taskId: string) => void // Ajouté pour la sélection par clic
+  selectedTaskId?: string // Ajouté pour la sélection profonde
 }
 
 export function TaskCard({
@@ -23,8 +25,11 @@ export function TaskCard({
   onEditNote,
   level = 0,
   isEven = false,
-  isSelected = false // Ajouté pour la sélection
+  isSelected = false,
+  onSelectTask,
+  selectedTaskId // Ajouté
 }: TaskCardProps) {
+  if (!task) return null;
   const [showSubtasks, setShowSubtasks] = useState(true)
 
   const getPriorityColor = (importance: number) => {
@@ -135,12 +140,20 @@ export function TaskCard({
 
   const indentStyle = level > 0 ? { marginLeft: `${level * 24}px` } : {}
 
+  const selected = selectedTaskId ? selectedTaskId === task.id : isSelected
+
   return (
     <div style={indentStyle}>
       <div
         className={`border border-gray-200 rounded-lg hover:bg-gray-50 mb-2 ${
           isEven ? 'bg-gray-50' : 'bg-white'
-        } ${isSelected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''}`}
+        } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''}`}
+        onClick={() => {
+          if (onSelectTask) {
+            onSelectTask(task.id)
+            console.log('Sélection tâche (clic):', task.name)
+          }
+        }}
       >
         <div className='flex items-center justify-between p-4'>
           <div className='flex items-center space-x-3 flex-1'>
@@ -393,6 +406,8 @@ export function TaskCard({
               onCreateSubtask={onCreateSubtask}
               level={level + 1}
               isEven={isEven}
+              onSelectTask={onSelectTask}
+              selectedTaskId={selectedTaskId}
             />
           ))}
         </div>

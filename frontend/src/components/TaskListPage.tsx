@@ -156,6 +156,13 @@ export default function TaskListPage() {
     dateFilter
   ])
 
+  // Vérifie que la tâche sélectionnée existe toujours après chaque reload
+  useEffect(() => {
+    if (selectedTaskId && !findTaskById(filteredTasks, selectedTaskId)) {
+      setSelectedTaskId(null)
+    }
+  }, [filteredTasks, selectedTaskId])
+
   // Gestion navigation clavier pour sélection
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
@@ -194,7 +201,7 @@ export default function TaskListPage() {
       }
       // Raccourcis édition rapide
       if (!selectedTaskId) return
-      const task = tasks.find((t) => t.id === selectedTaskId)
+      const task = findTaskById(tasks, selectedTaskId)
       if (!task) return
       let update: any = {}
       let handled = false
@@ -665,19 +672,19 @@ export default function TaskListPage() {
           {filteredTasks
             .filter(task => !pinnedTaskId || task.id !== pinnedTaskId)
             .map((task, index) => (
-              <div key={task.id} onClick={() => handleSelectTask(task.id)}>
-                <TaskCard
-                  task={task}
-                  level={0}
-                  onEdit={handleEditTask}
-                  onDelete={handleTaskDeleted}
-                  onCreateSubtask={handleCreateSubtask}
-                  onAssignParent={handleAssignParent}
-                  onEditNote={handleEditNote}
-                  isEven={index % 2 === 1}
-                  isSelected={selectedTaskId === task.id}
-                />
-              </div>
+              <TaskCard
+                key={task.id}
+                task={task}
+                level={0}
+                onEdit={handleEditTask}
+                onDelete={handleTaskDeleted}
+                onCreateSubtask={handleCreateSubtask}
+                onAssignParent={handleAssignParent}
+                onEditNote={handleEditNote}
+                isEven={index % 2 === 1}
+                onSelectTask={handleSelectTask}
+                selectedTaskId={selectedTaskId ?? undefined}
+              />
             ))}
         </div>
       )}
@@ -733,4 +740,16 @@ export default function TaskListPage() {
       )}
     </div>
   )
+}
+
+// Fonction utilitaire pour trouver une tâche (ou sous-tâche) par id
+function findTaskById(tasks: Task[], id: string | null): Task | undefined {
+  for (const t of tasks) {
+    if (t.id === id) return t
+    if (t.subtasks && t.subtasks.length > 0) {
+      const found = findTaskById(t.subtasks, id)
+      if (found) return found
+    }
+  }
+  return undefined
 }
