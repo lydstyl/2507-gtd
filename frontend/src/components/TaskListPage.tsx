@@ -159,6 +159,8 @@ export default function TaskListPage() {
   // Gestion navigation clavier pour sélection
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
+      // Désactiver les raccourcis si une modal est ouverte
+      if (isCreateTaskModalOpen || isEditTaskModalOpen || isAssignParentModalOpen || isNoteModalOpen) return
       if (filteredTasks.length === 0 && !selectedTaskId) return
       // Navigation ↑/↓
       if (["ArrowDown", "ArrowUp"].includes(e.key)) {
@@ -179,7 +181,17 @@ export default function TaskListPage() {
         }
         return
       }
-
+      // Toggle aide (H)
+      if (e.key.toLowerCase() === "h") {
+        setShowShortcutsHelp((v) => !v)
+        return
+      }
+      // Toggle focus permanent (F)
+      if (e.key.toLowerCase() === "f") {
+        if (!selectedTaskId) return
+        setPinnedTaskId((prev) => (prev === selectedTaskId ? null : selectedTaskId))
+        return
+      }
       // Raccourcis édition rapide
       if (!selectedTaskId) return
       const task = tasks.find((t) => t.id === selectedTaskId)
@@ -238,6 +250,18 @@ export default function TaskListPage() {
         update.dueDate = baseDate.toISOString()
         handled = true
       }
+      // Mettre la date à aujourd'hui (T)
+      if (e.key.toLowerCase() === "t") {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        update.dueDate = today.toISOString()
+        handled = true
+      }
+      // Enlever la date (E)
+      if (e.key.toLowerCase() === "e") {
+        update.dueDate = null
+        handled = true
+      }
       // Tags 1-9
       if (/^[1-9]$/.test(e.key)) {
         const idx = parseInt(e.key, 10) - 1
@@ -254,9 +278,7 @@ export default function TaskListPage() {
         e.preventDefault()
         try {
           await api.updateTask(task.id, update)
-          // Après modif, recharge les tâches
           await loadTasks()
-          // Si la tâche n'est plus dans filteredTasks, focus spécial
           setTimeout(() => {
             const stillVisible = applyFilters(tasks).some((t) => t.id === task.id)
             if (!stillVisible) {
@@ -268,14 +290,38 @@ export default function TaskListPage() {
         } catch (err) {
           alert("Erreur lors de la modification rapide de la tâche")
         }
+        return
+      }
+      // Mettre toutes les tâches en retard à aujourd'hui (A)
+      if (e.key.toLowerCase() === "a") {
+        e.preventDefault()
+        if (!window.confirm("Mettre toutes les tâches en retard à aujourd'hui ?")) return
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const overdueTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate) < today)
+        for (const t of overdueTasks) {
+          await api.updateTask(t.id, { dueDate: today.toISOString() })
+        }
+        await loadTasks()
+        return
       }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [filteredTasks, selectedTaskId, tasks, tags])
+  }, [filteredTasks, selectedTaskId, tasks, tags, isCreateTaskModalOpen, isEditTaskModalOpen, isAssignParentModalOpen, isNoteModalOpen])
 
   // Focus spécial si la tâche modifiée sort des filtres
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null)
+  const [pinnedTaskId, setPinnedTaskId] = useState<string | null>(null)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(true)
+
+  // Scroll en haut quand on épingle une tâche
+  const pinnedRef = React.useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (pinnedTaskId && pinnedRef.current) {
+      pinnedRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [pinnedTaskId])
 
   // Sélection par clic
   const handleSelectTask = (taskId: string) => {
@@ -388,38 +434,68 @@ export default function TaskListPage() {
           + Nouvelle tâche
         </button>
       </div>
-
-      {/* Aide raccourcis clavier */}
-      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
-        <div className="font-semibold mb-1">Raccourcis clavier (sur la tâche sélectionnée) :</div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          <div><b>I</b> / <b>Shift+I</b> : Importance -/+</div>
-          <div><b>U</b> / <b>Shift+U</b> : Urgence -/+</div>
-          <div><b>P</b> / <b>Shift+P</b> : Priorité -/+</div>
-          <div><b>D</b> / <b>Shift+D</b> : Date +1j / -1j</div>
-          <div><b>W</b> : +1 semaine à la date</div>
-          <div><b>M</b> : +1 mois à la date</div>
-          <div><b>1-9</b> : Ajouter/enlever tag 1 à 9</div>
-          <div><b>↑ / ↓</b> : Sélectionner la tâche précédente/suivante</div>
-        </div>
+      <div className="flex items-center mb-2">
+        <button
+          className="text-xs text-blue-700 underline mr-2"
+          onClick={() => setShowShortcutsHelp(v => !v)}
+        >
+          {showShortcutsHelp ? "Cacher l'aide sur les raccourcis" : "Afficher l'aide sur les raccourcis"}
+        </button>
+        {pinnedTaskId && (
+          <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded ml-2">Tâche fixée en haut de la liste</span>
+        )}
       </div>
-
-      {/* Affichage dynamique des tags 1-9 */}
-      {tags.length > 0 && (
-        <div className="mb-6">
-          <div className="text-xs text-gray-600 mb-1">Tags accessibles par raccourci :</div>
-          <div className="flex flex-wrap gap-2">
-            {tags.slice(0, 9).map((tag, idx) => (
-              <div key={tag.id} className="flex items-center px-2 py-1 rounded border border-gray-200 bg-gray-50 text-xs">
-                <span className="font-mono font-bold mr-1">{idx + 1}.</span>
-                <span
-                  className="w-3 h-3 rounded-full inline-block mr-1"
-                  style={{ backgroundColor: tag.color || '#6b7280' }}
-                ></span>
-                <span>{tag.name}</span>
-              </div>
-            ))}
+      {/* Aide raccourcis clavier */}
+      {showShortcutsHelp && (
+        <>
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
+            <div className="font-semibold mb-1">Raccourcis clavier (sur la tâche sélectionnée) :</div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div><b>I</b> / <b>Shift+I</b> : Importance -/+</div>
+              <div><b>U</b> / <b>Shift+U</b> : Urgence -/+</div>
+              <div><b>P</b> / <b>Shift+P</b> : Priorité -/+</div>
+              <div><b>D</b> / <b>Shift+D</b> : Date +1j / -1j</div>
+              <div><b>W</b> : +1 semaine à la date</div>
+              <div><b>M</b> : +1 mois à la date</div>
+              <div><b>T</b> : Date à aujourd'hui</div>
+              <div><b>E</b> : Enlever la date</div>
+              <div><b>A</b> : Toutes les tâches en retard à aujourd'hui</div>
+              <div><b>1-9</b> : Ajouter/enlever tag 1 à 9</div>
+              <div><b>F</b> : Fixer/défixer la tâche sélectionnée en haut</div>
+              <div><b>H</b> : Afficher/cacher cette aide</div>
+              <div><b>↑ / ↓</b> : Sélectionner la tâche précédente/suivante</div>
+            </div>
           </div>
+          {/* Affichage dynamique des tags 1-9 */}
+          {tags.length > 0 && (
+            <div className="mb-6">
+              <div className="text-xs text-gray-600 mb-1">Tags accessibles par raccourci :</div>
+              <div className="flex flex-wrap gap-2">
+                {tags.slice(0, 9).map((tag, idx) => (
+                  <div key={tag.id} className="flex items-center px-2 py-1 rounded border border-gray-200 bg-gray-50 text-xs">
+                    <span className="font-mono font-bold mr-1">{idx + 1}.</span>
+                    <span
+                      className="w-3 h-3 rounded-full inline-block mr-1"
+                      style={{ backgroundColor: tag.color || '#6b7280' }}
+                    ></span>
+                    <span>{tag.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+      {/* Tâche fixée en haut de la liste (hors focus spécial) */}
+      {pinnedTaskId && !focusTaskId && tasks.find(t => t.id === pinnedTaskId) && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-300 rounded-lg" ref={pinnedRef}>
+          <div className="mb-2 text-yellow-800 font-semibold">
+            Tâche fixée en haut de la liste
+          </div>
+          <TaskCard
+            task={tasks.find((t) => t.id === pinnedTaskId)!}
+            isSelected={selectedTaskId === pinnedTaskId}
+          />
         </div>
       )}
 
@@ -586,21 +662,23 @@ export default function TaskListPage() {
         </div>
       ) : (
         <div className='space-y-4'>
-          {filteredTasks.map((task, index) => (
-            <div key={task.id} onClick={() => handleSelectTask(task.id)}>
-              <TaskCard
-                task={task}
-                level={0}
-                onEdit={handleEditTask}
-                onDelete={handleTaskDeleted}
-                onCreateSubtask={handleCreateSubtask}
-                onAssignParent={handleAssignParent}
-                onEditNote={handleEditNote}
-                isEven={index % 2 === 1}
-                isSelected={selectedTaskId === task.id}
-              />
-            </div>
-          ))}
+          {filteredTasks
+            .filter(task => !pinnedTaskId || task.id !== pinnedTaskId)
+            .map((task, index) => (
+              <div key={task.id} onClick={() => handleSelectTask(task.id)}>
+                <TaskCard
+                  task={task}
+                  level={0}
+                  onEdit={handleEditTask}
+                  onDelete={handleTaskDeleted}
+                  onCreateSubtask={handleCreateSubtask}
+                  onAssignParent={handleAssignParent}
+                  onEditNote={handleEditNote}
+                  isEven={index % 2 === 1}
+                  isSelected={selectedTaskId === task.id}
+                />
+              </div>
+            ))}
         </div>
       )}
 
