@@ -8,7 +8,9 @@ import type {
 
 // Détecter automatiquement l'environnement et l'URL de base
 const isProduction = import.meta.env.PROD
-const API_BASE_URL = isProduction ? '/api' : 'http://localhost:3000/api'
+const apiPort =
+  import.meta.env.VITE_API_PORT || (isProduction ? undefined : '3000')
+const API_BASE_URL = isProduction ? '/api' : `http://localhost:${apiPort}/api`
 
 export class ApiError extends Error {
   status: number

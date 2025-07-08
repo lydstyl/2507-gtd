@@ -144,15 +144,15 @@ test_built_application() {
     
     # Démarrer le serveur backend en arrière-plan
     info "🚀 Démarrage du serveur backend buildé..."
-    PORT=3001 NODE_ENV=test DATABASE_URL="$DATABASE_URL_TEST" npm run start &
+    PORT=$CUSTOM_PORT NODE_ENV=test DATABASE_URL="$DATABASE_URL_TEST" npm run start &
     BACKEND_PID=$!
     
     # Attendre que le serveur démarre
     sleep 5
     
     # Vérifier que le serveur fonctionne
-    if curl -f http://localhost:3001/health > /dev/null 2>&1; then
-        log "✅ Serveur backend démarré avec succès sur le port 3001"
+    if curl -f http://localhost:$CUSTOM_PORT/health > /dev/null 2>&1; then
+        log "✅ Serveur backend démarré avec succès sur le port $CUSTOM_PORT"
     else
         error "❌ Le serveur backend n'a pas démarré correctement"
         kill $BACKEND_PID 2>/dev/null || true
@@ -162,15 +162,15 @@ test_built_application() {
     # Démarrer le serveur frontend en arrière-plan
     info "🌐 Démarrage du serveur frontend buildé..."
     cd ../frontend
-    npx serve -s dist -l 3002 &
+    npx serve -s dist -l $((CUSTOM_PORT + 1)) &
     FRONTEND_PID=$!
     
     # Attendre que le serveur démarre
     sleep 3
     
     # Vérifier que le serveur fonctionne
-    if curl -f http://localhost:3002 > /dev/null 2>&1; then
-        log "✅ Serveur frontend démarré avec succès sur le port 3002"
+    if curl -f http://localhost:$((CUSTOM_PORT + 1)) > /dev/null 2>&1; then
+        log "✅ Serveur frontend démarré avec succès sur le port $((CUSTOM_PORT + 1))"
     else
         error "❌ Le serveur frontend n'a pas démarré correctement"
         kill $FRONTEND_PID 2>/dev/null || true
@@ -181,13 +181,13 @@ test_built_application() {
     # Afficher les informations de test
     echo ""
     log "🎯 Application testée avec succès!"
-    echo "   - Backend: http://localhost:3001"
-    echo "   - Frontend: http://localhost:3002"
+    echo "   - Backend: http://localhost:$CUSTOM_PORT"
+    echo "   - Frontend: http://localhost:$((CUSTOM_PORT + 1))"
     echo "   - Base de données: Test"
     echo ""
     info "📋 Tests disponibles:"
-    echo "   - Test API: curl http://localhost:3001/api/tasks"
-    echo "   - Test Frontend: Ouvrir http://localhost:3002 dans votre navigateur"
+    echo "   - Test API: curl http://localhost:$CUSTOM_PORT/api/tasks"
+    echo "   - Test Frontend: Ouvrir http://localhost:$((CUSTOM_PORT + 1)) dans votre navigateur"
     echo ""
     warn "⚠️  Appuyez sur Ctrl+C pour arrêter les serveurs de test"
     
@@ -199,9 +199,12 @@ test_built_application() {
 # Fonction pour nettoyer les serveurs de test
 cleanup_test_servers() {
     echo ""
-    log "🧹 Arrêt du serveur de test..."
+    log "🧹 Arrêt des serveurs de test..."
     kill $BACKEND_PID 2>/dev/null || true
-    log "✅ Serveur arrêté"
+    if [ ! -z "$FRONTEND_PID" ]; then
+        kill $FRONTEND_PID 2>/dev/null || true
+    fi
+    log "✅ Serveurs arrêtés"
     exit 0
 }
 
@@ -219,18 +222,18 @@ build_application() {
     cd frontend
     
     # Configuration des variables d'environnement pour le build
-    if [ "$ENVIRONMENT" = "test-simple" ] || [ "$ENVIRONMENT" = "test-local" ]; then
-        # Mode test/production : serveur unifié sur le port personnalisé
+    if [ "$ENVIRONMENT" = "production" ] || [ "$ENVIRONMENT" = "staging" ] || [ "$ENVIRONMENT" = "test-simple" ]; then
+        # Mode production/staging/test-simple : serveur unifié sur le port personnalisé
         export NODE_ENV=production
         export VITE_API_PORT=$CUSTOM_PORT
         export VITE_FRONTEND_PORT=$CUSTOM_PORT
         log "🔧 Configuration frontend pour serveur unifié (port $CUSTOM_PORT) en mode production"
     else
-        # Mode développement : backend sur 3000, frontend sur 5173
+        # Mode test-local : backend et frontend séparés
         export NODE_ENV=development
-        export VITE_API_PORT=3000
-        export VITE_FRONTEND_PORT=5173
-        log "🔧 Configuration frontend pour développement (backend: 3000, frontend: 5173)"
+        export VITE_API_PORT=$CUSTOM_PORT
+        export VITE_FRONTEND_PORT=$((CUSTOM_PORT + 1))
+        log "🔧 Configuration frontend pour test-local (backend: $CUSTOM_PORT, frontend: $((CUSTOM_PORT + 1)))"
     fi
     
     npm run build
@@ -271,7 +274,8 @@ case $ENVIRONMENT in
     "production"|"staging")
         log "🚀 Mode déploiement: $ENVIRONMENT"
         build_application
-        deploy_application
+        log "🧪 Test de l'application buildée avant déploiement..."
+        test_built_application_simple
         ;;
     *)
         error "Environnement invalide. Utilisez: production, staging, test-local, ou test-simple"
