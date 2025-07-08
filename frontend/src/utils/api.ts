@@ -6,7 +6,9 @@ import type {
   CreateTagData
 } from '../types/task'
 
-const API_BASE_URL = 'http://localhost:3000/api'
+// Détecter automatiquement l'environnement et l'URL de base
+const isProduction = import.meta.env.PROD
+const API_BASE_URL = isProduction ? '/api' : 'http://localhost:3000/api'
 
 export class ApiError extends Error {
   status: number

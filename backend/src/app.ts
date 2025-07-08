@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import path from 'path'
 import { Container } from './infrastructure/container'
 import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
@@ -35,7 +36,7 @@ app.use((req, res, next) => {
 // Dependency injection container
 const container = Container.getInstance()
 
-// Routes
+// Routes API
 app.use('/api/tasks', createTaskRoutes(container.getTaskController()))
 app.use('/api/tags', createTagRoutes(container.getTagController()))
 app.use('/api/auth', authRoutes)
@@ -45,18 +46,36 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() })
 })
 
-// Route par défaut
-app.get('/', (req, res) => {
+// Route API racine
+app.get('/api', (req, res) => {
   res.json({
     message: 'Todo List API',
     version: '1.0.0',
     endpoints: {
       tasks: '/api/tasks',
       tags: '/api/tags',
+      auth: '/api/auth',
       health: '/health'
     }
   })
 })
+
+// Servir les fichiers statiques du frontend buildé
+const frontendPath = path.join(__dirname, '../../frontend/dist')
+app.use(express.static(frontendPath))
+
+// Middleware pour servir index.html pour toutes les routes frontend (SPA)
+app.use(
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // Ne pas intercepter les routes API
+    if (req.path.startsWith('/api/') || req.path === '/health') {
+      return next()
+    }
+
+    // Servir le fichier index.html du frontend
+    res.sendFile(path.join(frontendPath, 'index.html'))
+  }
+)
 
 // Middleware de gestion d'erreurs
 app.use(
@@ -70,13 +89,5 @@ app.use(
     res.status(500).json({ error: 'Something went wrong!' })
   }
 )
-
-// Middleware pour les routes non trouvées
-//app.use('*', (req, res) => {
-//  res.status(404).json({ error: 'Route not found' })
-//}) // this make error /home/gbp2204/apps/2507-gtd/node_modules/path-to-regexp/src/index.ts:153
-// throw new TypeError(`Missing parameter name at ${i}: ${DEBUG_URL}`);
-//  ^
-//TypeError: Missing parameter name at 1: https://git.new/pathToRegexpError
 
 export default app
