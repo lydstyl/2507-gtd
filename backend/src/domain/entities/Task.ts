@@ -17,6 +17,14 @@ export interface Task {
   user?: User
 }
 
+export interface TaskTag {
+  id: string
+  taskId: string
+  tagId: string
+  task?: Task
+  tag?: Tag
+}
+
 export interface TaskWithSubtasks extends Task {
   subtasks: TaskWithSubtasks[]
   tags: Tag[]

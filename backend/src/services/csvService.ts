@@ -1,4 +1,5 @@
-import { Task, Tag, TaskTag } from '@prisma/client'
+import { Task, TaskTag } from '../domain/entities/Task'
+import { Tag } from '../domain/entities/Tag'
 
 export interface TaskWithTags extends Omit<Task, 'note'> {
   tags: (TaskTag & { tag: Tag })[]
@@ -90,7 +91,11 @@ export class CSVService {
       const columns = this.parseCSVLine(line)
 
       if (columns.length < 13) {
-        errors.push(`Ligne ${i + 1}: Nombre de colonnes insuffisant (${columns.length} au lieu de 13)`)
+        errors.push(
+          `Ligne ${i + 1}: Nombre de colonnes insuffisant (${
+            columns.length
+          } au lieu de 13)`
+        )
         continue
       }
 
@@ -164,7 +169,9 @@ export class CSVService {
           priority,
           dueDate,
           parentName:
-            parentName && parentName.trim() !== '' ? parentName.trim() : undefined,
+            parentName && parentName.trim() !== ''
+              ? parentName.trim()
+              : undefined,
           tagNames
         })
       } catch (error) {

@@ -153,7 +153,7 @@ export class PrismaTaskRepository implements TaskRepository {
 
     // Appliquer le tri personnalisé
     const sortedTasks = this.sortTasksByPriority(
-      tasks.map((task) => this.formatTaskWithSubtasks(task))
+      tasks.map((task: any) => this.formatTaskWithSubtasks(task))
     )
 
     return sortedTasks
@@ -272,7 +272,7 @@ export class PrismaTaskRepository implements TaskRepository {
       orderBy: { createdAt: 'desc' }
     })
 
-    return tasks.map((task) => ({
+    return tasks.map((task: any) => ({
       ...task,
       parentName: task.parent?.name
     })) as unknown as TaskWithTags[]
