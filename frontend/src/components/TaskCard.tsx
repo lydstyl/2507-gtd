@@ -148,7 +148,7 @@ export function TaskCard({
   return (
     <div style={indentStyle}>
       <div
-        className={`border border-gray-200 rounded-lg hover:bg-gray-50 mb-2 ${
+        className={`border border-gray-200 rounded-lg hover:bg-gray-50 h-full ${
           isEven ? 'bg-gray-50' : 'bg-white'
         } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''}`}
         onClick={() => {
@@ -158,22 +158,22 @@ export function TaskCard({
           }
         }}
       >
-        <div className='flex items-center justify-between p-4'>
-          <div className='flex items-center space-x-3 flex-1'>
+        <div className='flex flex-col h-full p-4'>
+          <div className='flex items-start space-x-3 mb-3'>
             <div
-              className={`w-3 h-3 rounded-full ${getPriorityColor(
+              className={`w-3 h-3 rounded-full flex-shrink-0 ${getPriorityColor(
                 task.importance
               )}`}
             ></div>
-            <div className='flex-1'>
-              <div className='flex items-center space-x-2'>
-                <h4 className='font-medium text-gray-900'>{task.name}</h4>
+            <div className='flex-1 min-w-0'>
+              <div className='flex items-center space-x-2 mb-2'>
+                <h4 className='font-medium text-gray-900 truncate'>{task.name}</h4>
                 {task.link && (
                   <a
                     href={task.link}
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:text-blue-800 text-sm flex items-center space-x-1'
+                    className='text-blue-600 hover:text-blue-800 text-sm flex items-center space-x-1 flex-shrink-0'
                     title='Ouvrir le lien'
                   >
                     <svg
@@ -194,14 +194,14 @@ export function TaskCard({
                 )}
               </div>
 
-              <p className='text-sm text-gray-500 mt-1'>
+              <p className='text-sm text-gray-500 mb-2'>
                 Importance: {task.importance} | Urgence: {task.urgency} |
                 Priorité: {task.priority}
               </p>
 
               {/* Tags */}
               {task.tags && task.tags.length > 0 && (
-                <div className='flex flex-wrap gap-1 mt-2'>
+                <div className='flex flex-wrap gap-1 mb-3'>
                   {task.tags.map((tag) => (
                     <Tag key={tag.id} tag={tag} />
                   ))}
@@ -210,10 +210,11 @@ export function TaskCard({
             </div>
           </div>
 
-          <div className='flex items-center space-x-3'>
+          {/* Date et actions */}
+          <div className='flex items-center justify-between mt-auto'>
             {/* Date */}
             {task.dueDate && (
-              <div className='flex flex-col items-end space-y-1'>
+              <div className='flex flex-col items-start space-y-1'>
                 <div className='flex items-center space-x-1'>
                   {getDateIndicator(task.dueDate) && (
                     <span
@@ -243,21 +244,257 @@ export function TaskCard({
               </div>
             )}
 
-            {/* Toggle subtasks button */}
-            {task.subtasks && task.subtasks.length > 0 && (
+            {/* Actions */}
+            <div className='flex items-center space-x-1'>
+              {/* Toggle subtasks button */}
+              {task.subtasks && task.subtasks.length > 0 && (
+                <button
+                  onClick={() => setShowSubtasks(!showSubtasks)}
+                  className='p-1 text-purple-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors'
+                  title={
+                    showSubtasks
+                      ? 'Masquer les sous-tâches'
+                      : 'Afficher les sous-tâches'
+                  }
+                >
+                  <svg
+                    className={`w-3 h-3 transition-transform ${
+                      showSubtasks ? 'rotate-90' : ''
+                    }`}
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M9 5l7 7-7 7'
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Create subtask button */}
+              {onCreateSubtask && (
+                <button
+                  onClick={() => onCreateSubtask(task.id)}
+                  className='p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors'
+                  title='Ajouter une sous-tâche'
+                >
+                  <svg
+                    className='w-3 h-3'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Note button */}
               <button
-                onClick={() => setShowSubtasks(!showSubtasks)}
-                className='p-2 text-purple-400 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors'
-                title={
-                  showSubtasks
-                    ? 'Masquer les sous-tâches'
-                    : 'Afficher les sous-tâches'
-                }
+                onClick={() => onEditNote?.(task)}
+                className={`p-1 rounded transition-colors ${
+                  task.note
+                    ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-100'
+                    : 'text-purple-400 hover:text-purple-600 hover:bg-purple-50'
+                }`}
+                title={task.note ? 'Modifier la note' : 'Ajouter une note'}
               >
+                <div className='relative'>
+                  <svg
+                    className='w-3 h-3'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                    />
+                  </svg>
+                  {task.note && (
+                    <div className='absolute -top-1 -right-1 w-1.5 h-1.5 bg-purple-600 rounded-full'></div>
+                  )}
+                </div>
+              </button>
+
+              {/* Assign parent button */}
+              {onAssignParent && (
+                <button
+                  onClick={() => onAssignParent(task)}
+                  className='p-1 text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors'
+                  title='Assigner une tâche parente'
+                >
+                  <svg
+                    className='w-3 h-3'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Edit button */}
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(task)}
+                  className='p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors'
+                  title='Modifier la tâche'
+                >
+                  <svg
+                    className='w-3 h-3'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Delete button */}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(task.id)}
+                  className='p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors'
+                  title='Supprimer la tâche'
+                >
+                  <svg
+                    className='w-3 h-3'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Bouton actions rapides (mobile) */}
+              {onQuickAction && (
+                <button
+                  onClick={() => setShowQuickActions(!showQuickActions)}
+                  className='p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors md:hidden'
+                  title='Actions rapides'
+                >
+                  <svg
+                    className='w-3 h-3'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M13 10V3L4 14h7v7l9-11h-7z'
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Sous-tâches intégrées */}
+          {task.subtasks && task.subtasks.length > 0 && showSubtasks && (
+            <div className='mt-3 pt-3 border-t border-gray-200'>
+              <div className='text-xs text-gray-500 mb-2 font-medium'>
+                Sous-tâches ({task.subtasks.length})
+              </div>
+              <div className='space-y-2'>
+                {task.subtasks.map((subtask) => (
+                  <div
+                    key={subtask.id}
+                    className='bg-gray-50 rounded-md p-2 border border-gray-200'
+                    onClick={() => {
+                      if (onSelectTask) {
+                        onSelectTask(subtask.id)
+                      }
+                    }}
+                  >
+                    <div className='flex items-center space-x-2'>
+                      <div
+                        className={`w-2 h-2 rounded-full ${getPriorityColor(
+                          subtask.importance
+                        )}`}
+                      ></div>
+                      <div className='flex-1 min-w-0'>
+                        <div className='flex items-center justify-between'>
+                          <h5 className='text-sm font-medium text-gray-900 truncate'>
+                            {subtask.name}
+                          </h5>
+                          {subtask.dueDate && (
+                            <span
+                              className={`text-xs font-medium ml-2 ${
+                                isOverdue(subtask.dueDate) ? 'text-red-600' : 'text-gray-600'
+                              }`}
+                            >
+                              {formatDate(subtask.dueDate)}
+                            </span>
+                          )}
+                        </div>
+                        <p className='text-xs text-gray-500 mt-1'>
+                          I: {subtask.importance} | U: {subtask.urgency} | P: {subtask.priority}
+                        </p>
+                        {/* Tags des sous-tâches */}
+                        {subtask.tags && subtask.tags.length > 0 && (
+                          <div className='flex flex-wrap gap-1 mt-1'>
+                            {subtask.tags.map((tag) => (
+                              <span
+                                key={tag.id}
+                                className='inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium'
+                                style={{ backgroundColor: tag.color + '20', color: tag.color }}
+                              >
+                                <span
+                                  className='w-2 h-2 rounded-full mr-1'
+                                  style={{ backgroundColor: tag.color }}
+                                ></span>
+                                {tag.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Indicateur de sous-tâches masquées */}
+          {task.subtasks && task.subtasks.length > 0 && !showSubtasks && (
+            <div className='mt-3 pt-3 border-t border-gray-200'>
+              <div className='text-xs text-gray-500 bg-gray-100 rounded-md px-2 py-1 inline-flex items-center space-x-1'>
                 <svg
-                  className={`w-4 h-4 transition-transform ${
-                    showSubtasks ? 'rotate-90' : ''
-                  }`}
+                  className='w-3 h-3'
                   fill='none'
                   stroke='currentColor'
                   viewBox='0 0 24 24'
@@ -269,154 +506,14 @@ export function TaskCard({
                     d='M9 5l7 7-7 7'
                   />
                 </svg>
-              </button>
-            )}
-
-            {/* Create subtask button */}
-            {onCreateSubtask && (
-              <button
-                onClick={() => onCreateSubtask(task.id)}
-                className='p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors'
-                title='Ajouter une sous-tâche'
-              >
-                <svg
-                  className='w-4 h-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                  />
-                </svg>
-              </button>
-            )}
-
-            {/* Note button */}
-            <button
-              onClick={() => onEditNote?.(task)}
-              className={`p-2 rounded-md transition-colors ${
-                task.note
-                  ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-100'
-                  : 'text-purple-400 hover:text-purple-600 hover:bg-purple-50'
-              }`}
-              title={task.note ? 'Modifier la note' : 'Ajouter une note'}
-            >
-              <div className='relative'>
-                <svg
-                  className='w-4 h-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
-                  />
-                </svg>
-                {task.note && (
-                  <div className='absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full'></div>
-                )}
+                <span>
+                  {task.subtasks.length} sous-tâche
+                  {task.subtasks.length > 1 ? 's' : ''} masquée
+                  {task.subtasks.length > 1 ? 's' : ''}
+                </span>
               </div>
-            </button>
-
-            {/* Assign parent button */}
-            {onAssignParent && (
-              <button
-                onClick={() => onAssignParent(task)}
-                className='p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors'
-                title='Assigner une tâche parente'
-              >
-                <svg
-                  className='w-4 h-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
-                  />
-                </svg>
-              </button>
-            )}
-
-            {/* Edit button */}
-            {onEdit && (
-              <button
-                onClick={() => onEdit(task)}
-                className='p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors'
-                title='Modifier la tâche'
-              >
-                <svg
-                  className='w-4 h-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
-                  />
-                </svg>
-              </button>
-            )}
-
-            {/* Delete button */}
-            {onDelete && (
-              <button
-                onClick={() => onDelete(task.id)}
-                className='p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors'
-                title='Supprimer la tâche'
-              >
-                <svg
-                  className='w-4 h-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-                  />
-                </svg>
-              </button>
-            )}
-
-            {/* Bouton actions rapides (mobile) */}
-            {onQuickAction && (
-              <button
-                onClick={() => setShowQuickActions(!showQuickActions)}
-                className='p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors md:hidden'
-                title='Actions rapides'
-              >
-                <svg
-                  className='w-4 h-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M13 10V3L4 14h7v7l9-11h-7z'
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         
         {/* Menu actions rapides (mobile) */}
@@ -510,50 +607,7 @@ export function TaskCard({
         )}
       </div>
 
-      {/* Sous-tâches avec indentation */}
-      {task.subtasks && task.subtasks.length > 0 && showSubtasks && (
-        <div className='space-y-1'>
-          {task.subtasks.map((subtask) => (
-            <TaskCard
-              key={subtask.id}
-              task={subtask}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onCreateSubtask={onCreateSubtask}
-              level={level + 1}
-              isEven={isEven}
-              onSelectTask={onSelectTask}
-              selectedTaskId={selectedTaskId}
-            />
-          ))}
-        </div>
-      )}
 
-      {/* Indicateur de sous-tâches masquées */}
-      {task.subtasks && task.subtasks.length > 0 && !showSubtasks && (
-        <div className='ml-6 mt-2 mb-2'>
-          <div className='text-sm text-gray-500 bg-gray-100 rounded-md px-3 py-2 inline-flex items-center space-x-2'>
-            <svg
-              className='w-4 h-4'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M9 5l7 7-7 7'
-              />
-            </svg>
-            <span>
-              {task.subtasks.length} sous-tâche
-              {task.subtasks.length > 1 ? 's' : ''} masquée
-              {task.subtasks.length > 1 ? 's' : ''}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
