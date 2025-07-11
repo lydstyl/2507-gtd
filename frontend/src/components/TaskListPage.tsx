@@ -329,6 +329,7 @@ export default function TaskListPage() {
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null)
   const [pinnedTaskId, setPinnedTaskId] = useState<string | null>(null)
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(true)
+  const [showFilters, setShowFilters] = useState(true)
 
   // Scroll en haut quand on épingle une tâche
   const pinnedRef = React.useRef<HTMLDivElement>(null)
@@ -499,16 +500,24 @@ export default function TaskListPage() {
           + Nouvelle tâche
         </button>
       </div>
-      <div className="flex items-center mb-2">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center">
+          <button
+            className="text-xs text-blue-700 underline mr-2"
+            onClick={() => setShowShortcutsHelp(v => !v)}
+          >
+            {showShortcutsHelp ? "Cacher l'aide sur les raccourcis" : "Afficher l'aide sur les raccourcis"}
+          </button>
+          {pinnedTaskId && (
+            <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded ml-2">Tâche fixée en haut de la liste</span>
+          )}
+        </div>
         <button
-          className="text-xs text-blue-700 underline mr-2"
-          onClick={() => setShowShortcutsHelp(v => !v)}
+          className="text-xs text-gray-700 underline"
+          onClick={() => setShowFilters(v => !v)}
         >
-          {showShortcutsHelp ? "Cacher l'aide sur les raccourcis" : "Afficher l'aide sur les raccourcis"}
+          {showFilters ? "Cacher les filtres" : "Afficher les filtres"}
         </button>
-        {pinnedTaskId && (
-          <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded ml-2">Tâche fixée en haut de la liste</span>
-        )}
       </div>
       {/* Aide raccourcis clavier */}
       {showShortcutsHelp && (
@@ -593,18 +602,19 @@ export default function TaskListPage() {
       </div>
 
       {/* Filtres */}
-      <div className='mb-6 bg-gray-50 p-4 rounded-lg'>
-        <div className='flex items-center justify-between mb-4'>
-          <h3 className='text-sm font-medium text-gray-700'>Filtres</h3>
-          {hasActiveFilters && (
-            <button
-              onClick={clearAllFilters}
-              className='text-sm text-blue-600 hover:text-blue-800 underline'
-            >
-              Effacer tous les filtres
-            </button>
-          )}
-        </div>
+      {showFilters && (
+        <div className='mb-6 bg-gray-50 p-4 rounded-lg'>
+          <div className='flex items-center justify-between mb-4'>
+            <h3 className='text-sm font-medium text-gray-700'>Filtres</h3>
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                className='text-sm text-blue-600 hover:text-blue-800 underline'
+              >
+                Effacer tous les filtres
+              </button>
+            )}
+          </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
           {/* Filtre par importance */}
@@ -701,7 +711,8 @@ export default function TaskListPage() {
             {filteredTasks.length !== tasks.length && ` sur ${tasks.length}`}
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {tasks.length === 0 ? (
         <div className='text-gray-500 text-center py-8'>
