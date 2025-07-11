@@ -168,7 +168,15 @@ export default function TaskListPage() {
     const handleKeyDown = async (e: KeyboardEvent) => {
       // Désactiver les raccourcis si une modal est ouverte
       if (isCreateTaskModalOpen || isEditTaskModalOpen || isAssignParentModalOpen || isNoteModalOpen) return
+      
+      // Désactiver les raccourcis si l'utilisateur tape dans un champ de saisie
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.contentEditable === 'true') {
+        return
+      }
+      
       if (filteredTasks.length === 0 && !selectedTaskId) return
+      
       // Navigation ↑/↓
       if (["ArrowDown", "ArrowUp"].includes(e.key)) {
         e.preventDefault()
@@ -188,23 +196,29 @@ export default function TaskListPage() {
         }
         return
       }
+      
       // Toggle aide (H)
       if (e.key.toLowerCase() === "h") {
+        e.preventDefault()
         setShowShortcutsHelp((v) => !v)
         return
       }
+      
       // Toggle focus permanent (F)
       if (e.key.toLowerCase() === "f") {
+        e.preventDefault()
         if (!selectedTaskId) return
         setPinnedTaskId((prev) => (prev === selectedTaskId ? null : selectedTaskId))
         return
       }
-      // Raccourcis édition rapide
+      
+      // Raccourcis édition rapide - seulement si une tâche est sélectionnée
       if (!selectedTaskId) return
       const task = findTaskById(tasks, selectedTaskId)
       if (!task) return
       let update: any = {}
       let handled = false
+      
       // Suppression de la tâche sélectionnée (Delete)
       if (e.key === 'Delete') {
         e.preventDefault()
@@ -213,8 +227,10 @@ export default function TaskListPage() {
         }
         return
       }
+      
       // Importance
       if (e.key.toLowerCase() === "i") {
+        e.preventDefault()
         if (e.shiftKey) {
           update.importance = Math.min(5, task.importance + 1)
         } else {
@@ -222,8 +238,10 @@ export default function TaskListPage() {
         }
         handled = true
       }
+      
       // Urgence
       if (e.key.toLowerCase() === "u") {
+        e.preventDefault()
         if (e.shiftKey) {
           update.urgency = Math.min(5, task.urgency + 1)
         } else {
@@ -231,8 +249,10 @@ export default function TaskListPage() {
         }
         handled = true
       }
+      
       // Priorité
       if (e.key.toLowerCase() === "p") {
+        e.preventDefault()
         if (e.shiftKey) {
           update.priority = Math.min(5, task.priority + 1)
         } else {
@@ -240,8 +260,10 @@ export default function TaskListPage() {
         }
         handled = true
       }
+      
       // Due date +1j/-1j
       if (e.key.toLowerCase() === "d") {
+        e.preventDefault()
         let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
         if (e.shiftKey) {
           baseDate.setDate(baseDate.getDate() - 1)
@@ -251,34 +273,44 @@ export default function TaskListPage() {
         update.dueDate = baseDate.toISOString()
         handled = true
       }
+      
       // Due date +1 semaine
       if (e.key.toLowerCase() === "w") {
+        e.preventDefault()
         let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
         baseDate.setDate(baseDate.getDate() + 7)
         update.dueDate = baseDate.toISOString()
         handled = true
       }
+      
       // Due date +1 mois
       if (e.key.toLowerCase() === "m") {
+        e.preventDefault()
         let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
         baseDate.setMonth(baseDate.getMonth() + 1)
         update.dueDate = baseDate.toISOString()
         handled = true
       }
+      
       // Mettre la date à aujourd'hui (T)
       if (e.key.toLowerCase() === "t") {
+        e.preventDefault()
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         update.dueDate = today.toISOString()
         handled = true
       }
+      
       // Enlever la date (E)
       if (e.key.toLowerCase() === "e") {
+        e.preventDefault()
         update.dueDate = null
         handled = true
       }
+      
       // Tags 1-9
       if (/^[1-9]$/.test(e.key)) {
+        e.preventDefault()
         const idx = parseInt(e.key, 10) - 1
         if (tags[idx]) {
           const tagId = tags[idx].id
@@ -289,8 +321,8 @@ export default function TaskListPage() {
           handled = true
         }
       }
+      
       if (handled) {
-        e.preventDefault()
         try {
           await api.updateTask(task.id, update)
           await loadTasks()
@@ -307,6 +339,7 @@ export default function TaskListPage() {
         }
         return
       }
+      
       // Mettre toutes les tâches en retard à aujourd'hui (A)
       if (e.key.toLowerCase() === "a") {
         e.preventDefault()
