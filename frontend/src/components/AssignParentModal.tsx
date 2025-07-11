@@ -14,6 +14,7 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
   const [selectedParentId, setSelectedParentId] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
 
   useEffect(() => {
     if (isOpen && task) {
@@ -40,7 +41,10 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
         return true
       })
       
-      setAvailableTasks(availableTasks)
+      // Trier par ordre alphabétique croissant
+      const sortedTasks = availableTasks.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+      
+      setAvailableTasks(sortedTasks)
     } catch (err: any) {
       setError('Erreur lors du chargement des tâches')
       console.error('Erreur:', err)
@@ -93,25 +97,36 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
   const handleRemoveParent = async () => {
     if (!task) return
 
+    console.log('Suppression du parent pour la tâche:', task.name, 'parentId actuel:', task.parentId)
+
     try {
       setLoading(true)
       setError(null)
 
       // Envoyer seulement les champs nécessaires pour la mise à jour
-      await api.updateTask(task.id, {
+      const updateData = {
         name: task.name,
         link: task.link,
         importance: task.importance,
         urgency: task.urgency,
         priority: task.priority,
         dueDate: task.dueDate,
-        parentId: undefined,
+        parentId: null as any, // Utiliser null pour supprimer le parent (cast pour éviter l'erreur TypeScript)
         tagIds: task.tags.map(tag => tag.id)
-      })
+      }
+      
+      console.log('Données envoyées au backend:', updateData)
+      const result = await api.updateTask(task.id, updateData)
+      console.log('Réponse du backend:', result)
 
-      onParentAssigned()
-      onClose()
-      setSelectedParentId('')
+      console.log('Parent supprimé avec succès')
+      
+      // Attendre un peu avant de fermer pour s'assurer que la mise à jour est traitée
+      setTimeout(() => {
+        onParentAssigned()
+        onClose()
+        setSelectedParentId('')
+      }, 500)
     } catch (err: any) {
       setError('Erreur lors de la suppression de la tâche parente')
       console.error('Erreur:', err)
@@ -151,6 +166,11 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
               </span>
             </p>
           )}
+          
+          {/* Debug info */}
+          <p className="text-xs text-gray-400">
+            Debug: parentId = {task.parentId ? `"${task.parentId}"` : 'undefined'}
+          </p>
         </div>
 
         {error && (
@@ -169,19 +189,66 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
             </div>
           ) : (
-            <select
-              value={selectedParentId}
-              onChange={(e) => setSelectedParentId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Choisir une tâche parente...</option>
-              <option value="none">Aucune tâche parente (tâche principale)</option>
-              {availableTasks.map((availableTask) => (
-                <option key={availableTask.id} value={availableTask.id}>
-                  {availableTask.name}
-                </option>
-              ))}
-            </select>
+            <>
+              {/* Champ de recherche */}
+              <div className="mb-3">
+                <input
+                  type="text"
+                  placeholder="Rechercher une tâche parente..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+              
+              {/* Liste des tâches avec recherche */}
+              <div className="max-h-60 overflow-y-auto border border-gray-300 rounded-md">
+                <div className="p-2">
+                  <label className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                    <input
+                      type="radio"
+                      name="parentTask"
+                      value=""
+                      checked={selectedParentId === ""}
+                      onChange={(e) => setSelectedParentId(e.target.value)}
+                      className="mr-3"
+                    />
+                    <span className="text-sm text-gray-600">Choisir une tâche parente...</span>
+                  </label>
+                  
+                  <label className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                    <input
+                      type="radio"
+                      name="parentTask"
+                      value="none"
+                      checked={selectedParentId === "none"}
+                      onChange={(e) => setSelectedParentId(e.target.value)}
+                      className="mr-3"
+                    />
+                    <span className="text-sm text-gray-600">Aucune tâche parente (tâche principale)</span>
+                  </label>
+                  
+                  {availableTasks
+                    .filter(task => 
+                      searchTerm === '' || 
+                      task.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((availableTask) => (
+                      <label key={availableTask.id} className="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                        <input
+                          type="radio"
+                          name="parentTask"
+                          value={availableTask.id}
+                          checked={selectedParentId === availableTask.id}
+                          onChange={(e) => setSelectedParentId(e.target.value)}
+                          className="mr-3"
+                        />
+                        <span className="text-sm text-gray-900">{availableTask.name}</span>
+                      </label>
+                    ))}
+                </div>
+              </div>
+            </>
           )}
         </div>
 
