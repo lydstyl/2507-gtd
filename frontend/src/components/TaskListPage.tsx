@@ -30,7 +30,11 @@ export default function TaskListPage() {
 
   // Filtres
   const [importanceFilter, setImportanceFilter] = useState<number | ''>('')
+  const [importanceFilterType, setImportanceFilterType] = useState<'exact' | 'gte'>('gte')
   const [urgencyFilter, setUrgencyFilter] = useState<number | ''>('')
+  const [urgencyFilterType, setUrgencyFilterType] = useState<'exact' | 'gte'>('gte')
+  const [priorityFilter, setPriorityFilter] = useState<number | ''>('')
+  const [priorityFilterType, setPriorityFilterType] = useState<'exact' | 'gte'>('gte')
   const [tagFilter, setTagFilter] = useState<string>('')
   const [dateFilter, setDateFilter] = useState<string>('')
 
@@ -84,14 +88,31 @@ export default function TaskListPage() {
       )
     }
 
-    // Filtre par importance (au moins le niveau choisi)
+    // Filtre par importance
     if (importanceFilter !== '') {
-      filtered = filtered.filter((task) => task.importance <= importanceFilter)
+      if (importanceFilterType === 'exact') {
+        filtered = filtered.filter((task) => task.importance === importanceFilter)
+      } else {
+        filtered = filtered.filter((task) => task.importance <= importanceFilter)
+      }
     }
 
-    // Filtre par urgence (au moins le niveau choisi)
+    // Filtre par urgence
     if (urgencyFilter !== '') {
-      filtered = filtered.filter((task) => task.urgency <= urgencyFilter)
+      if (urgencyFilterType === 'exact') {
+        filtered = filtered.filter((task) => task.urgency === urgencyFilter)
+      } else {
+        filtered = filtered.filter((task) => task.urgency <= urgencyFilter)
+      }
+    }
+
+    // Filtre par priorité
+    if (priorityFilter !== '') {
+      if (priorityFilterType === 'exact') {
+        filtered = filtered.filter((task) => task.priority === priorityFilter)
+      } else {
+        filtered = filtered.filter((task) => task.priority <= priorityFilter)
+      }
     }
 
     // Filtre par tag
@@ -151,7 +172,11 @@ export default function TaskListPage() {
     tasks,
     searchTerm,
     importanceFilter,
+    importanceFilterType,
     urgencyFilter,
+    urgencyFilterType,
+    priorityFilter,
+    priorityFilterType,
     tagFilter,
     dateFilter
   ])
@@ -508,6 +533,7 @@ export default function TaskListPage() {
     setSearchTerm('')
     setImportanceFilter('')
     setUrgencyFilter('')
+    setPriorityFilter('')
     setTagFilter('')
     setDateFilter('')
   }
@@ -516,6 +542,7 @@ export default function TaskListPage() {
     searchTerm ||
     importanceFilter !== '' ||
     urgencyFilter !== '' ||
+    priorityFilter !== '' ||
     tagFilter ||
     dateFilter
 
@@ -655,22 +682,32 @@ export default function TaskListPage() {
             <label className='block text-sm font-medium text-gray-700 mb-1'>
               Importance
             </label>
-            <select
-              value={importanceFilter}
-              onChange={(e) =>
-                setImportanceFilter(
-                  e.target.value === '' ? '' : Number(e.target.value)
-                )
-              }
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-            >
-              <option value=''>Toutes</option>
-              <option value='1'>Au moins Critique (1)</option>
-              <option value='2'>Au moins Très élevée (1-2)</option>
-              <option value='3'>Au moins Élevée (1-3)</option>
-              <option value='4'>Au moins Moyenne (1-4)</option>
-              <option value='5'>Au moins Faible (1-5)</option>
-            </select>
+            <div className='flex space-x-2'>
+              <select
+                value={importanceFilterType}
+                onChange={(e) => setImportanceFilterType(e.target.value as 'exact' | 'gte')}
+                className='w-1/3 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs'
+              >
+                <option value='gte'>≥</option>
+                <option value='exact'>=</option>
+              </select>
+              <select
+                value={importanceFilter}
+                onChange={(e) =>
+                  setImportanceFilter(
+                    e.target.value === '' ? '' : Number(e.target.value)
+                  )
+                }
+                className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+              >
+                <option value=''>Toutes</option>
+                <option value='1'>Critique (1)</option>
+                <option value='2'>Très élevée (2)</option>
+                <option value='3'>Élevée (3)</option>
+                <option value='4'>Moyenne (4)</option>
+                <option value='5'>Faible (5)</option>
+              </select>
+            </div>
           </div>
 
           {/* Filtre par urgence */}
@@ -678,22 +715,65 @@ export default function TaskListPage() {
             <label className='block text-sm font-medium text-gray-700 mb-1'>
               Urgence
             </label>
-            <select
-              value={urgencyFilter}
-              onChange={(e) =>
-                setUrgencyFilter(
-                  e.target.value === '' ? '' : Number(e.target.value)
-                )
-              }
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-            >
-              <option value=''>Toutes</option>
-              <option value='1'>Au moins Très urgente (1)</option>
-              <option value='2'>Au moins Urgente (1-2)</option>
-              <option value='3'>Au moins Normale (1-3)</option>
-              <option value='4'>Au moins Peu urgente (1-4)</option>
-              <option value='5'>Au moins Non urgente (1-5)</option>
-            </select>
+            <div className='flex space-x-2'>
+              <select
+                value={urgencyFilterType}
+                onChange={(e) => setUrgencyFilterType(e.target.value as 'exact' | 'gte')}
+                className='w-1/3 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs'
+              >
+                <option value='gte'>≥</option>
+                <option value='exact'>=</option>
+              </select>
+              <select
+                value={urgencyFilter}
+                onChange={(e) =>
+                  setUrgencyFilter(
+                    e.target.value === '' ? '' : Number(e.target.value)
+                  )
+                }
+                className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+              >
+                <option value=''>Toutes</option>
+                <option value='1'>Très urgente (1)</option>
+                <option value='2'>Urgente (2)</option>
+                <option value='3'>Normale (3)</option>
+                <option value='4'>Peu urgente (4)</option>
+                <option value='5'>Non urgente (5)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Filtre par priorité */}
+          <div>
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
+              Priorité
+            </label>
+            <div className='flex space-x-2'>
+              <select
+                value={priorityFilterType}
+                onChange={(e) => setPriorityFilterType(e.target.value as 'exact' | 'gte')}
+                className='w-1/3 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs'
+              >
+                <option value='gte'>≥</option>
+                <option value='exact'>=</option>
+              </select>
+              <select
+                value={priorityFilter}
+                onChange={(e) =>
+                  setPriorityFilter(
+                    e.target.value === '' ? '' : Number(e.target.value)
+                  )
+                }
+                className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+              >
+                <option value=''>Toutes</option>
+                <option value='1'>Très haute (1)</option>
+                <option value='2'>Haute (2)</option>
+                <option value='3'>Moyenne (3)</option>
+                <option value='4'>Basse (4)</option>
+                <option value='5'>Très basse (5)</option>
+              </select>
+            </div>
           </div>
 
           {/* Filtre par tag */}
@@ -714,26 +794,26 @@ export default function TaskListPage() {
               ))}
             </select>
           </div>
+        </div>
 
-          {/* Filtre par date */}
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Date limite
-            </label>
-            <select
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-            >
-              <option value=''>Toutes les dates</option>
-              <option value='overdue'>En retard</option>
-              <option value='today'>Aujourd'hui</option>
-              <option value='tomorrow'>Demain</option>
-              <option value='this-week'>Cette semaine</option>
-              <option value='future'>Plus tard</option>
-              <option value='no-date'>Sans date</option>
-            </select>
-          </div>
+        {/* Filtre par date - déplacé en dessous */}
+        <div className='mt-4'>
+          <label className='block text-sm font-medium text-gray-700 mb-1'>
+            Date limite
+          </label>
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className='w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+          >
+            <option value=''>Toutes les dates</option>
+            <option value='overdue'>En retard</option>
+            <option value='today'>Aujourd'hui</option>
+            <option value='tomorrow'>Demain</option>
+            <option value='this-week'>Cette semaine</option>
+            <option value='future'>Plus tard</option>
+            <option value='no-date'>Sans date</option>
+          </select>
         </div>
 
         {/* Compteur de résultats */}
