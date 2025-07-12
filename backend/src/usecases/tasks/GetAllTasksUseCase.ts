@@ -10,4 +10,11 @@ export class GetAllTasksUseCase {
   ): Promise<TaskWithSubtasks[]> {
     return await this.taskRepository.findAll({ ...filters, userId })
   }
+
+  async executeRootTasks(
+    userId: string,
+    filters?: TaskFilters
+  ): Promise<TaskWithSubtasks[]> {
+    return await this.taskRepository.findAllRootTasks({ ...filters, userId })
+  }
 }

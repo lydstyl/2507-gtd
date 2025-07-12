@@ -19,6 +19,11 @@ export interface TaskRepository {
   findById(id: string): Promise<TaskWithSubtasks | null>
   findAll(filters: TaskFilters): Promise<TaskWithSubtasks[]>
   /**
+   * Récupère uniquement les tâches racines (parentId = null) avec leurs sous-tâches imbriquées
+   * Utilisé pour la TaskListPage
+   */
+  findAllRootTasks(filters: TaskFilters): Promise<TaskWithSubtasks[]>
+  /**
    * Récupère toutes les tâches d'un utilisateur avec leurs tags pour l'export CSV
    */
   getAllTasksWithTags(userId: string): Promise<TaskWithTags[]>

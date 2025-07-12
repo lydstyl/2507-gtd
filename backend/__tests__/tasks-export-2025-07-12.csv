@@ -1,0 +1,254 @@
+ID,Nom,Lien,Note,Importance,Urgence,Priorité,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags
+cmd04atqb006fslo8l465r7ac,"SANTÉ",,,3,3,3,,2025-07-12,2025-07-12,,,
+cmd04712j005pslo8gku39y54,"VOITURE",,,2,2,3,,2025-07-12,2025-07-12,,,passif;recursive
+cmd03zhk70058slo8cjhzeyy0,"TRIBUNAL ROUBAIX",,,2,2,5,,2025-07-12,2025-07-12,,,actif
+cmd03yjjg0055slo8ih4cq6ie,"RITA",,,3,3,3,,2025-07-12,2025-07-12,,,recursive
+cmd03pczi004fslo8rico7zr3,"JARDIN",,,3,3,3,,2025-07-12,2025-07-12,cmctu1v5o003uslqo78jyftf1,JARDIN,santé & relation humaine
+cmd03n57z0045slo8r6r1xbuq,"gtd voir la date de création de la tache",,,5,5,5,,2025-07-12,2025-07-12,cmctu1w2z00n0slqojn58t23f,GTD,
+cmd03jqtx003uslo8s9vvqy1h,"BRICOT DEPOT",,,4,3,3,,2025-07-12,2025-07-12,,,dehors;recursive
+cmd03j115003qslo8hygdxto0,"Crèche",,,3,2,2,,2025-07-12,2025-07-12,,,santé & relation humaine
+cmd03gle1003jslo8mlxuluyi,"YOUTUBE YT",,,4,3,5,,2025-07-12,2025-07-12,,,recursive
+cmd03blbu0032slo89mm2dz5j,"AMAZON AMZ","https://www.amazon.fr/",,4,3,3,,2025-07-12,2025-07-12,,,recursive
+cmd026o9a0024slo8h4znh7rl,"BOURSE ET MARCHER FINANCIERS",,,3,3,5,,2025-07-12,2025-07-12,,,actif
+cmd01sg1g0019slo8ywu24u92,"UN JOUR PEUT ÊTRE",,,4,5,5,,2025-07-12,2025-07-12,,,recursive
+cmczftmca0009sl6voj0pe20e,"Pwa",,,1,5,5,,2025-07-11,2025-07-11,cmctu1w2z00n0slqojn58t23f,GTD,
+cmczfr7290003sl6vcfelcfgs,"Wingfoil ",,,2,2,5,2025-07-10,2025-07-11,2025-07-12,,,santé & relation humaine;dehors;recursive
+cmczfq3ms0001sl6v656i95rg,"Bug mobile bouton action rapide affichage",,,1,5,5,,2025-07-11,2025-07-11,cmctu1w2z00n0slqojn58t23f,GTD,
+cmczd5e1500qdslqoiw4yx3q1,"dimanche 12 h45-13h prendre pc",,,5,5,5,,2025-07-11,2025-07-11,cmcw850fh00obslqo8j23vwzn,Charlotte CV,
+cmczd4xrk00qbslqontainn4h,"Retrouver porte monnaie",,,1,1,1,,2025-07-11,2025-07-12,,,rapide
+cmcxy9t6d00psslqoynjflwn5,"Rita cours de conduite ? 06 08 87 35 51ae sabrina c'est permis 03 27 46 91 75",,,5,5,5,,2025-07-10,2025-07-10,cmctu1vx400joslqo2x6xglnm,Paperasse préfecture Rita ok ?,
+cmcxy9h8700pqslqogq6hf64t,"Apprendre à Rita le vélo",,,5,5,5,,2025-07-10,2025-07-10,cmctu1vx400joslqo2x6xglnm,Paperasse préfecture Rita ok ?,
+cmcxy8zcl00poslqox2ip91re,"Livret famille ajouté Rita",,,5,5,5,,2025-07-10,2025-07-10,cmctu1vx400joslqo2x6xglnm,Paperasse préfecture Rita ok ?,
+cmcxmbn2x00ovslqod7ie5q6o,"CM2 Mme Bruneau Notez déjà la date de la réunion de rentrée SAMEDI 6 SEPTEMBRE de 10h à 11h.",,,4,5,5,2025-09-05,2025-07-10,2025-07-12,,,santé & relation humaine;dehors
+cmcxm9pgr00otslqojgt36225,"Mme Bruneau Je serai ravie de vous accueillir dans la classe le vendredi 29 août entre 15h30 et 16h30 pour m'apporter les fournitures et reprendre quelques documents .",,,4,5,5,2025-08-28,2025-07-10,2025-07-12,,,santé & relation humaine;dehors
+cmcxm2o1k00orslqovmf61zc1,"Sauvegarder","https://www.notion.so/Business-5493e987d1044d16b389f22eafb8ef04?p=505d4c1eb00f4efe8dee277e6cf34d38",,4,3,3,,2025-07-10,2025-07-10,,,bureau
+cmcx9awuz00opslqok9flcyxf,"Elias ",,"<ul><li><p>8h biberon 210 </p></li><li><p>12h repas plus biberon 180 légumes </p></li><li><p>13h sieste haut </p></li><li><p>16h biberon 180 </p></li><li><p>16h30 sieste </p></li><li><p>19h compote plus haut </p></li><li><p>20h30 biberon</p></li></ul>",2,2,3,2025-07-18,2025-07-10,2025-07-11,,,santé & relation humaine;recursive
+cmcwg3oqe00onslqon2tdefiy,"Tache rapide gris ou effet visuel en construction ou à enrichir ",,,5,5,5,,2025-07-09,2025-07-09,cmctu1w2z00n0slqojn58t23f,GTD,
+cmcwg2ptu00olslqoa88nj08a,"Ameliorer mobile ",,,5,5,5,,2025-07-09,2025-07-09,cmctu1w2z00n0slqojn58t23f,GTD,
+cmcwe26c400ofslqo3wvd9g1a,"Récupérer Pic barbecue ",,,5,5,5,,2025-07-09,2025-07-09,cmcw850fh00obslqo8j23vwzn,Charlotte CV,
+cmcw850fh00obslqo8j23vwzn,"Charlotte CV",,,2,2,3,2025-07-12,2025-07-09,2025-07-11,,,santé & relation humaine;dehors
+cmcw48wqj00o9slqogzuskn34,"Surf gonflable ",,,4,2,3,,2025-07-09,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine;rapide
+cmcugpni400o7slqob4s72636,"Investir dans curseur",,,3,2,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif;bureau
+cmcu8knaz00o5slqo09m6wa0a,"Trouver pompe ou embout mini wing Decathlon ",,,4,3,3,,2025-07-08,2025-07-12,cmctu1vfu009vslqo10aw2qno,DECATHLON gillets sauvetage  avec les enfants,rapide;bureau
+cmctu1w4o00nxslqoo9c47gp8,"modification de tache: avoir la date de la tache dans l'input date",,,3,3,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w4g00ntslqouvtghfc3,"dev token securité attention",,,1,4,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w4300nnslqolpzy6qw9,"email pour mot de pass oublié",,,3,5,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w3z00nlslqoncaz1hrb,"bouton tache faite qui supprime mais compte comme faite avec sa date",,,3,4,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w3u00njslqoucepksq4,"nettoyer les logs front",,,3,2,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w3q00nhslqodwhl3qpt,"créer un logueur",,,4,5,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w3m00nfslqo9puafw04,"découper la clean architecture par exemple le trie dans le domaine ?",,,3,1,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w3j00ndslqo0hjt8mpz,"ajouter filtre sur 1 ou plusieurs labels",,,2,5,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w3f00nbslqo3dz064mn,"assignement tache parente pouvoir chercher une tache parente plus facilement",,,4,4,5,,2025-07-08,2025-07-08,cmctu1w2z00n0slqojn58t23f,GTD,
+cmctu1w3400n2slqoevjx3rrg,"carte sd adam",,,4,2,5,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine;rapide;dehors
+cmctu1w2z00n0slqojn58t23f,"GTD","https://docs.google.com/document/d/1qfMLV5vKyRtdnvZFirZMCbQbwfRWIH2lSn2VDIHi7wQ/edit?tab=t.0",,2,2,2,,2025-07-08,2025-07-12,,,
+cmctu1w2u00mxslqo1kh06xmj,"Fêter mon anniversaire",,,3,1,3,,2025-07-08,2025-07-12,,,santé & relation humaine
+cmctu1w2p00msslqox1j24o7l,"#Ophtalmologue renouveler ordonnance du 05/04/2023 Dr Youssef Benhadia","https://www.doctolib.fr/account/appointments",,4,5,5,2028-04-05,2025-07-08,2025-07-08,,,santé & relation humaine;dehors;recursive
+cmctu1w2g00moslqoh4x0rlra,"Dentiste Louis, dernier badijonage en juin 2025",,,3,5,5,2026-06-01,2025-07-08,2025-07-12,,,santé & relation humaine;recursive
+cmctu1w2400meslqofa8p2yl8,"#annuel Anniversaires loulous","https://docs.google.com/document/d/12eSURY1o8gO9XLSS4bejNKn12hpA6wmw5LwhRgvGlik/edit?tab=t.0",,3,5,3,2026-02-15,2025-07-08,2025-07-12,,,santé & relation humaine;recursive
+cmctu1w1x00m9slqomw773nko,"#annuel un peu moins de 1000€ d'impot CRL vont être prélevés du compte de la SCI","https://docs.google.com/document/d/1vWRq9DkrAoEWkrksk3_NEVH2CaG14G8OuXB_yC-1tKg/edit",,3,5,4,2025-12-10,2025-07-08,2025-07-08,,,rapide;actif;recursive
+cmctu1w1q00m6slqosnikw1lg,"Anniversaire Elias le 17/12/2024",,,3,4,5,2025-11-17,2025-07-08,2025-07-12,,,santé & relation humaine;recursive
+cmctu1w1k00m2slqotl6i8i1d,"#annuel CFE à payer pour reactnord@gmail.com impots.gouv environ 177 € le mi nov. La SCI ne semble pas être concerné ni le meublé.","https://www.youtube.com/watch?v=2x_CFSNasv4",,1,5,3,2025-11-15,2025-07-08,2025-07-08,,,actif;recursive
+cmctu1w1e00lxslqoirzomerh,"Chaudières cf --&gt; obtenir et payer les factures","https://docs.google.com/spreadsheets/d/1WwyL1Z_vwkXnOirKAJVQjxNQU9HbiCiFcVMGhByjXA0/edit?gid=0#gid=0",,3,5,4,2025-09-10,2025-07-08,2025-07-08,,,rapide;actif;recursive
+cmctu1w1600ltslqozoy16hj8,"#annuel Roulement puis se faire livrer du bois en mai le bon coin (60€ la stère en 2024 Damien 07 77 92 34 93) ou st amand 06 21 62 49 35 60e ou vanderstrat. 03 27 87 19 79 86e",,,3,5,4,2025-09-03,2025-07-08,2025-07-08,,,rapide;recursive
+cmctu1w0z00lpslqob2r5y5ax,"psy le 10 sept ok ?","https://docs.google.com/document/d/1mPgdw-HnWu1mBTnkIH3J9_WZXAC0Uv2HAPuFa6IilzA/edit?tab=t.0",,1,5,3,2025-09-03,2025-07-08,2025-07-08,,,santé & relation humaine;dehors
+cmctu1w0s00lmslqo2l2qosaj,"Le 3 septembre adaptation Elias crèche",,,1,5,3,2025-09-02,2025-07-08,2025-07-08,,,dehors
+cmctu1w0l00ljslqoot3qz7ek,"NDA Rentrée 1 sept 8h40 avec parents jusqu'à 9h30 10h parents venir les récupérer à 12h35 si pas possible envoyer email pour qu’elle reste le midi  Mardi 2 prendre tablette trousse feuille carnet  8h40 16h50",,,4,5,5,2025-09-01,2025-07-08,2025-07-12,,,santé & relation humaine
+cmctu1w0g00lfslqog8by26cd,"oa solaire le 28","https://docs.google.com/spreadsheets/d/1XXsHI8O_Bpxv_Z3iVS2JXyGSvEKgG599rek5t2kFfsA/edit?gid=1008533857#gid=1008533857",,1,5,3,2025-08-28,2025-07-08,2025-07-08,,,actif;recursive
+cmctu1w0b00ldslqoum0j1obi,"◦ 29 août de 15h30 à 16h30 Pré-rentrée et dépose des fournitures         ◦ 1/09 Rentrée des élèves 8h30 pour les appels des classes",,,4,5,5,2025-08-28,2025-07-08,2025-07-12,,,santé & relation humaine
+cmctu1w0600l9slqohuh9m5qy,"30 août 10h18h foil il d ay lac Valenciennes vignoble",,,4,5,5,2025-08-27,2025-07-08,2025-07-08,,,santé & relation humaine;dehors
+cmctu1w0000l7slqo4plw23y2,"impots 2024 en 2025  limite 5 juin 2025 somme à payer : 6 992,00 € Cette somme vous sera prélevée à compter de septembre 2025 selon un échéancier qui vous sera précisé sur votre avis d'impôt.","https://docs.google.com/document/d/1Lho5PGQilRyRLti5DvHZv5tLACy-gfnn6E8-XVikqmQ/edit?tab=t.0",,1,5,3,2025-08-20,2025-07-08,2025-07-08,,,
+cmctu1vzx00l5slqoe2z8gg5z,"La date retenue par le tribunal est le 08.09.2025 à 14 heures devant le juge des contentieux de la protection près le Tribunal de Proximité de Roubaix.",,,2,3,5,2025-08-23,2025-07-08,2025-07-12,cmd03zhk70058slo8cjhzeyy0,TRIBUNAL ROUBAIX,actif
+cmctu1vzr00l1slqoz5benvcz,"Contacter M. Mars pour des vêtements pour Elias ?",,,3,5,4,2025-08-16,2025-07-08,2025-07-08,,,santé & relation humaine;rapide
+cmctu1vzm00kzslqokkkuqyf3,"TVA 25k mettre rappell dans 8 mois",,,3,2,5,2025-09-09,2025-07-08,2025-07-12,,,actif
+cmctu1vzh00kxslqot3wtgoo9,"Amsterdam après la Haute-Savoie",,,4,5,5,2025-08-13,2025-07-08,2025-07-12,,,santé & relation humaine
+cmctu1vzc00kvslqoj94k5n2w,"14 oct 2025 fin de windows 10 acheter des clés pas cher ?",,,4,3,5,2025-09-09,2025-07-08,2025-07-12,,,rapide
+cmctu1vz700ksslqo9su4gaou,"lister vetement M. Mars sms","https://docs.google.com/document/d/1uaoFYgxFYIj3I4jks--CPrIGO3HcSR8QK8RLPYg3904/edit?tab=t.0",,2,5,4,2025-08-06,2025-07-08,2025-07-08,,,déléguer
+cmctu1vz200kpslqoiuou9t03,"se préparer pour le tribunal est le 08.09.2025 à 14 heures devant le juge des contentieux de la protection près le Tribunal de Proximité de Roubaix.",,,2,5,4,2025-08-06,2025-07-08,2025-07-08,,,rapide
+cmctu1vyx00knslqo1cga3at0,"Comme le Livret A, le LEP est un livret d’épargne réglementé sans risque, intégralement garanti par l’État. Il offre des conditions de rémunération attractives et protectrices contre l’inflation, avec un taux fixé à 3,5 % sur la période du 1er février au 31 juillet 2025 supérieur à celui du Livret A (2,4 % sur la même période), et totalement exonérées d’impôts sur le revenu et de prélèvements sociaux.",,,4,5,5,2025-09-09,2025-07-08,2025-07-12,,,rapide;actif
+cmctu1vyt00klslqocrbvggdh,"Révision loyer Leduc (agenda du 3 juillet) vérifier cde poste Z0095219289 envoyé le 3 juill puis le paiement novueau loyer le 23 aout max.","https://www.notion.so/Immo-aa367fe9c279431493371398507edb88?p=22505469bb7d8038b109d1cbeb0214c3&amp;pm=s",,1,5,3,2025-07-23,2025-07-08,2025-07-08,,,
+cmctu1vyp00kjslqom07u7wm2,"AZAP",,,1,5,3,2025-07-14,2025-07-08,2025-07-08,,,
+cmctu1vyk00kgslqo0c90gr80,"MAHIEU REVISION LOYER L’indice du 2ᵉ trimestre 2025 sera publié vers mi-juillet 2025 (en général entre le 12 et le 18 juillet) + Demande de paiement des loyers partiellement reçus. Utiliser 241228-mail-merge (mis à jour le 2 juillet)","https://www.service-public.fr/particuliers/vosdroits/F13723",,1,5,3,2025-07-12,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vy300k6slqokrboxsc3,"Bonjour à tous Clara vous invite à son anniversaire le samedi 19 juillet à partir de 15h pour feter ses 13 ans! Marie et Louis sont invités",,,4,5,4,2025-07-15,2025-07-08,2025-07-12,,,santé & relation humaine;rapide
+cmctu1vxy00k4slqowigt1013,"Cheryl + cadeau Laiela ? (Arriver le 5 Août au soir), partir le 11, ou 12 août selon vos besoins..",,,3,3,3,2025-07-15,2025-07-08,2025-07-10,,,santé & relation humaine
+cmctu1vxf00jtslqon22qbr6d,"Idée vacances, camping de la source à 800 et autres?","https://docs.google.com/document/d/1EUxSZY1e3onolx4mzM0SfilIzB1JSTjvxXe2q0xJjkw/edit?tab=t.0",,4,2,4,2025-07-12,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vx400joslqo2x6xglnm,"Paperasse préfecture Rita ok ?","https://chatgpt.com/c/684be66c-7abc-8005-943e-be2838c31595","<p><strong>papiers Rita Site anef notif numéro d'étrangers</strong></p>",2,3,2,,2025-07-08,2025-07-12,cmd03yjjg0055slo8ih4cq6ie,RITA,
+cmctu1vx000jlslqorre8e2yg,"Nettoyer les LV",,,3,5,5,,2025-07-08,2025-07-12,,,actif;déléguer
+cmctu1vwu00jislqo38fsi0ey,"Jardin procédure récurrente","https://www.notion.so/Health-8de084a6bb524c98b9981563826419f0?p=6a37bdde694b421aac7a21d64bc77a23",,5,4,5,,2025-07-08,2025-07-10,cmctu1v5o003uslqo78jyftf1,JARDIN,recursive
+cmctu1vwq00jfslqo10knawl0,"Entretien tondeuse",,,5,4,5,,2025-07-08,2025-07-08,,,recursive
+cmctu1vwe00j9slqovmrwv56a,"Memo liste","https://docs.google.com/document/d/1UugRaKOtXjfpTo_6X8XzKNT8fpjk0QcMOGCZ1ARuoHs/edit#",,5,3,4,,2025-07-08,2025-07-12,,,bureau;recursive
+cmctu1vw900j5slqo6auwj5vw,"vendre","https://docs.google.com/document/d/1Tq79USmJVXmVffRUGYyrQbhnCSqOdRURb9uxhVJs5FE/edit#heading=h.gxwt8djfbtzd",,5,2,4,,2025-07-08,2025-07-08,,,passif;déléguer
+cmctu1vw200j2slqo06dyjgdz,"sonnette",,,5,2,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,passif
+cmctu1vvy00izslqoc624bugm,"sauvegarde","https://www.notion.so/Business-5493e987d1044d16b389f22eafb8ef04?p=505d4c1eb00f4efe8dee277e6cf34d38",,5,2,4,,2025-07-08,2025-07-08,,,passif
+cmctu1vvc00imslqofdt2army,"Gonfler les pneus",,,5,2,4,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,passif
+cmctu1vv700ijslqo6v2erclo,"Entretien mégane (vérifier date et modifier cet evenement)","https://calendar.google.com/calendar/u/0/r/eventedit/NnF1bmJrdHM1MXY4MmZuNjBvbGM1MW5uYmFfMjAyNTA1MTJUMTEwMDAwWiBseWRzdHlsQG0?hl=fr",,5,2,4,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,passif
+cmctu1vv200ifslqoskd5ibtw,"Entretien logement et passifs","https://docs.google.com/document/d/1x5h67Bi8r-LElAUUPJpHnH8flXzvSyFcsQk7CHUnG9k/edit",,5,2,4,,2025-07-08,2025-07-12,,,passif;déléguer;recursive
+cmctu1vuw00ibslqo3fyg7u83,"Gestion des vetements enfants point pendant les soldes cf","https://docs.google.com/document/d/1zHj2NetqY1SNjggESr-l-nP7VZoSX0CLFAZaQMZCe7E/edit",,5,2,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,passif;recursive
+cmctu1vun00i6slqoadqytr0n,"Elec","https://docs.google.com/document/d/1WbiRccq3ks6gAkCJmfpT3RqVtMXLaqNfOcp1-_5qmCY/edit?tab=t.0",,5,2,4,,2025-07-08,2025-07-12,cmctu1v46002zslqodkyiu0ap,DOMOTIQUE trouver du fils et installer le zigbee conso et prod de la maison,passif
+cmctu1vug00i3slqolcb3l34f,"Batterie",,,5,2,4,,2025-07-08,2025-07-12,cmctu1v46002zslqodkyiu0ap,DOMOTIQUE trouver du fils et installer le zigbee conso et prod de la maison,passif
+cmctu1vub00i0slqoolvxkjnz,"Notion ou GTD créer procédure prochain entretien voiture",,,5,2,4,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,passif
+cmctu1vu600hxslqo8cum6wqf,"vérifier entretien chaudière décembre","https://docs.google.com/spreadsheets/d/1WwyL1Z_vwkXnOirKAJVQjxNQU9HbiCiFcVMGhByjXA0/edit?gid=0#gid=0",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vu100huslqowcjzcp7u,"vitrine cassé demander à Alaoui s'il a une assurance ? dder à GPT avant",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vtq00hnslqojau50dif,"tiroir1",,,5,1,3,,2025-07-08,2025-07-08,,,actif
+cmctu1vtf00hhslqoj87k82rp,"syncthing scan du tel",,,5,1,3,2025-07-19,2025-07-08,2025-07-12,,,actif
+cmctu1vta00heslqo70fkunov,"supprimer etoro",,,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vt400hbslqose05rpep,"réparer et vendre 4,5",,,5,1,3,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,actif
+cmctu1vss00h5slqo1l80vvgr,"retrouver id boursorama pour se connecter","https://clients.boursobank.com/connexion/?ajx=1",,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vsn00h2slqobqeyxqt4,"remplacer document studio et créer programme pour générer hausse loyer","https://docs.google.com/spreadsheets/d/1rrYVxvKNLXrD-eiQLOD4hc0Clpp4xPAINc5d70VOv5c/edit?gid=1365029037#gid=1365029037",,5,1,3,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,actif
+cmctu1vsh00gzslqoeneola2k,"racheter 4 panneaux ?","https://allo.solar/panneau-solaire-505w-n-type-cadre-noir-bifacial-das-solar.html",,5,1,3,2026-04-07,2025-07-08,2025-07-12,,,actif
+cmctu1vsc00gwslqowybz6gcs,"plan 3d sketchup","https://app.sketchup.com/app?_gl=1*1iq15dc*_gcl_au*NDU4NzIxMTMuMTc0NTQ5OTM3Mg..",,5,1,3,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,actif
+cmctu1vs600gtslqor42z8u55,"PERGOLA et panneaux regle urbanisme ?","https://docs.google.com/document/d/1CVARdRJjmZeUpc8pAY5YX38kpcUsRN0l4RhFFf-5VKo/edit?tab=t.0",,3,3,3,,2025-07-08,2025-07-12,,,actif
+cmctu1vs000gqslqouh8fd7s6,"mettre à jour dépenses annuelles","https://docs.google.com/spreadsheets/d/1yErq_njrKC_rzn567aH3o-F0ychjDj5x53KCxPcWRYM/edit?gid=46341688#gid=46341688",,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vru00gnslqo4z1ikgqu,"maj 123bail : cout en € dans + autres info suite loie climat",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vrp00gkslqov8y5jtbm,"essayer waltio","https://www.waltio.com/",,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vrj00ghslqo956bbdfy,"dropbox espace plein",,,3,1,3,,2025-07-08,2025-07-12,,,actif
+cmctu1vrd00geslqof6zj0iog,"demander devis plaquit et rachid isolation app5 comme indiqué dans dpe (demander avis sur les couloirs et portes)",,,5,1,3,,2025-07-08,2025-07-08,,,actif
+cmctu1vr700gbslqozdjwv8hz,"cloturer etoro","https://trello.com/c/b3g8Rn9r",,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vqw00g5slqo64kah9lu,"calcul investissement exponentiel mais en prenant compte l'inflation",,,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vqm00g2slqo302be20q,"ballon resistance reglable","https://www.amazon.fr/s?k=ballon+d%27eau+chaude+50l+reglable&amp;i=diy&amp;__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&amp;crid=17UM1OVTBMAG3&amp;sprefix=ballon+d%27eau+chaude+50l+reglable%2Cdiy%2C56&amp;ref=nb_sb_noss",,5,1,3,,2025-07-08,2025-07-12,cmctu1v46002zslqodkyiu0ap,DOMOTIQUE trouver du fils et installer le zigbee conso et prod de la maison,actif
+cmctu1vqh00fzslqov4jt11yr,"appli pour envoyer une photo avec relevé compteur eau et identité vérifier du locataire + récupération des charges via les factures",,,5,1,3,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,actif
+cmctu1vqb00fwslqoec0o2m6f,"app todo list ou logger avec NLP (traitement du langage naturel)","https://chatgpt.com/c/67ea5a15-3444-8005-b768-4021ceef05df",,5,1,3,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,actif
+cmctu1vq700ftslqoxecjmc76,"abonnement mobile et internet sur la sci",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vq100fqslqo04yh5all,"Wallet metamask à ajouter dans le point patrimoine","https://portfolio.metamask.io/",,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vpv00fnslqo6fewywsr,"Vérifier consommation eau SCI et Vicoigne",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vpq00fkslqofpwdg7je,"Vérifier consommation eau SCI et Vicoigne",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vpk00fhslqoy1n3flof,"Utiliser Puppeteer et twilio pour automatiser des tâches",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v4g0035slqoyk0bql80,GEEKERIES,actif
+cmctu1vpf00feslqo1ra3ib6v,"Trouver une application pour faire les états des lieux sur android","https://play.google.com/store/apps/details?id=com.nockee.app&amp;hl=fr&amp;gl=US",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vp900fbslqoybb55dm9,"Trouver réseau entrepreneur immo + réduire charge sci via gestion orpi essayer",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vp400f8slqoqy47u6v8,"Tiroir 1",,,5,1,3,,2025-07-08,2025-07-08,,,actif
+cmctu1vot00f2slqobrfaux1b,"St Amand faire travaux d'isolation","https://docs.google.com/document/d/1uiHdcBXxunJ6WP2NMsvQ08zyPs2OafsljnRqK1OJTsA/edit?tab=t.0",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1voo00ezslqog7hc2iiw,"SAAS 123bail","https://docs.google.com/document/d/1CgDOySYXoiR5AVAj2uzo4AL1RUnVLFVDi0pBoK7xjwI/edit",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1voi00ewslqowprf6w4o,"PASSIFS / ACTIFS abri bois photovoltaique","https://docs.google.com/document/d/1wHDDoxZCQimPUbL5DfHrNHTWCa-YLgxfvjjDS5W_krA/edit?tab=t.0",,5,1,3,,2025-07-08,2025-07-12,cmctu1v5o003uslqo78jyftf1,JARDIN,actif
+cmctu1vod00etslqoz7i3oigv,"Mettre à jour mes apps cf","https://docs.google.com/document/d/164HruBSagqiaayFAXxHt9nhfKh8KHseCUpPhoJzPpwI/edit#heading=h.kckigjgr7x2g",,5,1,3,,2025-07-08,2025-07-12,cmctu1v4g0035slqoyk0bql80,GEEKERIES,actif
+cmctu1vo600eqslqogwd7npfg,"Mahieu","https://docs.google.com/document/d/1vIug43a3mkwSFXGtaoyrL7m3zrkodYudNVDZwHg2zSU/edit#heading=h.2mic3srxw1ht",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vo100enslqo3saokaiz,"Investir en Inde ETF 5% portefeuille comme iShares MSCI India ou Lyxor MSCI India. car première puissance dans 25 ans",,,5,1,3,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1vnw00ekslqo674a2zds,"Inscrivez une clause pénale ou des intérêts de retard dans votre bail pour prévenir ce type de situation à l’avenir.",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vnr00ehslqoafnj331q,"Indee comptable divisé par 5",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vnm00eeslqomypulvsz,"Gpt comment gpt peut faire une action ds une webapp?","https://chatgpt.com/c/67d7da68-2884-8005-ab8e-9a5c0ff990fd",,5,1,3,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,actif
+cmctu1vng00ebslqo1ge90y6l,"Gpt Tableau scénarios choix sci à compléter",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vnb00e8slqo5fgt3avm,"Gabriel, votre espace de stockage est bientôt plein - Essayez gratuitement Dropbox Plus",,,5,1,3,,2025-07-08,2025-07-08,,,actif
+cmctu1vn000e2slqovuxyt79m,"Facturer loyer à la sci ? Demander comptable. (bien si trop de  bénéf...)","https://youtu.be/xScKMvV_Fko?si=qdZ4t9pqcFPbkekG",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vmv00dzslqo5n5qkr38,"Etudier devis toiture kdecotegnie@mrbcouverture.fr",,,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vmq00dwslqor52xrxk6,"Demander à MaPrimeRénov ce que peut avoir une SCI à l'IS pour l'isolation et travaux pour augmenter la classe energetique","https://docs.google.com/document/d/167AtUhAMEQuhQDXv8RGkEaup0HdvC8c33KMy1dXXtKc/edit",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vml00dtslqot39eaund,"Créer une feautre permettant de mettre en compétition les taches du jours pour n'en choisir que X.",,,5,1,3,,2025-07-08,2025-07-12,cmctu1w2z00n0slqojn58t23f,GTD,actif
+cmctu1vmf00dqslqo19rx2xk2,"Créer une base react + express + sqlite avec auth + email + session login",,,5,1,3,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,actif
+cmctu1vma00dnslqof5wni4g7,"Créer page avec spots wing etang et autres","https://chatgpt.com/c/67f0089c-8190-8005-85b6-748baa0a9c2f",,5,1,3,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,actif
+cmctu1vm000dhslqo6o5v02p5,"Bertrand pourquoi wifi wimereux azap marche pas ? et comment activer printunl que sur Remmina et pas chrome et le reste.",,,5,1,3,,2025-07-08,2025-07-12,cmctu1vyp00kjslqom07u7wm2,AZAP,actif
+cmctu1vlu00deslqopig32n26,"Assurance par brise à virer ou déjà fait ?",,,5,1,3,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,actif
+cmctu1vlp00dbslqou895yx0r,"Application ia et base de données + loggeur ?","https://chatgpt.com/c/68017bcb-5548-8005-9323-7f81bb7a977c",,5,1,3,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,actif
+cmctu1vlj00d8slqokpvayjhx,"Application dictée photo et audio",,,5,1,3,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,actif
+cmctu1vle00d5slqonr0shj9b,"Acheter des nouveaux panneaux ? à mon avis rentable en 6 ans faire calcul inverser combien mettre pour 10% de renta","https://www.monkitsolaire.fr/product/kit-solaire-plug-and-play-2-panneaux/4349.html",,5,1,3,2026-04-07,2025-07-08,2025-07-12,,,actif
+cmctu1vl800d2slqosc9snrmb,"AZ créer un script pour récupérer les commit au lieu de passer par https://git-log-extractor.vercel.app/","https://git-log-extractor.vercel.app/",,5,1,3,,2025-07-08,2025-07-12,cmctu1vyp00kjslqom07u7wm2,AZAP,actif
+cmctu1vl300czslqobacexopj,"AZ Mettre total CA en rouge si TVA sur tableau de suivi 2025","https://docs.google.com/spreadsheets/d/1RsA18eFUDvMWG0chS3Pc9pfjQrMTy5Fj_J-VMGofntw/edit?gid=1958671484#gid=1958671484",,5,1,3,2025-09-16,2025-07-08,2025-07-12,,,actif
+cmctu1vkw00cwslqozwhrhoyq,"#actif #St Amand cf","https://docs.google.com/document/d/11-qb3gxQ268mLgqB8tETkcoQTAmMBYDxwP-RhcGnqRU/edit#heading=h.d5ze55qylmq8",,5,1,3,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1vkr00ctslqo4k2m2hlf,"tondre",,,4,1,5,,2025-07-08,2025-07-12,cmd03pczi004fslo8rico7zr3,JARDIN,santé & relation humaine
+cmctu1vkm00cqslqo7w400cq4,"tester Dwarf Fortress",,,5,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vkc00ckslqozdrfns6a,"simulation ppa","https://wwwd.caf.fr/wps/portal/caffr/simulateurpa/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8zi_RzNHD2MDYwMAgICDQwCjYN9A8x9nA0NPAz0wwkpiAJKG-AAjiD9UWAlcBM8LN2cDAJDLE28vI09jYGKoArwmFGQG2GQ6aioCAAUvki6/dz/d5/L0lDU0NTSUtVSkNncFJBISEvb0VvUUFBSVFKQUFNVWdnR0dRWkRncENsd1FBIS80SkNpaXUyTWQxRUp4U1pDZ21wSi9aN19OQTZBSDMwMjBIT1RDMFEzOU1MMU1BMUdFNi9aNl9OQTZBSDMwMjBIT1RDMFEzOU1MMU1BMUdNMS9ub3JtYWwvZnJta0NuYWZBY3Rpb24vcmVpbml0aWFsaXNlcg!!/",,5,4,5,,2025-07-08,2025-07-08,,,santé & relation humaine
+cmctu1vk700chslqoq988nwof,"réparer 5m blanderm alcool",,,4,3,5,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine
+cmctu1vk100ceslqonmem5433,"projet retraite anticipé en parler à Rita","https://chatgpt.com/c/67e72cef-7cc0-8005-b89d-9697378659a0",,4,5,5,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,santé & relation humaine
+cmctu1vjv00cbslqolhjd1cw9,"pc Marie bruyant : nettoyer et enlever ventilo bruyant ou changer boitier",,,4,3,5,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vjq00c8slqol3bkkths,"laver voiture",,,4,2,5,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,santé & relation humaine
+cmctu1vjm00c5slqojx2jgkuf,"installer Microsoft Family Safety &lt;familysafety@microsoft.com&gt; sur le pc de Louis",,,4,4,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vjg00c2slqozxhdudg0,"essayer cash flow","https://github.com/christian-stockinger/CashflowClassicGameSheet",,4,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vjc00bzslqo0khmxiz7,"créer un notion pr dormir dans la caisse","https://docs.google.com/document/d/1tmBgeYqUN7JM_IBmMMSk2cvKYKLkE_apw7QJK3hmzlI/edit?tab=t.0",,5,4,5,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine
+cmctu1vj600bwslqoo0urty95,"bois",,,3,5,5,,2025-07-08,2025-07-12,cmd03pczi004fslo8rico7zr3,JARDIN,santé & relation humaine
+cmctu1vj100btslqo8wvxhm2l,"Vacances dates+ clim+ bagage de toit Projet vacances sud bungalo ac Syl et les enfants",,,5,2,5,,2025-07-08,2025-07-08,,,santé & relation humaine
+cmctu1viw00bqslqosr3n5w15,"Tester sur windows Suprême commandeur forget alliance","https://store.steampowered.com/app/9420/Supreme_Commander_Forged_Alliance/",,5,5,2,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vir00bnslqoax4ok3h9,"Tester openfront.io",,,5,5,3,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vim00bkslqounagqb3u,"Tester Reflex vs pixel 8 et si peu de différence revendre reflex",,,4,4,4,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,santé & relation humaine
+cmctu1vih00bhslqoca9toy77,"Réparer jouet Elias",,,4,4,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vic00beslqo3hcwkapc,"Repas enfants","https://docs.google.com/document/d/1FTtlH-Sk2PMttqNHkWmM5l6fwtq7_EBJobVb2N0Dv38/edit?tab=t.0",,5,5,2,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vi600bbslqol2ogd134,"Rechercher cours d'anglais moins cher",,,4,4,3,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vi000b8slqo1bzdobt1,"Prendre RDV dermato grain de beauté (06 72 53 54 60)","https://www.doctolib.fr/hopital-public/valenciennes/ch-de-valenciennes?highlight%5Bspeciality_ids%5D%5B%5D=6&amp;pid=establishment-6248",,3,3,5,,2025-07-08,2025-07-12,cmd04atqb006fslo8l465r7ac,SANTÉ,santé & relation humaine
+cmctu1vhq00b2slqo152lfres,"Le régime méditerranéend","https://chatgpt.com/c/6853d741-6924-8005-a6f3-d15823ce2466",,3,3,5,,2025-07-08,2025-07-12,cmd04atqb006fslo8l465r7ac,SANTÉ,santé & relation humaine
+cmctu1vhm00azslqobw6mmirt,"Invitation amis / barbecue ou autre","https://docs.google.com/document/d/1bD3rhdf6o4esIBUnjEb2_R-jbr88gWCwlLJ73NQsDp4/edit",,5,3,5,,2025-07-08,2025-07-08,,,santé & relation humaine
+cmctu1vhg00avslqovggvku34,"Faire séquencer son adn trouver un site",,,5,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine;bureau
+cmctu1vh700apslqosa4pp5qi,"Frigo sans courant","https://www.facebook.com/share/r/16W57QrLj7/",,5,5,4,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine;actif
+cmctu1vh200amslqovdnreanu,"Family link marie",,,4,4,3,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vgw00ajslqowndvcvto,"Enduit et peinture chambres",,,4,3,3,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine;passif
+cmctu1vgs00agslqovqk15xdu,"Créer procédure pour dormir dans la voiture brouillon liste",,,5,5,3,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine
+cmctu1vgn00adslqom9vvlz9m,"Consulter un kinésithérapeute pour déviation de la colonne vertébrale au niveau du bas du dos",,,3,4,4,,2025-07-08,2025-07-12,cmd04atqb006fslo8l465r7ac,SANTÉ,santé & relation humaine
+cmctu1vgi00aaslqo0nbq74c2,"Circoncision entre 500 et 1k ...","https://chatgpt.com/c/67e666dd-a448-8005-a7c1-20f9caecdd56",,3,4,5,,2025-07-08,2025-07-08,,,santé & relation humaine
+cmctu1vgd00a7slqofxrj17o3,"Cadeaux 2025","https://docs.google.com/document/d/14_JPnCHmjndC8KBavwLsCo0j_AAgIKyx7zPGspkTS4c/edit?tab=t.0",,4,5,4,2025-11-04,2025-07-08,2025-07-12,,,santé & relation humaine;recursive
+cmctu1vg800a4slqo322xzqr5,"Ajouter Marie et Louis à ma carte vitale","https://chatgpt.com/c/6787fa78-5b7c-8005-8180-f545ffcc0cbf",,5,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vg300a1slqodurbjwlq,"Activité avec enfants --&gt; descente lesse ?","https://docs.google.com/document/d/1Khow1_ljHEljSr_1hbX58fcuaTbDNEmwtt7FPG2jQwI/edit",,5,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine
+cmctu1vfy009yslqox9hnalth,"JARDIN 3j de buche à l'interieur (entre 12 et 15 buches dans 3 emplacements) Rita a vu la vidéo ?",,,4,5,5,,2025-07-08,2025-07-10,cmctu1v5o003uslqo78jyftf1,JARDIN,santé & relation humaine
+cmctu1vfu009vslqo10aw2qno,"DECATHLON gillets sauvetage  avec les enfants",,"<ul><li><p>gillets </p></li><li><p>chauffe café gaz</p></li><li><p>sac couchage ?</p></li></ul>",4,5,5,,2025-07-08,2025-07-12,,,dehors;recursive
+cmctu1vfp009sslqooe0rx079,"créer double clé coffre",,,4,5,5,,2025-07-08,2025-07-08,,,dehors
+cmctu1vfj009pslqo5vjclmxc,"brocante",,,4,5,5,,2025-07-08,2025-07-12,,,dehors;recursive
+cmctu1vfe009lslqon2x7gkzw,"DECAT Réparer frein arrière vélo ou revendre vélo chez decat ? Combien coute la répa ?",,,4,5,5,,2025-07-08,2025-07-12,cmctu1vfu009vslqo10aw2qno,DECATHLON gillets sauvetage  avec les enfants,dehors;passif
+cmctu1vf8009hslqo9qnm09ye,"Retrouver classeur SCI chez comptable",,,4,5,5,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,dehors;actif
+cmctu1ver0098slqoy619m91l,"BRICO DEPOT",,,4,5,5,,2025-07-08,2025-07-12,,,dehors;recursive
+cmctu1vef0091slqo2e2u9r68,"tester windsurf","https://codeium.com/windsurf/download_linux",,3,4,4,,2025-07-08,2025-07-12,,,rapide;actif
+cmctu1vea008yslqouwvua3w2,"temperature garage changer piles ?",,,4,5,4,,2025-07-08,2025-07-12,cmctu1v46002zslqodkyiu0ap,DOMOTIQUE trouver du fils et installer le zigbee conso et prod de la maison,rapide
+cmctu1ve5008vslqoq2n80t21,"solaire j'ai effacé combien avec ma config actuelle ?","https://suiviconso.edf.fr/comprendre",,3,5,4,2026-03-31,2025-07-08,2025-07-12,,,rapide;actif
+cmctu1vds008oslqo9dd5mbr3,"recevoir devis couverture 07 61 67 45 83 - mer. 30 avr. 2025 17:00 - 18:00 (UTC+2) (Gabriel Brun), yt comment savoir si la toiture est bonne ou non ?",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide;actif
+cmctu1vd4008eslqoeru1eisj,"mesurer et trouver le fil principale via pince amperemetrique",,,3,2,4,,2025-07-08,2025-07-12,cmctu1v46002zslqodkyiu0ap,DOMOTIQUE trouver du fils et installer le zigbee conso et prod de la maison,rapide
+cmctu1vcu0088slqo8n8nifet,"gpt script home assistant lumière allumée depuis x minutes Erreur : must contain at least one of entity_id, device_id, area_id, floor_id, label_id.",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,rapide
+cmctu1vcp0085slqot1dv6wwu,"gpt indiquer que j'ai 1kw panneaux",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,rapide
+cmctu1vck0082slqohqzgcd7l,"essayer www.cryptorefills.com/fr bon cadeau amz avec de l'usdc","https://www.cryptorefills.com/fr",,4,5,4,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,rapide
+cmctu1vce007zslqoz91uhixr,"demande coût si vente à 300 000 € immeuble, le faire ?","https://docs.google.com/spreadsheets/d/1ohpRd6I8h0-SvnO0dTqiIFbeD3UA1HZi0eMw_leFVV0/edit?gid=0#gid=0",,3,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide
+cmctu1vc9007vslqor4gd5i5u,"cour de char à voile ?",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine;rapide
+cmctu1vbw007pslqovulluh6m,"compte inactifs BOURSOBANK === boursorama ?",,,3,2,4,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,rapide
+cmctu1vbr007mslqoewkg720m,"amz omegor vitality 500",,,3,5,4,,2025-07-08,2025-07-12,cmd03blbu0032slo89mm2dz5j,AMAZON AMZ,rapide
+cmctu1vbm007jslqozrknlbzw,"amz Chariot pour bois et wing foil",,,3,5,4,,2025-07-08,2025-07-12,cmd03blbu0032slo89mm2dz5j,AMAZON AMZ,rapide
+cmctu1vba007bslqoweajyelj,"Voir smarloc","https://www.smartloc.fr/bail/?utm_source=adwords_bail_vide&amp;gad_source=1&amp;gclid=CjwKCAjwzIK1BhAuEiwAHQmU3sMYbyNZfc0yHGuItL48IsJ7XWZGTJe_SSbPBmzIYkubzGTcxpdpwxoCzwAQAvD_BwE",,3,5,4,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,rapide
+cmctu1vb00075slqor8y8mors,"Utiliser Google wallet",,,3,5,4,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,rapide
+cmctu1vav0072slqozei2us5h,"Tu connais smart garant et garantme?",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,rapide;actif
+cmctu1vah006tslqocwt4ye3w,"Relancer DPE : D si isolation total sud et nord ? Comment isoler nord ? si ajout de pompe chaleur air air après lettre C ?",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide
+cmctu1va3006kslqov4tk6rby,"Outils pour trou dans toiture pour passer les câbles",,,3,5,4,,2025-07-08,2025-07-12,cmctu1vs600gtslqor42z8u55,PERGOLA et panneaux regle urbanisme ?,rapide
+cmctu1v9x006gslqocg1tihyw,"Obtenir réponse email mahieu du 8 décembre ""Reçu partiel de loyer et dépôt de garantie""",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide;actif
+cmctu1v9q006cslqoci6vcp5q,"Obtenir retour email macif fissure vitrine",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide;actif
+cmctu1v9l0069slqoczjcv3ke,"Manus agent ia",,,3,5,4,,2025-07-08,2025-07-12,cmd03gle1003jslo8mlxuluyi,YOUTUBE YT,rapide
+cmctu1v9g0065slqov8u7o6f1,"La CRL doit être déclarée et payée chaque année. Le paiement intervient en même temps que la déclaration des revenus de la SCI, généralement au plus tard à la mi-mai de l'année suivant celle des revenus concernés.",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide;actif
+cmctu1v9a0062slqo6k3a8851,"J'ai pété contre fiche plus que 90 degrés",,,3,5,4,,2025-07-08,2025-07-12,cmctu1vs600gtslqor42z8u55,PERGOLA et panneaux regle urbanisme ?,rapide
+cmctu1v95005zslqohiryf9u0,"Horaires crèche ?",,,3,5,4,,2025-07-08,2025-07-12,cmd03j115003qslo8hygdxto0,Crèche,rapide
+cmctu1v90005wslqocy3xddml,"Clapet anti retour sms",,,3,5,4,,2025-07-08,2025-07-12,cmctu1ver0098slqoy619m91l,BRICO DEPOT,rapide
+cmctu1v8v005tslqo4wx5s2n7,"Auchan Telecom 2€ / mois free?",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,rapide
+cmctu1v8k005lslqounb96nvs,"ACTION ajout compteur elec (besoin de fil elec ?) ?",,,3,5,4,,2025-07-08,2025-07-12,cmctu1vs600gtslqor42z8u55,PERGOLA et panneaux regle urbanisme ?,rapide;actif
+cmctu1v8e005hslqo3tyiokso,"Checker les grains de beautés.",,,3,5,4,,2025-07-08,2025-07-12,cmd04atqb006fslo8l465r7ac,SANTÉ,santé & relation humaine;rapide
+cmctu1v89005eslqofc6efv5f,"Charger à 60% toutes les batteries en stock",,,3,5,4,,2025-07-08,2025-07-12,,,rapide;recursive
+cmctu1v7y0057slqo2jvss5uh,"Amazon protection solaire voiture",,,3,5,4,,2025-07-08,2025-07-12,cmd03blbu0032slo89mm2dz5j,AMAZON AMZ,rapide
+cmctu1v7s0053slqo2fv8yujo,"Ajouter une pile de bois sec dans le garage se faire livrer idéalement entre le 5 au 12 avril","https://docs.google.com/document/d/1EW0xgC3XGjvzqvGZ_w5MhJYAftvtdruiDlwH8HWhWsA/edit?tab=t.0",,3,4,4,,2025-07-08,2025-07-12,cmd03pczi004fslo8rico7zr3,JARDIN,santé & relation humaine;rapide
+cmctu1v7i004xslqo43k0agf4,"ACTION Retrouver grilles du tamisseur pour faire une grise avec 3 brique pour le poel",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,rapide
+cmctu1v7d004uslqo1q9k6s5y,"ACTION MACIF sms du 24 février Sinistre 211220924 du 02/09/2021 : nous venons de réaliser sur votre compte un virement de 127 Euros disponible selon les délais de traitement bancaire.",,,3,5,4,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,rapide
+cmctu1v78004rslqok9wnjwkg,"Entretien mégane (vérifier date et modifier cet evenement)","https://docs.google.com/document/d/1Ps4VqZK2u47gTl9dJQqDB_DFsahLf-cfAqWZFXnsVkk/edit?tab=t.0",,3,5,4,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,rapide;passif
+cmctu1v73004oslqoporbqu20,"trading vendre un peu btc","https://chatgpt.com/c/6819b853-8198-8005-813f-1e57b6147f0e",,4,5,4,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,actif
+cmctu1v6y004mslqoa3uis1z7,"tiroir 1",,,2,2,4,,2025-07-08,2025-07-12,,,recursive
+cmctu1v6u004kslqo1cpdzvy4,"sauvegarde","https://www.notion.so/Business-5493e987d1044d16b389f22eafb8ef04?p=505d4c1eb00f4efe8dee277e6cf34d38",,3,3,4,,2025-07-08,2025-07-12,,,bureau
+cmctu1v6q004hslqobnibxz96,"ranger bureau",,,2,2,4,,2025-07-08,2025-07-12,,,actif
+cmctu1v6l004eslqoy780hxxl,"Vendre immeuble ou injecter argent pour toiture puis par la suite pour isolations ? calcul a 375k rentabilité?",,,2,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,actif
+cmctu1v6g004bslqomboib0ga,"vendre slick 4.5m",,,3,2,4,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine
+cmctu1v610041slqoolrejnsm,"ranger chambres",,,2,5,4,,2025-07-08,2025-07-12,cmctu1v4b0032slqowpktmxiq,ENFANTS,santé & relation humaine;déléguer
+cmctu1v5o003uslqo78jyftf1,"JARDIN","https://docs.google.com/document/d/1A9phSi9IvarxVN0KC-ohtLT_D9pImbNuSysxOmWViCk/edit?tab=t.0",,2,5,4,,2025-07-08,2025-07-12,,,santé & relation humaine;recursive
+cmctu1v5j003sslqoh63iho7r,"gpt créer courrier ou email pour prévenir réseau suite 1kw solaire",,,3,5,4,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,
+cmctu1v5a003nslqojbnavnha,"Préparation tribunal en sept","https://docs.google.com/document/d/1F34NJNcI_rkfW2E7LfIQA18K9i-7OzHjEyW-yJXWFcA/edit?tab=t.0",,2,3,4,,2025-07-08,2025-07-12,cmd03zhk70058slo8cjhzeyy0,TRIBUNAL ROUBAIX,actif
+cmctu1v50003hslqou9atint6,"Wing ?","https://www.windy.com/50.541/3.459/arome?arome,50.443,3.458,10,m:e3LagdP",,2,5,4,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine
+cmctu1v4l0038slqow0jwrum4,"Reparer 5m",,,3,2,4,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine
+cmctu1v4g0035slqoyk0bql80,"GEEKERIES","https://docs.google.com/document/d/1uVOAPyfPjaF5oeKg_JJuxV5le5oQG5dh1-HJlW1mcb8/edit?tab=t.0",,2,5,4,,2025-07-08,2025-07-12,,,santé & relation humaine;recursive
+cmctu1v4b0032slqowpktmxiq,"ENFANTS","https://docs.google.com/document/d/1HlbdK1FtWMZRTOEyu-lICCMF8WYcRxUA7sLI_SK9Tf0/edit?tab=t.0",,2,5,4,,2025-07-08,2025-07-12,,,santé & relation humaine;recursive
+cmctu1v46002zslqodkyiu0ap,"DOMOTIQUE trouver du fils et installer le zigbee conso et prod de la maison","https://docs.google.com/document/d/1A87v5POP79sc5EZxtnZED7s9xQh4nsci920y3jO4z8k/edit?tab=t.0",,2,5,4,,2025-07-08,2025-07-08,,,santé & relation humaine
+cmctu1v41002wslqo6ahd08mo,"Checker les grains de beautés",,,2,5,4,,2025-07-08,2025-07-12,cmd04atqb006fslo8l465r7ac,SANTÉ,santé & relation humaine
+cmctu1v3w002sslqofbe502sa,"WINGFOIL revendre 4,5m et mint","https://docs.google.com/document/d/1Sn0Q5N2YjqDS4mkbPNKdYAXiccE1XzQX0C0iNl3Y20Q/edit?tab=t.0",,2,4,4,,2025-07-08,2025-07-12,cmczfr7290003sl6vcfelcfgs,Wingfoil ,santé & relation humaine;dehors
+cmctu1v3q002oslqo1a5cvr2b,"TITRE DE SÉJOUR","https://docs.google.com/document/d/1poA4OtYWIhdsKCAjI2T320Hp0VhQrUPrBqJwEaeGAJ8/edit?tab=t.0",,2,5,4,,2025-07-08,2025-07-12,cmd03yjjg0055slo8ih4cq6ie,RITA,santé & relation humaine;dehors
+cmctu1v3l002lslqompy2nfiw,"Huile voiture et fenêtres &gt; dernière vidange quand ? voir tableau de suivi",,,2,5,4,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,dehors
+cmctu1v3g002islqoxc3u6hy5,"Brocante ?","https://www.sabradou.com/",,2,5,4,,2025-07-08,2025-07-08,,,dehors
+cmctu1v3b002eslqoehmz094b,"suivi Testelin : début semaine prochaine donc le 21 max : reçu partiel manque 70e testelin 70.19 €","https://docs.google.com/spreadsheets/d/1xMr1zQIBZsKMMDleQuo1_qYNOH80xZr7HX455D5NkDM/edit?gid=0#gid=0",,2,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide;actif
+cmctu1v300028slqoyhyoqd31,"gpt SCI 127€ pour l'évenement du 2/9/2021 ? vitrine cassée gpt ? Selon les informations disponibles, le remplacement d'une vitrine de magasin commence à partir de 2 900 €, avec des variations selon les spécificités du projet. Ce remboursement fait suite à l'aboutissement de notre recours.",,,2,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide
+cmctu1v2u0025slqo5cub5oe6,"YT","https://docs.google.com/document/d/1xlg36c8cZhdo-GJEZw2mwqeOF2wWNMVJjwv6Szz0c5A/edit?tab=t.0",,2,5,4,,2025-07-08,2025-07-12,cmd03gle1003jslo8mlxuluyi,YOUTUBE YT,rapide
+cmctu1v2p0021slqo6xb49l7e,"Toiture autres devis / avis+ Tirdad","https://chatgpt.com/c/68261f5f-8874-8005-9648-d930c47333ea",,2,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide;actif
+cmctu1v2k001xslqohawf1qjs,"ROUBAIX huissier SAMBA : agenda Tribunal et préparer dossier","https://docs.google.com/document/d/1zF3q22Z1djA-vrsXpPFrQsLBmD1V01oqoKPc9YTtyZM/edit?tab=t.0",,2,2,4,2025-07-15,2025-07-08,2025-07-12,cmd03zhk70058slo8cjhzeyy0,TRIBUNAL ROUBAIX,rapide;actif
+cmctu1v2e001tslqo5r9f8xla,"Point Laude obtenir réponse odeur et chaudières (voir sms) Vicoigne à faire 28/4/2023",,,2,5,4,,2025-07-08,2025-07-12,cmctu1v1k0019slqofku3nms8,IMMO IMMEUBLE SCI #actif #immeuble,rapide;actif
+cmctu1v28001pslqodhzd7a6z,"GTD renouveler certificat https","https://docs.google.com/document/d/1or0UpOfTEsM8ValNdOK61WmRUqwOpDtRffewPRN81Yc/edit?tab=t.0",,3,3,4,,2025-07-08,2025-07-12,cmctu1w2z00n0slqojn58t23f,GTD,rapide;actif
+cmctu1v23001lslqo2i9nhm13,"gpt Password NETGEAR à changer",,,3,3,4,,2025-07-08,2025-07-12,cmctu1v170012slqoyhda7hov,GPT,santé & relation humaine;rapide
+cmctu1v1y001jslqovypl4dpy,"compteur elec zigbee utiliser pince ampermetrique pour voir quel fil",,,4,2,4,,2025-07-08,2025-07-12,cmctu1v46002zslqodkyiu0ap,DOMOTIQUE trouver du fils et installer le zigbee conso et prod de la maison,actif
+cmctu1v1q001eslqou3m2mo3b,"Logueur","https://docs.google.com/spreadsheets/d/10tvdh72nxBNCDynmLQym3aFJTZEC0eJwOnslq4kAU1w/edit?gid=0#gid=0",,4,3,4,,2025-07-08,2025-07-12,cmd01sg1g0019slo8ywu24u92,UN JOUR PEUT ÊTRE,rapide
+cmctu1v1k0019slqofku3nms8,"IMMO IMMEUBLE SCI #actif #immeuble","https://docs.google.com/document/d/1QAq3CrefR5wLK_ubcCCSDnIYL1eA1XSIIeg46DavLTI/edit#",,3,4,4,,2025-07-08,2025-07-12,,,dehors;actif
+cmctu1v170012slqoyhda7hov,"GPT","https://docs.google.com/document/d/1Ew65x1K-ydRfijtx5eFEqfSGr5CgUYdHSqO_utkm2aE/edit?tab=t.0",,4,3,4,,2025-07-08,2025-07-12,,,rapide;recursive
+cmctu1v12000zslqovh984cwv,"Devis clim voiture",,,3,2,4,,2025-07-08,2025-07-12,cmd04712j005pslo8gku39y54,VOITURE,rapide
+cmctu1v0s000tslqo0mz0ichi,"Achats web","https://docs.google.com/document/d/1kspGZ6RGO4oKnrd687udlbqRKejNwM3AYvw-MmEJXJQ/edit?tab=t.0",,5,3,4,,2025-07-08,2025-07-12,,,recursive
+cmctu1v0k000pslqoewzkeuw5,"266,09 € 13/1 rachat total macsf reçu ?",,,4,2,4,,2025-07-08,2025-07-12,cmd026o9a0024slo8h4znh7rl,BOURSE ET MARCHER FINANCIERS,
+cmctu1v0g000mslqot4elbuts,"bilan sécurité Mégane offert par Renault : prendre rdv sur internet et présenter courrier avant le 30/09 + bilan clim gratuit",,,2,2,3,,2025-07-08,2025-07-12,,,rapide
+cmctu1v0b000jslqogxk59vwz,"certificat médical aptitude fréquente collectivité &amp; 2 papiers à rendre en juillet",,,2,2,3,,2025-07-08,2025-07-12,cmd03j115003qslo8hygdxto0,Crèche,santé & relation humaine
+cmctu1v00000dslqozdjl923j,"robot",,,3,5,4,,2025-07-08,2025-07-12,,,santé & relation humaine;rapide
+cmctu1uzv000aslqotbtu5epq,"pergola avec syl un soir ou matin ?",,,3,3,2,,2025-07-08,2025-07-12,cmctu1vs600gtslqor42z8u55,PERGOLA et panneaux regle urbanisme ?,rapide
+cmctu1uzl0005slqo6whx3oi7,"suite réunion parents","https://docs.google.com/document/d/1CdOEY2s-F9aVxkRSlPMdhMw1CMafw1XfuaK20vbnfHQ/edit?tab=t.0",,4,5,5,2025-08-19,2025-07-08,2025-07-08,,,santé & relation humaine

@@ -92,10 +92,79 @@ export class PrismaTaskRepository implements TaskRepository {
     if (filters?.parentId !== undefined) {
       // Si parentId est explicitement spécifié (même null), on l'utilise
       where.parentId = filters.parentId
-    } else {
-      // Par défaut, on ne récupère que les tâches principales (sans parent)
-      where.parentId = null
     }
+    // Si parentId n'est pas défini, on ne filtre pas par parentId (récupère toutes les tâches)
+
+    if (filters?.importance) {
+      where.importance = filters.importance
+    }
+
+    if (filters?.urgency) {
+      where.urgency = filters.urgency
+    }
+
+    if (filters?.priority) {
+      where.priority = filters.priority
+    }
+
+    if (filters?.search) {
+      where.name = {
+        contains: filters.search,
+        mode: 'insensitive'
+      }
+    }
+
+    if (filters?.tagIds && filters.tagIds.length > 0) {
+      where.tags = {
+        some: {
+          tagId: {
+            in: filters.tagIds
+          }
+        }
+      }
+    }
+
+    const tasks = await this.prisma.task.findMany({
+      where,
+      include: {
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        subtasks: {
+          include: {
+            tags: { include: { tag: true } },
+            subtasks: {
+              include: {
+                tags: { include: { tag: true } },
+                subtasks: true // profondeur 2 (suffisant pour la plupart des cas)
+              }
+            }
+          }
+        }
+      },
+      orderBy: [
+        { createdAt: 'desc' } // Tri de base par date de création
+      ]
+    })
+
+    // Appliquer le tri personnalisé
+    const sortedTasks = this.sortTasksByPriority(
+      tasks.map((task: any) => this.formatTaskWithSubtasks(task))
+    )
+
+    return sortedTasks
+  }
+
+  async findAllRootTasks(filters: TaskFilters): Promise<TaskWithSubtasks[]> {
+    const where: any = {}
+
+    // userId est obligatoire pour la sécurité
+    where.userId = filters.userId
+
+    // Pour les tâches racines, on force parentId = null
+    where.parentId = null
 
     if (filters?.importance) {
       where.importance = filters.importance

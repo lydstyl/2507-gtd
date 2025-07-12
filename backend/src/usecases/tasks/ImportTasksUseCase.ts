@@ -76,14 +76,20 @@ export class ImportTasksUseCase {
         // Déterminer le parentId si c'est une sous-tâche
         let parentId: string | undefined
         if (taskData.parentName) {
-          const parentTaskId = importedTasks.get(taskData.parentName)
-          if (parentTaskId) {
-            parentId = parentTaskId
+          // Vérifier qu'il ne s'agit pas d'une auto-référence
+          if (taskData.parentName === taskData.name) {
+            console.log(`⚠️ Auto-référence détectée pour "${taskData.name}", parentId ignoré`)
+            parentId = undefined
           } else {
-            importErrors.push(
-              `Impossible de trouver la tâche parente "${taskData.parentName}" pour "${taskData.name}"`
-            )
-            continue
+            const parentTaskId = importedTasks.get(taskData.parentName)
+            if (parentTaskId) {
+              parentId = parentTaskId
+            } else {
+              importErrors.push(
+                `Impossible de trouver la tâche parente "${taskData.parentName}" pour "${taskData.name}"`
+              )
+              continue
+            }
           }
         }
 

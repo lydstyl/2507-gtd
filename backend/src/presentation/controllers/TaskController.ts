@@ -89,11 +89,53 @@ export class TaskController {
           ? (req.query.tagIds as string[])
           : [req.query.tagIds as string]
       }
+      
+      // Si includeSubtasks est spécifié, on ne filtre pas par parentId
+      if (req.query.includeSubtasks === 'true') {
+        delete filters.parentId
+      }
 
       const tasks = await this.getAllTasksUseCase.execute(userId, filters)
       res.json(tasks)
     } catch (error) {
       console.error('❌ Erreur dans getAllTasks:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+
+  async getAllRootTasks(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const filters: TaskFilters = { userId }
+
+      // Parse query parameters
+      if (req.query.importance) {
+        filters.importance = parseInt(req.query.importance as string)
+      }
+      if (req.query.urgency) {
+        filters.urgency = parseInt(req.query.urgency as string)
+      }
+      if (req.query.priority) {
+        filters.priority = parseInt(req.query.priority as string)
+      }
+      if (req.query.search) {
+        filters.search = req.query.search as string
+      }
+      if (req.query.tagIds) {
+        filters.tagIds = Array.isArray(req.query.tagIds)
+          ? (req.query.tagIds as string[])
+          : [req.query.tagIds as string]
+      }
+
+      const tasks = await this.getAllTasksUseCase.executeRootTasks(userId, filters)
+      res.json(tasks)
+    } catch (error) {
+      console.error('❌ Erreur dans getAllRootTasks:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

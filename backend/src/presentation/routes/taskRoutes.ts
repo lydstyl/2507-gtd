@@ -10,6 +10,9 @@ export function createTaskRoutes(taskController: TaskController): Router {
   // GET /api/tasks - Get all tasks with optional filters
   router.get('/', taskController.getAllTasks.bind(taskController))
 
+  // GET /api/tasks/root - Get only root tasks (for TaskListPage)
+  router.get('/root', taskController.getAllRootTasks.bind(taskController))
+
   // POST /api/tasks - Create a new task
   router.post('/', taskController.createTask.bind(taskController))
 

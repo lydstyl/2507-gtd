@@ -78,6 +78,25 @@ function App() {
     }
   }
 
+  const loadAllTasks = async () => {
+    try {
+      console.log('🔄 Chargement de toutes les tâches (y compris sous-tâches)...')
+      const tasksData = await api.getAllTasks()
+      console.log('📋 Toutes les tâches reçues:', tasksData.length)
+      console.log(
+        '📋 Détail des tâches:',
+        tasksData.map((t) => ({
+          name: t.name,
+          parentId: t.parentId,
+          subtasks: t.subtasks.length
+        }))
+      )
+      setTasks(tasksData)
+    } catch (err) {
+      console.error('Erreur lors du chargement des tâches:', err)
+    }
+  }
+
   const handleAuthSuccess = (_token: string, userData: User) => {
     setUser(userData)
     setAuthView('dashboard')
@@ -98,8 +117,19 @@ function App() {
     loadTasks()
   }
 
+  const handleTaskCreatedForDashboard = async () => {
+    console.log('✅ Tâche créée, rechargement pour Dashboard...')
+    // Petit délai pour s'assurer que le backend a traité la création
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    loadAllTasks()
+  }
+
   const handleTaskUpdated = () => {
     loadTasks()
+  }
+
+  const handleTaskUpdatedForDashboard = () => {
+    loadAllTasks()
   }
 
   const handleTaskDeleted = async (taskId: string) => {
@@ -107,6 +137,18 @@ function App() {
       try {
         await api.deleteTask(taskId)
         loadTasks()
+      } catch (err) {
+        console.error('Erreur lors de la suppression de la tâche:', err)
+        alert('Erreur lors de la suppression de la tâche')
+      }
+    }
+  }
+
+  const handleTaskDeletedForDashboard = async (taskId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+      try {
+        await api.deleteTask(taskId)
+        loadAllTasks()
       } catch (err) {
         console.error('Erreur lors de la suppression de la tâche:', err)
         alert('Erreur lors de la suppression de la tâche')
@@ -184,6 +226,10 @@ function App() {
     setCreateTaskParentId(undefined)
   }
 
+  // Déterminer les fonctions appropriées selon le contexte
+  const taskCreatedHandler = authView === 'tasklist' ? handleTaskCreated : handleTaskCreatedForDashboard
+  const taskUpdatedHandler = authView === 'tasklist' ? handleTaskUpdated : handleTaskUpdatedForDashboard
+
   if (isLoading) {
     return (
       <div className='min-h-screen flex items-center justify-center bg-gray-50'>
@@ -241,18 +287,18 @@ function App() {
         onManageTags={() => setIsTagManagerModalOpen(true)}
         onViewAllTasks={() => setAuthView('tasklist')}
         onEditTask={handleEditTask}
-        onDeleteTask={handleTaskDeleted}
+        onDeleteTask={handleTaskDeletedForDashboard}
         onCreateSubtask={handleCreateSubtask}
         onAssignParent={handleAssignParent}
         onEditNote={handleEditNote}
-        onRefreshTasks={loadTasks}
+        onRefreshTasks={loadAllTasks}
       />
       <Footer />
 
       <CreateTaskModal
         isOpen={isCreateTaskModalOpen}
         onClose={handleCloseCreateTaskModal}
-        onTaskCreated={handleTaskCreated}
+        onTaskCreated={taskCreatedHandler}
         parentId={createTaskParentId}
       />
 
@@ -270,7 +316,7 @@ function App() {
       <EditTaskModal
         isOpen={isEditTaskModalOpen}
         onClose={handleCloseEditModal}
-        onTaskUpdated={handleTaskUpdated}
+        onTaskUpdated={taskUpdatedHandler}
         task={editingTask}
       />
 

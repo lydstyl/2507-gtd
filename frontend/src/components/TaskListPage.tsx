@@ -40,7 +40,7 @@ export default function TaskListPage() {
 
   const loadTasks = async () => {
     try {
-      const tasksData = await api.getTasks()
+      const tasksData = await api.getRootTasks()
       setTasks(tasksData)
       setFilteredTasks(tasksData)
     } catch (err: any) {
@@ -160,6 +160,11 @@ export default function TaskListPage() {
         }
       })
     }
+
+    // Dans la TaskListPage, on ne veut afficher que les tâches racines dans la liste principale
+    // Les sous-tâches ne doivent apparaître que quand on clique sur "Afficher les sous-tâches"
+    // Donc on ne filtre pas par parentId ici, car on veut toutes les tâches racines
+    // Le filtrage des sous-tâches se fait dans le composant TaskCard
 
     return filtered
   }

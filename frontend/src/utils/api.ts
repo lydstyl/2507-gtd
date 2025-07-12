@@ -129,6 +129,10 @@ export const api = {
   // Tasks
   getTasks: () => apiCall<Task[]>('/tasks'),
 
+  getAllTasks: () => apiCall<Task[]>('/tasks?includeSubtasks=true'),
+
+  getRootTasks: () => apiCall<Task[]>('/tasks/root'),
+
   createTask: (data: CreateTaskData) =>
     apiCall<Task>('/tasks', {
       method: 'POST',

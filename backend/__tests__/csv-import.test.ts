@@ -107,4 +107,52 @@ describe('CSV Import Tests', () => {
       /nom de la tâche|Importance invalide/i
     )
   })
+
+  test('should import all tasks from real CSV file', async () => {
+    // Lire le fichier CSV réel
+    const fs = require('fs')
+    const path = require('path')
+    const csvFilePath = path.join(__dirname, 'tasks-export-2025-07-12.csv')
+    
+    if (!fs.existsSync(csvFilePath)) {
+      console.log('Fichier CSV de test non trouvé, test ignoré')
+      return
+    }
+
+    // Afficher l'userId utilisé pour l'import
+    console.log('userId utilisé pour l\'import:', userId)
+    // Supprimer toutes les tâches de cet utilisateur
+    await prisma.task.deleteMany({ where: { userId } })
+
+    const csvContent = fs.readFileSync(csvFilePath, 'utf8')
+    const lines = csvContent.split('\n').filter((line: string) => line.trim() !== '')
+    const expectedTaskCount = lines.length - 1 // Exclure l'en-tête
+
+    console.log(`Nombre de lignes dans le CSV: ${lines.length}`)
+    console.log(`Nombre de tâches attendues: ${expectedTaskCount}`)
+
+    // Import via l'API
+    const importRes = await request(server)
+      .post('/api/tasks/import')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ csvContent })
+      .expect(200)
+
+    console.log(`Tâches importées: ${importRes.body.importedCount}`)
+    console.log(`Erreurs: ${importRes.body.errors.length}`)
+    if (importRes.body.errors.length > 0) {
+      console.log('Erreurs détaillées:', importRes.body.errors)
+    }
+
+    // Vérifier que toutes les tâches sont importées
+    expect(importRes.body.importedCount).toBe(expectedTaskCount)
+    expect(importRes.body.errors).toHaveLength(0)
+
+    // Vérifier que les tâches sont bien dans la base de données
+    const totalTasksInDb = await prisma.task.count({ where: { userId } })
+    console.log(`Tâches dans la base de données (toutes, y compris sous-tâches): ${totalTasksInDb}`)
+    
+    // Vérifier que le nombre de tâches correspond exactement
+    expect(totalTasksInDb).toBe(expectedTaskCount)
+  })
 })
