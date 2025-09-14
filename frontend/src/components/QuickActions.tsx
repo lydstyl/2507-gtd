@@ -32,9 +32,9 @@ export function QuickActions({ onCreateTask, onCreateTag, onManageTags, onViewAl
         </button>
         <button 
           onClick={onViewAllTasks}
-          className='border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium transition-colors'
+          className='border border-blue-300 text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors'
         >
-          Voir toutes les tâches
+          Retour aux tâches
         </button>
       </div>
     </div>

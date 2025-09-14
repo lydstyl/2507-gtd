@@ -47,7 +47,7 @@ function App() {
           email: payload.email
         }
         setUser(userData)
-        setAuthView('dashboard')
+        setAuthView('tasklist')
         loadTasks()
       } catch (error) {
         console.error('Erreur lors du décodage du token:', error)
@@ -99,7 +99,7 @@ function App() {
 
   const handleAuthSuccess = (_token: string, userData: User) => {
     setUser(userData)
-    setAuthView('dashboard')
+    setAuthView('tasklist')
     loadTasks()
   }
 
@@ -267,10 +267,10 @@ function App() {
         <TaskListPage />
         <Footer />
         <button
-          className='fixed bottom-8 right-8 bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700'
+          className='fixed bottom-8 right-8 bg-green-600 text-white px-4 py-2 rounded shadow-lg hover:bg-green-700'
           onClick={() => setAuthView('dashboard')}
         >
-          Retour au dashboard
+          Dashboard
         </button>
       </div>
     )
