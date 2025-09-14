@@ -32,12 +32,18 @@ export function EditTaskModal({
     if (isOpen) {
       loadTags()
       if (task) {
-        // Formater la date pour l'input date (YYYY-MM-DD)
+        // Formater la date pour l'input date (YYYY-MM-DD) en gardant la date locale
         const formatDateForInput = (dateString: string) => {
           try {
             const date = new Date(dateString)
             if (isNaN(date.getTime())) return ''
-            return date.toISOString().split('T')[0]
+            
+            // Utiliser les méthodes locales pour éviter les problèmes de timezone
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            
+            return `${year}-${month}-${day}`
           } catch (error) {
             console.error('Erreur de formatage de date:', error)
             return ''
