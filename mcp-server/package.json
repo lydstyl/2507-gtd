@@ -1,0 +1,31 @@
+{
+  "name": "gtd-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for GTD task management",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "gtd-mcp-server": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "dev": "ts-node --esm src/index.ts",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "@prisma/client": "^6.10.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.8",
+    "typescript": "^5.8.3",
+    "ts-node": "^10.9.2",
+    "prisma": "^6.10.1"
+  },
+  "keywords": ["mcp", "task-management", "gtd"],
+  "author": "",
+  "license": "MIT"
+}
