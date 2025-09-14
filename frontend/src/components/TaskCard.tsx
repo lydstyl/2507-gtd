@@ -166,8 +166,8 @@ export function TaskCard({
               )}`}
             ></div>
             <div className='flex-1 min-w-0'>
-              <div className='flex items-center space-x-2 mb-2'>
-                <h4 className='font-medium text-gray-900 truncate'>{task.name}</h4>
+              <div className='flex items-start space-x-2 mb-2'>
+                <h4 className='font-medium text-gray-900 break-words flex-1'>{task.name}</h4>
                 {task.link && (
                   <a
                     href={task.link}
@@ -446,11 +446,11 @@ export function TaskCard({
                         )}`}
                       ></div>
                       <div className='flex-1 min-w-0'>
-                        <div className='flex items-center justify-between'>
-                          <h5 className='text-sm font-medium text-gray-900 truncate'>
+                        <div className='flex items-start justify-between'>
+                          <h5 className='text-sm font-medium text-gray-900 break-words flex-1 mr-2'>
                             {subtask.name}
                           </h5>
-                          <div className='flex items-center space-x-1 ml-2'>
+                          <div className='flex items-center space-x-1 flex-shrink-0'>
                             {subtask.dueDate && (
                               <span
                                 className={`text-xs font-medium ${
@@ -674,11 +674,11 @@ export function TaskCard({
                                       )}`}
                                     ></div>
                                     <div className='flex-1 min-w-0'>
-                                      <div className='flex items-center justify-between'>
-                                        <h6 className='text-xs font-medium text-gray-900 truncate'>
+                                      <div className='flex items-start justify-between'>
+                                        <h6 className='text-xs font-medium text-gray-900 break-words flex-1 mr-1'>
                                           {subSubtask.name}
                                         </h6>
-                                        <div className='flex items-center space-x-1 ml-2'>
+                                        <div className='flex items-center space-x-1 flex-shrink-0'>
                                           {subSubtask.dueDate && (
                                             <span
                                               className={`text-xs font-medium ${
