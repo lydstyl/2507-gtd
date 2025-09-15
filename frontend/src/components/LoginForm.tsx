@@ -1,45 +1,36 @@
-import { useState } from 'react'
-import { api, ApiError } from '../utils/api'
-import type { LoginData } from '../types/auth'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Link, useNavigate } from 'react-router-dom'
+import { useLogin } from '../hooks/useAuth'
+import { Button, Input } from './ui'
 
-interface LoginFormProps {
-  onSuccess: (token: string, user: { id: string; email: string }) => void
-  onSwitchToRegister: () => void
-}
+const loginSchema = z.object({
+  email: z.string().email('Adresse email invalide'),
+  password: z.string().min(1, 'Le mot de passe est requis')
+})
 
-export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
-  const [formData, setFormData] = useState<LoginData>({
-    email: '',
-    password: ''
+type LoginFormData = z.infer<typeof loginSchema>
+
+export function LoginForm() {
+  const navigate = useNavigate()
+  const loginMutation = useLogin()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema)
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
-
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await api.login(formData)
-      localStorage.setItem('token', response.token)
-      onSuccess(response.token, response.user)
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message)
-      } else {
-        setError("Une erreur inattendue s'est produite")
-      }
-    } finally {
-      setIsLoading(false)
+      await loginMutation.mutateAsync(data)
+      navigate('/tasks')
+    } catch (error) {
+      // Error is handled by the mutation
     }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
   }
 
   return (
@@ -51,72 +42,50 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
           </h2>
           <p className='mt-2 text-center text-sm text-gray-600'>
             Ou{' '}
-            <button
-              onClick={onSwitchToRegister}
+            <Link
+              to="/register"
               className='font-medium text-blue-600 hover:text-blue-500'
             >
               créer un nouveau compte
-            </button>
+            </Link>
           </p>
         </div>
 
-        <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
-          {error && (
+        <form className='mt-8 space-y-6' onSubmit={handleSubmit(onSubmit)}>
+          {loginMutation.error && (
             <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md'>
-              {error}
+              {loginMutation.error.message}
             </div>
           )}
 
           <div className='space-y-4'>
-            <div>
-              <label
-                htmlFor='email'
-                className='block text-sm font-medium text-gray-700'
-              >
-                Adresse email
-              </label>
-              <input
-                id='email'
-                name='email'
-                type='email'
-                autoComplete='email'
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className='mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
-                placeholder='votre@email.com'
-              />
-            </div>
+            <Input
+              {...register('email')}
+              type='email'
+              label='Adresse email'
+              placeholder='votre@email.com'
+              autoComplete='email'
+              error={errors.email?.message}
+            />
 
-            <div>
-              <label
-                htmlFor='password'
-                className='block text-sm font-medium text-gray-700'
-              >
-                Mot de passe
-              </label>
-              <input
-                id='password'
-                name='password'
-                type='password'
-                autoComplete='current-password'
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className='mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm'
-                placeholder='Votre mot de passe'
-              />
-            </div>
+            <Input
+              {...register('password')}
+              type='password'
+              label='Mot de passe'
+              placeholder='Votre mot de passe'
+              autoComplete='current-password'
+              error={errors.password?.message}
+            />
           </div>
 
           <div>
-            <button
+            <Button
               type='submit'
-              disabled={isLoading}
-              className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
+              isLoading={loginMutation.isPending}
+              className='w-full'
             >
-              {isLoading ? 'Connexion...' : 'Se connecter'}
-            </button>
+              Se connecter
+            </Button>
           </div>
         </form>
       </div>

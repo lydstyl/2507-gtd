@@ -11,7 +11,12 @@
     "serve": "serve -s dist -l 3002"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.8",
+    "@heroicons/react": "^2.2.0",
+    "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/typography": "^0.5.16",
+    "@tanstack/react-query": "^5.87.4",
+    "@tanstack/react-query-devtools": "^5.87.4",
     "@tiptap/extension-color": "^2.24.2",
     "@tiptap/extension-heading": "^2.24.2",
     "@tiptap/extension-link": "^2.24.2",
@@ -21,8 +26,12 @@
     "@tiptap/pm": "^2.24.2",
     "@tiptap/react": "^2.24.2",
     "@tiptap/starter-kit": "^2.24.2",
+    "clsx": "^2.1.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.62.0",
+    "react-router-dom": "^7.9.1",
+    "zod": "^4.1.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
