@@ -4,6 +4,16 @@ export interface User {
   password: string
   createdAt: Date
   updatedAt: Date
-  tasks?: any[] // à typer plus tard
-  tags?: any[] // à typer plus tard
+  tasks?: any[]
+  tags?: any[]
+}
+
+export interface CreateUserData {
+  email: string
+  password: string
+}
+
+export interface UpdateUserData {
+  email?: string
+  password?: string
 }

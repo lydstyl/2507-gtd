@@ -1,0 +1,23 @@
+import { ValidationSchema, Validator } from './BaseValidator'
+
+export const createTaskSchema = new ValidationSchema()
+  .field('name', Validator.required(), Validator.string(), Validator.maxLength(255))
+  .field('link', Validator.optional(Validator.string()), Validator.optional(Validator.maxLength(500)))
+  .field('note', Validator.optional(Validator.string()))
+  .field('importance', Validator.optional(Validator.number()), Validator.optional(Validator.range(1, 9)))
+  .field('urgency', Validator.optional(Validator.number()), Validator.optional(Validator.range(1, 9)))
+  .field('priority', Validator.optional(Validator.number()), Validator.optional(Validator.range(1, 9)))
+  .field('parentId', Validator.optional(Validator.string()))
+  .field('tagIds', Validator.optional(Validator.array(Validator.string())))
+  .field('dueDate', Validator.optional(Validator.string()))
+
+export const updateTaskSchema = new ValidationSchema()
+  .field('name', Validator.optional(Validator.string()), Validator.optional(Validator.maxLength(255)))
+  .field('link', Validator.optional(Validator.string()), Validator.optional(Validator.maxLength(500)))
+  .field('note', Validator.optional(Validator.string()))
+  .field('importance', Validator.optional(Validator.number()), Validator.optional(Validator.range(1, 9)))
+  .field('urgency', Validator.optional(Validator.number()), Validator.optional(Validator.range(1, 9)))
+  .field('priority', Validator.optional(Validator.number()), Validator.optional(Validator.range(1, 9)))
+  .field('parentId', Validator.optional(Validator.string()))
+  .field('tagIds', Validator.optional(Validator.array(Validator.string())))
+  .field('dueDate', Validator.optional(Validator.string()))
