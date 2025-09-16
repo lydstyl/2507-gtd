@@ -20,7 +20,6 @@ export class CSVService {
       'Importance',
       'Complexité',
       'Points',
-      'Collection',
       'Date limite',
       'Date de création',
       'Date de modification',
@@ -37,7 +36,6 @@ export class CSVService {
       task.importance,
       task.complexity,
       task.points,
-      task.isCollection ? 'true' : 'false',
       task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
@@ -67,7 +65,6 @@ export class CSVService {
       importance: number
       complexity: number
       points: number
-      isCollection: boolean
       dueDate?: Date
       parentName?: string
       tagNames: string[]
@@ -83,7 +80,6 @@ export class CSVService {
       importance: number
       complexity: number
       points: number
-      isCollection: boolean
       dueDate?: Date
       parentName?: string
       tagNames: string[]
@@ -94,11 +90,11 @@ export class CSVService {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 14) {
+      if (columns.length < 13) {
         errors.push(
           `Ligne ${i + 1}: Nombre de colonnes insuffisant (${
             columns.length
-          } au lieu de 14)`
+          } au lieu de 13)`
         )
         continue
       }
@@ -112,7 +108,6 @@ export class CSVService {
           importanceStr,
           complexityStr,
           pointsStr,
-          isCollectionStr,
           dueDateStr,
           createdAtStr, // Ignoré lors de l'import
           updatedAtStr, // Ignoré lors de l'import
@@ -130,7 +125,6 @@ export class CSVService {
         const importance = parseInt(importanceStr)
         const complexity = parseInt(complexityStr)
         const points = parseInt(pointsStr)
-        const isCollection = isCollectionStr?.toLowerCase() === 'true'
 
         if (isNaN(importance) || importance < 0 || importance > 50) {
           errors.push(
@@ -173,7 +167,6 @@ export class CSVService {
           importance,
           complexity,
           points,
-          isCollection,
           dueDate,
           parentName:
             parentName && parentName.trim() !== ''

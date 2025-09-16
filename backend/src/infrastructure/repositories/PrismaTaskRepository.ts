@@ -24,10 +24,6 @@ export class PrismaTaskRepository implements TaskRepository {
     const importance = taskData.importance ?? defaults.importance
     const complexity = taskData.complexity ?? defaults.complexity
 
-    // If user explicitly provided importance or complexity, it's not a collection task
-    const userProvidedValues = taskData.importance !== undefined || taskData.complexity !== undefined
-    const isCollection = userProvidedValues ? false : (taskData.isCollection ?? defaults.isCollection)
-
     // Compute points server-side (client values ignored)
     const points = computePoints(importance, complexity)
 
@@ -37,7 +33,6 @@ export class PrismaTaskRepository implements TaskRepository {
         importance,
         complexity,
         points,
-        isCollection,
         dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
         userId: taskData.userId,
         parentId: taskData.parentId,
@@ -122,9 +117,6 @@ export class PrismaTaskRepository implements TaskRepository {
       where.points = filters.points
     }
 
-    if (filters?.isCollection !== undefined) {
-      where.isCollection = filters.isCollection
-    }
 
     if (filters?.search) {
       where.name = {
@@ -197,9 +189,6 @@ export class PrismaTaskRepository implements TaskRepository {
       where.points = filters.points
     }
 
-    if (filters?.isCollection !== undefined) {
-      where.isCollection = filters.isCollection
-    }
 
     if (filters?.search) {
       where.name = {
@@ -284,10 +273,6 @@ export class PrismaTaskRepository implements TaskRepository {
 
       if (cleanTaskData.importance !== undefined || cleanTaskData.complexity !== undefined) {
         updateData.points = computePoints(newImportance, newComplexity)
-        // If user explicitly set importance or complexity, it's no longer a collection task
-        if (cleanTaskData.isCollection === undefined) {
-          updateData.isCollection = false
-        }
       }
 
       const updatedTask = await tx.task.update({
@@ -404,7 +389,6 @@ export class PrismaTaskRepository implements TaskRepository {
       importance: task.importance,
       complexity: task.complexity,
       points: task.points,
-      isCollection: task.isCollection,
       dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,

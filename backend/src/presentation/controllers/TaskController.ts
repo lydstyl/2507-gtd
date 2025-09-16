@@ -81,9 +81,6 @@ export class TaskController {
       if (req.query.points) {
         filters.points = parseInt(req.query.points as string)
       }
-      if (req.query.isCollection) {
-        filters.isCollection = req.query.isCollection === 'true'
-      }
       if (req.query.search) {
         filters.search = req.query.search as string
       }
@@ -125,9 +122,6 @@ export class TaskController {
       }
       if (req.query.points) {
         filters.points = parseInt(req.query.points as string)
-      }
-      if (req.query.isCollection) {
-        filters.isCollection = req.query.isCollection === 'true'
       }
       if (req.query.search) {
         filters.search = req.query.search as string

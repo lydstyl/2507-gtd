@@ -9,7 +9,6 @@ export interface Task {
   importance: number // 0-50, higher = more important
   complexity: number // 1-9, higher = more complex
   points: number // Computed: round(10 * importance / complexity), clamped to [0, 500]
-  isCollection: boolean // True for collection/new tasks
   parentId?: string
   dueDate?: Date
   createdAt: Date
@@ -35,9 +34,8 @@ export interface CreateTaskData {
   name: string
   link?: string
   note?: string // Optional rich text note
-  importance?: number // 0-50, defaults to 20
-  complexity?: number // 1-9, defaults to 5
-  isCollection?: boolean // Defaults to false
+  importance?: number // 0-50, defaults to 50
+  complexity?: number // 1-9, defaults to 1
   parentId?: string
   tagIds?: string[]
   userId: string
@@ -50,7 +48,6 @@ export interface UpdateTaskData {
   note?: string // Optional rich text note
   importance?: number // 0-50
   complexity?: number // 1-9
-  isCollection?: boolean
   parentId?: string
   tagIds?: string[]
   userId?: string
@@ -64,6 +61,5 @@ export interface TaskFilters {
   importance?: number // 0-50
   complexity?: number // 1-9
   points?: number // 0-500
-  isCollection?: boolean
   search?: string
 }

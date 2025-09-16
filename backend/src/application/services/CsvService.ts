@@ -16,7 +16,6 @@ export interface ImportTaskData {
   importance: number
   complexity: number
   points: number
-  isCollection: boolean
   dueDate?: Date
   parentName?: string
   tagNames: string[]
@@ -39,7 +38,6 @@ export class CsvService {
       'Importance',
       'Complexité',
       'Points',
-      'Collection',
       'Date limite',
       'Date de création',
       'Date de modification',
@@ -56,7 +54,6 @@ export class CsvService {
       task.importance,
       task.complexity,
       task.points,
-      task.isCollection ? 'true' : 'false',
       task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
@@ -94,9 +91,9 @@ export class CsvService {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 14) {
+      if (columns.length < 13) {
         errors.push(
-          `Line ${i + 1}: Insufficient columns (${columns.length} instead of 14)`
+          `Line ${i + 1}: Insufficient columns (${columns.length} instead of 13)`
         )
         continue
       }
@@ -130,7 +127,6 @@ export class CsvService {
       importanceStr,
       complexityStr,
       pointsStr,
-      isCollectionStr,
       dueDateStr,
       createdAtStr, // Ignored during import
       updatedAtStr, // Ignored during import
@@ -147,7 +143,6 @@ export class CsvService {
     const importance = this.parseNumber(importanceStr, 'importance', 0, 50)
     const complexity = this.parseNumber(complexityStr, 'complexity', 1, 9)
     const points = this.parseNumber(pointsStr, 'points', 0, 500)
-    const isCollection = isCollectionStr?.toLowerCase() === 'true'
 
     let dueDate: Date | undefined
     if (dueDateStr && dueDateStr.trim() !== '') {
@@ -168,7 +163,6 @@ export class CsvService {
       importance,
       complexity,
       points,
-      isCollection,
       dueDate,
       parentName: parentName && parentName.trim() !== '' ? parentName.trim() : undefined,
       tagNames

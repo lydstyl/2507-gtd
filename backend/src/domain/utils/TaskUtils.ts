@@ -37,17 +37,8 @@ export function validateComplexity(complexity: number): boolean {
  */
 export function getDefaultTaskValues() {
   return {
-    importance: 50, // Maximum importance for collection tasks to appear at top
+    importance: 50, // Maximum importance for high priority
     complexity: 1,  // Minimum complexity for maximum points
     points: 500,    // 10 * 50 / 1 = 500 (maximum points)
-    isCollection: true // New tasks default to collection until user sets specific values
   }
-}
-
-/**
- * Determines if a task should be treated as a collection task
- */
-export function isCollectionTask(importance: number, complexity: number, points: number): boolean {
-  // Tasks with default values are collection tasks
-  return importance === 50 && complexity === 1 && points === 500
 }

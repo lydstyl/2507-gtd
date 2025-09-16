@@ -196,7 +196,7 @@ export function TaskCard({
 
               <p className='text-sm text-gray-500 mb-2'>
                 Importance: {task.importance} | Complexité: {task.complexity} |
-                Points: {task.points} {task.isCollection ? '| Collection' : ''}
+                Points: {task.points}
               </p>
 
               {/* Tags */}
@@ -629,7 +629,7 @@ export function TaskCard({
                           </div>
                         </div>
                         <p className='text-xs text-gray-500 mt-1'>
-                          I: {subtask.importance} | C: {subtask.complexity} | P: {subtask.points} {subtask.isCollection ? '| Coll' : ''}
+                          I: {subtask.importance} | C: {subtask.complexity} | P: {subtask.points}
                         </p>
                         {/* Tags des sous-tâches */}
                         {subtask.tags && subtask.tags.length > 0 && (
@@ -831,7 +831,7 @@ export function TaskCard({
                                         </div>
                                       </div>
                                       <p className='text-xs text-gray-500 mt-0.5'>
-                                        I: {subSubtask.importance} | C: {subSubtask.complexity} | P: {subSubtask.points} {subSubtask.isCollection ? '| Coll' : ''}
+                                        I: {subSubtask.importance} | C: {subSubtask.complexity} | P: {subSubtask.points}
                                       </p>
                                       {/* Tags des sous-sous-tâches */}
                                       {subSubtask.tags && subSubtask.tags.length > 0 && (

@@ -79,9 +79,8 @@ export class CreateTaskUseCase {
     return {
       ...data,
       name: data.name.trim(),
-      importance: data.importance ?? 20,
-      complexity: data.complexity ?? 5,
-      isCollection: data.isCollection ?? false,
+      importance: data.importance ?? 50,
+      complexity: data.complexity ?? 1,
       link: data.link?.trim() || undefined,
       note: data.note?.trim() || undefined,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined

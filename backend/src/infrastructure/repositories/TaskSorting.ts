@@ -1,12 +1,11 @@
 import { TaskWithSubtasks } from '../../domain/entities/Task'
 
 /**
- * New points-based sorting system implementation
+ * Points-based sorting system implementation
  * Sorting rules (deterministic order):
- * 1. Collection tasks first — tasks with isCollection=true
- * 2. Today & Tomorrow — tasks due today or tomorrow, sorted by points DESC
- * 3. No due date — tasks without due_date, sorted by points DESC
- * 4. Future dated tasks — tasks with dates beyond tomorrow, sorted by due_date ASC, then points DESC
+ * 1. Today & Tomorrow — tasks due today or tomorrow, sorted by points DESC
+ * 2. No due date — tasks without due_date, sorted by points DESC
+ * 3. Future dated tasks — tasks with dates beyond tomorrow, sorted by due_date ASC, then points DESC
  */
 export class TaskSorting {
   /**
@@ -22,14 +21,6 @@ export class TaskSorting {
 
     return tasks
       .sort((a, b) => {
-        // 1. Collection tasks first
-        if (a.isCollection && !b.isCollection) return -1
-        if (!a.isCollection && b.isCollection) return 1
-        if (a.isCollection && b.isCollection) {
-          // Within collection tasks, sort by points DESC
-          return b.points - a.points
-        }
-
         const aDate = a.dueDate ? new Date(a.dueDate) : null
         const bDate = b.dueDate ? new Date(b.dueDate) : null
 
@@ -40,7 +31,7 @@ export class TaskSorting {
         const aIsTodayOrTomorrow = aIsToday || aIsTomorrow
         const bIsTodayOrTomorrow = bIsToday || bIsTomorrow
 
-        // 2. Today & Tomorrow tasks (by points DESC)
+        // 1. Today & Tomorrow tasks (by points DESC)
         if (aIsTodayOrTomorrow && !bIsTodayOrTomorrow) return -1
         if (!aIsTodayOrTomorrow && bIsTodayOrTomorrow) return 1
         if (aIsTodayOrTomorrow && bIsTodayOrTomorrow) {
@@ -51,14 +42,14 @@ export class TaskSorting {
           return b.points - a.points
         }
 
-        // 3. No due date tasks (by points DESC)
+        // 2. No due date tasks (by points DESC)
         if (!aDate && bDate) return -1
         if (aDate && !bDate) return 1
         if (!aDate && !bDate) {
           return b.points - a.points
         }
 
-        // 4. Future tasks (by date ASC, then points DESC)
+        // 3. Future tasks (by date ASC, then points DESC)
         const dateComparison = aDate!.getTime() - bDate!.getTime()
         if (dateComparison !== 0) return dateComparison
         return b.points - a.points
