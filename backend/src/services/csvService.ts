@@ -18,8 +18,9 @@ export class CSVService {
       'Lien',
       'Note',
       'Importance',
-      'Urgence',
-      'Priorité',
+      'Complexité',
+      'Points',
+      'Collection',
       'Date limite',
       'Date de création',
       'Date de modification',
@@ -34,8 +35,9 @@ export class CSVService {
       task.link ? `"${task.link.replace(/"/g, '""')}"` : '',
       task.note ? `"${task.note.replace(/"/g, '""')}"` : '',
       task.importance,
-      task.urgency,
-      task.priority,
+      task.complexity,
+      task.points,
+      task.isCollection ? 'true' : 'false',
       task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
@@ -63,8 +65,9 @@ export class CSVService {
       link?: string
       note?: string
       importance: number
-      urgency: number
-      priority: number
+      complexity: number
+      points: number
+      isCollection: boolean
       dueDate?: Date
       parentName?: string
       tagNames: string[]
@@ -78,8 +81,9 @@ export class CSVService {
       link?: string
       note?: string
       importance: number
-      urgency: number
-      priority: number
+      complexity: number
+      points: number
+      isCollection: boolean
       dueDate?: Date
       parentName?: string
       tagNames: string[]
@@ -90,11 +94,11 @@ export class CSVService {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 13) {
+      if (columns.length < 14) {
         errors.push(
           `Ligne ${i + 1}: Nombre de colonnes insuffisant (${
             columns.length
-          } au lieu de 13)`
+          } au lieu de 14)`
         )
         continue
       }
@@ -106,8 +110,9 @@ export class CSVService {
           link,
           note,
           importanceStr,
-          urgencyStr,
-          priorityStr,
+          complexityStr,
+          pointsStr,
+          isCollectionStr,
           dueDateStr,
           createdAtStr, // Ignoré lors de l'import
           updatedAtStr, // Ignoré lors de l'import
@@ -123,26 +128,27 @@ export class CSVService {
         }
 
         const importance = parseInt(importanceStr)
-        const urgency = parseInt(urgencyStr)
-        const priority = parseInt(priorityStr)
+        const complexity = parseInt(complexityStr)
+        const points = parseInt(pointsStr)
+        const isCollection = isCollectionStr?.toLowerCase() === 'true'
 
-        if (isNaN(importance) || importance < 1 || importance > 9) {
+        if (isNaN(importance) || importance < 0 || importance > 50) {
           errors.push(
-            `Ligne ${i + 1}: Importance invalide (doit être entre 1 et 9)`
+            `Ligne ${i + 1}: Importance invalide (doit être entre 0 et 50)`
           )
           continue
         }
 
-        if (isNaN(urgency) || urgency < 1 || urgency > 9) {
+        if (isNaN(complexity) || complexity < 1 || complexity > 9) {
           errors.push(
-            `Ligne ${i + 1}: Urgence invalide (doit être entre 1 et 9)`
+            `Ligne ${i + 1}: Complexité invalide (doit être entre 1 et 9)`
           )
           continue
         }
 
-        if (isNaN(priority) || priority < 1 || priority > 9) {
+        if (isNaN(points) || points < 0 || points > 500) {
           errors.push(
-            `Ligne ${i + 1}: Priorité invalide (doit être entre 1 et 9)`
+            `Ligne ${i + 1}: Points invalides (doit être entre 0 et 500)`
           )
           continue
         }
@@ -165,8 +171,9 @@ export class CSVService {
           link: link && link.trim() !== '' ? link.trim() : undefined,
           note: note && note.trim() !== '' ? note.trim() : undefined,
           importance,
-          urgency,
-          priority,
+          complexity,
+          points,
+          isCollection,
           dueDate,
           parentName:
             parentName && parentName.trim() !== ''

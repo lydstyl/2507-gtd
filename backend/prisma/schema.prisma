@@ -1,79 +1,67 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id        String   @id @default(cuid())
-    email     String   @unique
-    password  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tags      Tag[]
+  tasks     Task[]
 
-    tasks Task[]
-    tags  Tag[]
-
-    @@map("users")
+  @@map("users")
 }
 
 model Task {
-    id         String    @id @default(cuid())
-    name       String
-    link       String?
-    note       String?   // Optional rich text note
-    importance Int       @default(5) // 1-9, 1 being most important
-    urgency    Int       @default(5) // 1-9
-    priority   Int       @default(5) // 1-9
-    dueDate    DateTime?
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  name         String
+  link         String?
+  note         String?
+  importance   Int       @default(20)
+  complexity   Int       @default(5)
+  points       Int       @default(40)
+  isCollection Boolean   @default(false)
+  dueDate      DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  userId       String
+  parentId     String?
+  tags         TaskTag[]
+  parent       Task?     @relation("TaskSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks     Task[]    @relation("TaskSubtasks")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    // Self-referencing relationship for subtasks
-    parentId String?
-    parent   Task?   @relation("TaskSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
-    subtasks Task[]  @relation("TaskSubtasks")
-
-    // Many-to-many relationship with tags
-    tags TaskTag[]
-
-    @@map("tasks")
+  @@map("tasks")
 }
 
 model Tag {
-    id        String   @id @default(cuid())
-    name      String
-    color     String? // Optional color for UI
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  name      String
+  color     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     TaskTag[]
 
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    // Many-to-many relationship with tasks
-    tasks TaskTag[]
-
-    @@unique([name, userId])
-    @@map("tags")
+  @@unique([name, userId])
+  @@map("tags")
 }
 
 model TaskTag {
-    id     String @id @default(cuid())
-    taskId String
-    tagId  String
+  id     String @id @default(cuid())
+  taskId String
+  tagId  String
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
-    task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-    tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-    @@unique([taskId, tagId])
-    @@map("task_tags")
+  @@unique([taskId, tagId])
+  @@map("task_tags")
 }

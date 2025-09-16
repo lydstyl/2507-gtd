@@ -195,8 +195,8 @@ export function TaskCard({
               </div>
 
               <p className='text-sm text-gray-500 mb-2'>
-                Importance: {task.importance} | Urgence: {task.urgency} |
-                Priorité: {task.priority}
+                Importance: {task.importance} | Complexité: {task.complexity} |
+                Points: {task.points} {task.isCollection ? '| Collection' : ''}
               </p>
 
               {/* Tags */}
@@ -629,7 +629,7 @@ export function TaskCard({
                           </div>
                         </div>
                         <p className='text-xs text-gray-500 mt-1'>
-                          I: {subtask.importance} | U: {subtask.urgency} | P: {subtask.priority}
+                          I: {subtask.importance} | C: {subtask.complexity} | P: {subtask.points} {subtask.isCollection ? '| Coll' : ''}
                         </p>
                         {/* Tags des sous-tâches */}
                         {subtask.tags && subtask.tags.length > 0 && (
@@ -831,7 +831,7 @@ export function TaskCard({
                                         </div>
                                       </div>
                                       <p className='text-xs text-gray-500 mt-0.5'>
-                                        I: {subSubtask.importance} | U: {subSubtask.urgency} | P: {subSubtask.priority}
+                                        I: {subSubtask.importance} | C: {subSubtask.complexity} | P: {subSubtask.points} {subSubtask.isCollection ? '| Coll' : ''}
                                       </p>
                                       {/* Tags des sous-sous-tâches */}
                                       {subSubtask.tags && subSubtask.tags.length > 0 && (
@@ -918,39 +918,39 @@ export function TaskCard({
               </button>
               <button
                 onClick={() => {
-                  onQuickAction(task.id, 'urgency-up')
+                  onQuickAction(task.id, 'importance-up')
                   setShowQuickActions(false)
                 }}
                 className='px-3 py-2 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200'
               >
-                ↑ Urgence
+                ↑ Complexité
               </button>
               <button
                 onClick={() => {
-                  onQuickAction(task.id, 'urgency-down')
+                  onQuickAction(task.id, 'importance-down')
                   setShowQuickActions(false)
                 }}
                 className='px-3 py-2 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200'
               >
-                ↓ Urgence
+                ↓ Complexité
               </button>
               <button
                 onClick={() => {
-                  onQuickAction(task.id, 'priority-up')
+                  onQuickAction(task.id, 'complexity-up')
                   setShowQuickActions(false)
                 }}
                 className='px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200'
               >
-                ↑ Priorité
+                ↑ Complexité
               </button>
               <button
                 onClick={() => {
-                  onQuickAction(task.id, 'priority-down')
+                  onQuickAction(task.id, 'complexity-down')
                   setShowQuickActions(false)
                 }}
                 className='px-3 py-2 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200'
               >
-                ↓ Priorité
+                ↓ Complexité
               </button>
               <button
                 onClick={() => {

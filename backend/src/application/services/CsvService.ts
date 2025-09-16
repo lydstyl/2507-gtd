@@ -14,8 +14,9 @@ export interface ImportTaskData {
   link?: string
   note?: string
   importance: number
-  urgency: number
-  priority: number
+  complexity: number
+  points: number
+  isCollection: boolean
   dueDate?: Date
   parentName?: string
   tagNames: string[]
@@ -36,8 +37,9 @@ export class CsvService {
       'Lien',
       'Note',
       'Importance',
-      'Urgence',
-      'Priorité',
+      'Complexité',
+      'Points',
+      'Collection',
       'Date limite',
       'Date de création',
       'Date de modification',
@@ -52,8 +54,9 @@ export class CsvService {
       task.link ? this.escapeCsvField(task.link) : '',
       task.note ? this.escapeCsvField(task.note) : '',
       task.importance,
-      task.urgency,
-      task.priority,
+      task.complexity,
+      task.points,
+      task.isCollection ? 'true' : 'false',
       task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
@@ -91,9 +94,9 @@ export class CsvService {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 13) {
+      if (columns.length < 14) {
         errors.push(
-          `Line ${i + 1}: Insufficient columns (${columns.length} instead of 13)`
+          `Line ${i + 1}: Insufficient columns (${columns.length} instead of 14)`
         )
         continue
       }
@@ -125,8 +128,9 @@ export class CsvService {
       link,
       note,
       importanceStr,
-      urgencyStr,
-      priorityStr,
+      complexityStr,
+      pointsStr,
+      isCollectionStr,
       dueDateStr,
       createdAtStr, // Ignored during import
       updatedAtStr, // Ignored during import
@@ -140,9 +144,10 @@ export class CsvService {
       throw new Error('Task name is required')
     }
 
-    const importance = this.parseNumber(importanceStr, 'importance', 1, 9)
-    const urgency = this.parseNumber(urgencyStr, 'urgency', 1, 9)
-    const priority = this.parseNumber(priorityStr, 'priority', 1, 9)
+    const importance = this.parseNumber(importanceStr, 'importance', 0, 50)
+    const complexity = this.parseNumber(complexityStr, 'complexity', 1, 9)
+    const points = this.parseNumber(pointsStr, 'points', 0, 500)
+    const isCollection = isCollectionStr?.toLowerCase() === 'true'
 
     let dueDate: Date | undefined
     if (dueDateStr && dueDateStr.trim() !== '') {
@@ -161,8 +166,9 @@ export class CsvService {
       link: link && link.trim() !== '' ? link.trim() : undefined,
       note: note && note.trim() !== '' ? note.trim() : undefined,
       importance,
-      urgency,
-      priority,
+      complexity,
+      points,
+      isCollection,
       dueDate,
       parentName: parentName && parentName.trim() !== '' ? parentName.trim() : undefined,
       tagNames

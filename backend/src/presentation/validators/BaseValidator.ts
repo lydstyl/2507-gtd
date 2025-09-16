@@ -27,6 +27,13 @@ export class Validator {
     }
   }
 
+  static boolean(message: string = 'Must be a boolean'): ValidationRule {
+    return {
+      validate: (value: any) => typeof value === 'boolean',
+      message
+    }
+  }
+
   static email(message: string = 'Must be a valid email'): ValidationRule {
     return {
       validate: (value: any) => {

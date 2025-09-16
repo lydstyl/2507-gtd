@@ -75,11 +75,14 @@ export class TaskController {
       if (req.query.importance) {
         filters.importance = parseInt(req.query.importance as string)
       }
-      if (req.query.urgency) {
-        filters.urgency = parseInt(req.query.urgency as string)
+      if (req.query.complexity) {
+        filters.complexity = parseInt(req.query.complexity as string)
       }
-      if (req.query.priority) {
-        filters.priority = parseInt(req.query.priority as string)
+      if (req.query.points) {
+        filters.points = parseInt(req.query.points as string)
+      }
+      if (req.query.isCollection) {
+        filters.isCollection = req.query.isCollection === 'true'
       }
       if (req.query.search) {
         filters.search = req.query.search as string
@@ -117,11 +120,14 @@ export class TaskController {
       if (req.query.importance) {
         filters.importance = parseInt(req.query.importance as string)
       }
-      if (req.query.urgency) {
-        filters.urgency = parseInt(req.query.urgency as string)
+      if (req.query.complexity) {
+        filters.complexity = parseInt(req.query.complexity as string)
       }
-      if (req.query.priority) {
-        filters.priority = parseInt(req.query.priority as string)
+      if (req.query.points) {
+        filters.points = parseInt(req.query.points as string)
+      }
+      if (req.query.isCollection) {
+        filters.isCollection = req.query.isCollection === 'true'
       }
       if (req.query.search) {
         filters.search = req.query.search as string

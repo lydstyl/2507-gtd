@@ -4,8 +4,9 @@ export interface Task {
   link?: string
   note?: string
   importance: number
-  urgency: number
-  priority: number
+  complexity: number
+  points: number
+  isCollection: boolean
   dueDate?: string
   parentId?: string
   userId: string
@@ -20,8 +21,8 @@ export interface CreateTaskData {
   link?: string
   note?: string
   importance?: number
-  urgency?: number
-  priority?: number
+  complexity?: number
+  isCollection?: boolean
   dueDate?: string
   parentId?: string
   tagIds?: string[]
@@ -32,8 +33,8 @@ export interface UpdateTaskData {
   link?: string
   note?: string
   importance?: number
-  urgency?: number
-  priority?: number
+  complexity?: number
+  isCollection?: boolean
   dueDate?: string | null
   parentId?: string
   tagIds?: string[]

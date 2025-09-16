@@ -58,16 +58,12 @@ export class UpdateTaskUseCase {
       }
     }
 
-    if (data.importance !== undefined && (data.importance < 1 || data.importance > 9)) {
-      throw new ValidationError('Importance must be between 1 and 9')
+    if (data.importance !== undefined && (data.importance < 0 || data.importance > 50)) {
+      throw new ValidationError('Importance must be between 0 and 50')
     }
 
-    if (data.urgency !== undefined && (data.urgency < 1 || data.urgency > 9)) {
-      throw new ValidationError('Urgency must be between 1 and 9')
-    }
-
-    if (data.priority !== undefined && (data.priority < 1 || data.priority > 9)) {
-      throw new ValidationError('Priority must be between 1 and 9')
+    if (data.complexity !== undefined && (data.complexity < 1 || data.complexity > 9)) {
+      throw new ValidationError('Complexity must be between 1 and 9')
     }
 
     if (data.link !== undefined && data.link && data.link.length > 500) {

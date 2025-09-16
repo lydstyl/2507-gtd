@@ -46,16 +46,12 @@ export class CreateTaskUseCase {
       throw new ValidationError('Task name must be 255 characters or less')
     }
 
-    if (data.importance !== undefined && (data.importance < 1 || data.importance > 9)) {
-      throw new ValidationError('Importance must be between 1 and 9')
+    if (data.importance !== undefined && (data.importance < 0 || data.importance > 50)) {
+      throw new ValidationError('Importance must be between 0 and 50')
     }
 
-    if (data.urgency !== undefined && (data.urgency < 1 || data.urgency > 9)) {
-      throw new ValidationError('Urgency must be between 1 and 9')
-    }
-
-    if (data.priority !== undefined && (data.priority < 1 || data.priority > 9)) {
-      throw new ValidationError('Priority must be between 1 and 9')
+    if (data.complexity !== undefined && (data.complexity < 1 || data.complexity > 9)) {
+      throw new ValidationError('Complexity must be between 1 and 9')
     }
 
     if (data.link && data.link.length > 500) {
@@ -83,9 +79,9 @@ export class CreateTaskUseCase {
     return {
       ...data,
       name: data.name.trim(),
-      importance: data.importance ?? 5,
-      urgency: data.urgency ?? 5,
-      priority: data.priority ?? 5,
+      importance: data.importance ?? 20,
+      complexity: data.complexity ?? 5,
+      isCollection: data.isCollection ?? false,
       link: data.link?.trim() || undefined,
       note: data.note?.trim() || undefined,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined

@@ -11,9 +11,9 @@ export class CreateTaskUseCase {
     // Logique métier : valeurs par défaut
     const taskData = {
       ...data,
-      importance: data.importance || 5,
-      urgency: data.urgency || 5,
-      priority: data.priority || 5,
+      importance: data.importance || 20,
+      complexity: data.complexity || 5,
+      isCollection: data.isCollection || false,
       dueDate: data.dueDate,
       userId: data.userId
     }
@@ -26,16 +26,12 @@ export class CreateTaskUseCase {
       throw new Error('Task name is required')
     }
 
-    if (data.importance && (data.importance < 1 || data.importance > 9)) {
-      throw new Error('Importance must be between 1 and 9')
+    if (data.importance && (data.importance < 0 || data.importance > 50)) {
+      throw new Error('Importance must be between 0 and 50')
     }
 
-    if (data.urgency && (data.urgency < 1 || data.urgency > 9)) {
-      throw new Error('Urgency must be between 1 and 9')
-    }
-
-    if (data.priority && (data.priority < 1 || data.priority > 9)) {
-      throw new Error('Priority must be between 1 and 9')
+    if (data.complexity && (data.complexity < 1 || data.complexity > 9)) {
+      throw new Error('Complexity must be between 1 and 9')
     }
   }
 }

@@ -10,22 +10,37 @@ import {
   UpdateTaskData
 } from '../../domain/entities/Task'
 import { TaskWithTags } from '../../services/csvService'
+import { computePoints, getDefaultTaskValues } from '../../domain/utils/TaskUtils'
+import { TaskSorting } from './TaskSorting'
 
 export class PrismaTaskRepository implements TaskRepository {
   constructor(private prisma: PrismaClient) {}
 
   async create(data: CreateTaskData): Promise<TaskWithSubtasks> {
     const { tagIds, ...taskData } = data
+    const defaults = getDefaultTaskValues()
+
+    // Use provided values or defaults
+    const importance = taskData.importance ?? defaults.importance
+    const complexity = taskData.complexity ?? defaults.complexity
+
+    // If user explicitly provided importance or complexity, it's not a collection task
+    const userProvidedValues = taskData.importance !== undefined || taskData.complexity !== undefined
+    const isCollection = userProvidedValues ? false : (taskData.isCollection ?? defaults.isCollection)
+
+    // Compute points server-side (client values ignored)
+    const points = computePoints(importance, complexity)
 
     const task = await this.prisma.task.create({
       data: {
         ...taskData,
-        importance: taskData.importance || 5,
-        urgency: taskData.urgency || 5,
-        priority: taskData.priority || 5,
+        importance,
+        complexity,
+        points,
+        isCollection,
         dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
         userId: taskData.userId,
-        parentId: taskData.parentId, // S'assurer que parentId est inclus
+        parentId: taskData.parentId,
         tags: tagIds
           ? {
               create: tagIds.map((tagId) => ({
@@ -95,16 +110,20 @@ export class PrismaTaskRepository implements TaskRepository {
     }
     // Si parentId n'est pas défini, on ne filtre pas par parentId (récupère toutes les tâches)
 
-    if (filters?.importance) {
+    if (filters?.importance !== undefined) {
       where.importance = filters.importance
     }
 
-    if (filters?.urgency) {
-      where.urgency = filters.urgency
+    if (filters?.complexity !== undefined) {
+      where.complexity = filters.complexity
     }
 
-    if (filters?.priority) {
-      where.priority = filters.priority
+    if (filters?.points !== undefined) {
+      where.points = filters.points
+    }
+
+    if (filters?.isCollection !== undefined) {
+      where.isCollection = filters.isCollection
     }
 
     if (filters?.search) {
@@ -150,7 +169,7 @@ export class PrismaTaskRepository implements TaskRepository {
     })
 
     // Appliquer le tri personnalisé
-    const sortedTasks = this.sortTasksByPriority(
+    const sortedTasks = TaskSorting.sortTasksByPriority(
       tasks.map((task: any) => this.formatTaskWithSubtasks(task))
     )
 
@@ -166,16 +185,20 @@ export class PrismaTaskRepository implements TaskRepository {
     // Pour les tâches racines, on force parentId = null
     where.parentId = null
 
-    if (filters?.importance) {
+    if (filters?.importance !== undefined) {
       where.importance = filters.importance
     }
 
-    if (filters?.urgency) {
-      where.urgency = filters.urgency
+    if (filters?.complexity !== undefined) {
+      where.complexity = filters.complexity
     }
 
-    if (filters?.priority) {
-      where.priority = filters.priority
+    if (filters?.points !== undefined) {
+      where.points = filters.points
+    }
+
+    if (filters?.isCollection !== undefined) {
+      where.isCollection = filters.isCollection
     }
 
     if (filters?.search) {
@@ -221,7 +244,7 @@ export class PrismaTaskRepository implements TaskRepository {
     })
 
     // Appliquer le tri personnalisé
-    const sortedTasks = this.sortTasksByPriority(
+    const sortedTasks = TaskSorting.sortTasksByPriority(
       tasks.map((task: any) => this.formatTaskWithSubtasks(task))
     )
 
@@ -229,23 +252,47 @@ export class PrismaTaskRepository implements TaskRepository {
   }
 
   async update(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks> {
-    // Filtrer les champs qui ne doivent pas être envoyés à Prisma
     const { tagIds, ...taskData } = data
     const { subtasks, tags, ...cleanTaskData } = taskData as any
 
     const task = await this.prisma.$transaction(async (tx: any) => {
+      // Get current task to check if importance/complexity changed
+      const currentTask = await tx.task.findUnique({
+        where: { id },
+        select: { importance: true, complexity: true }
+      })
+
+      if (!currentTask) {
+        throw new Error(`Task with id ${id} not found`)
+      }
+
+      // Prepare update data
+      const updateData: any = {
+        ...cleanTaskData,
+        dueDate:
+          cleanTaskData.dueDate !== undefined
+            ? cleanTaskData.dueDate
+              ? new Date(cleanTaskData.dueDate)
+              : null
+            : undefined,
+        userId: cleanTaskData.userId
+      }
+
+      // Recompute points if importance or complexity changed
+      const newImportance = cleanTaskData.importance ?? currentTask.importance
+      const newComplexity = cleanTaskData.complexity ?? currentTask.complexity
+
+      if (cleanTaskData.importance !== undefined || cleanTaskData.complexity !== undefined) {
+        updateData.points = computePoints(newImportance, newComplexity)
+        // If user explicitly set importance or complexity, it's no longer a collection task
+        if (cleanTaskData.isCollection === undefined) {
+          updateData.isCollection = false
+        }
+      }
+
       const updatedTask = await tx.task.update({
         where: { id },
-        data: {
-          ...cleanTaskData,
-          dueDate:
-            cleanTaskData.dueDate !== undefined
-              ? cleanTaskData.dueDate
-                ? new Date(cleanTaskData.dueDate)
-                : null
-              : undefined,
-          userId: cleanTaskData.userId
-        },
+        data: updateData,
         include: {
           tags: {
             include: {
@@ -347,179 +394,6 @@ export class PrismaTaskRepository implements TaskRepository {
     })) as unknown as TaskWithTags[]
   }
 
-  private sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
-    const dayAfterTomorrow = new Date(today)
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
-
-    return tasks
-      .sort((a, b) => {
-        // 1. Tâches rapides SANS date en premier (importance=5, urgence=5, priorité=5, pas de date)
-        const aIsQuickNoDate =
-          a.importance === 5 &&
-          a.urgency === 5 &&
-          a.priority === 5 &&
-          !a.dueDate
-        const bIsQuickNoDate =
-          b.importance === 5 &&
-          b.urgency === 5 &&
-          b.priority === 5 &&
-          !b.dueDate
-
-        if (aIsQuickNoDate && !bIsQuickNoDate) return -1
-        if (!aIsQuickNoDate && bIsQuickNoDate) return 1
-        if (aIsQuickNoDate && bIsQuickNoDate) return 0
-
-        // 2. Tâches en retard (dates passées)
-        const aIsOverdue = a.dueDate && new Date(a.dueDate) < today
-        const bIsOverdue = b.dueDate && new Date(b.dueDate) < today
-
-        if (aIsOverdue && !bIsOverdue) return -1
-        if (!aIsOverdue && bIsOverdue) return 1
-        if (aIsOverdue && bIsOverdue) {
-          // Tri des tâches en retard par importance, urgence, priorité
-          return this.compareByPriority(a, b)
-        }
-
-        // 3. Tâches d'aujourd'hui
-        const aIsToday =
-          a.dueDate &&
-          new Date(a.dueDate).toDateString() === today.toDateString()
-        const bIsToday =
-          b.dueDate &&
-          new Date(b.dueDate).toDateString() === today.toDateString()
-
-        if (aIsToday && !bIsToday) return -1
-        if (!aIsToday && bIsToday) return 1
-        if (aIsToday && bIsToday) {
-          // Tri des tâches d'aujourd'hui par importance, urgence, priorité
-          return this.compareByPriority(a, b)
-        }
-
-        // 4. Tâches de demain
-        const aIsTomorrow =
-          a.dueDate &&
-          new Date(a.dueDate).toDateString() === tomorrow.toDateString()
-        const bIsTomorrow =
-          b.dueDate &&
-          new Date(b.dueDate).toDateString() === tomorrow.toDateString()
-
-        if (aIsTomorrow && !bIsTomorrow) return -1
-        if (!aIsTomorrow && bIsTomorrow) return 1
-        if (aIsTomorrow && bIsTomorrow) {
-          // Tri des tâches de demain par importance, urgence, priorité
-          return this.compareByPriority(a, b)
-        }
-
-        // 5. Tâches avec priorités définies (importance, urgence, priorité modifiées) - SANS date
-        const aHasPriorityNoDate =
-          (a.importance !== 5 || a.urgency !== 5 || a.priority !== 5) &&
-          !a.dueDate
-        const bHasPriorityNoDate =
-          (b.importance !== 5 || b.urgency !== 5 || b.priority !== 5) &&
-          !b.dueDate
-
-        if (aHasPriorityNoDate && !bHasPriorityNoDate) return -1
-        if (!aHasPriorityNoDate && bHasPriorityNoDate) return 1
-        if (aHasPriorityNoDate && bHasPriorityNoDate) {
-          // Tri des tâches avec priorités par importance, urgence, priorité
-          return this.compareByPriority(a, b)
-        }
-
-        // 6. Tâches rapides AVEC dates éloignées (après demain) - en dernier, triées par date puis importance, urgence, priorité
-        const aIsQuickWithDistantDate =
-          a.importance === 5 &&
-          a.urgency === 5 &&
-          a.priority === 5 &&
-          a.dueDate &&
-          new Date(a.dueDate) >= dayAfterTomorrow
-        const bIsQuickWithDistantDate =
-          b.importance === 5 &&
-          b.urgency === 5 &&
-          b.priority === 5 &&
-          b.dueDate &&
-          new Date(b.dueDate) >= dayAfterTomorrow
-
-        if (aIsQuickWithDistantDate && !bIsQuickWithDistantDate) return -1
-        if (!aIsQuickWithDistantDate && bIsQuickWithDistantDate) return 1
-        if (aIsQuickWithDistantDate && bIsQuickWithDistantDate) {
-          // D'abord trier par date (croissant)
-          const dateComparison =
-            new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
-          if (dateComparison !== 0) return dateComparison
-
-          // Si même date, trier par importance, urgence, priorité
-          return this.compareByPriority(a, b)
-        }
-
-        // 7. Tâches avec priorités définies ET dates éloignées (après demain)
-        const aHasPriorityWithDistantDate =
-          (a.importance !== 5 || a.urgency !== 5 || a.priority !== 5) &&
-          a.dueDate &&
-          new Date(a.dueDate) >= dayAfterTomorrow
-        const bHasPriorityWithDistantDate =
-          (b.importance !== 5 || b.urgency !== 5 || b.priority !== 5) &&
-          b.dueDate &&
-          new Date(b.dueDate) >= dayAfterTomorrow
-
-        if (aHasPriorityWithDistantDate && !bHasPriorityWithDistantDate)
-          return -1
-        if (!aHasPriorityWithDistantDate && bHasPriorityWithDistantDate)
-          return 1
-        if (aHasPriorityWithDistantDate && bHasPriorityWithDistantDate) {
-          // D'abord trier par date (croissant)
-          const dateComparison =
-            new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime()
-          if (dateComparison !== 0) return dateComparison
-
-          // Si même date, trier par importance, urgence, priorité
-          return this.compareByPriority(a, b)
-        }
-
-        // 8. Si aucune catégorie, trier par date de création
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      })
-      .map((task) => ({
-        ...task,
-        subtasks: this.sortSubtasksByPriority(task.subtasks)
-      }))
-  }
-
-  private sortSubtasksByPriority(
-    subtasks: TaskWithSubtasks[]
-  ): TaskWithSubtasks[] {
-    return subtasks
-      .sort((a, b) => this.compareByPriority(a, b))
-      .map((subtask) => ({
-        ...subtask,
-        subtasks: this.sortSubtasksByPriority(subtask.subtasks)
-      }))
-  }
-
-  private compareByPriority(a: TaskWithSubtasks, b: TaskWithSubtasks): number {
-    // Tri par importance (croissant)
-    if (a.importance !== b.importance) {
-      return a.importance - b.importance
-    }
-
-    // Si importance égale, tri par urgence (croissant)
-    if (a.urgency !== b.urgency) {
-      return a.urgency - b.urgency
-    }
-
-    // Si urgence égale, tri par priorité (croissant)
-    if (a.priority !== b.priority) {
-      return a.priority - b.priority
-    }
-
-    // Si tout égal, tri par date de création (décroissant)
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  }
 
   private formatTaskWithSubtasks(task: any): TaskWithSubtasks {
     return {
@@ -528,8 +402,9 @@ export class PrismaTaskRepository implements TaskRepository {
       link: task.link,
       note: task.note,
       importance: task.importance,
-      urgency: task.urgency,
-      priority: task.priority,
+      complexity: task.complexity,
+      points: task.points,
+      isCollection: task.isCollection,
       dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,

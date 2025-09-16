@@ -3,9 +3,10 @@ export interface TaskDto {
   name: string
   link?: string
   note?: string
-  importance: number
-  urgency: number
-  priority: number
+  importance: number // 0-50
+  complexity: number // 1-9
+  points: number // 0-500, computed server-side
+  isCollection: boolean
   parentId?: string
   dueDate?: string
   createdAt: string
@@ -28,9 +29,9 @@ export interface CreateTaskDto {
   name: string
   link?: string
   note?: string
-  importance?: number
-  urgency?: number
-  priority?: number
+  importance?: number // 0-50, defaults to 20
+  complexity?: number // 1-9, defaults to 5
+  isCollection?: boolean // Defaults to false
   parentId?: string
   tagIds?: string[]
   dueDate?: string
@@ -40,9 +41,9 @@ export interface UpdateTaskDto {
   name?: string
   link?: string
   note?: string
-  importance?: number
-  urgency?: number
-  priority?: number
+  importance?: number // 0-50
+  complexity?: number // 1-9
+  isCollection?: boolean
   parentId?: string
   tagIds?: string[]
   dueDate?: string | null
@@ -61,9 +62,10 @@ export interface UpdateTagDto {
 export interface TaskFiltersDto {
   parentId?: string
   tagIds?: string[]
-  importance?: number
-  urgency?: number
-  priority?: number
+  importance?: number // 0-50
+  complexity?: number // 1-9
+  points?: number // 0-500
+  isCollection?: boolean
   search?: string
   includeSubtasks?: boolean
 }

@@ -18,9 +18,7 @@ export function CreateTaskModal({
   const [formData, setFormData] = useState<CreateTaskData>({
     name: '',
     link: '',
-    importance: 5, // Valeur par défaut pour tâches rapides
-    urgency: 5,    // Valeur par défaut pour tâches rapides
-    priority: 5,   // Valeur par défaut pour tâches rapides
+    // Don't set default values - let backend decide if it's a collection task
     dueDate: '',
     tagIds: [],
     parentId: parentId // Initialiser avec le parentId si fourni
@@ -76,9 +74,7 @@ export function CreateTaskModal({
       setFormData({
         name: '',
         link: '',
-        importance: 5, // Valeur par défaut pour tâches rapides
-        urgency: 5,    // Valeur par défaut pour tâches rapides
-        priority: 5,   // Valeur par défaut pour tâches rapides
+        // Don't set default values - let backend decide if it's a collection task
         dueDate: '',
         tagIds: [],
         parentId: parentId // Reset parentId
@@ -101,8 +97,10 @@ export function CreateTaskModal({
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === 'importance' || name === 'urgency' || name === 'priority'
-          ? parseInt(value)
+        name === 'importance' || name === 'complexity'
+          ? value === '' ? undefined : parseInt(value)
+          : name === 'isCollection'
+          ? value === 'auto' ? undefined : value === 'true'
           : value
     }))
   }
@@ -197,64 +195,64 @@ export function CreateTaskModal({
                 htmlFor='importance'
                 className='block text-sm font-medium text-gray-700 mb-1'
               >
-                Importance
+                Importance: {formData.importance || '50 (défaut collection)'}
               </label>
-              <select
+              <input
+                type='range'
                 id='importance'
                 name='importance'
-                value={formData.importance}
+                min='0'
+                max='50'
+                value={formData.importance || ''}
                 onChange={handleChange}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-              >
-                <option value={5}>5 - Faible</option>
-                <option value={4}>4 - Moyenne</option>
-                <option value={3}>3 - Élevée</option>
-                <option value={2}>2 - Très élevée</option>
-                <option value={1}>1 - Critique</option>
-              </select>
+                className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
+              />
+              <div className='flex justify-between text-xs text-gray-500 mt-1'>
+                <span>0 (Faible)</span>
+                <span>50 (Max)</span>
+              </div>
             </div>
 
             <div>
               <label
-                htmlFor='urgency'
+                htmlFor='complexity'
                 className='block text-sm font-medium text-gray-700 mb-1'
               >
-                Urgence
+                Complexité: {formData.complexity || '1 (défaut collection)'}
               </label>
-              <select
-                id='urgency'
-                name='urgency'
-                value={formData.urgency}
+              <input
+                type='range'
+                id='complexity'
+                name='complexity'
+                min='1'
+                max='9'
+                value={formData.complexity || ''}
                 onChange={handleChange}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-              >
-                <option value={5}>5 - Faible</option>
-                <option value={4}>4 - Moyenne</option>
-                <option value={3}>3 - Élevée</option>
-                <option value={2}>2 - Très élevée</option>
-                <option value={1}>1 - Critique</option>
-              </select>
+                className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
+              />
+              <div className='flex justify-between text-xs text-gray-500 mt-1'>
+                <span>1 (Simple)</span>
+                <span>9 (Complexe)</span>
+              </div>
             </div>
 
             <div>
               <label
-                htmlFor='priority'
+                htmlFor='isCollection'
                 className='block text-sm font-medium text-gray-700 mb-1'
               >
-                Priorité
+                Type de tâche
               </label>
               <select
-                id='priority'
-                name='priority'
-                value={formData.priority}
+                id='isCollection'
+                name='isCollection'
+                value={formData.isCollection === undefined ? 'auto' : formData.isCollection ? 'true' : 'false'}
                 onChange={handleChange}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value={5}>5 - Faible</option>
-                <option value={4}>4 - Moyenne</option>
-                <option value={3}>3 - Élevée</option>
-                <option value={2}>2 - Très élevée</option>
-                <option value={1}>1 - Critique</option>
+                <option value='auto'>Auto (collection si pas de valeurs)</option>
+                <option value='false'>Tâche normale</option>
+                <option value='true'>Collection/Nouvelle</option>
               </select>
             </div>
           </div>
