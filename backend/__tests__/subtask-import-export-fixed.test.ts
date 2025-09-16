@@ -94,9 +94,8 @@ describe('Subtask Import/Export Fixed Tests', () => {
     // Créer une tâche parente pour l'utilisateur A
     const parentTaskA = await taskRepository.create({
       name: 'Tâche parente pour import',
-      importance: 3,
-      urgency: 4,
-      priority: 5,
+      importance: 35,
+      complexity: 3,
       link: 'https://parent-task-import.com',
       userId: userAId
     })
@@ -106,18 +105,16 @@ describe('Subtask Import/Export Fixed Tests', () => {
     // Créer deux sous-tâches pour l'utilisateur A
     const subtask1A = await taskRepository.create({
       name: 'Sous-tâche 1 pour import',
-      importance: 2,
-      urgency: 3,
-      priority: 4,
+      importance: 25,
+      complexity: 2,
       parentId: parentTaskA.id,
       userId: userAId
     })
 
     const subtask2A = await taskRepository.create({
       name: 'Sous-tâche 2 pour import',
-      importance: 1,
-      urgency: 2,
-      priority: 3,
+      importance: 20,
+      complexity: 1,
       parentId: parentTaskA.id,
       userId: userAId
     })
@@ -221,9 +218,8 @@ describe('Subtask Import/Export Fixed Tests', () => {
       .set('Authorization', `Bearer ${userAAuthToken}`)
       .send({
         name: 'Tâche parente complexe',
-        importance: 1,
-        urgency: 2,
-        priority: 3
+        importance: 35,
+        complexity: 2
       })
       .expect(201)
 
@@ -234,9 +230,8 @@ describe('Subtask Import/Export Fixed Tests', () => {
       .set('Authorization', `Bearer ${userAAuthToken}`)
       .send({
         name: 'Tâche enfant',
-        importance: 2,
-        urgency: 3,
-        priority: 4,
+        importance: 25,
+        complexity: 3,
         parentId: parentTaskId
       })
       .expect(201)
@@ -248,9 +243,8 @@ describe('Subtask Import/Export Fixed Tests', () => {
       .set('Authorization', `Bearer ${userAAuthToken}`)
       .send({
         name: 'Tâche petit-enfant',
-        importance: 3,
-        urgency: 4,
-        priority: 5,
+        importance: 20,
+        complexity: 4,
         parentId: childTaskId
       })
       .expect(201)

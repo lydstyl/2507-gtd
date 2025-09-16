@@ -54,9 +54,8 @@ describe('CSV Export Tests', () => {
 
     const task1 = await taskRepository.create({
       name: 'Tâche importante',
-      importance: 1,
-      urgency: 2,
-      priority: 1,
+      importance: 40,
+      complexity: 2,
       link: 'https://example.com/important',
       dueDate: new Date('2025-07-10'),
       userId: userId
@@ -64,9 +63,8 @@ describe('CSV Export Tests', () => {
 
     const task2 = await taskRepository.create({
       name: 'Tâche normale',
-      importance: 5,
-      urgency: 5,
-      priority: 5,
+      importance: 25,
+      complexity: 5,
       userId: userId
     })
 
@@ -84,9 +82,8 @@ describe('CSV Export Tests', () => {
     console.log("📋 3. Création d'une tâche avec tag...")
     const taskWithTag = await taskRepository.create({
       name: 'Tâche avec tag',
-      importance: 3,
-      urgency: 4,
-      priority: 3,
+      importance: 30,
+      complexity: 4,
       userId: userId,
       tagIds: [tag.id]
     })
@@ -116,7 +113,7 @@ describe('CSV Export Tests', () => {
 
     // Vérifier que le CSV contient les en-têtes attendus
     expect(csvContent).toContain(
-      'ID,Nom,Lien,Note,Importance,Urgence,Priorité,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
     )
 
     // Vérifier que le CSV contient les tâches créées
@@ -128,9 +125,9 @@ describe('CSV Export Tests', () => {
     expect(csvContent).toContain('Test Tag')
 
     // Vérifier que le CSV contient les bonnes valeurs
-    expect(csvContent).toContain('1,2,1') // importance, urgence, priorité de la première tâche
-    expect(csvContent).toContain('5,5,5') // importance, urgence, priorité de la deuxième tâche
-    expect(csvContent).toContain('3,4,3') // importance, urgence, priorité de la tâche avec tag
+    expect(csvContent).toContain('40,2,200') // importance, complexité, points de la première tâche
+    expect(csvContent).toContain('25,5,50') // importance, complexité, points de la deuxième tâche
+    expect(csvContent).toContain('30,4,75') // importance, complexité, points de la tâche avec tag
 
     // Vérifier que le CSV contient la date limite
     expect(csvContent).toContain('2025-07-10')
@@ -183,7 +180,7 @@ describe('CSV Export Tests', () => {
     const lines = csvContent.split('\n').filter((line) => line.trim())
     expect(lines).toHaveLength(1) // Seulement l'en-tête
     expect(lines[0]).toBe(
-      'ID,Nom,Lien,Note,Importance,Urgence,Priorité,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
     )
 
     console.log('✅ Export CSV vide validé !')

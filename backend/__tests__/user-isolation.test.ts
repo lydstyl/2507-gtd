@@ -59,34 +59,30 @@ describe('User Data Isolation Tests', () => {
     // Créer des tâches pour user1
     const user1Task1 = await taskRepository.create({
       name: 'Tâche User 1 - 1',
-      importance: 1,
-      urgency: 2,
-      priority: 3,
+      importance: 45,
+      complexity: 2,
       userId: user1Id
     })
 
     const user1Task2 = await taskRepository.create({
       name: 'Tâche User 1 - 2',
-      importance: 3,
-      urgency: 1,
-      priority: 2,
+      importance: 25,
+      complexity: 3,
       userId: user1Id
     })
 
     // Créer des tâches pour user2
     const user2Task1 = await taskRepository.create({
       name: 'Tâche User 2 - 1',
-      importance: 2,
-      urgency: 3,
-      priority: 1,
+      importance: 20,
+      complexity: 4,
       userId: user2Id
     })
 
     const user2Task2 = await taskRepository.create({
       name: 'Tâche User 2 - 2',
-      importance: 4,
-      urgency: 2,
-      priority: 3,
+      importance: 35,
+      complexity: 5,
       userId: user2Id
     })
 
@@ -224,9 +220,8 @@ describe('User Data Isolation Tests', () => {
     // Créer des tâches avec tags pour user1
     const user1TaskWithTag = await taskRepository.create({
       name: 'Tâche User 1 avec tag',
-      importance: 1,
-      urgency: 2,
-      priority: 3,
+      importance: 25,
+      complexity: 2,
       tagIds: [user1Tag.id],
       userId: user1Id
     })
@@ -234,9 +229,8 @@ describe('User Data Isolation Tests', () => {
     // Créer des tâches avec tags pour user2
     const user2TaskWithTag = await taskRepository.create({
       name: 'Tâche User 2 avec tag',
-      importance: 2,
-      urgency: 1,
-      priority: 2,
+      importance: 30,
+      complexity: 3,
       tagIds: [user2Tag.id],
       userId: user2Id
     })
@@ -293,17 +287,15 @@ describe('User Data Isolation Tests', () => {
     // Créer des tâches pour les deux utilisateurs
     await taskRepository.create({
       name: 'Tâche User 1 - Test isolation',
-      importance: 1,
-      urgency: 1,
-      priority: 1,
+      importance: 25,
+      complexity: 2,
       userId: user1Id
     })
 
     await taskRepository.create({
       name: 'Tâche User 2 - Test isolation',
-      importance: 1,
-      urgency: 1,
-      priority: 1,
+      importance: 30,
+      complexity: 3,
       userId: user2Id
     })
 

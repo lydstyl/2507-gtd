@@ -46,9 +46,8 @@ describe('Subtask API', () => {
       .set(authHeader)
       .send({
         name: 'Tâche parente test',
-        importance: 5,
-        urgency: 5,
-        priority: 5,
+        importance: 35,
+        complexity: 4,
         link: '',
         tagIds: []
       })
@@ -64,9 +63,8 @@ describe('Subtask API', () => {
       .set(authHeader)
       .send({
         name: 'Sous-tâche 1',
-        importance: 3,
-        urgency: 3,
-        priority: 3,
+        importance: 25,
+        complexity: 2,
         link: '',
         tagIds: [],
         parentId: parentTaskId
@@ -82,9 +80,8 @@ describe('Subtask API', () => {
       .set(authHeader)
       .send({
         name: 'Sous-tâche 2',
-        importance: 4,
-        urgency: 4,
-        priority: 4,
+        importance: 30,
+        complexity: 3,
         link: '',
         tagIds: [],
         parentId: parentTaskId

@@ -31,10 +31,8 @@ export default function TaskListPage() {
   // Filtres
   const [importanceFilter, setImportanceFilter] = useState<number | ''>('')
   const [importanceFilterType, setImportanceFilterType] = useState<'exact' | 'gte'>('gte')
-  const [urgencyFilter, setUrgencyFilter] = useState<number | ''>('')
-  const [urgencyFilterType, setUrgencyFilterType] = useState<'exact' | 'gte'>('gte')
-  const [priorityFilter, setPriorityFilter] = useState<number | ''>('')
-  const [priorityFilterType, setPriorityFilterType] = useState<'exact' | 'gte'>('gte')
+  const [complexityFilter, setComplexityFilter] = useState<number | ''>('')
+  const [complexityFilterType, setComplexityFilterType] = useState<'exact' | 'gte'>('gte')
   const [tagFilter, setTagFilter] = useState<string>('')
   const [dateFilter, setDateFilter] = useState<string>('')
 
@@ -93,25 +91,16 @@ export default function TaskListPage() {
       if (importanceFilterType === 'exact') {
         filtered = filtered.filter((task) => task.importance === importanceFilter)
       } else {
-        filtered = filtered.filter((task) => task.importance <= importanceFilter)
+        filtered = filtered.filter((task) => task.importance >= importanceFilter)
       }
     }
 
-    // Filtre par urgence
-    if (urgencyFilter !== '') {
-      if (urgencyFilterType === 'exact') {
-        filtered = filtered.filter((task) => task.urgency === urgencyFilter)
+    // Filtre par complexité
+    if (complexityFilter !== '') {
+      if (complexityFilterType === 'exact') {
+        filtered = filtered.filter((task) => task.complexity === complexityFilter)
       } else {
-        filtered = filtered.filter((task) => task.urgency <= urgencyFilter)
-      }
-    }
-
-    // Filtre par priorité
-    if (priorityFilter !== '') {
-      if (priorityFilterType === 'exact') {
-        filtered = filtered.filter((task) => task.priority === priorityFilter)
-      } else {
-        filtered = filtered.filter((task) => task.priority <= priorityFilter)
+        filtered = filtered.filter((task) => task.complexity <= complexityFilter)
       }
     }
 
@@ -178,10 +167,8 @@ export default function TaskListPage() {
     searchTerm,
     importanceFilter,
     importanceFilterType,
-    urgencyFilter,
-    urgencyFilterType,
-    priorityFilter,
-    priorityFilterType,
+    complexityFilter,
+    complexityFilterType,
     tagFilter,
     dateFilter
   ])
@@ -258,35 +245,24 @@ export default function TaskListPage() {
         return
       }
       
-      // Importance
+      // Importance (I: +10, Shift+I: -10)
       if (e.key.toLowerCase() === "i") {
         e.preventDefault()
         if (e.shiftKey) {
-          update.importance = Math.min(5, task.importance + 1)
+          update.importance = Math.max(0, task.importance - 10)
         } else {
-          update.importance = Math.max(1, task.importance - 1)
+          update.importance = Math.min(50, task.importance + 10)
         }
         handled = true
       }
-      
-      // Urgence
-      if (e.key.toLowerCase() === "u") {
+
+      // Complexity (C: +2, Shift+C: -2)
+      if (e.key.toLowerCase() === "c") {
         e.preventDefault()
         if (e.shiftKey) {
-          update.urgency = Math.min(5, task.urgency + 1)
+          update.complexity = Math.max(1, task.complexity - 2)
         } else {
-          update.urgency = Math.max(1, task.urgency - 1)
-        }
-        handled = true
-      }
-      
-      // Priorité
-      if (e.key.toLowerCase() === "p") {
-        e.preventDefault()
-        if (e.shiftKey) {
-          update.priority = Math.min(5, task.priority + 1)
-        } else {
-          update.priority = Math.max(1, task.priority - 1)
+          update.complexity = Math.min(9, task.complexity + 2)
         }
         handled = true
       }
@@ -417,22 +393,16 @@ export default function TaskListPage() {
 
     switch (action) {
       case 'importance-up':
-        update.importance = Math.max(1, task.importance - 1)
+        update.importance = Math.min(50, task.importance + 10)
         break
       case 'importance-down':
-        update.importance = Math.min(5, task.importance + 1)
+        update.importance = Math.max(0, task.importance - 10)
         break
-      case 'urgency-up':
-        update.urgency = Math.max(1, task.urgency - 1)
+      case 'complexity-up':
+        update.complexity = Math.min(9, task.complexity + 2)
         break
-      case 'urgency-down':
-        update.urgency = Math.min(5, task.urgency + 1)
-        break
-      case 'priority-up':
-        update.priority = Math.max(1, task.priority - 1)
-        break
-      case 'priority-down':
-        update.priority = Math.min(5, task.priority + 1)
+      case 'complexity-down':
+        update.complexity = Math.max(1, task.complexity - 2)
         break
       case 'date-today':
         const today = new Date()
@@ -537,8 +507,7 @@ export default function TaskListPage() {
   const clearAllFilters = () => {
     setSearchTerm('')
     setImportanceFilter('')
-    setUrgencyFilter('')
-    setPriorityFilter('')
+    setComplexityFilter('')
     setTagFilter('')
     setDateFilter('')
   }
@@ -546,8 +515,7 @@ export default function TaskListPage() {
   const hasActiveFilters =
     searchTerm ||
     importanceFilter !== '' ||
-    urgencyFilter !== '' ||
-    priorityFilter !== '' ||
+    complexityFilter !== '' ||
     tagFilter ||
     dateFilter
 
@@ -590,9 +558,8 @@ export default function TaskListPage() {
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
             <div className="font-semibold mb-1">Raccourcis clavier (sur la tâche sélectionnée) :</div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              <div><b>I</b> / <b>Shift+I</b> : Importance -/+</div>
-              <div><b>U</b> / <b>Shift+U</b> : Urgence -/+</div>
-              <div><b>P</b> / <b>Shift+P</b> : Priorité -/+</div>
+              <div><b>I</b> / <b>Shift+I</b> : Importance +10/-10</div>
+              <div><b>C</b> / <b>Shift+C</b> : Complexité +2/-2</div>
               <div><b>D</b> / <b>Shift+D</b> : Date +1j / -1j</div>
               <div><b>W</b> : +1 semaine à la date</div>
               <div><b>M</b> : +1 mois à la date</div>
@@ -681,11 +648,11 @@ export default function TaskListPage() {
             )}
           </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
           {/* Filtre par importance */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Importance
+              Importance (0-50)
             </label>
             <div className='flex space-x-2'>
               <select
@@ -706,77 +673,45 @@ export default function TaskListPage() {
                 className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
               >
                 <option value=''>Toutes</option>
-                <option value='1'>Critique (1)</option>
-                <option value='2'>Très élevée (2)</option>
-                <option value='3'>Élevée (3)</option>
-                <option value='4'>Moyenne (4)</option>
-                <option value='5'>Faible (5)</option>
+                <option value='50'>Très élevée (50)</option>
+                <option value='40'>Élevée (40)</option>
+                <option value='30'>Moyenne (30)</option>
+                <option value='20'>Basse (20)</option>
+                <option value='10'>Très basse (10)</option>
+                <option value='0'>Nulle (0)</option>
               </select>
             </div>
           </div>
 
-          {/* Filtre par urgence */}
+          {/* Filtre par complexité */}
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Urgence
+              Complexité (1-9)
             </label>
             <div className='flex space-x-2'>
               <select
-                value={urgencyFilterType}
-                onChange={(e) => setUrgencyFilterType(e.target.value as 'exact' | 'gte')}
+                value={complexityFilterType}
+                onChange={(e) => setComplexityFilterType(e.target.value as 'exact' | 'gte')}
                 className='w-1/3 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs'
               >
-                <option value='gte'>≥</option>
+                <option value='gte'>≤</option>
                 <option value='exact'>=</option>
               </select>
               <select
-                value={urgencyFilter}
+                value={complexityFilter}
                 onChange={(e) =>
-                  setUrgencyFilter(
+                  setComplexityFilter(
                     e.target.value === '' ? '' : Number(e.target.value)
                   )
                 }
                 className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
               >
                 <option value=''>Toutes</option>
-                <option value='1'>Très urgente (1)</option>
-                <option value='2'>Urgente (2)</option>
-                <option value='3'>Normale (3)</option>
-                <option value='4'>Peu urgente (4)</option>
-                <option value='5'>Non urgente (5)</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Filtre par priorité */}
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Priorité
-            </label>
-            <div className='flex space-x-2'>
-              <select
-                value={priorityFilterType}
-                onChange={(e) => setPriorityFilterType(e.target.value as 'exact' | 'gte')}
-                className='w-1/3 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs'
-              >
-                <option value='gte'>≥</option>
-                <option value='exact'>=</option>
-              </select>
-              <select
-                value={priorityFilter}
-                onChange={(e) =>
-                  setPriorityFilter(
-                    e.target.value === '' ? '' : Number(e.target.value)
-                  )
-                }
-                className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-              >
-                <option value=''>Toutes</option>
-                <option value='1'>Très haute (1)</option>
-                <option value='2'>Haute (2)</option>
-                <option value='3'>Moyenne (3)</option>
-                <option value='4'>Basse (4)</option>
-                <option value='5'>Très basse (5)</option>
+                <option value='1'>Simple (1)</option>
+                <option value='3'>Facile (3)</option>
+                <option value='5'>Moyenne (5)</option>
+                <option value='7'>Difficile (7)</option>
+                <option value='9'>Très complexe (9)</option>
               </select>
             </div>
           </div>

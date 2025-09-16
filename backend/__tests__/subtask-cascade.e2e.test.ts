@@ -38,9 +38,8 @@ describe('Subtask Cascade Delete API', () => {
       .set(authHeader)
       .send({
         name: 'Tâche parente cascade',
-        importance: 5,
-        urgency: 5,
-        priority: 5,
+        importance: 35,
+        complexity: 4,
         link: '',
         tagIds: []
       })
@@ -55,9 +54,8 @@ describe('Subtask Cascade Delete API', () => {
       .set(authHeader)
       .send({
         name: 'Sous-tâche cascade 1',
-        importance: 3,
-        urgency: 3,
-        priority: 3,
+        importance: 25,
+        complexity: 2,
         link: '',
         tagIds: [],
         parentId: parentTaskId
@@ -69,9 +67,8 @@ describe('Subtask Cascade Delete API', () => {
       .set(authHeader)
       .send({
         name: 'Sous-tâche cascade 2',
-        importance: 4,
-        urgency: 4,
-        priority: 4,
+        importance: 30,
+        complexity: 3,
         link: '',
         tagIds: [],
         parentId: parentTaskId
@@ -83,9 +80,8 @@ describe('Subtask Cascade Delete API', () => {
       .set(authHeader)
       .send({
         name: 'Sous-tâche cascade 3',
-        importance: 2,
-        urgency: 2,
-        priority: 2,
+        importance: 15,
+        complexity: 1,
         link: '',
         tagIds: [],
         parentId: parentTaskId
