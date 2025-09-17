@@ -279,7 +279,10 @@ export default function TaskListPage() {
         } else {
           baseDate.setDate(baseDate.getDate() + 1)
         }
-        update.dueDate = baseDate.toISOString()
+        // Format as YYYY-MM-DD to avoid timezone issues
+        update.dueDate = baseDate.getFullYear() + '-' +
+          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
+          String(baseDate.getDate()).padStart(2, '0')
         handled = true
       }
       
@@ -288,16 +291,22 @@ export default function TaskListPage() {
         e.preventDefault()
         let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
         baseDate.setDate(baseDate.getDate() + 7)
-        update.dueDate = baseDate.toISOString()
+        // Format as YYYY-MM-DD to avoid timezone issues
+        update.dueDate = baseDate.getFullYear() + '-' +
+          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
+          String(baseDate.getDate()).padStart(2, '0')
         handled = true
       }
-      
+
       // Due date +1 mois
       if (e.key.toLowerCase() === "m") {
         e.preventDefault()
         let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
         baseDate.setMonth(baseDate.getMonth() + 1)
-        update.dueDate = baseDate.toISOString()
+        // Format as YYYY-MM-DD to avoid timezone issues
+        update.dueDate = baseDate.getFullYear() + '-' +
+          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
+          String(baseDate.getDate()).padStart(2, '0')
         handled = true
       }
       
@@ -305,8 +314,10 @@ export default function TaskListPage() {
       if (e.key.toLowerCase() === "t") {
         e.preventDefault()
         const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        update.dueDate = today.toISOString()
+        // Format as YYYY-MM-DD to avoid timezone issues
+        update.dueDate = today.getFullYear() + '-' +
+          String(today.getMonth() + 1).padStart(2, '0') + '-' +
+          String(today.getDate()).padStart(2, '0')
         handled = true
       }
       
@@ -356,8 +367,11 @@ export default function TaskListPage() {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         const overdueTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate) < today)
+        const todayFormatted = today.getFullYear() + '-' +
+          String(today.getMonth() + 1).padStart(2, '0') + '-' +
+          String(today.getDate()).padStart(2, '0')
         for (const t of overdueTasks) {
-          await api.updateTask(t.id, { dueDate: today.toISOString() })
+          await api.updateTask(t.id, { dueDate: todayFormatted })
         }
         await loadTasks()
         return
@@ -409,8 +423,10 @@ export default function TaskListPage() {
         break
       case 'date-today':
         const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        update.dueDate = today.toISOString()
+        // Format as YYYY-MM-DD to avoid timezone issues
+        update.dueDate = today.getFullYear() + '-' +
+          String(today.getMonth() + 1).padStart(2, '0') + '-' +
+          String(today.getDate()).padStart(2, '0')
         break
       case 'date-remove':
         update.dueDate = null
