@@ -12,6 +12,17 @@ import { TaskWithSubtasks } from '../../domain/entities/Task'
  */
 export class TaskSorting {
   /**
+   * Parse date string and normalize to local timezone at midnight
+   * This prevents timezone issues between dev/prod environments
+   */
+  static parseAndNormalizeDate(dateInput: string | Date): Date {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+    // Create a new date in the local timezone with the same year, month, day
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    return normalizedDate
+  }
+
+  /**
    * Sort tasks according to the priority system
    */
   static sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
@@ -24,12 +35,9 @@ export class TaskSorting {
 
     return tasks
       .sort((a, b) => {
-        const aDate = a.dueDate ? new Date(a.dueDate) : null
-        const bDate = b.dueDate ? new Date(b.dueDate) : null
-
-        // Set hours to 0 for accurate date comparison
-        if (aDate) aDate.setHours(0, 0, 0, 0)
-        if (bDate) bDate.setHours(0, 0, 0, 0)
+        // Parse dates and normalize to local timezone at midnight
+        const aDate = a.dueDate ? TaskSorting.parseAndNormalizeDate(a.dueDate) : null
+        const bDate = b.dueDate ? TaskSorting.parseAndNormalizeDate(b.dueDate) : null
 
         const aIsOverdue = aDate && aDate < today
         const bIsOverdue = bDate && bDate < today
