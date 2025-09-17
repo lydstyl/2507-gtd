@@ -1,11 +1,10 @@
 interface QuickActionsProps {
-  onCreateTask: () => void
   onCreateTag: () => void
   onManageTags: () => void
   onViewAllTasks: () => void
 }
 
-export function QuickActions({ onCreateTask, onCreateTag, onManageTags, onViewAllTasks }: QuickActionsProps) {
+export function QuickActions({ onCreateTag, onManageTags, onViewAllTasks }: QuickActionsProps) {
   return (
     <div className='mt-8'>
       <h3 className='text-lg font-semibold text-gray-900 mb-4'>
@@ -13,12 +12,6 @@ export function QuickActions({ onCreateTask, onCreateTag, onManageTags, onViewAl
       </h3>
       <div className='flex flex-wrap gap-4'>
         <button
-          onClick={onCreateTask}
-          className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
-        >
-          + Nouvelle tâche
-        </button>
-        <button 
           onClick={onCreateTag}
           className='bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
         >
@@ -30,7 +23,7 @@ export function QuickActions({ onCreateTask, onCreateTag, onManageTags, onViewAl
         >
           Gérer les tags
         </button>
-        <button 
+        <button
           onClick={onViewAllTasks}
           className='border border-blue-300 text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors'
         >

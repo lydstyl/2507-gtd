@@ -16,13 +16,6 @@ export function DashboardComponent() {
     logoutMutation.mutate()
   }
 
-  const handleCreateTask = () => {
-    dispatch({
-      type: 'OPEN_MODAL',
-      payload: { modal: 'createTask' }
-    })
-  }
-
   const handleCreateTag = () => {
     dispatch({
       type: 'OPEN_MODAL',
@@ -59,7 +52,6 @@ export function DashboardComponent() {
       <Dashboard
         user={user}
         tasks={tasks}
-        onCreateTask={handleCreateTask}
         onCreateTag={handleCreateTag}
         onManageTags={handleManageTags}
         onViewAllTasks={handleViewAllTasks}

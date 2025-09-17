@@ -7,11 +7,11 @@ import { CSVImportExport } from './CSVImportExport'
 import { CompletionStats } from './CompletionStats'
 import { useState } from 'react'
 import { api } from '../utils/api'
+import { useTags } from '../hooks/useTags'
 
 interface DashboardProps {
   user: User | null
   tasks: Task[]
-  onCreateTask: () => void
   onCreateTag: () => void
   onManageTags: () => void
   onViewAllTasks: () => void
@@ -27,7 +27,6 @@ interface DashboardProps {
 export function Dashboard({
   user,
   tasks,
-  onCreateTask,
   onCreateTag,
   onManageTags,
   onViewAllTasks,
@@ -42,6 +41,7 @@ export function Dashboard({
   const completedTasks = tasks.filter((task) => task.isCompleted)
   const activeTasks = tasks.filter((task) => !task.isCompleted)
   const [deleting, setDeleting] = useState(false)
+  const { data: tags = [] } = useTags()
 
   const handleDeleteAllTasks = async () => {
     if (
@@ -75,11 +75,10 @@ export function Dashboard({
           <StatsGrid
             activeTasksCount={activeTasks.length}
             completedTasksCount={completedTasks.length}
-            tagsCount={0}
+            tagsCount={tags.length}
           />
 
           <QuickActions
-            onCreateTask={onCreateTask}
             onCreateTag={onCreateTag}
             onManageTags={onManageTags}
             onViewAllTasks={onViewAllTasks}
