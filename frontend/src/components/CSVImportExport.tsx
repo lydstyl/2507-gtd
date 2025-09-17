@@ -87,10 +87,10 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
           <h4 className='text-sm font-medium text-gray-700 mb-2'>
             Exporter vos tâches
           </h4>
-          <p className='text-sm text-gray-600 mb-3'>
-            Téléchargez toutes vos tâches au format CSV pour les sauvegarder ou
-            les partager.
-          </p>
+           <p className='text-sm text-gray-600 mb-3'>
+             Téléchargez vos tâches actives au format CSV pour les sauvegarder ou
+             les partager. Les tâches terminées ne sont pas incluses dans l'export.
+           </p>
           <button
             onClick={handleExport}
             disabled={isExporting}
