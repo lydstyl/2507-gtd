@@ -16,7 +16,7 @@ describe('Task API', () => {
       update: {},
       create: {
         id: 'user-id',
-        email: 'user@example.com',
+        email: 'task-test@example.com',
         password: 'hashed-password',
       },
     })

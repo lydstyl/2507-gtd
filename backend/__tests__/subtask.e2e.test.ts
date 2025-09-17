@@ -16,7 +16,7 @@ describe('Subtask API', () => {
       update: {},
       create: {
         id: 'user-id',
-        email: 'user@example.com',
+        email: 'subtask-test@example.com',
         password: 'hashed-password'
       }
     })

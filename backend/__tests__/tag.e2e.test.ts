@@ -16,7 +16,7 @@ describe('Tag API', () => {
       update: {},
       create: {
         id: 'user-id',
-        email: 'user@example.com',
+        email: 'tag-test@example.com',
         password: 'hashed-password'
       }
     })

@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 describe('Task Sorting API Integration Tests', () => {
   const testUser = {
     id: 'user-id', // Use the same user-id as other tests
-    email: 'user@example.com',
+    email: 'task-sorting-test@example.com',
     password: 'hashed-password'
   }
   const authHeader = { Authorization: 'Bearer dev-token' } // Use dev token like other tests

@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaTaskRepository } from '../src/infrastructure/repositories/PrismaTaskRepository'
+import { TaskFilters } from '../src/domain/entities/Task'
 
 const prisma = new PrismaClient()
 const taskRepository = new PrismaTaskRepository(prisma)
@@ -72,7 +73,8 @@ describe('Extended Task Sorting Tests', () => {
     }
 
     // Récupérer toutes les tâches
-    const allTasks = await taskRepository.findAll({ userId })
+    const filters: TaskFilters = { userId }
+    const allTasks = await taskRepository.findAll(filters)
 
     // Vérifier le tri
     console.log('\n📋 Tâches triées (test étendu avec points):')
