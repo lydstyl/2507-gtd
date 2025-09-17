@@ -4,6 +4,7 @@ import { StatsGrid } from './StatsGrid'
 import { QuickActions } from './QuickActions'
 import { RecentTasks } from './RecentTasks'
 import { CSVImportExport } from './CSVImportExport'
+import { CompletionStats } from './CompletionStats'
 import { useState } from 'react'
 import { api } from '../utils/api'
 
@@ -19,6 +20,7 @@ interface DashboardProps {
   onCreateSubtask?: (parentId: string) => void
   onAssignParent?: (task: Task) => void
   onEditNote?: (task: Task) => void
+  onMarkCompleted?: (taskId: string) => void
   onRefreshTasks?: () => void
 }
 
@@ -34,10 +36,11 @@ export function Dashboard({
   onCreateSubtask,
   onAssignParent,
   onEditNote,
+  onMarkCompleted,
   onRefreshTasks
 }: DashboardProps) {
-  const completedTasks = tasks.filter((task) => task.priority === 0)
-  const activeTasks = tasks.filter((task) => task.priority > 0)
+  const completedTasks = tasks.filter((task) => task.isCompleted)
+  const activeTasks = tasks.filter((task) => !task.isCompleted)
   const [deleting, setDeleting] = useState(false)
 
   const handleDeleteAllTasks = async () => {
@@ -89,7 +92,12 @@ export function Dashboard({
             onCreateSubtask={onCreateSubtask}
             onAssignParent={onAssignParent}
             onEditNote={onEditNote}
+            onMarkCompleted={onMarkCompleted}
           />
+
+          <div className='mt-8'>
+            <CompletionStats />
+          </div>
 
           <div className='mt-8 flex flex-col gap-4'>
             <CSVImportExport onImportSuccess={onRefreshTasks || (() => {})} />

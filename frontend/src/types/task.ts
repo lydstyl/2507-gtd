@@ -9,6 +9,8 @@ export interface Task {
   dueDate?: string
   parentId?: string
   userId: string
+  isCompleted: boolean
+  completedAt?: string
   createdAt: string
   updatedAt: string
   subtasks: Task[]
@@ -24,6 +26,7 @@ export interface CreateTaskData {
   dueDate?: string
   parentId?: string
   tagIds?: string[]
+  isCompleted?: boolean
 }
 
 export interface UpdateTaskData {
@@ -35,6 +38,8 @@ export interface UpdateTaskData {
   dueDate?: string | null
   parentId?: string
   tagIds?: string[]
+  isCompleted?: boolean
+  completedAt?: string | null
 }
 
 export interface Tag {
@@ -49,4 +54,9 @@ export interface Tag {
 export interface CreateTagData {
   name: string
   color?: string
+}
+
+export interface CompletionStats {
+  dailyCompletions: { date: string; count: number; tasks: { id: string; name: string }[] }[]
+  weeklyCompletions: { weekStart: string; count: number }[]
 }

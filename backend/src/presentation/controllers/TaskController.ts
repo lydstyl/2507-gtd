@@ -6,6 +6,9 @@ import { UpdateTaskUseCase } from '../../usecases/tasks/UpdateTaskUseCase'
 import { DeleteTaskUseCase } from '../../usecases/tasks/DeleteTaskUseCase'
 import { ExportTasksUseCase } from '../../usecases/tasks/ExportTasksUseCase'
 import { ImportTasksUseCase } from '../../usecases/tasks/ImportTasksUseCase'
+import { MarkTaskAsCompletedUseCase } from '../../usecases/tasks/MarkTaskAsCompletedUseCase'
+import { GetCompletionStatsUseCase } from '../../usecases/tasks/GetCompletionStatsUseCase'
+import { GetCompletedTasksUseCase } from '../../usecases/tasks/GetCompletedTasksUseCase'
 import { TaskFilters } from '../../interfaces/repositories/TaskRepository'
 
 export class TaskController {
@@ -16,7 +19,10 @@ export class TaskController {
     private updateTaskUseCase: UpdateTaskUseCase,
     private deleteTaskUseCase: DeleteTaskUseCase,
     private exportTasksUseCase: ExportTasksUseCase,
-    private importTasksUseCase: ImportTasksUseCase
+    private importTasksUseCase: ImportTasksUseCase,
+    private markTaskAsCompletedUseCase: MarkTaskAsCompletedUseCase,
+    private getCompletionStatsUseCase: GetCompletionStatsUseCase,
+    private getCompletedTasksUseCase: GetCompletedTasksUseCase
   ) {}
 
   async createTask(req: Request, res: Response): Promise<void> {
@@ -252,6 +258,70 @@ export class TaskController {
       res.status(204).send()
     } catch (error) {
       res.status(500).json({ error: 'Erreur lors de la suppression des tâches.' })
+    }
+  }
+
+  async markTaskAsCompleted(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const task = await this.markTaskAsCompletedUseCase.execute(id, userId)
+      res.json(task)
+    } catch (error) {
+      console.error('❌ Erreur dans markTaskAsCompleted:', error)
+      if (error instanceof Error) {
+        if (error.message.includes('not found') || error.message.includes('Access denied')) {
+          res.status(404).json({ error: error.message })
+        } else if (error.message.includes('already completed')) {
+          res.status(400).json({ error: error.message })
+        } else {
+          res.status(400).json({ error: error.message })
+        }
+      } else {
+        res.status(500).json({ error: 'Internal server error' })
+      }
+    }
+  }
+
+  async getCompletionStats(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const stats = await this.getCompletionStatsUseCase.execute(userId)
+      res.json(stats)
+    } catch (error) {
+      console.error('❌ Erreur dans getCompletionStats:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+
+  async getCompletedTasks(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const { startDate, endDate } = req.query
+      const tasks = await this.getCompletedTasksUseCase.execute(
+        userId,
+        startDate as string,
+        endDate as string
+      )
+      res.json(tasks)
+    } catch (error) {
+      console.error('❌ Erreur dans getCompletedTasks:', error)
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 }

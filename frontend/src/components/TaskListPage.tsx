@@ -79,6 +79,9 @@ export default function TaskListPage() {
   const applyFilters = (tasksToFilter: Task[]) => {
     let filtered = tasksToFilter
 
+    // Filtrer les tâches terminées (ne pas les afficher dans la liste des tâches)
+    filtered = filtered.filter((task) => !task.isCompleted)
+
     // Filtre par recherche textuelle
     if (searchTerm.trim()) {
       filtered = filtered.filter((task) =>
@@ -158,10 +161,51 @@ export default function TaskListPage() {
     return filtered
   }
 
+  // Fonction de tri
+  const sortTasks = (tasksToSort: Task[]) => {
+    return [...tasksToSort].sort((a, b) => {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const aDate = a.dueDate ? new Date(a.dueDate) : null
+      const bDate = b.dueDate ? new Date(b.dueDate) : null
+
+      // Si les deux tâches ont des dates
+      if (aDate && bDate) {
+        aDate.setHours(0, 0, 0, 0)
+        bDate.setHours(0, 0, 0, 0)
+
+        const aIsToday = aDate.getTime() === today.getTime()
+        const bIsToday = bDate.getTime() === today.getTime()
+        const aIsOverdue = aDate < today
+        const bIsOverdue = bDate < today
+
+        // Priorité 1: Tâches d'aujourd'hui
+        if (aIsToday && !bIsToday) return -1
+        if (bIsToday && !aIsToday) return 1
+
+        // Priorité 2: Tâches en retard (après aujourd'hui mais avant les futures)
+        if (aIsOverdue && !bIsOverdue && !bIsToday) return -1
+        if (bIsOverdue && !aIsOverdue && !aIsToday) return 1
+
+        // Pour les tâches dans la même catégorie, trier par date
+        return aDate.getTime() - bDate.getTime()
+      }
+
+      // Si seulement une tâche a une date
+      if (aDate && !bDate) return -1
+      if (bDate && !aDate) return 1
+
+      // Si aucune des deux tâches n'a de date, trier par points (priorité)
+      return b.points - a.points
+    })
+  }
+
   // Mettre à jour les tâches filtrées quand les filtres changent
   useEffect(() => {
     const filtered = applyFilters(tasks)
-    setFilteredTasks(filtered)
+    const sorted = sortTasks(filtered)
+    setFilteredTasks(sorted)
   }, [
     tasks,
     searchTerm,
@@ -439,6 +483,16 @@ export default function TaskListPage() {
     }
   }
 
+  const handleMarkCompleted = async (taskId: string) => {
+    try {
+      await api.markTaskCompleted(taskId)
+      loadTasks() // Reload tasks to update the UI
+    } catch (err) {
+      console.error('Erreur lors de la completion de la tâche:', err)
+      alert('Erreur lors de la completion de la tâche')
+    }
+  }
+
   const handleCreateTask = () => {
     setCreateTaskParentId(undefined)
     setIsCreateTaskModalOpen(true)
@@ -601,6 +655,15 @@ export default function TaskListPage() {
           <TaskCard
             task={tasks.find((t) => t.id === pinnedTaskId)!}
             isSelected={selectedTaskId === pinnedTaskId}
+            onEdit={handleEditTask}
+            onDelete={handleTaskDeleted}
+            onCreateSubtask={handleCreateSubtask}
+            onAssignParent={handleAssignParent}
+            onEditNote={handleEditNote}
+            onMarkCompleted={handleMarkCompleted}
+            onSelectTask={handleSelectTask}
+            selectedTaskId={selectedTaskId ?? undefined}
+            onQuickAction={handleQuickAction}
           />
 
           {/* Quick action buttons for pinned task */}
@@ -887,6 +950,7 @@ export default function TaskListPage() {
                 onCreateSubtask={handleCreateSubtask}
                 onAssignParent={handleAssignParent}
                 onEditNote={handleEditNote}
+                onMarkCompleted={handleMarkCompleted}
                 isEven={index % 2 === 1}
                 onSelectTask={handleSelectTask}
                 selectedTaskId={selectedTaskId ?? undefined}
@@ -904,6 +968,15 @@ export default function TaskListPage() {
           <TaskCard
             task={tasks.find((t) => t.id === focusTaskId)!}
             isSelected={true}
+            onEdit={handleEditTask}
+            onDelete={handleTaskDeleted}
+            onCreateSubtask={handleCreateSubtask}
+            onAssignParent={handleAssignParent}
+            onEditNote={handleEditNote}
+            onMarkCompleted={handleMarkCompleted}
+            onSelectTask={handleSelectTask}
+            selectedTaskId={selectedTaskId ?? undefined}
+            onQuickAction={handleQuickAction}
           />
           <button
             className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"

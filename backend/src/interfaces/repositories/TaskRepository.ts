@@ -11,6 +11,11 @@ export interface TaskFilters extends BaseTaskFilters {
   // userId est maintenant obligatoire dans BaseTaskFilters
 }
 
+export interface CompletionStats {
+  dailyCompletions: { date: string; count: number; tasks: { id: string; name: string }[] }[]
+  weeklyCompletions: { weekStart: string; count: number }[]
+}
+
 export interface TaskRepository {
   /**
    * Crée une tâche pour un utilisateur, avec dueDate optionnelle
@@ -34,4 +39,20 @@ export interface TaskRepository {
   delete(id: string): Promise<void>
   exists(id: string): Promise<boolean>
   deleteAllByUserId(userId: string): Promise<void>
+  /**
+   * Marque une tâche comme terminée
+   */
+  markAsCompleted(id: string, userId: string): Promise<TaskWithSubtasks>
+  /**
+   * Récupère les statistiques de completion pour un utilisateur
+   */
+  getCompletionStats(userId: string): Promise<CompletionStats>
+  /**
+   * Récupère les tâches terminées pour une période donnée
+   */
+  getCompletedTasks(userId: string, startDate: Date, endDate: Date): Promise<TaskWithSubtasks[]>
+  /**
+   * Supprime les tâches terminées plus anciennes que la date spécifiée
+   */
+  deleteOldCompletedTasks(cutoffDate: Date): Promise<number>
 }

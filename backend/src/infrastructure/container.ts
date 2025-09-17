@@ -10,6 +10,9 @@ import { UpdateTaskUseCase } from '../usecases/tasks/UpdateTaskUseCase'
 import { DeleteTaskUseCase } from '../usecases/tasks/DeleteTaskUseCase'
 import { ExportTasksUseCase } from '../usecases/tasks/ExportTasksUseCase'
 import { ImportTasksUseCase } from '../usecases/tasks/ImportTasksUseCase'
+import { MarkTaskAsCompletedUseCase } from '../usecases/tasks/MarkTaskAsCompletedUseCase'
+import { GetCompletionStatsUseCase } from '../usecases/tasks/GetCompletionStatsUseCase'
+import { GetCompletedTasksUseCase } from '../usecases/tasks/GetCompletedTasksUseCase'
 import { CreateTagUseCase } from '../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../usecases/tags/GetAllTagsUseCase'
 import { DeleteTagUseCase } from '../usecases/tags/DeleteTagUseCase'
@@ -36,6 +39,10 @@ export class Container {
     return Container.instance
   }
 
+  getTaskRepository(): TaskRepository {
+    return this.taskRepository
+  }
+
   getTaskController(): TaskController {
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository)
     const getTaskUseCase = new GetTaskUseCase(this.taskRepository)
@@ -47,6 +54,9 @@ export class Container {
       this.taskRepository,
       this.tagRepository
     )
+    const markTaskAsCompletedUseCase = new MarkTaskAsCompletedUseCase(this.taskRepository)
+    const getCompletionStatsUseCase = new GetCompletionStatsUseCase(this.taskRepository)
+    const getCompletedTasksUseCase = new GetCompletedTasksUseCase(this.taskRepository)
 
     return new TaskController(
       createTaskUseCase,
@@ -55,7 +65,10 @@ export class Container {
       updateTaskUseCase,
       deleteTaskUseCase,
       exportTasksUseCase,
-      importTasksUseCase
+      importTasksUseCase,
+      markTaskAsCompletedUseCase,
+      getCompletionStatsUseCase,
+      getCompletedTasksUseCase
     )
   }
 

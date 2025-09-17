@@ -8,6 +8,7 @@ interface RecentTasksProps {
   onCreateSubtask?: (parentId: string) => void
   onAssignParent?: (task: Task) => void
   onEditNote?: (task: Task) => void
+  onMarkCompleted?: (taskId: string) => void
 }
 
 export function RecentTasks({
@@ -16,7 +17,8 @@ export function RecentTasks({
   onDeleteTask,
   onCreateSubtask,
   onAssignParent,
-  onEditNote
+  onEditNote,
+  onMarkCompleted
 }: RecentTasksProps) {
   if (tasks.length === 0) return null
 
@@ -40,6 +42,7 @@ export function RecentTasks({
             onCreateSubtask={onCreateSubtask}
             onAssignParent={onAssignParent}
             onEditNote={onEditNote}
+            onMarkCompleted={onMarkCompleted}
           />
         ))}
       </div>

@@ -4,6 +4,7 @@ import { Footer } from './Footer'
 import { Dashboard } from './Dashboard'
 import { useCurrentUser, useLogout } from '../hooks/useAuth'
 import { useAllTasks } from '../hooks/useTasks'
+import { api } from '../utils/api'
 
 export function DashboardComponent() {
   const { state, dispatch } = useApp()
@@ -41,6 +42,17 @@ export function DashboardComponent() {
     window.location.pathname = '/tasks'
   }
 
+  const handleMarkCompleted = async (taskId: string) => {
+    try {
+      await api.markTaskCompleted(taskId)
+      // TODO: Refresh tasks or use optimistic updates
+      window.location.reload() // Temporary solution - should use proper state management
+    } catch (error) {
+      console.error('Error marking task as completed:', error)
+      alert('Erreur lors de la completion de la tâche')
+    }
+  }
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header user={user} onLogout={handleLogout} />
@@ -71,6 +83,7 @@ export function DashboardComponent() {
             payload: { modal: 'note', data: { taskId: task.id } }
           })
         }}
+        onMarkCompleted={handleMarkCompleted}
         onRefreshTasks={() => {}}
       />
       <Footer />

@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 import {
   TaskRepository,
-  TaskFilters
+  TaskFilters,
+  CompletionStats
 } from '../../interfaces/repositories/TaskRepository'
 import {
   Task,
@@ -176,6 +177,9 @@ export class PrismaTaskRepository implements TaskRepository {
 
     // Pour les tâches racines, on force parentId = null
     where.parentId = null
+
+    // Exclure les tâches terminées de la liste des tâches
+    where.isCompleted = false
 
     if (filters?.importance !== undefined) {
       where.importance = filters.importance
@@ -379,6 +383,157 @@ export class PrismaTaskRepository implements TaskRepository {
     })) as unknown as TaskWithTags[]
   }
 
+  async markAsCompleted(id: string, userId: string): Promise<TaskWithSubtasks> {
+    const task = await this.prisma.task.update({
+      where: {
+        id,
+        userId // Security: ensure user owns the task
+      },
+      data: {
+        isCompleted: true,
+        completedAt: new Date()
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        subtasks: {
+          include: {
+            tags: { include: { tag: true } },
+            subtasks: {
+              include: {
+                tags: { include: { tag: true } },
+                subtasks: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    return this.formatTaskWithSubtasks(task)
+  }
+
+  async getCompletionStats(userId: string): Promise<CompletionStats> {
+    const now = new Date()
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const eightWeeksAgo = new Date(now.getTime() - 8 * 7 * 24 * 60 * 60 * 1000)
+
+    // Get daily completions for last 7 days
+    const dailyTasks = await this.prisma.task.findMany({
+      where: {
+        userId,
+        isCompleted: true,
+        completedAt: {
+          gte: sevenDaysAgo
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        completedAt: true
+      },
+      orderBy: {
+        completedAt: 'desc'
+      }
+    })
+
+    // Group by date
+    const dailyCompletions = []
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+      const dateStr = date.toISOString().split('T')[0]
+      const tasksForDate = dailyTasks.filter(task =>
+        task.completedAt && task.completedAt.toISOString().split('T')[0] === dateStr
+      )
+
+      dailyCompletions.push({
+        date: dateStr,
+        count: tasksForDate.length,
+        tasks: tasksForDate.map(task => ({ id: task.id, name: task.name }))
+      })
+    }
+
+    // Get weekly completions for last 8 weeks
+    const weeklyCompletions = []
+    for (let i = 0; i < 8; i++) {
+      const weekStart = new Date(now.getTime() - (i + 1) * 7 * 24 * 60 * 60 * 1000)
+      const weekEnd = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000)
+
+      const count = await this.prisma.task.count({
+        where: {
+          userId,
+          isCompleted: true,
+          completedAt: {
+            gte: weekStart,
+            lt: weekEnd
+          }
+        }
+      })
+
+      weeklyCompletions.push({
+        weekStart: weekStart.toISOString().split('T')[0],
+        count
+      })
+    }
+
+    return {
+      dailyCompletions: dailyCompletions.reverse(), // Most recent first
+      weeklyCompletions: weeklyCompletions.reverse() // Most recent first
+    }
+  }
+
+  async getCompletedTasks(userId: string, startDate: Date, endDate: Date): Promise<TaskWithSubtasks[]> {
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        userId,
+        isCompleted: true,
+        completedAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        subtasks: {
+          include: {
+            tags: { include: { tag: true } },
+            subtasks: {
+              include: {
+                tags: { include: { tag: true } },
+                subtasks: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        completedAt: 'desc'
+      }
+    })
+
+    return tasks.map(task => this.formatTaskWithSubtasks(task))
+  }
+
+  async deleteOldCompletedTasks(cutoffDate: Date): Promise<number> {
+    const result = await this.prisma.task.deleteMany({
+      where: {
+        isCompleted: true,
+        completedAt: {
+          lt: cutoffDate
+        }
+      }
+    })
+
+    return result.count
+  }
+
 
   private formatTaskWithSubtasks(task: any): TaskWithSubtasks {
     return {
@@ -390,6 +545,8 @@ export class PrismaTaskRepository implements TaskRepository {
       complexity: task.complexity,
       points: task.points,
       dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
+      isCompleted: task.isCompleted,
+      completedAt: task.completedAt ? task.completedAt.toISOString() : undefined,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       parentId: task.parentId,

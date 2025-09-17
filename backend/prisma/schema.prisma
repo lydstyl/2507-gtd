@@ -20,22 +20,24 @@ model User {
 }
 
 model Task {
-  id         String    @id @default(cuid())
-  name       String
-  link       String?
-  note       String?
-  importance Int       @default(50)
-  complexity Int       @default(1)
-  points     Int       @default(500)
-  dueDate    DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  userId     String
-  parentId   String?
-  tags       TaskTag[]
-  parent     Task?     @relation("TaskSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
-  subtasks   Task[]    @relation("TaskSubtasks")
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  name        String
+  link        String?
+  note        String?
+  importance  Int       @default(50)
+  complexity  Int       @default(1)
+  points      Int       @default(500)
+  dueDate     DateTime?
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  parentId    String?
+  tags        TaskTag[]
+  parent      Task?     @relation("TaskSubtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks    Task[]    @relation("TaskSubtasks")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("tasks")
 }

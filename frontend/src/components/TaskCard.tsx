@@ -9,6 +9,7 @@ interface TaskCardProps {
   onCreateSubtask?: (parentId: string) => void
   onAssignParent?: (task: Task) => void
   onEditNote?: (task: Task) => void
+  onMarkCompleted?: (taskId: string) => void
   level?: number
   isEven?: boolean
   isSelected?: boolean // Ajouté pour la sélection
@@ -24,6 +25,7 @@ export function TaskCard({
   onCreateSubtask,
   onAssignParent,
   onEditNote,
+  onMarkCompleted,
   level = 0,
   isEven = false,
   isSelected = false,
@@ -150,7 +152,9 @@ export function TaskCard({
       <div
         className={`border border-gray-200 rounded-lg hover:bg-gray-50 h-full ${
           isEven ? 'bg-gray-50' : 'bg-white'
-        } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''}`}
+        } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''} ${
+          task.isCompleted ? 'opacity-75 bg-green-50 border-green-200' : ''
+        }`}
         onClick={() => {
           if (onSelectTask) {
             onSelectTask(task.id)
@@ -167,7 +171,17 @@ export function TaskCard({
             ></div>
             <div className='flex-1 min-w-0'>
               <div className='flex items-start space-x-2 mb-2'>
-                <h4 className='font-medium text-gray-900 break-words flex-1'>{task.name}</h4>
+                <h4 className={`font-medium break-words flex-1 ${
+                  task.isCompleted ? 'line-through text-gray-600' : 'text-gray-900'
+                }`}>{task.name}</h4>
+                {task.isCompleted && (
+                  <span className='text-green-600 text-sm font-medium flex items-center space-x-1'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                    </svg>
+                    <span>Terminé</span>
+                  </span>
+                )}
                 {task.link && (
                   <a
                     href={task.link}
@@ -346,6 +360,29 @@ export function TaskCard({
                       strokeLinejoin='round'
                       strokeWidth={2}
                       d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
+                    />
+                  </svg>
+                </button>
+              )}
+
+              {/* Done button */}
+              {onMarkCompleted && !task.isCompleted && (
+                <button
+                  onClick={() => onMarkCompleted(task.id)}
+                  className='p-1 text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors'
+                  title='Marquer comme terminé'
+                >
+                  <svg
+                    className='w-3 h-3'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 13l4 4L19 7'
                     />
                   </svg>
                 </button>
@@ -543,6 +580,32 @@ export function TaskCard({
                                       strokeLinejoin='round'
                                       strokeWidth={2}
                                       d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
+                                    />
+                                  </svg>
+                                </button>
+                              )}
+
+                              {/* Done button */}
+                              {onMarkCompleted && !subtask.isCompleted && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onMarkCompleted(subtask.id)
+                                  }}
+                                  className='p-1 text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors'
+                                  title='Marquer comme terminé'
+                                >
+                                  <svg
+                                    className='w-3 h-3'
+                                    fill='none'
+                                    stroke='currentColor'
+                                    viewBox='0 0 24 24'
+                                  >
+                                    <path
+                                      strokeLinecap='round'
+                                      strokeLinejoin='round'
+                                      strokeWidth={2}
+                                      d='M5 13l4 4L19 7'
                                     />
                                   </svg>
                                 </button>
@@ -771,6 +834,32 @@ export function TaskCard({
                                                     strokeLinejoin='round'
                                                     strokeWidth={2}
                                                     d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
+                                                  />
+                                                </svg>
+                                              </button>
+                                            )}
+
+                                            {/* Done button */}
+                                            {onMarkCompleted && !subSubtask.isCompleted && (
+                                              <button
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  onMarkCompleted(subSubtask.id)
+                                                }}
+                                                className='p-0.5 text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors'
+                                                title='Marquer comme terminé'
+                                              >
+                                                <svg
+                                                  className='w-2.5 h-2.5'
+                                                  fill='none'
+                                                  stroke='currentColor'
+                                                  viewBox='0 0 24 24'
+                                                >
+                                                  <path
+                                                    strokeLinecap='round'
+                                                    strokeLinejoin='round'
+                                                    strokeWidth={2}
+                                                    d='M5 13l4 4L19 7'
                                                   />
                                                 </svg>
                                               </button>

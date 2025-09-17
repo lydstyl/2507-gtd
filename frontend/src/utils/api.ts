@@ -3,7 +3,8 @@ import type {
   CreateTaskData,
   UpdateTaskData,
   Tag,
-  CreateTagData
+  CreateTagData,
+  CompletionStats
 } from '../types/task'
 
 // Détecter automatiquement l'environnement et l'URL de base
@@ -166,6 +167,22 @@ export const api = {
     apiCall<void>('/tasks/all', {
       method: 'DELETE'
     }),
+
+  markTaskCompleted: (id: string) =>
+    apiCall<Task>(`/tasks/${id}/complete`, {
+      method: 'POST'
+    }),
+
+  getCompletionStats: () =>
+    apiCall<CompletionStats>('/tasks/completed/stats'),
+
+  getCompletedTasks: (startDate?: string, endDate?: string) => {
+    const params = new URLSearchParams()
+    if (startDate) params.append('startDate', startDate)
+    if (endDate) params.append('endDate', endDate)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return apiCall<Task[]>(`/tasks/completed${query}`)
+  },
 
   // Tags
   getTags: () => apiCall<Tag[]>('/tags'),

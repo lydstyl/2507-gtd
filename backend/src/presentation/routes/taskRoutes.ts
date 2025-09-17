@@ -22,6 +22,12 @@ export function createTaskRoutes(taskController: TaskController): Router {
   // POST /api/tasks/import - Import tasks from CSV
   router.post('/import', taskController.importTasks.bind(taskController))
 
+  // GET /api/tasks/completed/stats - Get completion statistics
+  router.get('/completed/stats', taskController.getCompletionStats.bind(taskController))
+
+  // GET /api/tasks/completed - Get completed tasks
+  router.get('/completed', taskController.getCompletedTasks.bind(taskController))
+
   // DELETE /api/tasks/all - Supprimer toutes les tâches de l'utilisateur connecté
   router.delete('/all', taskController.deleteAllUserTasks.bind(taskController))
 
@@ -30,6 +36,9 @@ export function createTaskRoutes(taskController: TaskController): Router {
 
   // PUT /api/tasks/:id - Update a specific task
   router.put('/:id', taskController.updateTask.bind(taskController))
+
+  // POST /api/tasks/:id/complete - Mark a task as completed
+  router.post('/:id/complete', taskController.markTaskAsCompleted.bind(taskController))
 
   // DELETE /api/tasks/:id - Delete a specific task
   router.delete('/:id', taskController.deleteTask.bind(taskController))

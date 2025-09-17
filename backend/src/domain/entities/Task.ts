@@ -11,6 +11,8 @@ export interface Task {
   points: number // Computed: round(10 * importance / complexity), clamped to [0, 500]
   parentId?: string
   dueDate?: Date
+  isCompleted: boolean
+  completedAt?: Date
   createdAt: Date
   updatedAt: Date
   userId: string
@@ -40,6 +42,7 @@ export interface CreateTaskData {
   tagIds?: string[]
   userId: string
   dueDate?: Date
+  isCompleted?: boolean
 }
 
 export interface UpdateTaskData {
@@ -52,6 +55,8 @@ export interface UpdateTaskData {
   tagIds?: string[]
   userId?: string
   dueDate?: Date | null
+  isCompleted?: boolean
+  completedAt?: Date | null
 }
 
 export interface TaskFilters {
