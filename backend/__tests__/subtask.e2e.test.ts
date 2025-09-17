@@ -22,6 +22,18 @@ describe('Subtask API', () => {
     })
     server = app.listen(4004)
   }, 15000)
+
+  beforeEach(async () => {
+    // Clean up specific test tasks before each test to prevent contamination
+    await prisma.task.deleteMany({
+      where: {
+        userId: 'user-id',
+        name: {
+          in: ['Tâche parente test', 'Sous-tâche 1', 'Sous-tâche 2', 'Sous-tâche 3']
+        }
+      }
+    })
+  })
   afterAll(async () => {
     await prisma.task.deleteMany({
       where: { userId: 'user-id', name: 'Tâche parente test' }

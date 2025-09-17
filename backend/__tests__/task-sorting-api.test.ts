@@ -1,0 +1,325 @@
+import request from 'supertest'
+import { PrismaClient } from '@prisma/client'
+import app from '../src/app'
+
+const prisma = new PrismaClient()
+
+describe('Task Sorting API Integration Tests', () => {
+  const testUser = {
+    id: 'user-id', // Use the same user-id as other tests
+    email: 'user@example.com',
+    password: 'hashed-password'
+  }
+  const authHeader = { Authorization: 'Bearer dev-token' } // Use dev token like other tests
+
+  beforeAll(async () => {
+    // Create test user (same as other tests)
+    await prisma.user.upsert({
+      where: { id: testUser.id },
+      update: {},
+      create: testUser
+    })
+  })
+
+  afterAll(async () => {
+    // Clean up all test tasks to prevent contamination
+    await prisma.task.deleteMany({ where: { userId: testUser.id } })
+    await prisma.task.deleteMany({
+      where: {
+        userId: {
+          contains: 'test'
+        }
+      }
+    })
+    await prisma.$disconnect()
+  })
+
+  beforeEach(async () => {
+    // Clean up tasks before each test
+    await prisma.task.deleteMany({ where: { userId: testUser.id } })
+
+    // Also clean up any other test users' tasks to prevent contamination
+    await prisma.task.deleteMany({
+      where: {
+        userId: {
+          contains: 'test'
+        }
+      }
+    })
+  })
+
+  test('GET /api/tasks/root should return tasks in correct sorting order', async () => {
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const nextWeek = new Date(today)
+    nextWeek.setDate(nextWeek.getDate() + 7)
+
+    // Create tasks through API
+    const tasksToCreate = [
+      { name: 'Future task', importance: 30, complexity: 3, dueDate: nextWeek.toISOString() },
+      { name: 'High priority no date', importance: 50, complexity: 1 }, // 500 points, no date
+      { name: 'Overdue task', importance: 25, complexity: 2, dueDate: yesterday.toISOString() },
+      { name: 'Today task high', importance: 40, complexity: 2, dueDate: today.toISOString() },
+      { name: 'Today task low', importance: 20, complexity: 3, dueDate: today.toISOString() },
+      { name: 'Tomorrow task', importance: 35, complexity: 3, dueDate: tomorrow.toISOString() },
+      { name: 'No date medium', importance: 30, complexity: 4 },
+      { name: 'No date low', importance: 20, complexity: 5 },
+    ]
+
+    // Create all tasks
+    for (const taskData of tasksToCreate) {
+      await request(app)
+        .post('/api/tasks')
+        .set(authHeader)
+        .send(taskData)
+        .expect(201)
+    }
+
+    // Get sorted tasks
+    const response = await request(app)
+      .get('/api/tasks/root')
+      .set(authHeader)
+      .expect(200)
+
+    const tasks = response.body
+    expect(tasks.length).toBeGreaterThanOrEqual(8) // Allow for potential test contamination
+
+    // Filter to only our test tasks to avoid interference from other tests
+    const testTasks = tasks.filter((task: any) =>
+      ['High priority no date', 'Overdue task', 'Today task high', 'Today task low',
+       'Tomorrow task', 'No date medium', 'No date low', 'Future task'].includes(task.name)
+    )
+
+    expect(testTasks.length).toBe(8)
+
+    // Verify exact sorting order of our test tasks
+    expect(testTasks[0].name).toBe('High priority no date') // 1. 500 points, no date
+    expect(testTasks[1].name).toBe('Overdue task') // 2. Overdue
+    expect(testTasks[2].name).toBe('Today task high') // 3. Today (higher points)
+    expect(testTasks[3].name).toBe('Today task low') // 3. Today (lower points)
+    expect(testTasks[4].name).toBe('Tomorrow task') // 4. Tomorrow
+    expect(testTasks[5].name).toBe('No date medium') // 5. No date (higher points)
+    expect(testTasks[6].name).toBe('No date low') // 5. No date (lower points)
+    expect(testTasks[7].name).toBe('Future task') // 6. Future
+
+    console.log('\n📋 API Sorting Order:')
+    tasks.forEach((task: any, index: number) => {
+      const dateStr = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date'
+      console.log(`${index + 1}. ${task.name} (Points: ${task.points}, Due: ${dateStr})`)
+    })
+  })
+
+  test('Should maintain sorting when task is updated via API', async () => {
+    // Create initial tasks
+    const highPriorityTask = await request(app)
+      .post('/api/tasks')
+      .set(authHeader)
+      .send({
+        name: 'Test 500 point task',
+        importance: 50,
+        complexity: 1 // 500 points
+      })
+      .expect(201)
+
+    await request(app)
+      .post('/api/tasks')
+      .set(authHeader)
+      .send({
+        name: 'Today existing task',
+        importance: 30,
+        complexity: 2,
+        dueDate: new Date().toISOString()
+      })
+      .expect(201)
+
+    // Verify initial sorting
+    let response = await request(app)
+      .get('/api/tasks/root')
+      .set(authHeader)
+      .expect(200)
+
+    expect(response.body[0].name).toBe('Test 500 point task')
+    expect(response.body[0].dueDate).toBeFalsy() // Can be null or undefined
+
+    // Update the 500-point task to have today's date
+    await request(app)
+      .put(`/api/tasks/${highPriorityTask.body.id}`)
+      .set(authHeader)
+      .send({
+        dueDate: new Date().toISOString()
+      })
+      .expect(200)
+
+    // Verify new sorting - should move to today section
+    response = await request(app)
+      .get('/api/tasks/root')
+      .set(authHeader)
+      .expect(200)
+
+    const tasks = response.body
+
+    // Find today tasks
+    const todayTasks = tasks.filter((task: any) => {
+      if (!task.dueDate) return false
+      const taskDate = new Date(task.dueDate)
+      const today = new Date()
+      return taskDate.toDateString() === today.toDateString()
+    })
+
+    expect(todayTasks.length).toBe(2)
+    expect(todayTasks[0].name).toBe('Test 500 point task') // Should be first in today section due to higher points
+    expect(todayTasks[0].points).toBe(500)
+    expect(todayTasks[1].name).toBe('Today existing task')
+
+    console.log('\n✅ API: Task successfully moved from high-priority category to today category!')
+  })
+
+  test('Should handle overdue tasks correctly via API', async () => {
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const twoDaysAgo = new Date(today)
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+
+    // Create tasks with different overdue dates
+    await request(app)
+      .post('/api/tasks')
+      .set(authHeader)
+      .send({
+        name: 'High priority no date',
+        importance: 50,
+        complexity: 1
+      })
+      .expect(201)
+
+    await request(app)
+      .post('/api/tasks')
+      .set(authHeader)
+      .send({
+        name: 'Overdue yesterday high points',
+        importance: 40,
+        complexity: 2,
+        dueDate: yesterday.toISOString()
+      })
+      .expect(201)
+
+    await request(app)
+      .post('/api/tasks')
+      .set(authHeader)
+      .send({
+        name: 'Overdue yesterday low points',
+        importance: 20,
+        complexity: 3,
+        dueDate: yesterday.toISOString()
+      })
+      .expect(201)
+
+    await request(app)
+      .post('/api/tasks')
+      .set(authHeader)
+      .send({
+        name: 'Overdue two days ago',
+        importance: 30,
+        complexity: 3,
+        dueDate: twoDaysAgo.toISOString()
+      })
+      .expect(201)
+
+    // Get sorted tasks
+    const response = await request(app)
+      .get('/api/tasks/root')
+      .set(authHeader)
+      .expect(200)
+
+    const tasks = response.body
+
+    // Verify order
+    expect(tasks[0].name).toBe('High priority no date') // 1. 500 points no date
+    expect(tasks[1].name).toBe('Overdue two days ago') // 2. Oldest overdue first
+    expect(tasks[2].name).toBe('Overdue yesterday high points') // 3. Same date, higher points
+    expect(tasks[3].name).toBe('Overdue yesterday low points') // 3. Same date, lower points
+
+    console.log('\n📅 Overdue Tasks Sorting:')
+    tasks.forEach((task: any, index: number) => {
+      const dateStr = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date'
+      const status = task.dueDate && new Date(task.dueDate) < today ? 'OVERDUE' : 'NORMAL'
+      console.log(`${index + 1}. ${task.name} (${status}, Points: ${task.points}, Due: ${dateStr})`)
+    })
+  })
+
+  test('Should handle complex mixed scenario via API', async () => {
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const nextWeek = new Date(today)
+    nextWeek.setDate(nextWeek.getDate() + 7)
+
+    // Create a complex mix of tasks
+    const taskData = [
+      // Mix up the creation order to test sorting independence
+      { name: 'Z Future low priority', importance: 20, complexity: 5, dueDate: nextWeek.toISOString() },
+      { name: 'A High priority no date 1', importance: 50, complexity: 1 },
+      { name: 'M Today medium', importance: 30, complexity: 3, dueDate: today.toISOString() },
+      { name: 'B Overdue critical', importance: 45, complexity: 2, dueDate: yesterday.toISOString() },
+      { name: 'Y Tomorrow low', importance: 25, complexity: 4, dueDate: tomorrow.toISOString() },
+      { name: 'A High priority no date 2', importance: 50, complexity: 1 },
+      { name: 'N No date very low', importance: 10, complexity: 8 },
+      { name: 'L Today high', importance: 40, complexity: 2, dueDate: today.toISOString() },
+    ]
+
+    // Create tasks in mixed order
+    for (const task of taskData) {
+      await request(app)
+        .post('/api/tasks')
+        .set(authHeader)
+        .send(task)
+        .expect(201)
+    }
+
+    // Get sorted tasks
+    const response = await request(app)
+      .get('/api/tasks/root')
+      .set(authHeader)
+      .expect(200)
+
+    const tasks = response.body
+    expect(tasks.length).toBe(8)
+
+    // Verify sorting categories (order within same category may vary due to creation time)
+    expect(tasks.length).toBe(8)
+
+    // Check that the right categories are in the right positions
+    // High priority no date tasks should be first (both should be in positions 0-1)
+    const highPriorityTasks = tasks.slice(0, 2)
+    expect(highPriorityTasks.every((task: any) =>
+      task.name.includes('A High priority no date') && task.points === 500 && !task.dueDate
+    )).toBe(true)
+
+    // Overdue task should be next
+    expect(tasks[2].name).toBe('B Overdue critical')
+
+    // Today tasks should follow
+    const todayTasks = tasks.slice(3, 5)
+    expect(todayTasks.every((task: any) => {
+      const taskDate = new Date(task.dueDate)
+      const today = new Date()
+      return taskDate.toDateString() === today.toDateString()
+    })).toBe(true)
+
+    // Verify general structure
+    expect(tasks[5].name).toBe('Y Tomorrow low') // Tomorrow
+    expect(tasks[6].name).toBe('N No date very low') // No date (low points)
+    expect(tasks[7].name).toBe('Z Future low priority') // Future
+
+    console.log('\n🎯 Complex Mixed Scenario - Final Order:')
+    tasks.forEach((task: any, index: number) => {
+      const dateStr = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date'
+      console.log(`${index + 1}. ${task.name} (Points: ${task.points}, Due: ${dateStr})`)
+    })
+  })
+})

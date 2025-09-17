@@ -150,6 +150,7 @@ export function TaskCard({
   return (
     <div style={indentStyle}>
       <div
+        data-testid={`task-card-${task.id}`}
         className={`border border-gray-200 rounded-lg hover:bg-gray-50 h-full ${
           isEven ? 'bg-gray-50' : 'bg-white'
         } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''} ${
@@ -171,9 +172,14 @@ export function TaskCard({
             ></div>
             <div className='flex-1 min-w-0'>
               <div className='flex items-start space-x-2 mb-2'>
-                <h4 className={`font-medium break-words flex-1 ${
-                  task.isCompleted ? 'line-through text-gray-600' : 'text-gray-900'
-                }`}>{task.name}</h4>
+                <h4
+                  data-testid="task-name"
+                  className={`font-medium break-words flex-1 ${
+                    task.isCompleted ? 'line-through text-gray-600' : 'text-gray-900'
+                  }`}
+                >
+                  {task.name}
+                </h4>
                 {task.isCompleted && (
                   <span className='text-green-600 text-sm font-medium flex items-center space-x-1'>
                     <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>

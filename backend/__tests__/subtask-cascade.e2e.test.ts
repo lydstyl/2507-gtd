@@ -22,6 +22,18 @@ describe('Subtask Cascade Delete API', () => {
     })
     server = app.listen(4003)
   })
+
+  beforeEach(async () => {
+    // Clean up specific test tasks before each test to prevent contamination
+    await prisma.task.deleteMany({
+      where: {
+        userId: 'user-id',
+        name: {
+          in: ['Tâche parente cascade', 'Sous-tâche cascade 1', 'Sous-tâche cascade 2', 'Sous-tâche cascade 3']
+        }
+      }
+    })
+  })
   afterAll(async () => {
     await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Tâche parente cascade' } })
     await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Sous-tâche cascade 1' } })

@@ -1,15 +1,18 @@
 import { TaskWithSubtasks } from '../../domain/entities/Task'
 
 /**
- * Points-based sorting system implementation
+ * Task sorting system implementation
  * Sorting rules (deterministic order):
- * 1. Today & Tomorrow — tasks due today or tomorrow, sorted by points DESC
- * 2. No due date — tasks without due_date, sorted by points DESC
- * 3. Future dated tasks — tasks with dates beyond tomorrow, sorted by due_date ASC, then points DESC
+ * 1. New tasks with 500 points (without date) — highest priority new tasks
+ * 2. Overdue tasks — tasks past their due date
+ * 3. Today tasks — tasks due today (including 500-point tasks with today's date)
+ * 4. Tomorrow tasks — tasks due tomorrow (including 500-point tasks with tomorrow's date)
+ * 5. Tasks without date — sorted by points DESC (excluding 500+ already handled)
+ * 6. Future tasks (day+2 or more) — sorted by date ASC
  */
 export class TaskSorting {
   /**
-   * Sort tasks according to the new points-based system
+   * Sort tasks according to the priority system
    */
   static sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
     const today = new Date()
@@ -24,34 +27,73 @@ export class TaskSorting {
         const aDate = a.dueDate ? new Date(a.dueDate) : null
         const bDate = b.dueDate ? new Date(b.dueDate) : null
 
-        const aIsToday = aDate && aDate.toDateString() === today.toDateString()
-        const bIsToday = bDate && bDate.toDateString() === today.toDateString()
-        const aIsTomorrow = aDate && aDate.toDateString() === tomorrow.toDateString()
-        const bIsTomorrow = bDate && bDate.toDateString() === tomorrow.toDateString()
-        const aIsTodayOrTomorrow = aIsToday || aIsTomorrow
-        const bIsTodayOrTomorrow = bIsToday || bIsTomorrow
+        // Set hours to 0 for accurate date comparison
+        if (aDate) aDate.setHours(0, 0, 0, 0)
+        if (bDate) bDate.setHours(0, 0, 0, 0)
 
-        // 1. Today & Tomorrow tasks (by points DESC)
-        if (aIsTodayOrTomorrow && !bIsTodayOrTomorrow) return -1
-        if (!aIsTodayOrTomorrow && bIsTodayOrTomorrow) return 1
-        if (aIsTodayOrTomorrow && bIsTodayOrTomorrow) {
-          // Today before tomorrow
-          if (aIsToday && bIsTomorrow) return -1
-          if (aIsTomorrow && bIsToday) return 1
-          // Same day group, sort by points DESC
+        const aIsOverdue = aDate && aDate < today
+        const bIsOverdue = bDate && bDate < today
+        const aIsToday = aDate && aDate.getTime() === today.getTime()
+        const bIsToday = bDate && bDate.getTime() === today.getTime()
+        const aIsTomorrow = aDate && aDate.getTime() === tomorrow.getTime()
+        const bIsTomorrow = bDate && bDate.getTime() === tomorrow.getTime()
+        const aIsFuture = aDate && aDate >= dayAfterTomorrow
+        const bIsFuture = bDate && bDate >= dayAfterTomorrow
+
+        // Only consider 500+ points for tasks WITHOUT dates (new tasks)
+        const aIsNewHighPriority = a.points >= 500 && !aDate
+        const bIsNewHighPriority = b.points >= 500 && !bDate
+
+        // 1. New tasks with 500 points (only if no due date)
+        if (aIsNewHighPriority && !bIsNewHighPriority) return -1
+        if (!aIsNewHighPriority && bIsNewHighPriority) return 1
+        if (aIsNewHighPriority && bIsNewHighPriority) {
+          // Both are high priority new tasks, sort by points DESC, then creation date DESC
+          if (a.points !== b.points) return b.points - a.points
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        }
+
+        // 2. Overdue tasks
+        if (aIsOverdue && !bIsOverdue) return -1
+        if (!aIsOverdue && bIsOverdue) return 1
+        if (aIsOverdue && bIsOverdue) {
+          // Both overdue, sort by date ASC (oldest overdue first), then points DESC
+          const dateComparison = aDate!.getTime() - bDate!.getTime()
+          if (dateComparison !== 0) return dateComparison
           return b.points - a.points
         }
 
-        // 2. No due date tasks (by points DESC)
+        // 3. Today tasks
+        if (aIsToday && !bIsToday) return -1
+        if (!aIsToday && bIsToday) return 1
+        if (aIsToday && bIsToday) {
+          // Both due today, sort by points DESC
+          return b.points - a.points
+        }
+
+        // 4. Tomorrow tasks
+        if (aIsTomorrow && !bIsTomorrow) return -1
+        if (!aIsTomorrow && bIsTomorrow) return 1
+        if (aIsTomorrow && bIsTomorrow) {
+          // Both due tomorrow, sort by points DESC
+          return b.points - a.points
+        }
+
+        // 5. Tasks without date (excluding the 500+ point ones already handled)
         if (!aDate && bDate) return -1
         if (aDate && !bDate) return 1
         if (!aDate && !bDate) {
+          // Both have no date, sort by points DESC
           return b.points - a.points
         }
 
-        // 3. Future tasks (by date ASC, then points DESC)
-        const dateComparison = aDate!.getTime() - bDate!.getTime()
-        if (dateComparison !== 0) return dateComparison
+        // 6. Future tasks (day+2 or more)
+        if (aIsFuture && bIsFuture) {
+          // Both are future tasks, sort by date ASC
+          return aDate!.getTime() - bDate!.getTime()
+        }
+
+        // Fallback: sort by points DESC
         return b.points - a.points
       })
       .map((task) => ({

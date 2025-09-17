@@ -161,51 +161,10 @@ export default function TaskListPage() {
     return filtered
   }
 
-  // Fonction de tri
-  const sortTasks = (tasksToSort: Task[]) => {
-    return [...tasksToSort].sort((a, b) => {
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-
-      const aDate = a.dueDate ? new Date(a.dueDate) : null
-      const bDate = b.dueDate ? new Date(b.dueDate) : null
-
-      // Si les deux tâches ont des dates
-      if (aDate && bDate) {
-        aDate.setHours(0, 0, 0, 0)
-        bDate.setHours(0, 0, 0, 0)
-
-        const aIsToday = aDate.getTime() === today.getTime()
-        const bIsToday = bDate.getTime() === today.getTime()
-        const aIsOverdue = aDate < today
-        const bIsOverdue = bDate < today
-
-        // Priorité 1: Tâches d'aujourd'hui
-        if (aIsToday && !bIsToday) return -1
-        if (bIsToday && !aIsToday) return 1
-
-        // Priorité 2: Tâches en retard (après aujourd'hui mais avant les futures)
-        if (aIsOverdue && !bIsOverdue && !bIsToday) return -1
-        if (bIsOverdue && !aIsOverdue && !aIsToday) return 1
-
-        // Pour les tâches dans la même catégorie, trier par date
-        return aDate.getTime() - bDate.getTime()
-      }
-
-      // Si seulement une tâche a une date
-      if (aDate && !bDate) return -1
-      if (bDate && !aDate) return 1
-
-      // Si aucune des deux tâches n'a de date, trier par points (priorité)
-      return b.points - a.points
-    })
-  }
-
   // Mettre à jour les tâches filtrées quand les filtres changent
   useEffect(() => {
     const filtered = applyFilters(tasks)
-    const sorted = sortTasks(filtered)
-    setFilteredTasks(sorted)
+    setFilteredTasks(filtered)
   }, [
     tasks,
     searchTerm,
