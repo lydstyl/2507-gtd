@@ -37,9 +37,10 @@ export function TaskCard({
   onPin, // Ajouté
   isPinned = false // Ajouté
 }: TaskCardProps) {
-  if (!task) return null;
   const [showSubtasks, setShowSubtasks] = useState(false)
   const [showQuickActions, setShowQuickActions] = useState(false)
+
+  if (!task) return null;
 
   const getPriorityColor = (importance: number) => {
     switch (importance) {
@@ -111,7 +112,7 @@ export function TaskCard({
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       return date < today
-    } catch (error) {
+    } catch {
       return false
     }
   }
@@ -120,7 +121,7 @@ export function TaskCard({
     try {
       const date = new Date(dateString)
       return date.getDay() // 0 = dimanche, 1 = lundi, ..., 6 = samedi
-    } catch (error) {
+    } catch {
       return -1
     }
   }
