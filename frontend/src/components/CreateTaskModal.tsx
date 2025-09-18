@@ -62,9 +62,7 @@ export function CreateTaskModal({
       // Formater la date correctement pour le backend
       const formattedData = {
         ...formData,
-        dueDate: formData.dueDate
-          ? new Date(formData.dueDate + 'T00:00:00').toISOString()
-          : undefined
+        dueDate: formData.dueDate || undefined
       }
 
       await api.createTask(formattedData)

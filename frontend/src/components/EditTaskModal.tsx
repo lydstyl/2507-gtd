@@ -80,9 +80,7 @@ export function EditTaskModal({
     try {
       const formattedData = {
         ...formData,
-        dueDate: formData.dueDate
-          ? new Date(formData.dueDate + 'T00:00:00').toISOString()
-          : null
+        dueDate: formData.dueDate || null
       }
 
       await api.updateTask(task.id, formattedData)
