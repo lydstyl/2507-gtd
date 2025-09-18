@@ -12,13 +12,13 @@ import { TaskWithSubtasks } from '../../domain/entities/Task'
  */
 export class TaskSorting {
   /**
-   * Parse date string and normalize to local timezone at midnight
-   * This prevents timezone issues between dev/prod environments
+   * Parse date string and normalize to UTC at midnight
+   * This ensures consistent date handling across all environments (dev/prod, SQLite/PostgreSQL)
    */
   static parseAndNormalizeDate(dateInput: string | Date): Date {
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
-    // Create a new date in the local timezone with the same year, month, day
-    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    // Create a new date in UTC with the same year, month, day
+    const normalizedDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
     return normalizedDate
   }
 
@@ -26,16 +26,14 @@ export class TaskSorting {
    * Sort tasks according to the priority system
    */
   static sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const dayAfterTomorrow = new Date(today)
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
+    const now = new Date()
+    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
+    const tomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1))
+    const dayAfterTomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
 
     return tasks
       .sort((a, b) => {
-        // Parse dates and normalize to local timezone at midnight
+        // Parse dates and normalize to UTC at midnight
         const aDate = a.dueDate ? TaskSorting.parseAndNormalizeDate(a.dueDate) : null
         const bDate = b.dueDate ? TaskSorting.parseAndNormalizeDate(b.dueDate) : null
 

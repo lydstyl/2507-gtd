@@ -103,20 +103,18 @@ export const getDateIndicator = (dateString: string) => {
 export type TaskCategory = 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
 
 export const getTaskCategory = (task: { points: number; dueDate?: string | Date | null }): TaskCategory => {
-  // Parse and normalize date like in backend TaskSorting
+  // Parse and normalize date like in backend TaskSorting (UTC-based)
   const parseDate = (dateInput: string | Date): Date => {
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
   }
 
   const dueDate = task.dueDate ? parseDate(task.dueDate) : null
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const dayAfterTomorrow = new Date(today)
-  dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
+  const now = new Date()
+  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
+  const tomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1))
+  const dayAfterTomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
 
   // 1. High priority tasks with 500+ points WITHOUT dates (collected tasks)
   if (task.points >= 500 && !dueDate) {
