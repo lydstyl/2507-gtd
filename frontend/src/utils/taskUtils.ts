@@ -156,8 +156,8 @@ export const getTaskCategoryStyle = (category: TaskCategory) => {
   const styles = {
     collected: {
       borderColor: 'border-l-purple-500',
-      backgroundColor: 'bg-purple-50',
-      label: 'Collecté (500 pts)',
+      backgroundColor: 'bg-white',
+      label: 'Collecté',
       textColor: 'text-purple-700'
     },
     overdue: {
@@ -180,7 +180,7 @@ export const getTaskCategoryStyle = (category: TaskCategory) => {
     },
     'no-date': {
       borderColor: 'border-l-gray-400',
-      backgroundColor: 'bg-gray-50',
+      backgroundColor: 'bg-white',
       label: 'Sans date',
       textColor: 'text-gray-600'
     },
