@@ -113,6 +113,10 @@ export default function TaskListPage() {
     setSelectedTaskId(taskId)
   }
 
+  const handlePin = (taskId: string) => {
+    setPinnedTaskId(prev => prev === taskId ? null : taskId)
+  }
+
   // Mobile quick actions handler
   const handleQuickAction = async (taskId: string, action: string) => {
     const task = findTaskById(tasks, taskId)
@@ -228,6 +232,7 @@ export default function TaskListPage() {
         onTaskUpdated={handleTaskUpdated}
         setError={setError}
         pinnedRef={pinnedRef}
+        onPin={handlePin}
       />
 
       <TaskFilters
@@ -295,6 +300,8 @@ export default function TaskListPage() {
                 onSelectTask={handleSelectTask}
                 selectedTaskId={selectedTaskId ?? undefined}
                 onQuickAction={handleQuickAction}
+                onPin={handlePin}
+                isPinned={pinnedTaskId === task.id}
               />
             ))}
         </div>
@@ -317,6 +324,8 @@ export default function TaskListPage() {
             onSelectTask={handleSelectTask}
             selectedTaskId={selectedTaskId ?? undefined}
             onQuickAction={handleQuickAction}
+            onPin={handlePin}
+            isPinned={pinnedTaskId === focusTaskId}
           />
           <button
             className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"

@@ -16,6 +16,8 @@ interface TaskCardProps {
   onSelectTask?: (taskId: string) => void // Ajouté pour la sélection par clic
   selectedTaskId?: string // Ajouté pour la sélection profonde
   onQuickAction?: (taskId: string, action: string) => void // Ajouté pour les actions rapides
+  onPin?: (taskId: string) => void // Ajouté pour épingler/désépingler la tâche
+  isPinned?: boolean // Ajouté pour indiquer si la tâche est épinglée
 }
 
 export function TaskCard({
@@ -31,7 +33,9 @@ export function TaskCard({
   isSelected = false,
   onSelectTask,
   selectedTaskId,
-  onQuickAction // Ajouté
+  onQuickAction, // Ajouté
+  onPin, // Ajouté
+  isPinned = false // Ajouté
 }: TaskCardProps) {
   if (!task) return null;
   const [showSubtasks, setShowSubtasks] = useState(false)
@@ -412,6 +416,32 @@ export function TaskCard({
                       strokeLinejoin='round'
                       strokeWidth={2}
                       d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                    />
+                  </svg>
+                </button>
+              )}
+              {/* Pin button */}
+              {onPin && (
+                <button
+                  onClick={() => onPin(task.id)}
+                  className={`p-1 rounded transition-colors ${
+                    isPinned
+                      ? 'text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100'
+                      : 'text-yellow-400 hover:text-yellow-600 hover:bg-yellow-50'
+                  }`}
+                  title={isPinned ? 'Désépingler la tâche' : 'Épingler la tâche en haut'}
+                >
+                  <svg
+                    className='w-3 h-3'
+                    fill={isPinned ? 'currentColor' : 'none'}
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'
                     />
                   </svg>
                 </button>
@@ -1037,6 +1067,24 @@ export function TaskCard({
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z' />
                   </svg>
                   <span>Parent</span>
+                </button>
+              )}
+              {onPin && (
+                <button
+                  onClick={() => {
+                    onPin(task.id)
+                    setShowQuickActions(false)
+                  }}
+                  className={`px-3 py-2 text-xs rounded hover:bg-opacity-80 flex items-center justify-center space-x-1 ${
+                    isPinned
+                      ? 'bg-yellow-200 text-yellow-800 hover:bg-yellow-300'
+                      : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                  }`}
+                >
+                  <svg className='w-3 h-3' fill={isPinned ? 'currentColor' : 'none'} stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z' />
+                  </svg>
+                  <span>{isPinned ? 'Désépingler' : 'Épingler'}</span>
                 </button>
               )}
 

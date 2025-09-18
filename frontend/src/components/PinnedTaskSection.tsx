@@ -19,6 +19,7 @@ interface PinnedTaskSectionProps {
   onTaskUpdated: () => void
   setError: (error: string) => void
   pinnedRef: React.RefObject<HTMLDivElement | null>
+  onPin: (taskId: string) => void
 }
 
 export function PinnedTaskSection({
@@ -36,7 +37,8 @@ export function PinnedTaskSection({
   onQuickAction,
   onTaskUpdated,
   setError,
-  pinnedRef
+  pinnedRef,
+  onPin
 }: PinnedTaskSectionProps) {
   if (!pinnedTaskId || focusTaskId) return null
 
@@ -63,6 +65,8 @@ export function PinnedTaskSection({
         onSelectTask={onSelectTask}
         selectedTaskId={selectedTaskId ?? undefined}
         onQuickAction={onQuickAction}
+        onPin={onPin}
+        isPinned={true}
       />
 
       {/* Quick action buttons for pinned task */}
