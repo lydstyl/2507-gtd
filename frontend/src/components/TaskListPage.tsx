@@ -21,8 +21,8 @@ export default function TaskListPage() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [focusTaskId, setFocusTaskId] = useState<string | null>(null)
   const [pinnedTaskId, setPinnedTaskId] = useState<string | null>(null)
-  const [showShortcutsHelp, setShowShortcutsHelp] = useState(true)
-  const [showFilters, setShowFilters] = useState(true)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
 
   const pinnedRef = useRef<HTMLDivElement>(null)
 
