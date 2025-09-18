@@ -99,3 +99,98 @@ export const getDateIndicator = (dateString: string) => {
 
   return null
 }
+
+export type TaskCategory = 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
+
+export const getTaskCategory = (task: { points: number; dueDate?: string | Date | null }): TaskCategory => {
+  // Parse and normalize date like in backend TaskSorting
+  const parseDate = (dateInput: string | Date): Date => {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  }
+
+  const dueDate = task.dueDate ? parseDate(task.dueDate) : null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const dayAfterTomorrow = new Date(today)
+  dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2)
+
+  // 1. High priority tasks with 500+ points WITHOUT dates (collected tasks)
+  if (task.points >= 500 && !dueDate) {
+    return 'collected'
+  }
+
+  // 2. Overdue tasks
+  if (dueDate && dueDate < today) {
+    return 'overdue'
+  }
+
+  // 3. Today tasks
+  if (dueDate && dueDate.getTime() === today.getTime()) {
+    return 'today'
+  }
+
+  // 4. Tomorrow tasks
+  if (dueDate && dueDate.getTime() === tomorrow.getTime()) {
+    return 'tomorrow'
+  }
+
+  // 5. Tasks without date
+  if (!dueDate) {
+    return 'no-date'
+  }
+
+  // 6. Future tasks (day+2 or more)
+  if (dueDate && dueDate >= dayAfterTomorrow) {
+    return 'future'
+  }
+
+  // Fallback
+  return 'no-date'
+}
+
+export const getTaskCategoryStyle = (category: TaskCategory) => {
+  const styles = {
+    collected: {
+      borderColor: 'border-l-purple-500',
+      backgroundColor: 'bg-purple-50',
+      label: 'Collecté (500 pts)',
+      textColor: 'text-purple-700'
+    },
+    overdue: {
+      borderColor: 'border-l-red-500',
+      backgroundColor: 'bg-red-50',
+      label: 'En retard',
+      textColor: 'text-red-700'
+    },
+    today: {
+      borderColor: 'border-l-blue-500',
+      backgroundColor: 'bg-blue-50',
+      label: "Aujourd'hui",
+      textColor: 'text-blue-700'
+    },
+    tomorrow: {
+      borderColor: 'border-l-green-500',
+      backgroundColor: 'bg-green-50',
+      label: 'Demain',
+      textColor: 'text-green-700'
+    },
+    'no-date': {
+      borderColor: 'border-l-gray-400',
+      backgroundColor: 'bg-gray-50',
+      label: 'Sans date',
+      textColor: 'text-gray-600'
+    },
+    future: {
+      borderColor: 'border-l-amber-500',
+      backgroundColor: 'bg-amber-50',
+      label: 'Futur',
+      textColor: 'text-amber-700'
+    }
+  }
+
+  return styles[category]
+}

@@ -3,7 +3,7 @@ import { Tag } from './Tag'
 import { TaskActions } from './TaskActions'
 import { QuickActionsMenu } from './QuickActionsMenu'
 import { SubTaskCard } from './SubTaskCard'
-import { getPriorityColor, formatDate, isOverdue, getDateIndicator } from '../utils/taskUtils'
+import { getPriorityColor, formatDate, isOverdue, getDateIndicator, getTaskCategory, getTaskCategoryStyle } from '../utils/taskUtils'
 import { useState } from 'react'
 
 interface TaskCardProps {
@@ -51,15 +51,21 @@ export function TaskCard({
 
   const selected = selectedTaskId ? selectedTaskId === task.id : isSelected
 
+  // Get task category and styling
+  const category = getTaskCategory(task)
+  const categoryStyle = getTaskCategoryStyle(category)
+
   return (
     <div style={indentStyle}>
       <div
         data-testid={`task-card-${task.id}`}
-        className={`relative border border-gray-200 rounded-lg hover:bg-gray-50 h-full ${
-          isEven ? 'bg-gray-50' : 'bg-white'
-        } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''} ${
-          task.isCompleted ? 'opacity-75 bg-green-50 border-green-200' : ''
-        }`}
+        className={`relative border border-gray-200 rounded-lg hover:bg-gray-50 h-full border-l-4 ${
+          categoryStyle.borderColor
+        } ${
+          task.isCompleted ? 'opacity-75 bg-green-50 border-green-200' :
+          selected ? categoryStyle.backgroundColor :
+          isEven ? categoryStyle.backgroundColor : categoryStyle.backgroundColor
+        } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''}`}
         onClick={() => {
           if (onSelectTask) {
             onSelectTask(task.id)
@@ -68,6 +74,11 @@ export function TaskCard({
         }}
       >
         <div className='flex flex-col h-full p-4'>
+          {/* Category indicator */}
+          <div className={`text-xs font-medium mb-2 ${categoryStyle.textColor}`}>
+            {categoryStyle.label}
+          </div>
+
           <div className='flex items-start space-x-3 mb-3'>
             <div
               className={`w-3 h-3 rounded-full flex-shrink-0 ${getPriorityColor(
