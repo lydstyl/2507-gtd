@@ -106,3 +106,5 @@ This is a full-stack GTD (Getting Things Done) task management application using
 - **Development**: Backend 3000, Frontend 5173
 - **Local Testing**: Backend 3001, Frontend 3002
 - **Production**: Backend 3000 (proxied via Nginx)
+- Lint files you create.
+- Run tests and build after adding a new feature.
