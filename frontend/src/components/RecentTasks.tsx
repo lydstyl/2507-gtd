@@ -9,6 +9,7 @@ interface RecentTasksProps {
   onAssignParent?: (task: Task) => void
   onEditNote?: (task: Task) => void
   onMarkCompleted?: (taskId: string) => void
+  onToggleCompleted?: (taskId: string, isCompleted: boolean) => void
 }
 
 export function RecentTasks({
@@ -18,7 +19,8 @@ export function RecentTasks({
   onCreateSubtask,
   onAssignParent,
   onEditNote,
-  onMarkCompleted
+  onMarkCompleted,
+  onToggleCompleted
 }: RecentTasksProps) {
   if (tasks.length === 0) return null
 
@@ -42,7 +44,7 @@ export function RecentTasks({
             onCreateSubtask={onCreateSubtask}
             onAssignParent={onAssignParent}
             onEditNote={onEditNote}
-            onMarkCompleted={onMarkCompleted}
+            onMarkCompleted={onToggleCompleted ? (taskId) => onToggleCompleted(taskId, !task.isCompleted) : onMarkCompleted}
           />
         ))}
       </div>

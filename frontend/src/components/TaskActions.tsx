@@ -142,12 +142,16 @@ export function TaskActions({
         </button>
       )}
 
-      {/* Done button */}
-      {onMarkCompleted && !task.isCompleted && (
+      {/* Done/Undone button */}
+      {onMarkCompleted && (
         <button
           onClick={() => onMarkCompleted(task.id)}
-          className={`${buttonSize} text-green-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors ${visibilityClass}`}
-          title='Marquer comme terminé'
+          className={`${buttonSize} ${
+            task.isCompleted
+              ? 'text-yellow-400 hover:text-yellow-600 hover:bg-yellow-50'
+              : 'text-green-400 hover:text-green-600 hover:bg-green-50'
+          } rounded transition-colors ${visibilityClass}`}
+          title={task.isCompleted ? 'Marquer comme non terminé' : 'Marquer comme terminé'}
         >
           <svg
             className={iconSize}
@@ -155,12 +159,21 @@ export function TaskActions({
             stroke='currentColor'
             viewBox='0 0 24 24'
           >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M5 13l4 4L19 7'
-            />
+            {task.isCompleted ? (
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+              />
+            ) : (
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M5 13l4 4L19 7'
+              />
+            )}
           </svg>
         </button>
       )}
@@ -218,7 +231,11 @@ export function TaskActions({
       {/* Delete button */}
       {onDelete && (
         <button
-          onClick={() => onDelete(task.id)}
+          onClick={() => {
+            if (window.confirm(`Êtes-vous sûr de vouloir supprimer la tâche "${task.name}" ? Cette action est irréversible.`)) {
+              onDelete(task.id)
+            }
+          }}
           className={`${buttonSize} text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors ${visibilityClass}`}
           title='Supprimer la tâche'
         >

@@ -64,8 +64,8 @@ export default function TaskListPage() {
 
   // Apply filters function for keyboard shortcuts
   const applyFilters = (tasksToFilter: Task[]) => {
-    let filtered = tasksToFilter.filter((task) => !task.isCompleted)
-    return filtered
+    // Don't filter out completed tasks anymore to allow toggling
+    return tasksToFilter
   }
 
   const handleTaskDeleted = async (taskId: string) => {
@@ -165,12 +165,19 @@ export default function TaskListPage() {
   }
 
   const handleMarkCompleted = async (taskId: string) => {
+    const task = findTaskById(tasks, taskId)
+    if (!task) return
+
     try {
-      await api.markTaskCompleted(taskId)
+      if (task.isCompleted) {
+        await api.updateTask(taskId, { isCompleted: false })
+      } else {
+        await api.markTaskCompleted(taskId)
+      }
       loadTasks()
     } catch (err) {
-      console.error('Erreur lors de la completion de la tâche:', err)
-      alert('Erreur lors de la completion de la tâche')
+      console.error('Erreur lors de la modification du statut de la tâche:', err)
+      alert('Erreur lors de la modification du statut de la tâche')
     }
   }
 

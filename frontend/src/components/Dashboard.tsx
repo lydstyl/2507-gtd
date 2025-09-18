@@ -61,6 +61,19 @@ export function Dashboard({
     }
   }
 
+  const handleToggleCompleted = async (taskId: string, isCompleted: boolean) => {
+    try {
+      if (isCompleted) {
+        await api.markTaskCompleted(taskId)
+      } else {
+        await api.updateTask(taskId, { isCompleted: false })
+      }
+      if (onRefreshTasks) onRefreshTasks()
+    } catch (e) {
+      alert('Erreur lors de la modification du statut de la tâche.')
+    }
+  }
+
   return (
     <main className='flex-1'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
@@ -92,6 +105,7 @@ export function Dashboard({
             onAssignParent={onAssignParent}
             onEditNote={onEditNote}
             onMarkCompleted={onMarkCompleted}
+            onToggleCompleted={handleToggleCompleted}
           />
 
           <div className='mt-8'>

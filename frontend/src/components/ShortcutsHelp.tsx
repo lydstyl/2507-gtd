@@ -77,6 +77,12 @@ export function ShortcutsHelp({
               <div>
                 <b>↑ / ↓</b> : Sélectionner la tâche précédente/suivante
               </div>
+              <div>
+                <b>Espace</b> : Marquer comme fait/non fait
+              </div>
+              <div>
+                <b>Suppr</b> : Supprimer la tâche (avec confirmation)
+              </div>
             </div>
           </div>
 

@@ -100,7 +100,7 @@ export function useKeyboardShortcuts({
       // Delete selected task (Delete)
       if (e.key === 'Delete') {
         e.preventDefault()
-        if (window.confirm('Supprimer cette tâche ?')) {
+        if (window.confirm(`Êtes-vous sûr de vouloir supprimer la tâche "${task.name}" ? Cette action est irréversible.`)) {
           await onTaskDeleted(selectedTaskId)
         }
         return
@@ -214,6 +214,22 @@ export function useKeyboardShortcuts({
           }, 300)
         } catch (err) {
           alert("Erreur lors de la modification rapide de la tâche")
+        }
+        return
+      }
+
+      // Mark task as done/undone (Space)
+      if (e.key === " ") {
+        e.preventDefault()
+        try {
+          if (task.isCompleted) {
+            await api.updateTask(task.id, { isCompleted: false })
+          } else {
+            await api.markTaskCompleted(task.id)
+          }
+          await onTasksReload()
+        } catch (err) {
+          alert("Erreur lors de la modification du statut de la tâche")
         }
         return
       }

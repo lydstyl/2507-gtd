@@ -34,16 +34,24 @@ export function QuickActionsMenu({
     <div className='absolute top-full left-0 right-0 z-50 border border-gray-200 rounded-b-lg p-4 bg-white shadow-lg'>
       <div className='text-sm font-medium text-gray-700 mb-3'>Actions rapides</div>
       <div className='grid grid-cols-2 gap-2'>
-        {/* Task completion */}
-        {onMarkCompleted && !task.isCompleted && (
+        {/* Task completion toggle */}
+        {onMarkCompleted && (
           <button
             onClick={() => handleAction(() => onMarkCompleted(task.id))}
-            className='px-3 py-2 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center justify-center space-x-1'
+            className={`px-3 py-2 text-xs rounded hover:bg-opacity-80 flex items-center justify-center space-x-1 ${
+              task.isCompleted
+                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                : 'bg-green-100 text-green-700 hover:bg-green-200'
+            }`}
           >
             <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+              {task.isCompleted ? (
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' />
+              ) : (
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
+              )}
             </svg>
-            <span>Terminer</span>
+            <span>{task.isCompleted ? 'Reprendre' : 'Terminer'}</span>
           </button>
         )}
 
@@ -143,7 +151,11 @@ export function QuickActionsMenu({
               Enlever date
             </button>
             <button
-              onClick={() => handleAction(() => onQuickAction(task.id, 'delete'))}
+              onClick={() => {
+                if (window.confirm(`Êtes-vous sûr de vouloir supprimer la tâche "${task.name}" ? Cette action est irréversible.`)) {
+                  handleAction(() => onQuickAction(task.id, 'delete'))
+                }
+              }}
               className='px-3 py-2 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 flex items-center justify-center space-x-1'
             >
               <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
