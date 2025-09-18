@@ -1,46 +1,39 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { TaskCard } from './TaskCard'
 import { CreateTaskModal } from './CreateTaskModal'
 import { EditTaskModal } from './EditTaskModal'
 import { AssignParentModal } from './AssignParentModal'
 import { NoteModal } from './NoteModal'
+import { TaskFilters } from './TaskFilters'
+import { ShortcutsHelp } from './ShortcutsHelp'
+import { PinnedTaskSection } from './PinnedTaskSection'
 import type { Task, Tag } from '../types/task'
 import { api } from '../utils/api'
+import { useTaskFilters } from '../hooks/useTaskFilters'
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
+import { useModalState } from '../hooks/useModalState'
 
 export default function TaskListPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [tags, setTags] = useState<Tag[]>([])
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false)
-  const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false)
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [createTaskParentId, setCreateTaskParentId] = useState<
-    string | undefined
-  >(undefined)
-  const [isAssignParentModalOpen, setIsAssignParentModalOpen] = useState(false)
-  const [assigningParentTask, setAssigningParentTask] = useState<Task | null>(
-    null
-  )
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false)
-  const [editingNoteTask, setEditingNoteTask] = useState<Task | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
+  const [focusTaskId, setFocusTaskId] = useState<string | null>(null)
+  const [pinnedTaskId, setPinnedTaskId] = useState<string | null>(null)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(true)
+  const [showFilters, setShowFilters] = useState(true)
 
-  // Filtres
-  const [importanceFilter, setImportanceFilter] = useState<number | ''>('')
-  const [importanceFilterType, setImportanceFilterType] = useState<'exact' | 'gte'>('gte')
-  const [complexityFilter, setComplexityFilter] = useState<number | ''>('')
-  const [complexityFilterType, setComplexityFilterType] = useState<'exact' | 'gte'>('gte')
-  const [tagFilter, setTagFilter] = useState<string>('')
-  const [dateFilter, setDateFilter] = useState<string>('')
+  const pinnedRef = useRef<HTMLDivElement>(null)
+
+  // Custom hooks
+  const filterHook = useTaskFilters(tasks)
+  const modalHook = useModalState()
 
   const loadTasks = async () => {
     try {
       const tasksData = await api.getRootTasks()
       setTasks(tasksData)
-      setFilteredTasks(tasksData)
     } catch (err: any) {
       setError(err.message)
     }
@@ -53,12 +46,6 @@ export default function TaskListPage() {
     } catch (err: any) {
       console.error('Erreur lors du chargement des tags:', err)
     }
-  }
-
-  // Gérer le changement de recherche
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchTerm(value)
   }
 
   useEffect(() => {
@@ -75,332 +62,58 @@ export default function TaskListPage() {
     loadTasks()
   }
 
-  // Fonction de filtrage
+  // Apply filters function for keyboard shortcuts
   const applyFilters = (tasksToFilter: Task[]) => {
-    let filtered = tasksToFilter
-
-    // Filtrer les tâches terminées (ne pas les afficher dans la liste des tâches)
-    filtered = filtered.filter((task) => !task.isCompleted)
-
-    // Filtre par recherche textuelle
-    if (searchTerm.trim()) {
-      filtered = filtered.filter((task) =>
-        task.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    // Filtre par importance
-    if (importanceFilter !== '') {
-      if (importanceFilterType === 'exact') {
-        filtered = filtered.filter((task) => task.importance === importanceFilter)
-      } else {
-        filtered = filtered.filter((task) => task.importance >= importanceFilter)
-      }
-    }
-
-    // Filtre par complexité
-    if (complexityFilter !== '') {
-      if (complexityFilterType === 'exact') {
-        filtered = filtered.filter((task) => task.complexity === complexityFilter)
-      } else {
-        filtered = filtered.filter((task) => task.complexity <= complexityFilter)
-      }
-    }
-
-    // Filtre par tag
-    if (tagFilter) {
-      filtered = filtered.filter((task) =>
-        task.tags.some((tag) => tag.id === tagFilter)
-      )
-    }
-
-    // Filtre par date
-    if (dateFilter) {
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const tomorrow = new Date(today)
-      tomorrow.setDate(tomorrow.getDate() + 1)
-
-      filtered = filtered.filter((task) => {
-        if (!task.dueDate) {
-          return dateFilter === 'no-date'
-        }
-
-        // Si on filtre pour "Sans date", exclure les tâches qui ont une date
-        if (dateFilter === 'no-date') {
-          return false
-        }
-
-        const taskDate = new Date(task.dueDate)
-        taskDate.setHours(0, 0, 0, 0)
-
-        switch (dateFilter) {
-          case 'overdue':
-            return taskDate < today
-          case 'today':
-            return taskDate.getTime() === today.getTime()
-          case 'tomorrow':
-            return taskDate.getTime() === tomorrow.getTime()
-          case 'this-week':
-            const endOfWeek = new Date(today)
-            endOfWeek.setDate(today.getDate() + 7)
-            return taskDate >= today && taskDate <= endOfWeek
-          case 'future':
-            return taskDate > tomorrow
-          default:
-            return true
-        }
-      })
-    }
-
-    // Dans la TaskListPage, on ne veut afficher que les tâches racines dans la liste principale
-    // Les sous-tâches ne doivent apparaître que quand on clique sur "Afficher les sous-tâches"
-    // Donc on ne filtre pas par parentId ici, car on veut toutes les tâches racines
-    // Le filtrage des sous-tâches se fait dans le composant TaskCard
-
+    let filtered = tasksToFilter.filter((task) => !task.isCompleted)
     return filtered
   }
 
-  // Mettre à jour les tâches filtrées quand les filtres changent
-  useEffect(() => {
-    const filtered = applyFilters(tasks)
-    setFilteredTasks(filtered)
-  }, [
-    tasks,
-    searchTerm,
-    importanceFilter,
-    importanceFilterType,
-    complexityFilter,
-    complexityFilterType,
-    tagFilter,
-    dateFilter
-  ])
+  const handleTaskDeleted = async (taskId: string) => {
+    try {
+      await api.deleteTask(taskId)
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la suppression de la tâche:', err)
+      alert('Erreur lors de la suppression de la tâche')
+    }
+  }
 
-  // Vérifie que la tâche sélectionnée existe toujours après chaque reload
+  // Check if selected task still exists after reload
   useEffect(() => {
-    if (selectedTaskId && !findTaskById(filteredTasks, selectedTaskId)) {
+    if (selectedTaskId && !findTaskById(filterHook.filteredTasks, selectedTaskId)) {
       setSelectedTaskId(null)
     }
-  }, [filteredTasks, selectedTaskId])
+  }, [filterHook.filteredTasks, selectedTaskId])
 
-  // Gestion navigation clavier pour sélection
-  useEffect(() => {
-    const handleKeyDown = async (e: KeyboardEvent) => {
-      // Désactiver les raccourcis si une modal est ouverte
-      if (isCreateTaskModalOpen || isEditTaskModalOpen || isAssignParentModalOpen || isNoteModalOpen) return
-      
-      // Désactiver les raccourcis si l'utilisateur tape dans un champ de saisie
-      const target = e.target as HTMLElement
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.contentEditable === 'true') {
-        return
-      }
-      
-      if (filteredTasks.length === 0 && !selectedTaskId) return
-      
-      // Navigation ↑/↓
-      if (["ArrowDown", "ArrowUp"].includes(e.key)) {
-        e.preventDefault()
-        let idx = filteredTasks.findIndex((t) => t.id === selectedTaskId)
-        if (e.key === "ArrowDown") {
-          if (idx === -1 || idx === filteredTasks.length - 1) {
-            setSelectedTaskId(filteredTasks[0].id)
-          } else {
-            setSelectedTaskId(filteredTasks[idx + 1].id)
-          }
-        } else if (e.key === "ArrowUp") {
-          if (idx === -1 || idx === 0) {
-            setSelectedTaskId(filteredTasks[filteredTasks.length - 1].id)
-          } else {
-            setSelectedTaskId(filteredTasks[idx - 1].id)
-          }
-        }
-        return
-      }
-      
-      // Toggle aide (H)
-      if (e.key.toLowerCase() === "h") {
-        e.preventDefault()
-        setShowShortcutsHelp((v) => !v)
-        return
-      }
-      
-      // Toggle focus permanent (F)
-      if (e.key.toLowerCase() === "f") {
-        e.preventDefault()
-        if (!selectedTaskId) return
-        setPinnedTaskId((prev) => (prev === selectedTaskId ? null : selectedTaskId))
-        return
-      }
-      
-      // Raccourcis édition rapide - seulement si une tâche est sélectionnée
-      if (!selectedTaskId) return
-      const task = findTaskById(tasks, selectedTaskId)
-      if (!task) return
-      let update: any = {}
-      let handled = false
-      
-      // Suppression de la tâche sélectionnée (Delete)
-      if (e.key === 'Delete') {
-        e.preventDefault()
-        if (window.confirm('Supprimer cette tâche ?')) {
-          await handleTaskDeleted(selectedTaskId)
-        }
-        return
-      }
-      
-      // Importance (I: +10, Shift+I: -10)
-      if (e.key.toLowerCase() === "i") {
-        e.preventDefault()
-        if (e.shiftKey) {
-          update.importance = Math.max(0, task.importance - 10)
-        } else {
-          update.importance = Math.min(50, task.importance + 10)
-        }
-        handled = true
-      }
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    filteredTasks: filterHook.filteredTasks,
+    selectedTaskId,
+    setSelectedTaskId,
+    tasks,
+    tags,
+    isModalOpen: modalHook.isAnyModalOpen,
+    onTaskDeleted: handleTaskDeleted,
+    onTasksReload: loadTasks,
+    setPinnedTaskId,
+    setShowShortcutsHelp,
+    setFocusTaskId,
+    applyFilters
+  })
 
-      // Complexity (C: +2, Shift+C: -2)
-      if (e.key.toLowerCase() === "c") {
-        e.preventDefault()
-        if (e.shiftKey) {
-          update.complexity = Math.max(1, task.complexity - 2)
-        } else {
-          update.complexity = Math.min(9, task.complexity + 2)
-        }
-        handled = true
-      }
-      
-      // Due date +1j/-1j
-      if (e.key.toLowerCase() === "d") {
-        e.preventDefault()
-        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
-        if (e.shiftKey) {
-          baseDate.setDate(baseDate.getDate() - 1)
-        } else {
-          baseDate.setDate(baseDate.getDate() + 1)
-        }
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = baseDate.getFullYear() + '-' +
-          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-          String(baseDate.getDate()).padStart(2, '0')
-        handled = true
-      }
-      
-      // Due date +1 semaine
-      if (e.key.toLowerCase() === "w") {
-        e.preventDefault()
-        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
-        baseDate.setDate(baseDate.getDate() + 7)
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = baseDate.getFullYear() + '-' +
-          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-          String(baseDate.getDate()).padStart(2, '0')
-        handled = true
-      }
-
-      // Due date +1 mois
-      if (e.key.toLowerCase() === "m") {
-        e.preventDefault()
-        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
-        baseDate.setMonth(baseDate.getMonth() + 1)
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = baseDate.getFullYear() + '-' +
-          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-          String(baseDate.getDate()).padStart(2, '0')
-        handled = true
-      }
-      
-      // Mettre la date à aujourd'hui (T)
-      if (e.key.toLowerCase() === "t") {
-        e.preventDefault()
-        const today = new Date()
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = today.getFullYear() + '-' +
-          String(today.getMonth() + 1).padStart(2, '0') + '-' +
-          String(today.getDate()).padStart(2, '0')
-        handled = true
-      }
-      
-      // Enlever la date (E)
-      if (e.key.toLowerCase() === "e") {
-        e.preventDefault()
-        update.dueDate = null
-        handled = true
-      }
-      
-      // Tags 1-9
-      if (/^[1-9]$/.test(e.key)) {
-        e.preventDefault()
-        const idx = parseInt(e.key, 10) - 1
-        if (tags[idx]) {
-          const tagId = tags[idx].id
-          const hasTag = task.tags.some((t) => t.id === tagId)
-          update.tagIds = hasTag
-            ? task.tags.filter((t) => t.id !== tagId).map((t) => t.id)
-            : [...task.tags.map((t) => t.id), tagId]
-          handled = true
-        }
-      }
-      
-      if (handled) {
-        try {
-          await api.updateTask(task.id, update)
-          await loadTasks()
-          setTimeout(() => {
-            const stillVisible = applyFilters(tasks).some((t) => t.id === task.id)
-            if (!stillVisible) {
-              setFocusTaskId(task.id)
-            } else {
-              setFocusTaskId(null)
-            }
-          }, 300)
-        } catch (err) {
-          alert("Erreur lors de la modification rapide de la tâche")
-        }
-        return
-      }
-      
-      // Mettre toutes les tâches en retard à aujourd'hui (A)
-      if (e.key.toLowerCase() === "a") {
-        e.preventDefault()
-        if (!window.confirm("Mettre toutes les tâches en retard à aujourd'hui ?")) return
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const overdueTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate) < today)
-        const todayFormatted = today.getFullYear() + '-' +
-          String(today.getMonth() + 1).padStart(2, '0') + '-' +
-          String(today.getDate()).padStart(2, '0')
-        for (const t of overdueTasks) {
-          await api.updateTask(t.id, { dueDate: todayFormatted })
-        }
-        await loadTasks()
-        return
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [filteredTasks, selectedTaskId, tasks, tags, isCreateTaskModalOpen, isEditTaskModalOpen, isAssignParentModalOpen, isNoteModalOpen])
-
-  // Focus spécial si la tâche modifiée sort des filtres
-  const [focusTaskId, setFocusTaskId] = useState<string | null>(null)
-  const [pinnedTaskId, setPinnedTaskId] = useState<string | null>(null)
-  const [showShortcutsHelp, setShowShortcutsHelp] = useState(true)
-  const [showFilters, setShowFilters] = useState(true)
-
-  // Scroll en haut quand on épingle une tâche
-  const pinnedRef = React.useRef<HTMLDivElement>(null)
+  // Scroll to top when pinning a task
   useEffect(() => {
     if (pinnedTaskId && pinnedRef.current) {
       pinnedRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [pinnedTaskId])
 
-  // Sélection par clic
+  // Click selection
   const handleSelectTask = (taskId: string) => {
     setSelectedTaskId(taskId)
   }
 
-  // Gestion des actions rapides mobiles
+  // Mobile quick actions handler
   const handleQuickAction = async (taskId: string, action: string) => {
     const task = findTaskById(tasks, taskId)
     if (!task) return
@@ -423,7 +136,6 @@ export default function TaskListPage() {
         break
       case 'date-today':
         const today = new Date()
-        // Format as YYYY-MM-DD to avoid timezone issues
         update.dueDate = today.getFullYear() + '-' +
           String(today.getMonth() + 1).padStart(2, '0') + '-' +
           String(today.getDate()).padStart(2, '0')
@@ -448,69 +160,14 @@ export default function TaskListPage() {
     }
   }
 
-  const handleTaskDeleted = async (taskId: string) => {
-    try {
-      await api.deleteTask(taskId)
-      loadTasks()
-    } catch (err) {
-      console.error('Erreur lors de la suppression de la tâche:', err)
-      alert('Erreur lors de la suppression de la tâche')
-    }
-  }
-
   const handleMarkCompleted = async (taskId: string) => {
     try {
       await api.markTaskCompleted(taskId)
-      loadTasks() // Reload tasks to update the UI
+      loadTasks()
     } catch (err) {
       console.error('Erreur lors de la completion de la tâche:', err)
       alert('Erreur lors de la completion de la tâche')
     }
-  }
-
-  const handleCreateTask = () => {
-    setCreateTaskParentId(undefined)
-    setIsCreateTaskModalOpen(true)
-  }
-
-  const handleCreateSubtask = (parentId: string) => {
-    setCreateTaskParentId(parentId)
-    setIsCreateTaskModalOpen(true)
-  }
-
-  const handleEditTask = (task: Task) => {
-    setEditingTask(task)
-    setIsEditTaskModalOpen(true)
-  }
-
-  const handleCloseEditModal = () => {
-    setIsEditTaskModalOpen(false)
-    setEditingTask(null)
-  }
-
-  const handleCloseCreateTaskModal = () => {
-    setIsCreateTaskModalOpen(false)
-    setCreateTaskParentId(undefined)
-  }
-
-  const handleAssignParent = (task: Task) => {
-    setAssigningParentTask(task)
-    setIsAssignParentModalOpen(true)
-  }
-
-  const handleCloseAssignParentModal = () => {
-    setIsAssignParentModalOpen(false)
-    setAssigningParentTask(null)
-  }
-
-  const handleEditNote = (task: Task) => {
-    setEditingNoteTask(task)
-    setIsNoteModalOpen(true)
-  }
-
-  const handleCloseNoteModal = () => {
-    setIsNoteModalOpen(false)
-    setEditingNoteTask(null)
   }
 
   const handleSaveNote = async (taskId: string, note: string) => {
@@ -533,21 +190,6 @@ export default function TaskListPage() {
     }
   }
 
-  const clearAllFilters = () => {
-    setSearchTerm('')
-    setImportanceFilter('')
-    setComplexityFilter('')
-    setTagFilter('')
-    setDateFilter('')
-  }
-
-  const hasActiveFilters =
-    searchTerm ||
-    importanceFilter !== '' ||
-    complexityFilter !== '' ||
-    tagFilter ||
-    dateFilter
-
   if (loading) return <div className='p-8 text-center'>Chargement…</div>
   if (error) return <div className='p-8 text-red-500'>{error}</div>
 
@@ -556,356 +198,79 @@ export default function TaskListPage() {
       <div className='flex justify-between items-center mb-6'>
         <h1 className='text-2xl font-bold'>Toutes les tâches</h1>
         <button
-          onClick={handleCreateTask}
+          onClick={modalHook.handleCreateTask}
           className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
         >
           + Nouvelle tâche
         </button>
       </div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center">
-          <button
-            className="text-xs text-blue-700 underline mr-2"
-            onClick={() => setShowShortcutsHelp(v => !v)}
-          >
-            {showShortcutsHelp ? "Cacher l'aide sur les raccourcis" : "Afficher l'aide sur les raccourcis"}
-          </button>
-          {pinnedTaskId && (
-            <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded ml-2">Tâche fixée en haut de la liste</span>
-          )}
-        </div>
-        <button
-          className="text-xs text-gray-700 underline"
-          onClick={() => setShowFilters(v => !v)}
-        >
-          {showFilters ? "Cacher les filtres" : "Afficher les filtres"}
-        </button>
-      </div>
-      {/* Aide raccourcis clavier */}
-      {showShortcutsHelp && (
-        <>
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
-            <div className="font-semibold mb-1">Raccourcis clavier (sur la tâche sélectionnée) :</div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              <div><b>I</b> / <b>Shift+I</b> : Importance +10/-10</div>
-              <div><b>C</b> / <b>Shift+C</b> : Complexité +2/-2</div>
-              <div><b>D</b> / <b>Shift+D</b> : Date +1j / -1j</div>
-              <div><b>W</b> : +1 semaine à la date</div>
-              <div><b>M</b> : +1 mois à la date</div>
-              <div><b>T</b> : Date à aujourd'hui</div>
-              <div><b>E</b> : Enlever la date</div>
-              <div><b>A</b> : Toutes les tâches en retard à aujourd'hui</div>
-              <div><b>1-9</b> : Ajouter/enlever tag 1 à 9</div>
-              <div><b>F</b> : Fixer/défixer la tâche sélectionnée en haut</div>
-              <div><b>H</b> : Afficher/cacher cette aide</div>
-              <div><b>↑ / ↓</b> : Sélectionner la tâche précédente/suivante</div>
-            </div>
-          </div>
-          {/* Affichage dynamique des tags 1-9 */}
-          {tags.length > 0 && (
-            <div className="mb-6">
-              <div className="text-xs text-gray-600 mb-1">Tags accessibles par raccourci :</div>
-              <div className="flex flex-wrap gap-2">
-                {tags.slice(0, 9).map((tag, idx) => (
-                  <div key={tag.id} className="flex items-center px-2 py-1 rounded border border-gray-200 bg-gray-50 text-xs">
-                    <span className="font-mono font-bold mr-1">{idx + 1}.</span>
-                    <span
-                      className="w-3 h-3 rounded-full inline-block mr-1"
-                      style={{ backgroundColor: tag.color || '#6b7280' }}
-                    ></span>
-                    <span>{tag.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      )}
-      {/* Tâche fixée en haut de la liste (hors focus spécial) */}
-      {pinnedTaskId && !focusTaskId && tasks.find(t => t.id === pinnedTaskId) && (
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-300 rounded-lg" ref={pinnedRef}>
-          <div className="mb-2 text-yellow-800 font-semibold">
-            Tâche fixée en haut de la liste
-          </div>
-          <TaskCard
-            task={tasks.find((t) => t.id === pinnedTaskId)!}
-            isSelected={selectedTaskId === pinnedTaskId}
-            onEdit={handleEditTask}
-            onDelete={handleTaskDeleted}
-            onCreateSubtask={handleCreateSubtask}
-            onAssignParent={handleAssignParent}
-            onEditNote={handleEditNote}
-            onMarkCompleted={handleMarkCompleted}
-            onSelectTask={handleSelectTask}
-            selectedTaskId={selectedTaskId ?? undefined}
-            onQuickAction={handleQuickAction}
-          />
 
-          {/* Quick action buttons for pinned task */}
-          <div className="mt-3 pt-3 border-t border-yellow-300">
-            <div className="flex flex-col space-y-3">
-              {/* Importance buttons */}
-              <div>
-                <label className="block text-xs font-medium text-yellow-800 mb-1">
-                  Importance
-                </label>
-                <div className="flex flex-wrap gap-1">
-                  {[
-                    { value: 50, label: 'Très élevée' },
-                    { value: 40, label: 'Élevée' },
-                    { value: 30, label: 'Moyenne' },
-                    { value: 20, label: 'Basse' },
-                    { value: 10, label: 'Très basse' },
-                    { value: 0, label: 'Nulle' }
-                  ].map(({ value, label }) => {
-                    const currentTask = tasks.find((t) => t.id === pinnedTaskId)!
-                    const isActive = currentTask.importance === value
-                    return (
-                      <button
-                        key={value}
-                        onClick={async () => {
-                          try {
-                            await api.updateTask(pinnedTaskId, { importance: value })
-                            handleTaskUpdated()
-                          } catch (err: any) {
-                            setError(err.message)
-                          }
-                        }}
-                        className={`px-2 py-1 text-xs rounded border ${
-                          isActive
-                            ? 'bg-blue-500 text-white border-blue-500'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
+      <ShortcutsHelp
+        showShortcutsHelp={showShortcutsHelp}
+        setShowShortcutsHelp={setShowShortcutsHelp}
+        tags={tags}
+        pinnedTaskId={pinnedTaskId}
+      />
 
-              {/* Complexity buttons */}
-              <div>
-                <label className="block text-xs font-medium text-yellow-800 mb-1">
-                  Complexité
-                </label>
-                <div className="flex flex-wrap gap-1">
-                  {[
-                    { value: 1, label: 'Simple' },
-                    { value: 3, label: 'Facile' },
-                    { value: 5, label: 'Moyenne' },
-                    { value: 7, label: 'Difficile' },
-                    { value: 9, label: 'Très complexe' }
-                  ].map(({ value, label }) => {
-                    const currentTask = tasks.find((t) => t.id === pinnedTaskId)!
-                    const isActive = currentTask.complexity === value
-                    return (
-                      <button
-                        key={value}
-                        onClick={async () => {
-                          try {
-                            await api.updateTask(pinnedTaskId, { complexity: value })
-                            handleTaskUpdated()
-                          } catch (err: any) {
-                            setError(err.message)
-                          }
-                        }}
-                        className={`px-2 py-1 text-xs rounded border ${
-                          isActive
-                            ? 'bg-green-500 text-white border-green-500'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <PinnedTaskSection
+        pinnedTaskId={pinnedTaskId}
+        focusTaskId={focusTaskId}
+        tasks={tasks}
+        selectedTaskId={selectedTaskId}
+        onEdit={modalHook.handleEditTask}
+        onDelete={handleTaskDeleted}
+        onCreateSubtask={modalHook.handleCreateSubtask}
+        onAssignParent={modalHook.handleAssignParent}
+        onEditNote={modalHook.handleEditNote}
+        onMarkCompleted={handleMarkCompleted}
+        onSelectTask={handleSelectTask}
+        onQuickAction={handleQuickAction}
+        onTaskUpdated={handleTaskUpdated}
+        setError={setError}
+        pinnedRef={pinnedRef}
+      />
 
-      {/* Barre de recherche */}
-      <div className='mb-6'>
-        <div className='relative'>
-          <input
-            type='text'
-            placeholder='Rechercher une tâche...'
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className='w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-          />
-          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-            <svg
-              className='h-5 w-5 text-gray-400'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtres */}
-      {showFilters && (
-        <div className='mb-6 bg-gray-50 p-4 rounded-lg'>
-          <div className='flex items-center justify-between mb-4'>
-            <h3 className='text-sm font-medium text-gray-700'>Filtres</h3>
-            {hasActiveFilters && (
-              <button
-                onClick={clearAllFilters}
-                className='text-sm text-blue-600 hover:text-blue-800 underline'
-              >
-                Effacer tous les filtres
-              </button>
-            )}
-          </div>
-
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {/* Filtre par importance */}
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Importance (0-50)
-            </label>
-            <div className='flex space-x-2'>
-              <select
-                value={importanceFilterType}
-                onChange={(e) => setImportanceFilterType(e.target.value as 'exact' | 'gte')}
-                className='w-1/3 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs'
-              >
-                <option value='gte'>≥</option>
-                <option value='exact'>=</option>
-              </select>
-              <select
-                value={importanceFilter}
-                onChange={(e) =>
-                  setImportanceFilter(
-                    e.target.value === '' ? '' : Number(e.target.value)
-                  )
-                }
-                className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-              >
-                <option value=''>Toutes</option>
-                <option value='50'>Très élevée (50)</option>
-                <option value='40'>Élevée (40)</option>
-                <option value='30'>Moyenne (30)</option>
-                <option value='20'>Basse (20)</option>
-                <option value='10'>Très basse (10)</option>
-                <option value='0'>Nulle (0)</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Filtre par complexité */}
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Complexité (1-9)
-            </label>
-            <div className='flex space-x-2'>
-              <select
-                value={complexityFilterType}
-                onChange={(e) => setComplexityFilterType(e.target.value as 'exact' | 'gte')}
-                className='w-1/3 px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs'
-              >
-                <option value='gte'>≤</option>
-                <option value='exact'>=</option>
-              </select>
-              <select
-                value={complexityFilter}
-                onChange={(e) =>
-                  setComplexityFilter(
-                    e.target.value === '' ? '' : Number(e.target.value)
-                  )
-                }
-                className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-              >
-                <option value=''>Toutes</option>
-                <option value='1'>Simple (1)</option>
-                <option value='3'>Facile (3)</option>
-                <option value='5'>Moyenne (5)</option>
-                <option value='7'>Difficile (7)</option>
-                <option value='9'>Très complexe (9)</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Filtre par tag */}
-          <div>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Tag
-            </label>
-            <select
-              value={tagFilter}
-              onChange={(e) => setTagFilter(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-            >
-              <option value=''>Tous les tags</option>
-              {tags.map((tag) => (
-                <option key={tag.id} value={tag.id}>
-                  {tag.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Filtre par date - déplacé en dessous */}
-        <div className='mt-4'>
-          <label className='block text-sm font-medium text-gray-700 mb-1'>
-            Date limite
-          </label>
-          <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className='w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-          >
-            <option value=''>Toutes les dates</option>
-            <option value='overdue'>En retard</option>
-            <option value='today'>Aujourd'hui</option>
-            <option value='tomorrow'>Demain</option>
-            <option value='this-week'>Cette semaine</option>
-            <option value='future'>Plus tard</option>
-            <option value='no-date'>Sans date</option>
-          </select>
-        </div>
-
-        {/* Compteur de résultats */}
-        {(hasActiveFilters || filteredTasks.length !== tasks.length) && (
-          <div className='mt-4 text-sm text-gray-600'>
-            {filteredTasks.length} tâche{filteredTasks.length !== 1 ? 's' : ''}{' '}
-            trouvée{filteredTasks.length !== 1 ? 's' : ''}
-            {filteredTasks.length !== tasks.length && ` sur ${tasks.length}`}
-          </div>
-        )}
-        </div>
-      )}
+      <TaskFilters
+        searchTerm={filterHook.searchTerm}
+        setSearchTerm={filterHook.setSearchTerm}
+        importanceFilter={filterHook.importanceFilter}
+        setImportanceFilter={filterHook.setImportanceFilter}
+        importanceFilterType={filterHook.importanceFilterType}
+        setImportanceFilterType={filterHook.setImportanceFilterType}
+        complexityFilter={filterHook.complexityFilter}
+        setComplexityFilter={filterHook.setComplexityFilter}
+        complexityFilterType={filterHook.complexityFilterType}
+        setComplexityFilterType={filterHook.setComplexityFilterType}
+        tagFilter={filterHook.tagFilter}
+        setTagFilter={filterHook.setTagFilter}
+        dateFilter={filterHook.dateFilter}
+        setDateFilter={filterHook.setDateFilter}
+        tags={tags}
+        clearAllFilters={filterHook.clearAllFilters}
+        hasActiveFilters={filterHook.hasActiveFilters}
+        filteredTasksCount={filterHook.filteredTasks.length}
+        totalTasksCount={tasks.length}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+      />
 
       {tasks.length === 0 ? (
         <div className='text-gray-500 text-center py-8'>
           Aucune tâche trouvée.
           <br />
           <button
-            onClick={handleCreateTask}
+            onClick={modalHook.handleCreateTask}
             className='text-blue-600 hover:text-blue-800 underline mt-2'
           >
             Créer votre première tâche
           </button>
         </div>
-      ) : filteredTasks.length === 0 && hasActiveFilters ? (
+      ) : filterHook.filteredTasks.length === 0 && filterHook.hasActiveFilters ? (
         <div className='text-gray-500 text-center py-8'>
           Aucune tâche ne correspond aux filtres sélectionnés.
           <br />
           <button
-            onClick={clearAllFilters}
+            onClick={filterHook.clearAllFilters}
             className='text-blue-600 hover:text-blue-800 underline mt-2'
           >
             Effacer les filtres
@@ -913,18 +278,18 @@ export default function TaskListPage() {
         </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-          {filteredTasks
+          {filterHook.filteredTasks
             .filter(task => !pinnedTaskId || task.id !== pinnedTaskId)
             .map((task, index) => (
               <TaskCard
                 key={task.id}
                 task={task}
                 level={0}
-                onEdit={handleEditTask}
+                onEdit={modalHook.handleEditTask}
                 onDelete={handleTaskDeleted}
-                onCreateSubtask={handleCreateSubtask}
-                onAssignParent={handleAssignParent}
-                onEditNote={handleEditNote}
+                onCreateSubtask={modalHook.handleCreateSubtask}
+                onAssignParent={modalHook.handleAssignParent}
+                onEditNote={modalHook.handleEditNote}
                 onMarkCompleted={handleMarkCompleted}
                 isEven={index % 2 === 1}
                 onSelectTask={handleSelectTask}
@@ -943,11 +308,11 @@ export default function TaskListPage() {
           <TaskCard
             task={tasks.find((t) => t.id === focusTaskId)!}
             isSelected={true}
-            onEdit={handleEditTask}
+            onEdit={modalHook.handleEditTask}
             onDelete={handleTaskDeleted}
-            onCreateSubtask={handleCreateSubtask}
-            onAssignParent={handleAssignParent}
-            onEditNote={handleEditNote}
+            onCreateSubtask={modalHook.handleCreateSubtask}
+            onAssignParent={modalHook.handleAssignParent}
+            onEditNote={modalHook.handleEditNote}
             onMarkCompleted={handleMarkCompleted}
             onSelectTask={handleSelectTask}
             selectedTaskId={selectedTaskId ?? undefined}
@@ -964,31 +329,31 @@ export default function TaskListPage() {
 
       {/* Modals */}
       <CreateTaskModal
-        isOpen={isCreateTaskModalOpen}
-        onClose={handleCloseCreateTaskModal}
+        isOpen={modalHook.isCreateTaskModalOpen}
+        onClose={modalHook.handleCloseCreateTaskModal}
         onTaskCreated={handleTaskCreated}
-        parentId={createTaskParentId}
+        parentId={modalHook.createTaskParentId}
       />
 
       <EditTaskModal
-        isOpen={isEditTaskModalOpen}
-        onClose={handleCloseEditModal}
+        isOpen={modalHook.isEditTaskModalOpen}
+        onClose={modalHook.handleCloseEditModal}
         onTaskUpdated={handleTaskUpdated}
-        task={editingTask}
+        task={modalHook.editingTask}
       />
 
       <AssignParentModal
-        isOpen={isAssignParentModalOpen}
-        onClose={handleCloseAssignParentModal}
-        task={assigningParentTask}
+        isOpen={modalHook.isAssignParentModalOpen}
+        onClose={modalHook.handleCloseAssignParentModal}
+        task={modalHook.assigningParentTask}
         onParentAssigned={handleTaskUpdated}
       />
 
-      {editingNoteTask && (
+      {modalHook.editingNoteTask && (
         <NoteModal
-          isOpen={isNoteModalOpen}
-          onClose={handleCloseNoteModal}
-          task={editingNoteTask}
+          isOpen={modalHook.isNoteModalOpen}
+          onClose={modalHook.handleCloseNoteModal}
+          task={modalHook.editingNoteTask}
           onSave={handleSaveNote}
           onDelete={handleDeleteNote}
         />
@@ -997,7 +362,7 @@ export default function TaskListPage() {
   )
 }
 
-// Fonction utilitaire pour trouver une tâche (ou sous-tâche) par id
+// Utility function to find a task (or subtask) by id
 function findTaskById(tasks: Task[], id: string | null): Task | undefined {
   for (const t of tasks) {
     if (t.id === id) return t
