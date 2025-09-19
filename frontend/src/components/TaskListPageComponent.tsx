@@ -7,10 +7,10 @@ import { useCurrentUser, useLogout } from '../hooks/useAuth'
 export function TaskListPageComponent() {
   const { state } = useApp()
   const { data: user } = useCurrentUser()
-  const logoutMutation = useLogout()
+  const logout = useLogout()
 
   const handleLogout = () => {
-    logoutMutation.mutate()
+    logout()
   }
 
   return (

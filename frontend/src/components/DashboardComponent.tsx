@@ -10,10 +10,10 @@ export function DashboardComponent() {
   const { state, dispatch } = useApp()
   const { data: user } = useCurrentUser()
   const { data: tasks = [] } = useAllTasks()
-  const logoutMutation = useLogout()
+  const logout = useLogout()
 
   const handleLogout = () => {
-    logoutMutation.mutate()
+    logout()
   }
 
   const handleCreateTag = () => {

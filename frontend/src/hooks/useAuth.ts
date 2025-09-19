@@ -82,6 +82,8 @@ export function useLogout() {
     localStorage.removeItem('token')
     queryClient.setQueryData(AUTH_QUERY_KEYS.currentUser, null)
     queryClient.clear() // Clear all cached data
+    // Redirect to login page
+    window.location.href = '/login'
   }
 }
 

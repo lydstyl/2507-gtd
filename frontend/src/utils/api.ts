@@ -43,6 +43,18 @@ async function apiCall<T>(
     const errorData = await response
       .json()
       .catch(() => ({ error: 'Unknown error' }))
+
+    // Handle expired/invalid token
+    if (response.status === 401 && (
+      errorData.error === 'Invalid or expired token' ||
+      errorData.error === 'Token required'
+    )) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+      throw new ApiError(response.status, 'Session expired')
+    }
+
     throw new ApiError(response.status, errorData.error || 'Request failed')
   }
 
@@ -104,6 +116,18 @@ async function apiCallBlob(
     const errorData = await response
       .json()
       .catch(() => ({ error: 'Unknown error' }))
+
+    // Handle expired/invalid token
+    if (response.status === 401 && (
+      errorData.error === 'Invalid or expired token' ||
+      errorData.error === 'Token required'
+    )) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+      throw new ApiError(response.status, 'Session expired')
+    }
+
     throw new ApiError(response.status, errorData.error || 'Request failed')
   }
 
