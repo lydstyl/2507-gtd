@@ -243,5 +243,10 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ csvContent })
       }
-    )
+    ),
+
+  workedOnTask: (id: string) =>
+    apiCall<Task>(`/tasks/${id}/worked-on`, {
+      method: 'POST'
+    })
 }

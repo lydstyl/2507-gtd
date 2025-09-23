@@ -14,6 +14,7 @@ interface TaskCardProps {
   onAssignParent?: (task: Task) => void
   onEditNote?: (task: Task) => void
   onMarkCompleted?: (taskId: string) => void
+  onWorkedOn?: (taskId: string) => void
   level?: number
   isEven?: boolean
   isSelected?: boolean // Ajouté pour la sélection
@@ -32,6 +33,7 @@ export function TaskCard({
   onAssignParent,
   onEditNote,
   onMarkCompleted,
+  onWorkedOn,
   level = 0,
   isEven = false,
   isSelected = false,
@@ -188,6 +190,7 @@ export function TaskCard({
               onAssignParent={onAssignParent}
               onEditNote={onEditNote}
               onMarkCompleted={onMarkCompleted}
+              onWorkedOn={onWorkedOn}
               onPin={onPin}
               isPinned={isPinned}
               onQuickAction={onQuickAction}
@@ -215,6 +218,7 @@ export function TaskCard({
                     onAssignParent={onAssignParent}
                     onEditNote={onEditNote}
                     onMarkCompleted={onMarkCompleted}
+                    onWorkedOn={onWorkedOn}
                     onSelectTask={onSelectTask}
                     onQuickAction={onQuickAction}
                     level={1}

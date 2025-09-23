@@ -7,6 +7,7 @@ import { DeleteTaskUseCase } from '../../usecases/tasks/DeleteTaskUseCase'
 import { ExportTasksUseCase } from '../../usecases/tasks/ExportTasksUseCase'
 import { ImportTasksUseCase } from '../../usecases/tasks/ImportTasksUseCase'
 import { MarkTaskAsCompletedUseCase } from '../../usecases/tasks/MarkTaskAsCompletedUseCase'
+import { WorkedOnTaskUseCase } from '../../usecases/tasks/WorkedOnTaskUseCase'
 import { GetCompletionStatsUseCase } from '../../usecases/tasks/GetCompletionStatsUseCase'
 import { GetCompletedTasksUseCase } from '../../usecases/tasks/GetCompletedTasksUseCase'
 import { TaskFilters } from '../../interfaces/repositories/TaskRepository'
@@ -21,6 +22,7 @@ export class TaskController {
     private exportTasksUseCase: ExportTasksUseCase,
     private importTasksUseCase: ImportTasksUseCase,
     private markTaskAsCompletedUseCase: MarkTaskAsCompletedUseCase,
+    private workedOnTaskUseCase: WorkedOnTaskUseCase,
     private getCompletionStatsUseCase: GetCompletionStatsUseCase,
     private getCompletedTasksUseCase: GetCompletedTasksUseCase
   ) {}
@@ -279,6 +281,31 @@ export class TaskController {
           res.status(404).json({ error: error.message })
         } else if (error.message.includes('already completed')) {
           res.status(400).json({ error: error.message })
+        } else {
+          res.status(400).json({ error: error.message })
+        }
+      } else {
+        res.status(500).json({ error: 'Internal server error' })
+      }
+    }
+  }
+
+  async workedOnTask(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const completedTask = await this.workedOnTaskUseCase.execute(id, userId)
+      res.status(201).json(completedTask)
+    } catch (error) {
+      console.error('❌ Erreur dans workedOnTask:', error)
+      if (error instanceof Error) {
+        if (error.message.includes('not found')) {
+          res.status(404).json({ error: error.message })
         } else {
           res.status(400).json({ error: error.message })
         }

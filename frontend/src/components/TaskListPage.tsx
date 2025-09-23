@@ -181,6 +181,19 @@ export default function TaskListPage() {
     }
   }
 
+  const handleWorkedOn = async (taskId: string) => {
+    const task = findTaskById(tasks, taskId)
+    if (!task) return
+
+    try {
+      await api.workedOnTask(taskId)
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la création de la tâche "travaillé dessus":', err)
+      alert('Erreur lors de la création de la tâche "travaillé dessus"')
+    }
+  }
+
   const handleSaveNote = async (taskId: string, note: string) => {
     try {
       await api.updateTaskNote(taskId, note)
@@ -234,6 +247,7 @@ export default function TaskListPage() {
         onAssignParent={modalHook.handleAssignParent}
         onEditNote={modalHook.handleEditNote}
         onMarkCompleted={handleMarkCompleted}
+        onWorkedOn={handleWorkedOn}
         onSelectTask={handleSelectTask}
         onQuickAction={handleQuickAction}
         onTaskUpdated={handleTaskUpdated}
@@ -303,6 +317,7 @@ export default function TaskListPage() {
                 onAssignParent={modalHook.handleAssignParent}
                 onEditNote={modalHook.handleEditNote}
                 onMarkCompleted={handleMarkCompleted}
+                onWorkedOn={handleWorkedOn}
                 isEven={index % 2 === 1}
                 onSelectTask={handleSelectTask}
                 selectedTaskId={selectedTaskId ?? undefined}
@@ -328,6 +343,7 @@ export default function TaskListPage() {
             onAssignParent={modalHook.handleAssignParent}
             onEditNote={modalHook.handleEditNote}
             onMarkCompleted={handleMarkCompleted}
+            onWorkedOn={handleWorkedOn}
             onSelectTask={handleSelectTask}
             selectedTaskId={selectedTaskId ?? undefined}
             onQuickAction={handleQuickAction}

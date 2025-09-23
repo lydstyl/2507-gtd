@@ -17,6 +17,7 @@ export interface TaskRepository {
   deleteNote(id: string): Promise<Task>
   delete(id: string): Promise<void>
   deleteAll(): Promise<void>
+  workedOnTask(id: string): Promise<Task>
 
   // Bulk operations
   createMany(tasks: CreateTaskData[]): Promise<Task[]>

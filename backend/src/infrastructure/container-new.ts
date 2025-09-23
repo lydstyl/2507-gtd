@@ -22,6 +22,7 @@ import { DeleteTaskUseCase } from '../usecases/tasks/DeleteTaskUseCase'
 import { ExportTasksUseCase } from '../usecases/tasks/ExportTasksUseCase'
 import { ImportTasksUseCase } from '../usecases/tasks/ImportTasksUseCase'
 import { MarkTaskAsCompletedUseCase } from '../usecases/tasks/MarkTaskAsCompletedUseCase'
+import { WorkedOnTaskUseCase } from '../usecases/tasks/WorkedOnTaskUseCase'
 import { GetCompletionStatsUseCase } from '../usecases/tasks/GetCompletionStatsUseCase'
 import { GetCompletedTasksUseCase } from '../usecases/tasks/GetCompletedTasksUseCase'
 
@@ -124,6 +125,7 @@ export class Container {
         this.tagRepository
       )
       const markTaskAsCompletedUseCase = new MarkTaskAsCompletedUseCase(this.taskRepository)
+      const workedOnTaskUseCase = new WorkedOnTaskUseCase(this.taskRepository)
       const getCompletionStatsUseCase = new GetCompletionStatsUseCase(this.taskRepository)
       const getCompletedTasksUseCase = new GetCompletedTasksUseCase(this.taskRepository)
 
@@ -136,6 +138,7 @@ export class Container {
         exportTasksUseCase,
         importTasksUseCase,
         markTaskAsCompletedUseCase,
+        workedOnTaskUseCase,
         getCompletionStatsUseCase,
         getCompletedTasksUseCase
       )

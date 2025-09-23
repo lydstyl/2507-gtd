@@ -64,6 +64,10 @@ export class HttpTaskRepository implements TaskRepository {
     await tasksApi.deleteAllTasks()
   }
 
+  async workedOnTask(id: string): Promise<Task> {
+    return await tasksApi.workedOnTask(id)
+  }
+
   // Bulk operations - implemented as individual calls for now
   async createMany(tasks: CreateTaskData[]): Promise<Task[]> {
     const results: Task[] = []

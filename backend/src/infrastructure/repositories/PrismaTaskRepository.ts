@@ -37,6 +37,7 @@ export class PrismaTaskRepository implements TaskRepository {
         dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
         userId: taskData.userId,
         parentId: taskData.parentId,
+        completedAt: taskData.isCompleted ? new Date() : undefined,
         tags: tagIds
           ? {
               create: tagIds.map((tagId) => ({

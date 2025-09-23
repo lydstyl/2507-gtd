@@ -10,6 +10,7 @@ interface SubTaskCardProps {
   onAssignParent?: (task: Task) => void
   onEditNote?: (task: Task) => void
   onMarkCompleted?: (taskId: string) => void
+  onWorkedOn?: (taskId: string) => void
   onSelectTask?: (taskId: string) => void
   onQuickAction?: (taskId: string, action: string) => void
   level?: number
@@ -23,6 +24,7 @@ export function SubTaskCard({
   onAssignParent,
   onEditNote,
   onMarkCompleted,
+  onWorkedOn,
   onSelectTask,
   onQuickAction,
   level = 1
@@ -70,6 +72,7 @@ export function SubTaskCard({
                 onAssignParent={onAssignParent}
                 onEditNote={onEditNote}
                 onMarkCompleted={onMarkCompleted}
+                onWorkedOn={onWorkedOn}
                 onQuickAction={onQuickAction}
                 size={actionSize}
               />

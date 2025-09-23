@@ -40,6 +40,9 @@ export function createTaskRoutes(taskController: TaskController): Router {
   // POST /api/tasks/:id/complete - Mark a task as completed
   router.post('/:id/complete', taskController.markTaskAsCompleted.bind(taskController))
 
+  // POST /api/tasks/:id/worked-on - Create a completed copy of a task with only its title
+  router.post('/:id/worked-on', taskController.workedOnTask.bind(taskController))
+
   // DELETE /api/tasks/:id - Delete a specific task
   router.delete('/:id', taskController.deleteTask.bind(taskController))
 

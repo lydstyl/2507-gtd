@@ -9,7 +9,8 @@ import {
   CreateTaskUseCase,
   UpdateTaskUseCase,
   DeleteTaskUseCase,
-  DeleteAllTasksUseCase
+  DeleteAllTasksUseCase,
+  WorkedOnTaskUseCase
 } from '../usecases/tasks'
 
 import {
@@ -34,6 +35,7 @@ export interface Container {
   updateTaskUseCase: UpdateTaskUseCase
   deleteTaskUseCase: DeleteTaskUseCase
   deleteAllTasksUseCase: DeleteAllTasksUseCase
+  workedOnTaskUseCase: WorkedOnTaskUseCase
 
   // Tag Use Cases
   getTagsUseCase: GetTagsUseCase
@@ -59,6 +61,7 @@ class DIContainer implements Container {
   public readonly updateTaskUseCase: UpdateTaskUseCase
   public readonly deleteTaskUseCase: DeleteTaskUseCase
   public readonly deleteAllTasksUseCase: DeleteAllTasksUseCase
+  public readonly workedOnTaskUseCase: WorkedOnTaskUseCase
 
   // Tag Use Cases
   public readonly getTagsUseCase: GetTagsUseCase
@@ -80,6 +83,7 @@ class DIContainer implements Container {
     this.updateTaskUseCase = new UpdateTaskUseCase(this.taskRepository)
     this.deleteTaskUseCase = new DeleteTaskUseCase(this.taskRepository)
     this.deleteAllTasksUseCase = new DeleteAllTasksUseCase(this.taskRepository)
+    this.workedOnTaskUseCase = new WorkedOnTaskUseCase(this.taskRepository)
 
     // Initialize tag use cases
     this.getTagsUseCase = new GetTagsUseCase(this.tagRepository)
@@ -123,7 +127,8 @@ export function useTaskUseCases() {
     createTask: container.createTaskUseCase,
     updateTask: container.updateTaskUseCase,
     deleteTask: container.deleteTaskUseCase,
-    deleteAllTasks: container.deleteAllTasksUseCase
+    deleteAllTasks: container.deleteAllTasksUseCase,
+    workedOnTask: container.workedOnTaskUseCase
   }
 }
 
