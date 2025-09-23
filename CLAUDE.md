@@ -155,3 +155,4 @@ The frontend displays color-coded task cards to help users quickly identify task
 - **Production**: Backend 3000 (proxied via Nginx)
 - Lint files you create.
 - Run tests and build after adding a new feature.
+- I whant to learn clean architecture, please explain to me how you know what file to create and where when you make a new feature in the application.
