@@ -11,8 +11,8 @@ export class CreateTaskUseCase {
     // Logique métier : valeurs par défaut
     const taskData = {
       ...data,
-      importance: data.importance || 50,
-      complexity: data.complexity || 1,
+      importance: data.importance || 0,
+      complexity: data.complexity || 3,
       dueDate: data.dueDate,
       userId: data.userId
     }

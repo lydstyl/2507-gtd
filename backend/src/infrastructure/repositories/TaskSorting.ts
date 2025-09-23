@@ -3,11 +3,11 @@ import { TaskWithSubtasks } from '../../domain/entities/Task'
 /**
  * Task sorting system implementation
  * Sorting rules (deterministic order):
- * 1. New tasks with 500 points (without date) — highest priority new tasks
+ * 1. Collected tasks (without date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
  * 2. Overdue tasks — tasks past their due date
- * 3. Today tasks — tasks due today (including 500-point tasks with today's date)
- * 4. Tomorrow tasks — tasks due tomorrow (including 500-point tasks with tomorrow's date)
- * 5. Tasks without date — sorted by points DESC (excluding 500+ already handled)
+ * 3. Today tasks — tasks due today
+ * 4. Tomorrow tasks — tasks due tomorrow
+ * 5. Tasks without date — sorted by points DESC (excluding collected tasks already handled)
  * 6. Future tasks (day+2 or more) — sorted by date ASC
  */
 export class TaskSorting {
@@ -46,15 +46,19 @@ export class TaskSorting {
         const aIsFuture = aDate && aDate >= dayAfterTomorrow
         const bIsFuture = bDate && bDate >= dayAfterTomorrow
 
-        // Only consider 500+ points for tasks WITHOUT dates (new tasks)
-        const aIsNewHighPriority = a.points >= 500 && !aDate
-        const bIsNewHighPriority = b.points >= 500 && !bDate
+        // Check for collected tasks: either high priority (500+ points) OR new default tasks (importance=0, complexity=3)
+        const aIsNewDefaultTask = a.importance === 0 && a.complexity === 3 && !aDate
+        const bIsNewDefaultTask = b.importance === 0 && b.complexity === 3 && !bDate
+        const aIsHighPriorityTask = a.points >= 500 && !aDate
+        const bIsHighPriorityTask = b.points >= 500 && !bDate
+        const aIsCollected = aIsNewDefaultTask || aIsHighPriorityTask
+        const bIsCollected = bIsNewDefaultTask || bIsHighPriorityTask
 
-        // 1. New tasks with 500 points (only if no due date)
-        if (aIsNewHighPriority && !bIsNewHighPriority) return -1
-        if (!aIsNewHighPriority && bIsNewHighPriority) return 1
-        if (aIsNewHighPriority && bIsNewHighPriority) {
-          // Both are high priority new tasks, sort by points DESC, then creation date DESC
+        // 1. Collected tasks (new default tasks OR high priority tasks, only if no due date)
+        if (aIsCollected && !bIsCollected) return -1
+        if (!aIsCollected && bIsCollected) return 1
+        if (aIsCollected && bIsCollected) {
+          // Both are collected tasks, sort by points DESC, then creation date DESC
           if (a.points !== b.points) return b.points - a.points
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         }

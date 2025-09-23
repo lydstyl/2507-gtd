@@ -95,8 +95,8 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
       name: request.name.trim(),
       link: request.link?.trim(),
       note: request.note?.trim(),
-      importance: request.importance ?? 50, // Default to max importance for new tasks
-      complexity: request.complexity ?? 1, // Default to minimal complexity
+      importance: request.importance ?? 0, // Default to minimal importance for new tasks
+      complexity: request.complexity ?? 3, // Default to medium complexity
       dueDate: request.dueDate,
       parentId: request.parentId,
       tagIds: request.tagIds,

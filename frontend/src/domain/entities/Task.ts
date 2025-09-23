@@ -146,10 +146,16 @@ export class TaskEntity {
   }
 
   /**
-   * Check if task is collected (high priority without due date)
+   * Check if task is collected (high priority without due date OR new default tasks)
    */
   isCollected(): boolean {
-    return this.task.points >= 500 && !this.task.dueDate
+    // New default tasks: importance=0, complexity=3, no due date
+    const isNewDefaultTask = this.task.importance === 0 && this.task.complexity === 3 && !this.task.dueDate
+
+    // Legacy high priority tasks: 500+ points, no due date
+    const isHighPriorityTask = this.task.points >= 500 && !this.task.dueDate
+
+    return isNewDefaultTask || isHighPriorityTask
   }
 
   /**
