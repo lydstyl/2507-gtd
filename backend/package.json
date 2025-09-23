@@ -16,6 +16,9 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
+    "test:domain": "vitest run --config vitest.config.ts src/domain",
+    "test:usecases": "vitest run --config vitest.config.ts src/usecases",
+    "test:integration": "vitest run --config vitest.config.ts __tests__/integration",
     "insert-test-tasks": "ts-node scripts/insert-test-tasks.ts",
     "import-tasks": "ts-node scripts/import-tasks-from-html.ts",
     "db:seed": "ts-node prisma/seed.ts"
