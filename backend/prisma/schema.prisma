@@ -28,6 +28,7 @@ model Task {
   complexity  Int       @default(1)
   points      Int       @default(500)
   dueDate     DateTime?
+  date2       DateTime?
   isCompleted Boolean   @default(false)
   completedAt DateTime?
   createdAt   DateTime  @default(now())

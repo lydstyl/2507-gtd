@@ -63,6 +63,11 @@ export function SubTaskCard({
                   {formatDate(task.dueDate)}
                 </span>
               )}
+              {task.date2 && (
+                <span className='text-xs font-medium text-blue-600'>
+                  📅 {formatDate(task.date2)}
+                </span>
+              )}
 
               <TaskActions
                 task={task}

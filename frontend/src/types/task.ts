@@ -7,6 +7,7 @@ export interface Task {
   complexity: number
   points: number
   dueDate?: string
+  date2?: string
   parentId?: string
   userId: string
   isCompleted: boolean
@@ -24,6 +25,7 @@ export interface CreateTaskData {
   importance?: number
   complexity?: number
   dueDate?: string
+  date2?: string
   parentId?: string
   tagIds?: string[]
   isCompleted?: boolean
@@ -36,6 +38,7 @@ export interface UpdateTaskData {
   importance?: number
   complexity?: number
   dueDate?: string | null
+  date2?: string | null
   parentId?: string
   tagIds?: string[]
   isCompleted?: boolean

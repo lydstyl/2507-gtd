@@ -9,6 +9,7 @@ export interface TaskDto {
   isCollection: boolean
   parentId?: string
   dueDate?: string
+  date2?: string
   createdAt: string
   updatedAt: string
   userId: string
@@ -35,6 +36,7 @@ export interface CreateTaskDto {
   parentId?: string
   tagIds?: string[]
   dueDate?: string
+  date2?: string
 }
 
 export interface UpdateTaskDto {
@@ -47,6 +49,7 @@ export interface UpdateTaskDto {
   parentId?: string
   tagIds?: string[]
   dueDate?: string | null
+  date2?: string | null
 }
 
 export interface CreateTagDto {

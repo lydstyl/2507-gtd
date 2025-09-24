@@ -21,6 +21,7 @@ export function EditTaskModal({
     importance: 50, // Updated to match new collection defaults
     complexity: 1,  // Updated to match new collection defaults
     dueDate: '',
+    date2: '',
     tagIds: []
   })
   const [tags, setTags] = useState<Tag[]>([])
@@ -55,6 +56,7 @@ export function EditTaskModal({
           importance: task.importance,
           complexity: task.complexity,
           dueDate: task.dueDate ? formatDateForInput(task.dueDate) : '',
+          date2: task.date2 ? formatDateForInput(task.date2) : '',
           tagIds: task.tags?.map((tag) => tag.id) || []
         })
       }
@@ -80,7 +82,8 @@ export function EditTaskModal({
     try {
       const formattedData = {
         ...formData,
-        dueDate: formData.dueDate || null
+        dueDate: formData.dueDate || null,
+        date2: formData.date2 || null
       }
 
       await api.updateTask(task.id, formattedData)
@@ -263,6 +266,37 @@ export function EditTaskModal({
                   type='button'
                   onClick={() =>
                     setFormData((prev) => ({ ...prev, dueDate: '' }))
+                  }
+                  className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors'
+                  title='Effacer la date'
+                >
+                  Effacer
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor='date2'
+              className='block text-sm font-medium text-gray-700 mb-1'
+            >
+              Date 2 (optionnel)
+            </label>
+            <div className='flex space-x-2'>
+              <input
+                type='date'
+                id='date2'
+                name='date2'
+                value={formData.date2 || ''}
+                onChange={handleChange}
+                className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+              />
+              {formData.date2 && (
+                <button
+                  type='button'
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, date2: '' }))
                   }
                   className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors'
                   title='Effacer la date'

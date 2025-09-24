@@ -171,37 +171,53 @@ export function TaskCard({
 
           {/* Date et actions */}
           <div className='flex items-center justify-between mt-auto'>
-            {/* Date */}
-            {task.dueDate && (
-              <div className='flex flex-col items-start space-y-1'>
-                <div className='flex items-center space-x-1'>
-                  {getDateIndicator(task.dueDate) && (
+            {/* Dates */}
+            <div className='flex flex-col items-start space-y-2'>
+              {task.dueDate && (
+                <div className='flex flex-col items-start space-y-1'>
+                  <div className='flex items-center space-x-1'>
+                    {getDateIndicator(task.dueDate) && (
+                      <span
+                        className={`text-sm ${
+                          getDateIndicator(task.dueDate)?.className
+                        }`}
+                        title={getDateIndicator(task.dueDate)?.tooltip}
+                      >
+                        {getDateIndicator(task.dueDate)?.icon}
+                      </span>
+                    )}
                     <span
-                      className={`text-sm ${
-                        getDateIndicator(task.dueDate)?.className
+                      className={`text-sm font-medium ${
+                        isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-900'
                       }`}
-                      title={getDateIndicator(task.dueDate)?.tooltip}
                     >
-                      {getDateIndicator(task.dueDate)?.icon}
+                      {formatDate(task.dueDate)}
                     </span>
-                  )}
+                  </div>
                   <span
-                    className={`text-sm font-medium ${
-                      isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-900'
+                    className={`text-xs ${
+                      isOverdue(task.dueDate) ? 'text-red-500' : 'text-gray-500'
                     }`}
                   >
-                    {formatDate(task.dueDate)}
+                    {isOverdue(task.dueDate) ? 'En retard' : 'Date limite'}
                   </span>
                 </div>
-                <span
-                  className={`text-xs ${
-                    isOverdue(task.dueDate) ? 'text-red-500' : 'text-gray-500'
-                  }`}
-                >
-                  {isOverdue(task.dueDate) ? 'En retard' : 'Date limite'}
-                </span>
-              </div>
-            )}
+              )}
+
+              {task.date2 && (
+                <div className='flex flex-col items-start space-y-1'>
+                  <div className='flex items-center space-x-1'>
+                    <span className='text-sm text-blue-600'>📅</span>
+                    <span className='text-sm font-medium text-blue-800'>
+                      {formatDate(task.date2)}
+                    </span>
+                  </div>
+                  <span className='text-xs text-blue-600'>
+                    Date 2
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* Actions */}
             <TaskActions
