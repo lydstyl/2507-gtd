@@ -250,7 +250,7 @@ export function EditTaskModal({
               htmlFor='plannedDate'
               className='block text-sm font-medium text-gray-700 mb-1'
             >
-              Date limite (optionnel)
+              Date prévue (optionnel)
             </label>
             <div className='flex space-x-2'>
               <input

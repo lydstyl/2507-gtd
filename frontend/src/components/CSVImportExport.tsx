@@ -290,7 +290,7 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
                 <strong>Priorité</strong> : 1-9 (1 = critique, 9 = faible)
               </li>
               <li>
-                <strong>Date limite</strong> : YYYY-MM-DD (optionnel)
+                <strong>Date prévue</strong> : YYYY-MM-DD (optionnel)
               </li>
               <li>
                 <strong>Tags</strong> : Séparés par des points-virgules

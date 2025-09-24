@@ -201,7 +201,7 @@ export function TaskFilters({
           {/* Date filter */}
           <div className='mt-4'>
             <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Date limite
+              Date prévue
             </label>
             <select
               value={dateFilter}

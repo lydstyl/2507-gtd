@@ -199,7 +199,7 @@ export function TaskCard({
                       isOverdue(task.plannedDate) ? 'text-red-500' : 'text-gray-500'
                     }`}
                   >
-                    {isOverdue(task.plannedDate) ? 'En retard' : 'Date limite'}
+                    {isOverdue(task.plannedDate) ? 'En retard' : 'Date prévue'}
                   </span>
                 </div>
               )}
