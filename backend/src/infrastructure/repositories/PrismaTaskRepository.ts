@@ -35,7 +35,7 @@ export class PrismaTaskRepository implements TaskRepository {
         complexity,
         points,
         plannedDate: taskData.plannedDate ? new Date(taskData.plannedDate) : undefined,
-        date2: taskData.date2 ? new Date(taskData.date2) : undefined,
+        dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
         userId: taskData.userId,
         parentId: taskData.parentId,
         completedAt: taskData.isCompleted ? new Date() : undefined,
@@ -270,10 +270,10 @@ export class PrismaTaskRepository implements TaskRepository {
               ? new Date(cleanTaskData.plannedDate)
               : null
             : undefined,
-        date2:
-          cleanTaskData.date2 !== undefined
-            ? cleanTaskData.date2
-              ? new Date(cleanTaskData.date2)
+        dueDate:
+          cleanTaskData.dueDate !== undefined
+            ? cleanTaskData.dueDate
+              ? new Date(cleanTaskData.dueDate)
               : null
             : undefined,
         userId: cleanTaskData.userId
@@ -553,7 +553,7 @@ export class PrismaTaskRepository implements TaskRepository {
       complexity: task.complexity,
       points: task.points,
       plannedDate: task.plannedDate ? task.plannedDate.toISOString() : undefined,
-      date2: task.date2 ? task.date2.toISOString() : undefined,
+      dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
       isCompleted: task.isCompleted,
       completedAt: task.completedAt ? task.completedAt.toISOString() : undefined,
       createdAt: task.createdAt,

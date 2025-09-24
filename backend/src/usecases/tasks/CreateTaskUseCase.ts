@@ -14,7 +14,7 @@ export class CreateTaskUseCase {
       importance: data.importance || 0,
       complexity: data.complexity || 3,
       plannedDate: data.plannedDate,
-      date2: data.date2,
+      dueDate: data.dueDate,
       userId: data.userId
     }
 

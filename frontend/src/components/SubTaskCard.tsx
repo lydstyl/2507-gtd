@@ -63,9 +63,9 @@ export function SubTaskCard({
                   {formatDate(task.plannedDate)}
                 </span>
               )}
-              {task.date2 && (
+              {task.dueDate && (
                 <span className='text-xs font-medium text-blue-600'>
-                  📅 {formatDate(task.date2)}
+                  📅 {formatDate(task.dueDate)}
                 </span>
               )}
 

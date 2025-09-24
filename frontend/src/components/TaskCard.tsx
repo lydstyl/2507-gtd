@@ -204,12 +204,12 @@ export function TaskCard({
                 </div>
               )}
 
-              {task.date2 && (
+              {task.dueDate && (
                 <div className='flex flex-col items-start space-y-1'>
                   <div className='flex items-center space-x-1'>
                     <span className='text-sm text-blue-600'>📅</span>
                     <span className='text-sm font-medium text-blue-800'>
-                      {formatDate(task.date2)}
+                      {formatDate(task.dueDate)}
                     </span>
                   </div>
                   <span className='text-xs text-blue-600'>

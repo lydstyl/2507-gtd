@@ -21,7 +21,7 @@ export function EditTaskModal({
     importance: 50, // Updated to match new collection defaults
     complexity: 1,  // Updated to match new collection defaults
     plannedDate: '',
-    date2: '',
+    dueDate: '',
     tagIds: []
   })
   const [tags, setTags] = useState<Tag[]>([])
@@ -56,7 +56,7 @@ export function EditTaskModal({
           importance: task.importance,
           complexity: task.complexity,
           plannedDate: task.plannedDate ? formatDateForInput(task.plannedDate) : '',
-          date2: task.date2 ? formatDateForInput(task.date2) : '',
+          dueDate: task.dueDate ? formatDateForInput(task.dueDate) : '',
           tagIds: task.tags?.map((tag) => tag.id) || []
         })
       }
@@ -83,7 +83,7 @@ export function EditTaskModal({
       const formattedData = {
         ...formData,
         plannedDate: formData.plannedDate || null,
-        date2: formData.date2 || null
+        dueDate: formData.dueDate || null
       }
 
       await api.updateTask(task.id, formattedData)
@@ -286,17 +286,17 @@ export function EditTaskModal({
             <div className='flex space-x-2'>
               <input
                 type='date'
-                id='date2'
-                name='date2'
-                value={formData.date2 || ''}
+                id='dueDate'
+                name='dueDate'
+                value={formData.dueDate || ''}
                 onChange={handleChange}
                 className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
               />
-              {formData.date2 && (
+              {formData.dueDate && (
                 <button
                   type='button'
                   onClick={() =>
-                    setFormData((prev) => ({ ...prev, date2: '' }))
+                    setFormData((prev) => ({ ...prev, dueDate: '' }))
                   }
                   className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors'
                   title='Effacer la date'

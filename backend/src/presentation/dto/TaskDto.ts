@@ -7,10 +7,10 @@ export interface TaskDto {
   complexity: number // 1-9
   points: number // 0-500, computed server-side
   isCollection: boolean
-  parentId?: string
-  plannedDate?: string
-  date2?: string
-  createdAt: string
+   parentId?: string
+   plannedDate?: string
+   dueDate?: string
+   createdAt: string
   updatedAt: string
   userId: string
   subtasks: TaskDto[]
@@ -34,9 +34,9 @@ export interface CreateTaskDto {
   complexity?: number // 1-9, defaults to 5
   isCollection?: boolean // Defaults to false
   parentId?: string
-  tagIds?: string[]
-  plannedDate?: string
-  date2?: string
+   tagIds?: string[]
+   plannedDate?: string
+   dueDate?: string
 }
 
 export interface UpdateTaskDto {
@@ -47,9 +47,9 @@ export interface UpdateTaskDto {
   complexity?: number // 1-9
   isCollection?: boolean
   parentId?: string
-  tagIds?: string[]
-  plannedDate?: string | null
-  date2?: string | null
+   tagIds?: string[]
+   plannedDate?: string | null
+   dueDate?: string | null
 }
 
 export interface CreateTagDto {

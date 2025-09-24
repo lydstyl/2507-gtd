@@ -20,7 +20,7 @@ export function CreateTaskModal({
     link: '',
     // Don't set default values - let backend decide if it's a collection task
     plannedDate: '',
-    date2: '',
+    dueDate: '',
     tagIds: [],
     parentId: parentId // Initialiser avec le parentId si fourni
   })
@@ -64,7 +64,7 @@ export function CreateTaskModal({
       const formattedData = {
         ...formData,
         plannedDate: formData.plannedDate || undefined,
-        date2: formData.date2 || undefined
+        dueDate: formData.dueDate || undefined
       }
 
       await api.createTask(formattedData)
@@ -76,7 +76,7 @@ export function CreateTaskModal({
         link: '',
         // Don't set default values - let backend decide if it's a collection task
         plannedDate: '',
-        date2: '',
+        dueDate: '',
         tagIds: [],
         parentId: parentId // Reset parentId
       })
@@ -263,9 +263,9 @@ export function CreateTaskModal({
             </label>
             <input
               type='date'
-              id='date2'
-              name='date2'
-              value={formData.date2}
+              id='dueDate'
+              name='dueDate'
+              value={formData.dueDate}
               onChange={handleChange}
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
             />
