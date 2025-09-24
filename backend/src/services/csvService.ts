@@ -20,6 +20,7 @@ export class CSVService {
       'Importance',
       'Complexité',
       'Points',
+      'Date prévue',
       'Date limite',
       'Date de création',
       'Date de modification',
@@ -33,11 +34,12 @@ export class CSVService {
       `"${task.name.replace(/"/g, '""')}"`, // Échapper les guillemets
       task.link ? `"${task.link.replace(/"/g, '""')}"` : '',
       task.note ? `"${task.note.replace(/"/g, '""')}"` : '',
-      task.importance,
-      task.complexity,
-      task.points,
-      task.plannedDate ? task.plannedDate.toISOString().split('T')[0] : '',
-      task.createdAt.toISOString().split('T')[0],
+       task.importance,
+       task.complexity,
+       task.points,
+       task.plannedDate ? task.plannedDate.toISOString().split('T')[0] : '',
+       task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
+       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
       task.parentId || '',
       task.parentName || '',
@@ -58,43 +60,45 @@ export class CSVService {
     csvContent: string,
     userId: string
   ): {
-    tasks: Array<{
-      name: string
-      link?: string
-      note?: string
-      importance: number
-      complexity: number
-      points: number
-      plannedDate?: Date
-      parentName?: string
-      tagNames: string[]
-    }>
+      tasks: Array<{
+        name: string
+        link?: string
+        note?: string
+        importance: number
+        complexity: number
+        points: number
+        plannedDate?: Date
+        dueDate?: Date
+        parentName?: string
+        tagNames: string[]
+      }>
     errors: string[]
   } {
     const lines = csvContent.split('\n').filter((line) => line.trim())
     const errors: string[] = []
     const tasks: Array<{
-      name: string
-      link?: string
-      note?: string
-      importance: number
-      complexity: number
-      points: number
-      plannedDate?: Date
-      parentName?: string
-      tagNames: string[]
-    }> = []
+        name: string
+        link?: string
+        note?: string
+        importance: number
+        complexity: number
+        points: number
+        plannedDate?: Date
+        dueDate?: Date
+        parentName?: string
+        tagNames: string[]
+      }> = []
 
     // Ignorer l'en-tête
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 13) {
+      if (columns.length < 14) {
         errors.push(
           `Ligne ${i + 1}: Nombre de colonnes insuffisant (${
             columns.length
-          } au lieu de 13)`
+          } au lieu de 14)`
         )
         continue
       }
@@ -108,6 +112,7 @@ export class CSVService {
           importanceStr,
           complexityStr,
           pointsStr,
+          plannedDateStr,
           dueDateStr,
           createdAtStr, // Ignoré lors de l'import
           updatedAtStr, // Ignoré lors de l'import
@@ -148,9 +153,18 @@ export class CSVService {
         }
 
         let plannedDate: Date | undefined
-        if (dueDateStr && dueDateStr.trim() !== '') {
-          plannedDate = new Date(dueDateStr)
+        if (plannedDateStr && plannedDateStr.trim() !== '') {
+          plannedDate = new Date(plannedDateStr)
           if (isNaN(plannedDate.getTime())) {
+            errors.push(`Ligne ${i + 1}: Date prévue invalide`)
+            continue
+          }
+        }
+
+        let dueDate: Date | undefined
+        if (dueDateStr && dueDateStr.trim() !== '') {
+          dueDate = new Date(dueDateStr)
+          if (isNaN(dueDate.getTime())) {
             errors.push(`Ligne ${i + 1}: Date limite invalide`)
             continue
           }
@@ -164,10 +178,11 @@ export class CSVService {
           name: name.trim(),
           link: link && link.trim() !== '' ? link.trim() : undefined,
           note: note && note.trim() !== '' ? note.trim() : undefined,
-          importance,
-          complexity,
-          points,
-          plannedDate,
+           importance,
+           complexity,
+           points,
+           plannedDate,
+           dueDate,
           parentName:
             parentName && parentName.trim() !== ''
               ? parentName.trim()
