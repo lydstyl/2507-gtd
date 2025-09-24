@@ -278,10 +278,10 @@ export function EditTaskModal({
 
           <div>
             <label
-              htmlFor='date2'
+              htmlFor='dueDate'
               className='block text-sm font-medium text-gray-700 mb-1'
             >
-              Date 2 (optionnel)
+              Date limite (optionnel)
             </label>
             <div className='flex space-x-2'>
               <input

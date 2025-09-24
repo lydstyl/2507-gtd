@@ -256,10 +256,10 @@ export function CreateTaskModal({
 
           <div>
             <label
-              htmlFor='date2'
+              htmlFor='dueDate'
               className='block text-sm font-medium text-gray-700 mb-1'
             >
-              Date 2 (optionnel)
+              Date limite (optionnel)
             </label>
             <input
               type='date'

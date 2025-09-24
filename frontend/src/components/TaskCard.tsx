@@ -213,7 +213,7 @@ export function TaskCard({
                     </span>
                   </div>
                   <span className='text-xs text-blue-600'>
-                    Date 2
+                    Date limite
                   </span>
                 </div>
               )}
