@@ -4,9 +4,9 @@ import { TaskWithSubtasks } from '../../domain/entities/Task'
  * Task sorting system implementation
  * Sorting rules (deterministic order):
  * 1. Collected tasks (without date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
- * 2. Overdue tasks — tasks past their due date
- * 3. Today tasks — tasks due today
- * 4. Tomorrow tasks — tasks due tomorrow
+ * 2. Overdue tasks — tasks past their planned date
+ * 3. Today tasks — tasks planned for today
+ * 4. Tomorrow tasks — tasks planned for tomorrow
  * 5. Tasks without date — sorted by points DESC (excluding collected tasks already handled)
  * 6. Future tasks (day+2 or more) — sorted by date ASC
  */

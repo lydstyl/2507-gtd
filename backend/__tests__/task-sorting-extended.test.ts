@@ -26,6 +26,13 @@ describe('Extended Task Sorting Tests', () => {
     })
   })
 
+  beforeEach(async () => {
+    // Clean up ALL test tasks for this user before each test to prevent contamination
+    await prisma.task.deleteMany({
+      where: { userId }
+    })
+  })
+
   afterAll(async () => {
     await prisma.task.deleteMany({
       where: { userId }

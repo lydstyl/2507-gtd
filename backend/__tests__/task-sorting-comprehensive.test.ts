@@ -28,15 +28,9 @@ describe('Comprehensive Task Sorting Tests', () => {
   })
 
   beforeEach(async () => {
-    // Clean up test tasks before each test to prevent contamination
-    // Only clean up tasks for this specific test user
+    // Clean up ALL test tasks for this user before each test to prevent contamination
     await prisma.task.deleteMany({
-      where: {
-        userId,
-        name: {
-          in: ['High priority no date', 'Overdue task', 'Today task', 'Tomorrow task', 'No date medium', 'Future task', 'Test task 500 points', 'Today existing']
-        }
-      }
+      where: { userId }
     })
   })
 
@@ -49,13 +43,13 @@ describe('Comprehensive Task Sorting Tests', () => {
   })
 
   describe('TaskSorting Unit Tests', () => {
-    const createTestTask = (name: string, points: number, dueDate?: string, createdAt?: Date): TaskWithSubtasks => ({
+    const createTestTask = (name: string, points: number, plannedDate?: string, createdAt?: Date): TaskWithSubtasks => ({
       id: `test-${name.replace(/\s+/g, '-').toLowerCase()}`,
       name,
       points,
       importance: 30,
       complexity: 3,
-      dueDate: dueDate ? new Date(dueDate) : undefined,
+      plannedDate: plannedDate ? new Date(plannedDate) : undefined,
       isCompleted: false,
       createdAt: createdAt || new Date(),
       updatedAt: new Date(),
@@ -81,8 +75,8 @@ describe('Comprehensive Task Sorting Tests', () => {
       expect(sorted[1].name).toBe('Another high priority no date')
       expect(sorted[0].points).toBe(500)
       expect(sorted[1].points).toBe(500)
-      expect(sorted[0].dueDate).toBeUndefined()
-      expect(sorted[1].dueDate).toBeUndefined()
+      expect(sorted[0].plannedDate).toBeUndefined()
+      expect(sorted[1].plannedDate).toBeUndefined()
     })
 
     test('should put 500-point tasks with dates in appropriate date categories', () => {
@@ -104,16 +98,16 @@ describe('Comprehensive Task Sorting Tests', () => {
 
       // First should be 500-point task without date
       expect(sorted[0].name).toBe('High priority no date')
-      expect(sorted[0].dueDate).toBeUndefined()
+      expect(sorted[0].plannedDate).toBeUndefined()
 
       // Second should be overdue 500-point task
       expect(sorted[1].name).toBe('High priority overdue')
-      expect(new Date(sorted[1].dueDate!)).toEqual(overdue)
+      expect(new Date(sorted[1].plannedDate!)).toEqual(overdue)
 
       // Today tasks should come next (including 500-point today task)
       const todayTasks = sorted.filter(task => {
-        if (!task.dueDate) return false
-        const taskDate = new Date(task.dueDate)
+        if (!task.plannedDate) return false
+        const taskDate = new Date(task.plannedDate)
         return taskDate.toDateString() === today.toDateString()
       })
       expect(todayTasks.length).toBe(2)
@@ -278,7 +272,7 @@ describe('Comprehensive Task Sorting Tests', () => {
           name: taskData.name,
           importance: taskData.importance,
           complexity: taskData.complexity,
-          dueDate: taskData.dueDate || undefined,
+          plannedDate: taskData.dueDate || undefined,
           userId
         })
       }
@@ -288,8 +282,8 @@ describe('Comprehensive Task Sorting Tests', () => {
 
       console.log('\n📋 Database Integration - Sorted Tasks:')
       sortedTasks.forEach((task, index) => {
-        const dateStr = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date'
-        console.log(`${index + 1}. ${task.name} (Points: ${task.points}, Due: ${dateStr})`)
+        const dateStr = task.plannedDate ? new Date(task.plannedDate).toLocaleDateString() : 'No date'
+        console.log(`${index + 1}. ${task.name} (Points: ${task.points}, Planned: ${dateStr})`)
       })
 
       // Verify sorting order
