@@ -26,7 +26,7 @@ export interface TaskFilters {
 // Task sorting types
 export type TaskSortField =
   | 'priority'
-  | 'dueDate'
+  | 'plannedDate'
   | 'createdAt'
   | 'completedAt'
   | 'name'

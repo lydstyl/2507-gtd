@@ -34,8 +34,8 @@ export class TaskSortingService {
     return tasks
       .sort((a, b) => {
         // Parse dates and normalize to UTC at midnight
-        const aDate = a.dueDate ? TaskSortingService.parseAndNormalizeDate(a.dueDate) : null
-        const bDate = b.dueDate ? TaskSortingService.parseAndNormalizeDate(b.dueDate) : null
+        const aDate = a.plannedDate ? TaskSortingService.parseAndNormalizeDate(a.plannedDate) : null
+        const bDate = b.plannedDate ? TaskSortingService.parseAndNormalizeDate(b.plannedDate) : null
 
         const aIsOverdue = aDate && aDate < today
         const bIsOverdue = bDate && bDate < today
@@ -139,13 +139,13 @@ export class TaskSortingService {
   static sortByDueDate(tasks: TaskEntity[]): TaskEntity[] {
     return [...tasks].sort((a, b) => {
       // Tasks without dates go last
-      if (!a.dueDate && b.dueDate) return 1
-      if (a.dueDate && !b.dueDate) return -1
-      if (!a.dueDate && !b.dueDate) return 0
+      if (!a.plannedDate && b.plannedDate) return 1
+      if (a.plannedDate && !b.plannedDate) return -1
+      if (!a.plannedDate && !b.plannedDate) return 0
 
       // Compare dates
-      const dateA = new Date(a.dueDate!)
-      const dateB = new Date(b.dueDate!)
+      const dateA = new Date(a.plannedDate!)
+      const dateB = new Date(b.plannedDate!)
       return dateA.getTime() - dateB.getTime()
     })
   }
@@ -216,10 +216,10 @@ export class TaskSortingService {
    */
   static getTasksDueInRange(tasks: TaskEntity[], startDate: Date, endDate: Date): TaskEntity[] {
     return tasks.filter(task => {
-      if (!task.dueDate) return false
+      if (!task.plannedDate) return false
 
-      const dueDate = this.parseAndNormalizeDate(task.dueDate)
-      return dueDate >= startDate && dueDate <= endDate
+      const plannedDate = this.parseAndNormalizeDate(task.plannedDate)
+      return plannedDate >= startDate && plannedDate <= endDate
     })
   }
 
@@ -231,9 +231,9 @@ export class TaskSortingService {
     today.setHours(0, 0, 0, 0)
 
     return tasks.filter(task => {
-      if (!task.dueDate) return false
-      const dueDate = new Date(task.dueDate)
-      return dueDate < today
+      if (!task.plannedDate) return false
+      const plannedDate = new Date(task.plannedDate)
+      return plannedDate < today
     })
   }
 

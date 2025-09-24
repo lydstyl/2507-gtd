@@ -20,7 +20,7 @@ export function EditTaskModal({
     link: '',
     importance: 50, // Updated to match new collection defaults
     complexity: 1,  // Updated to match new collection defaults
-    dueDate: '',
+    plannedDate: '',
     date2: '',
     tagIds: []
   })
@@ -55,7 +55,7 @@ export function EditTaskModal({
           link: task.link || '',
           importance: task.importance,
           complexity: task.complexity,
-          dueDate: task.dueDate ? formatDateForInput(task.dueDate) : '',
+          plannedDate: task.plannedDate ? formatDateForInput(task.plannedDate) : '',
           date2: task.date2 ? formatDateForInput(task.date2) : '',
           tagIds: task.tags?.map((tag) => tag.id) || []
         })
@@ -82,7 +82,7 @@ export function EditTaskModal({
     try {
       const formattedData = {
         ...formData,
-        dueDate: formData.dueDate || null,
+        plannedDate: formData.plannedDate || null,
         date2: formData.date2 || null
       }
 
@@ -247,7 +247,7 @@ export function EditTaskModal({
 
           <div>
             <label
-              htmlFor='dueDate'
+              htmlFor='plannedDate'
               className='block text-sm font-medium text-gray-700 mb-1'
             >
               Date limite (optionnel)
@@ -255,17 +255,17 @@ export function EditTaskModal({
             <div className='flex space-x-2'>
               <input
                 type='date'
-                id='dueDate'
-                name='dueDate'
-                value={formData.dueDate || ''}
+                id='plannedDate'
+                name='plannedDate'
+                value={formData.plannedDate || ''}
                 onChange={handleChange}
                 className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
               />
-              {formData.dueDate && (
+              {formData.plannedDate && (
                 <button
                   type='button'
                   onClick={() =>
-                    setFormData((prev) => ({ ...prev, dueDate: '' }))
+                    setFormData((prev) => ({ ...prev, plannedDate: '' }))
                   }
                   className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors'
                   title='Effacer la date'

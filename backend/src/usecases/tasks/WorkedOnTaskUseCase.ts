@@ -23,7 +23,7 @@ export class WorkedOnTaskUseCase {
       complexity: 1,
       userId: userId,
       isCompleted: true,
-      dueDate: undefined,
+      plannedDate: undefined,
       parentId: undefined,
       note: undefined,
       link: undefined

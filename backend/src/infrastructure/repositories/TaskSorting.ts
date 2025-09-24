@@ -34,8 +34,8 @@ export class TaskSorting {
     return tasks
       .sort((a, b) => {
         // Parse dates and normalize to UTC at midnight
-        const aDate = a.dueDate ? TaskSorting.parseAndNormalizeDate(a.dueDate) : null
-        const bDate = b.dueDate ? TaskSorting.parseAndNormalizeDate(b.dueDate) : null
+        const aDate = a.plannedDate ? TaskSorting.parseAndNormalizeDate(a.plannedDate) : null
+        const bDate = b.plannedDate ? TaskSorting.parseAndNormalizeDate(b.plannedDate) : null
 
         const aIsOverdue = aDate && aDate < today
         const bIsOverdue = bDate && bDate < today

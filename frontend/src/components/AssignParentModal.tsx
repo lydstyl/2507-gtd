@@ -78,7 +78,7 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
         importance: task.importance,
         urgency: task.urgency,
         priority: task.priority,
-        dueDate: task.dueDate,
+        plannedDate: task.plannedDate,
         parentId: selectedParentId === 'none' ? undefined : selectedParentId,
         tagIds: task.tags.map(tag => tag.id)
       })
@@ -110,7 +110,7 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
         importance: task.importance,
         urgency: task.urgency,
         priority: task.priority,
-        dueDate: task.dueDate,
+        plannedDate: task.plannedDate,
         parentId: null as any, // Utiliser null pour supprimer le parent (cast pour éviter l'erreur TypeScript)
         tagIds: task.tags.map(tag => tag.id)
       }

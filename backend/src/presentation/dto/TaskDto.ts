@@ -8,7 +8,7 @@ export interface TaskDto {
   points: number // 0-500, computed server-side
   isCollection: boolean
   parentId?: string
-  dueDate?: string
+  plannedDate?: string
   date2?: string
   createdAt: string
   updatedAt: string
@@ -35,7 +35,7 @@ export interface CreateTaskDto {
   isCollection?: boolean // Defaults to false
   parentId?: string
   tagIds?: string[]
-  dueDate?: string
+  plannedDate?: string
   date2?: string
 }
 
@@ -48,7 +48,7 @@ export interface UpdateTaskDto {
   isCollection?: boolean
   parentId?: string
   tagIds?: string[]
-  dueDate?: string | null
+  plannedDate?: string | null
   date2?: string | null
 }
 

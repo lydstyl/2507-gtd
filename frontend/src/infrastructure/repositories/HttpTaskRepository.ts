@@ -173,30 +173,30 @@ export class HttpTaskRepository implements TaskRepository {
 
         switch (filters.dateFilter) {
           case 'today':
-            if (!task.dueDate) return false
-            const dueDate = new Date(task.dueDate)
-            if (dueDate.toDateString() !== today.toDateString()) return false
+            if (!task.plannedDate) return false
+            const plannedDate = new Date(task.plannedDate)
+            if (plannedDate.toDateString() !== today.toDateString()) return false
             break
           case 'tomorrow':
-            if (!task.dueDate) return false
-            const dueDateTomorrow = new Date(task.dueDate)
-            if (dueDateTomorrow.toDateString() !== tomorrow.toDateString()) return false
+            if (!task.plannedDate) return false
+            const plannedDateTomorrow = new Date(task.plannedDate)
+            if (plannedDateTomorrow.toDateString() !== tomorrow.toDateString()) return false
             break
           case 'overdue':
-            if (!task.dueDate) return false
-            const overdueDueDate = new Date(task.dueDate)
+            if (!task.plannedDate) return false
+            const overdueDueDate = new Date(task.plannedDate)
             if (overdueDueDate >= today) return false
             break
           case 'no-date':
-            if (task.dueDate) return false
+            if (task.plannedDate) return false
             break
           case 'this-week':
-            if (!task.dueDate) return false
+            if (!task.plannedDate) return false
             const weekStart = new Date(today)
             weekStart.setDate(today.getDate() - today.getDay())
             const weekEnd = new Date(weekStart)
             weekEnd.setDate(weekStart.getDate() + 6)
-            const thisWeekDueDate = new Date(task.dueDate)
+            const thisWeekDueDate = new Date(task.plannedDate)
             if (thisWeekDueDate < weekStart || thisWeekDueDate > weekEnd) return false
             break
         }

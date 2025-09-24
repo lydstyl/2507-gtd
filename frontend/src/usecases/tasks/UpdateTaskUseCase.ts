@@ -91,8 +91,8 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
     }
 
     // Validate due date if provided
-    if (request.data.dueDate !== undefined && request.data.dueDate !== null) {
-      const date = new Date(request.data.dueDate)
+    if (request.data.plannedDate !== undefined && request.data.plannedDate !== null) {
+      const date = new Date(request.data.plannedDate)
       if (isNaN(date.getTime())) {
         errors.push('Invalid due date format')
       }

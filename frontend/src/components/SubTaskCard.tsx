@@ -54,13 +54,13 @@ export function SubTaskCard({
               {task.name}
             </h5>
             <div className='flex items-center space-x-1 flex-shrink-0'>
-              {task.dueDate && (
+              {task.plannedDate && (
                 <span
                   className={`text-xs font-medium ${
-                    isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-600'
+                    isOverdue(task.plannedDate) ? 'text-red-600' : 'text-gray-600'
                   }`}
                 >
-                  {formatDate(task.dueDate)}
+                  {formatDate(task.plannedDate)}
                 </span>
               )}
               {task.date2 && (

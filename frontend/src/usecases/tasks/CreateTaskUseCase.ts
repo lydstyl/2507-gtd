@@ -77,8 +77,8 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
     }
 
     // Validate due date
-    if (request.dueDate) {
-      const date = new Date(request.dueDate)
+    if (request.plannedDate) {
+      const date = new Date(request.plannedDate)
       if (isNaN(date.getTime())) {
         errors.push('Invalid due date format')
       }
@@ -97,7 +97,7 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
       note: request.note?.trim(),
       importance: request.importance ?? 0, // Default to minimal importance for new tasks
       complexity: request.complexity ?? 3, // Default to medium complexity
-      dueDate: request.dueDate,
+      plannedDate: request.plannedDate,
       parentId: request.parentId,
       tagIds: request.tagIds,
       isCompleted: request.isCompleted ?? false

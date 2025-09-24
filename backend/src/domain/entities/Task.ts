@@ -10,7 +10,7 @@ export interface Task {
   complexity: number // 1-9, higher = more complex
   points: number // Computed: round(10 * importance / complexity), clamped to [0, 500]
   parentId?: string
-  dueDate?: Date
+  plannedDate?: Date
   date2?: Date
   isCompleted: boolean
   completedAt?: Date
@@ -42,7 +42,7 @@ export interface CreateTaskData {
   parentId?: string
   tagIds?: string[]
   userId: string
-  dueDate?: Date
+  plannedDate?: Date
   date2?: Date
   isCompleted?: boolean
 }
@@ -56,7 +56,7 @@ export interface UpdateTaskData {
   parentId?: string
   tagIds?: string[]
   userId?: string
-  dueDate?: Date | null
+  plannedDate?: Date | null
   date2?: Date | null
   isCompleted?: boolean
   completedAt?: Date | null

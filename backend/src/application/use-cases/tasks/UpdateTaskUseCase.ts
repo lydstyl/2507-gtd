@@ -88,9 +88,9 @@ export class UpdateTaskUseCase {
     }
 
     // Validate due date if provided
-    if (data.dueDate !== undefined && data.dueDate !== null) {
-      const dueDate = new Date(data.dueDate)
-      if (isNaN(dueDate.getTime())) {
+    if (data.plannedDate !== undefined && data.plannedDate !== null) {
+      const plannedDate = new Date(data.plannedDate)
+      if (isNaN(plannedDate.getTime())) {
         throw new ValidationError('Invalid due date format')
       }
     }
@@ -111,8 +111,8 @@ export class UpdateTaskUseCase {
       processedData.note = data.note?.trim() || undefined
     }
 
-    if (data.dueDate !== undefined && data.dueDate !== null) {
-      processedData.dueDate = new Date(data.dueDate)
+    if (data.plannedDate !== undefined && data.plannedDate !== null) {
+      processedData.plannedDate = new Date(data.plannedDate)
     }
 
     return processedData

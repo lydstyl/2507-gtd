@@ -67,9 +67,9 @@ export class CreateTaskUseCase {
     }
 
     // Validate due date if provided
-    if (data.dueDate) {
-      const dueDate = new Date(data.dueDate)
-      if (isNaN(dueDate.getTime())) {
+    if (data.plannedDate) {
+      const plannedDate = new Date(data.plannedDate)
+      if (isNaN(plannedDate.getTime())) {
         throw new ValidationError('Invalid due date format')
       }
     }
@@ -83,7 +83,7 @@ export class CreateTaskUseCase {
       complexity: data.complexity ?? 1,
       link: data.link?.trim() || undefined,
       note: data.note?.trim() || undefined,
-      dueDate: data.dueDate ? new Date(data.dueDate) : undefined
+      plannedDate: data.plannedDate ? new Date(data.plannedDate) : undefined
     }
   }
 }

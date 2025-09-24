@@ -131,14 +131,14 @@ export function useKeyboardShortcuts({
       // Due date +1j/-1j
       if (e.key.toLowerCase() === "d") {
         e.preventDefault()
-        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
+        let baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
         if (e.shiftKey) {
           baseDate.setDate(baseDate.getDate() - 1)
         } else {
           baseDate.setDate(baseDate.getDate() + 1)
         }
         // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = baseDate.getFullYear() + '-' +
+        update.plannedDate = baseDate.getFullYear() + '-' +
           String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
           String(baseDate.getDate()).padStart(2, '0')
         handled = true
@@ -147,10 +147,10 @@ export function useKeyboardShortcuts({
       // Due date +1 week
       if (e.key.toLowerCase() === "w") {
         e.preventDefault()
-        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
+        let baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
         baseDate.setDate(baseDate.getDate() + 7)
         // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = baseDate.getFullYear() + '-' +
+        update.plannedDate = baseDate.getFullYear() + '-' +
           String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
           String(baseDate.getDate()).padStart(2, '0')
         handled = true
@@ -159,10 +159,10 @@ export function useKeyboardShortcuts({
       // Due date +1 month
       if (e.key.toLowerCase() === "m") {
         e.preventDefault()
-        let baseDate = task.dueDate ? new Date(task.dueDate) : new Date()
+        let baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
         baseDate.setMonth(baseDate.getMonth() + 1)
         // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = baseDate.getFullYear() + '-' +
+        update.plannedDate = baseDate.getFullYear() + '-' +
           String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
           String(baseDate.getDate()).padStart(2, '0')
         handled = true
@@ -173,7 +173,7 @@ export function useKeyboardShortcuts({
         e.preventDefault()
         const today = new Date()
         // Format as YYYY-MM-DD to avoid timezone issues
-        update.dueDate = today.getFullYear() + '-' +
+        update.plannedDate = today.getFullYear() + '-' +
           String(today.getMonth() + 1).padStart(2, '0') + '-' +
           String(today.getDate()).padStart(2, '0')
         handled = true
@@ -182,7 +182,7 @@ export function useKeyboardShortcuts({
       // Remove date (E)
       if (e.key.toLowerCase() === "e") {
         e.preventDefault()
-        update.dueDate = null
+        update.plannedDate = null
         handled = true
       }
 
@@ -240,12 +240,12 @@ export function useKeyboardShortcuts({
         if (!window.confirm("Mettre toutes les tâches en retard à aujourd'hui ?")) return
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        const overdueTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate) < today)
+        const overdueTasks = tasks.filter(t => t.plannedDate && new Date(t.plannedDate) < today)
         const todayFormatted = today.getFullYear() + '-' +
           String(today.getMonth() + 1).padStart(2, '0') + '-' +
           String(today.getDate()).padStart(2, '0')
         for (const t of overdueTasks) {
-          await api.updateTask(t.id, { dueDate: todayFormatted })
+          await api.updateTask(t.id, { plannedDate: todayFormatted })
         }
         await onTasksReload()
         return

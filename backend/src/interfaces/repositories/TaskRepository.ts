@@ -18,7 +18,7 @@ export interface CompletionStats {
 
 export interface TaskRepository {
   /**
-   * Crée une tâche pour un utilisateur, avec dueDate optionnelle
+   * Crée une tâche pour un utilisateur, avec plannedDate optionnelle
    */
   create(data: CreateTaskData): Promise<TaskWithSubtasks>
   findById(id: string): Promise<TaskWithSubtasks | null>
@@ -33,7 +33,7 @@ export interface TaskRepository {
    */
   getAllTasksWithTags(userId: string): Promise<TaskWithTags[]>
   /**
-   * Met à jour une tâche (dueDate et userId gérés)
+   * Met à jour une tâche (plannedDate et userId gérés)
    */
   update(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks>
   delete(id: string): Promise<void>

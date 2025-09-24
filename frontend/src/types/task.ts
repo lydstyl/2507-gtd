@@ -6,7 +6,7 @@ export interface Task {
   importance: number
   complexity: number
   points: number
-  dueDate?: string
+  plannedDate?: string
   date2?: string
   parentId?: string
   userId: string
@@ -24,7 +24,7 @@ export interface CreateTaskData {
   note?: string
   importance?: number
   complexity?: number
-  dueDate?: string
+  plannedDate?: string
   date2?: string
   parentId?: string
   tagIds?: string[]
@@ -37,7 +37,7 @@ export interface UpdateTaskData {
   note?: string
   importance?: number
   complexity?: number
-  dueDate?: string | null
+  plannedDate?: string | null
   date2?: string | null
   parentId?: string
   tagIds?: string[]

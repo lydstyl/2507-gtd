@@ -173,33 +173,33 @@ export function TaskCard({
           <div className='flex items-center justify-between mt-auto'>
             {/* Dates */}
             <div className='flex flex-col items-start space-y-2'>
-              {task.dueDate && (
+              {task.plannedDate && (
                 <div className='flex flex-col items-start space-y-1'>
                   <div className='flex items-center space-x-1'>
-                    {getDateIndicator(task.dueDate) && (
+                    {getDateIndicator(task.plannedDate) && (
                       <span
                         className={`text-sm ${
-                          getDateIndicator(task.dueDate)?.className
+                          getDateIndicator(task.plannedDate)?.className
                         }`}
-                        title={getDateIndicator(task.dueDate)?.tooltip}
+                        title={getDateIndicator(task.plannedDate)?.tooltip}
                       >
-                        {getDateIndicator(task.dueDate)?.icon}
+                        {getDateIndicator(task.plannedDate)?.icon}
                       </span>
                     )}
                     <span
                       className={`text-sm font-medium ${
-                        isOverdue(task.dueDate) ? 'text-red-600' : 'text-gray-900'
+                        isOverdue(task.plannedDate) ? 'text-red-600' : 'text-gray-900'
                       }`}
                     >
-                      {formatDate(task.dueDate)}
+                      {formatDate(task.plannedDate)}
                     </span>
                   </div>
                   <span
                     className={`text-xs ${
-                      isOverdue(task.dueDate) ? 'text-red-500' : 'text-gray-500'
+                      isOverdue(task.plannedDate) ? 'text-red-500' : 'text-gray-500'
                     }`}
                   >
-                    {isOverdue(task.dueDate) ? 'En retard' : 'Date limite'}
+                    {isOverdue(task.plannedDate) ? 'En retard' : 'Date limite'}
                   </span>
                 </div>
               )}

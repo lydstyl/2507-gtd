@@ -102,14 +102,14 @@ export const getDateIndicator = (dateString: string) => {
 
 export type TaskCategory = 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
 
-export const getTaskCategory = (task: { points: number; importance: number; complexity: number; dueDate?: string | Date | null }): TaskCategory => {
+export const getTaskCategory = (task: { points: number; importance: number; complexity: number; plannedDate?: string | Date | null }): TaskCategory => {
   // Parse and normalize date like in backend TaskSorting (UTC-based)
   const parseDate = (dateInput: string | Date): Date => {
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
   }
 
-  const dueDate = task.dueDate ? parseDate(task.dueDate) : null
+  const plannedDate = task.plannedDate ? parseDate(task.plannedDate) : null
 
   const now = new Date()
   const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
@@ -117,34 +117,34 @@ export const getTaskCategory = (task: { points: number; importance: number; comp
   const dayAfterTomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
 
   // 1. Collected tasks (without date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
-  const isNewDefaultTask = task.importance === 0 && task.complexity === 3 && !dueDate
-  const isHighPriorityTask = task.points >= 500 && !dueDate
+  const isNewDefaultTask = task.importance === 0 && task.complexity === 3 && !plannedDate
+  const isHighPriorityTask = task.points >= 500 && !plannedDate
   if (isNewDefaultTask || isHighPriorityTask) {
     return 'collected'
   }
 
   // 2. Overdue tasks
-  if (dueDate && dueDate < today) {
+  if (plannedDate && plannedDate < today) {
     return 'overdue'
   }
 
   // 3. Today tasks
-  if (dueDate && dueDate.getTime() === today.getTime()) {
+  if (plannedDate && plannedDate.getTime() === today.getTime()) {
     return 'today'
   }
 
   // 4. Tomorrow tasks
-  if (dueDate && dueDate.getTime() === tomorrow.getTime()) {
+  if (plannedDate && plannedDate.getTime() === tomorrow.getTime()) {
     return 'tomorrow'
   }
 
   // 5. Tasks without date
-  if (!dueDate) {
+  if (!plannedDate) {
     return 'no-date'
   }
 
   // 6. Future tasks (day+2 or more)
-  if (dueDate && dueDate >= dayAfterTomorrow) {
+  if (plannedDate && plannedDate >= dayAfterTomorrow) {
     return 'future'
   }
 

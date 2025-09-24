@@ -36,7 +36,7 @@ export class CSVService {
       task.importance,
       task.complexity,
       task.points,
-      task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
+      task.plannedDate ? task.plannedDate.toISOString().split('T')[0] : '',
       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
       task.parentId || '',
@@ -65,7 +65,7 @@ export class CSVService {
       importance: number
       complexity: number
       points: number
-      dueDate?: Date
+      plannedDate?: Date
       parentName?: string
       tagNames: string[]
     }>
@@ -80,7 +80,7 @@ export class CSVService {
       importance: number
       complexity: number
       points: number
-      dueDate?: Date
+      plannedDate?: Date
       parentName?: string
       tagNames: string[]
     }> = []
@@ -147,10 +147,10 @@ export class CSVService {
           continue
         }
 
-        let dueDate: Date | undefined
+        let plannedDate: Date | undefined
         if (dueDateStr && dueDateStr.trim() !== '') {
-          dueDate = new Date(dueDateStr)
-          if (isNaN(dueDate.getTime())) {
+          plannedDate = new Date(dueDateStr)
+          if (isNaN(plannedDate.getTime())) {
             errors.push(`Ligne ${i + 1}: Date limite invalide`)
             continue
           }
@@ -167,7 +167,7 @@ export class CSVService {
           importance,
           complexity,
           points,
-          dueDate,
+          plannedDate,
           parentName:
             parentName && parentName.trim() !== ''
               ? parentName.trim()

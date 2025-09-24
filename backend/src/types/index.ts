@@ -7,7 +7,7 @@ export interface CreateTaskRequest {
   priority?: number // 1-9
   parentId?: string
   tagIds?: string[]
-  dueDate?: string
+  plannedDate?: string
 }
 
 export interface UpdateTaskRequest {
@@ -19,7 +19,7 @@ export interface UpdateTaskRequest {
   priority?: number
   parentId?: string
   tagIds?: string[]
-  dueDate?: string
+  plannedDate?: string
 }
 
 export interface CreateTagRequest {
@@ -40,7 +40,7 @@ export interface TaskWithSubtasks {
   importance: number
   urgency: number
   priority: number
-  dueDate?: Date
+  plannedDate?: Date
   createdAt: Date
   updatedAt: Date
   parentId?: string

@@ -10,7 +10,7 @@ export interface Task {
   importance: number
   complexity: number
   points: number
-  dueDate?: string
+  plannedDate?: string
   parentId?: string
   userId: string
   isCompleted: boolean
@@ -27,7 +27,7 @@ export interface CreateTaskData {
   note?: string
   importance?: number
   complexity?: number
-  dueDate?: string
+  plannedDate?: string
   parentId?: string
   tagIds?: string[]
   isCompleted?: boolean
@@ -39,7 +39,7 @@ export interface UpdateTaskData {
   note?: string
   importance?: number
   complexity?: number
-  dueDate?: string | null
+  plannedDate?: string | null
   parentId?: string
   tagIds?: string[]
   isCompleted?: boolean
@@ -69,8 +69,8 @@ export class TaskEntity {
     return this.task.complexity
   }
 
-  get dueDate(): string | undefined {
-    return this.task.dueDate
+  get plannedDate(): string | undefined {
+    return this.task.plannedDate
   }
 
   get isCompleted(): boolean {
@@ -103,10 +103,10 @@ export class TaskEntity {
    * Check if the task is overdue
    */
   isOverdue(): boolean {
-    if (!this.task.dueDate) return false
+    if (!this.task.plannedDate) return false
 
     try {
-      const date = new Date(this.task.dueDate)
+      const date = new Date(this.task.plannedDate)
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       return date < today
@@ -119,12 +119,12 @@ export class TaskEntity {
    * Check if the task is due today
    */
   isDueToday(): boolean {
-    if (!this.task.dueDate) return false
+    if (!this.task.plannedDate) return false
 
     try {
-      const dueDate = this.parseDate(this.task.dueDate)
+      const plannedDate = this.parseDate(this.task.plannedDate)
       const today = this.getTodayUTC()
-      return dueDate.getTime() === today.getTime()
+      return plannedDate.getTime() === today.getTime()
     } catch {
       return false
     }
@@ -134,12 +134,12 @@ export class TaskEntity {
    * Check if the task is due tomorrow
    */
   isDueTomorrow(): boolean {
-    if (!this.task.dueDate) return false
+    if (!this.task.plannedDate) return false
 
     try {
-      const dueDate = this.parseDate(this.task.dueDate)
+      const plannedDate = this.parseDate(this.task.plannedDate)
       const tomorrow = this.getTomorrowUTC()
-      return dueDate.getTime() === tomorrow.getTime()
+      return plannedDate.getTime() === tomorrow.getTime()
     } catch {
       return false
     }
@@ -150,10 +150,10 @@ export class TaskEntity {
    */
   isCollected(): boolean {
     // New default tasks: importance=0, complexity=3, no due date
-    const isNewDefaultTask = this.task.importance === 0 && this.task.complexity === 3 && !this.task.dueDate
+    const isNewDefaultTask = this.task.importance === 0 && this.task.complexity === 3 && !this.task.plannedDate
 
     // Legacy high priority tasks: 500+ points, no due date
-    const isHighPriorityTask = this.task.points >= 500 && !this.task.dueDate
+    const isHighPriorityTask = this.task.points >= 500 && !this.task.plannedDate
 
     return isNewDefaultTask || isHighPriorityTask
   }
@@ -183,16 +183,16 @@ export class TaskEntity {
     }
 
     // 5. Tasks without date
-    if (!this.task.dueDate) {
+    if (!this.task.plannedDate) {
       return 'no-date'
     }
 
     // 6. Future tasks (day+2 or more)
     try {
-      const dueDate = this.parseDate(this.task.dueDate)
+      const plannedDate = this.parseDate(this.task.plannedDate)
       const dayAfterTomorrow = this.getDayAfterTomorrowUTC()
 
-      if (dueDate >= dayAfterTomorrow) {
+      if (plannedDate >= dayAfterTomorrow) {
         return 'future'
       }
     } catch {
@@ -206,10 +206,10 @@ export class TaskEntity {
    * Get the day of week for the due date (0 = Sunday, 6 = Saturday)
    */
   getDayOfWeek(): number {
-    if (!this.task.dueDate) return -1
+    if (!this.task.plannedDate) return -1
 
     try {
-      const date = new Date(this.task.dueDate)
+      const date = new Date(this.task.plannedDate)
       return date.getDay()
     } catch {
       return -1

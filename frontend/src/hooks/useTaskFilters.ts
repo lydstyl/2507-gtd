@@ -78,7 +78,7 @@ export function useTaskFilters(tasks: Task[]) {
       tomorrow.setDate(tomorrow.getDate() + 1)
 
       filtered = filtered.filter((task) => {
-        if (!task.dueDate) {
+        if (!task.plannedDate) {
           return dateFilter === 'no-date'
         }
 
@@ -86,7 +86,7 @@ export function useTaskFilters(tasks: Task[]) {
           return false
         }
 
-        const taskDate = new Date(task.dueDate)
+        const taskDate = new Date(task.plannedDate)
         taskDate.setHours(0, 0, 0, 0)
 
         switch (dateFilter) {

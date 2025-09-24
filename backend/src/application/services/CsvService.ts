@@ -16,7 +16,7 @@ export interface ImportTaskData {
   importance: number
   complexity: number
   points: number
-  dueDate?: Date
+  plannedDate?: Date
   parentName?: string
   tagNames: string[]
 }
@@ -54,7 +54,7 @@ export class CsvService {
       task.importance,
       task.complexity,
       task.points,
-      task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
+      task.plannedDate ? task.plannedDate.toISOString().split('T')[0] : '',
       task.createdAt.toISOString().split('T')[0],
       task.updatedAt.toISOString().split('T')[0],
       task.parentId || '',
@@ -144,10 +144,10 @@ export class CsvService {
     const complexity = this.parseNumber(complexityStr, 'complexity', 1, 9)
     const points = this.parseNumber(pointsStr, 'points', 0, 500)
 
-    let dueDate: Date | undefined
+    let plannedDate: Date | undefined
     if (dueDateStr && dueDateStr.trim() !== '') {
-      dueDate = new Date(dueDateStr)
-      if (isNaN(dueDate.getTime())) {
+      plannedDate = new Date(dueDateStr)
+      if (isNaN(plannedDate.getTime())) {
         throw new Error('Invalid due date format')
       }
     }
@@ -163,7 +163,7 @@ export class CsvService {
       importance,
       complexity,
       points,
-      dueDate,
+      plannedDate,
       parentName: parentName && parentName.trim() !== '' ? parentName.trim() : undefined,
       tagNames
     }

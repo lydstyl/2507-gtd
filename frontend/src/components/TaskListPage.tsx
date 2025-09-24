@@ -140,12 +140,12 @@ export default function TaskListPage() {
         break
       case 'date-today':
         const today = new Date()
-        update.dueDate = today.getFullYear() + '-' +
+        update.plannedDate = today.getFullYear() + '-' +
           String(today.getMonth() + 1).padStart(2, '0') + '-' +
           String(today.getDate()).padStart(2, '0')
         break
       case 'date-remove':
-        update.dueDate = null
+        update.plannedDate = null
         break
       case 'delete':
         shouldDelete = true
