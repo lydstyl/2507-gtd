@@ -422,12 +422,12 @@ The application implements a sophisticated task sorting algorithm that prioritiz
 
 ### Sorting Order (Priority Descending)
 
-1. **Collected Tasks** - New created tasks without due dates that has to be changed (importance, complexity, tag, etc.)
-2. **Overdue Tasks** - Tasks past their due date (sorted by date ascending, then points descending)
-3. **Today Tasks** - Tasks due today (sorted by points descending)
-4. **Tomorrow Tasks** - Tasks due tomorrow (sorted by points descending)
-5. **No-Date Tasks** - Tasks without due dates (excluding collected tasks, sorted by points descending)
-6. **Future Tasks** - Tasks due day+2 or later (sorted by date ascending)
+1. **Collected Tasks** - New created tasks without planned dates that has to be changed (importance, complexity, tag, etc.)
+2. **Overdue Tasks** - Tasks past their planned date (sorted by date ascending, then points descending)
+3. **Today Tasks** - Tasks planned for today (sorted by points descending)
+4. **Tomorrow Tasks** - Tasks planned for tomorrow (sorted by points descending)
+5. **No-Date Tasks** - Tasks without planned dates (excluding collected tasks, sorted by points descending)
+6. **Future Tasks** - Tasks planned for day+2 or later (sorted by date ascending)
 
 ### Visual Category Indicators
 

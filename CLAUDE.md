@@ -103,16 +103,19 @@ When adding a new feature, follow this decision tree:
 ### 1. **Domain Layer First** - "What is the business rule?"
 
 **Create in `domain/entities/` when:**
+
 - Adding new business entity (User, Task, Tag, etc.)
 - Adding business methods to existing entities
 - Defining core domain types
 
 **Create in `domain/services/` when:**
+
 - Complex business logic that spans multiple entities
 - Domain calculations (priority, sorting, categorization)
 - Business rules that don't belong to a single entity
 
 **Example: Adding Due Date Reminders**
+
 ```typescript
 // domain/entities/Task.ts
 export class TaskEntity {
@@ -128,7 +131,7 @@ export class TaskEntity {
 // domain/services/TaskReminderService.ts
 export class TaskReminderService {
   static getTasksNeedingReminders(tasks: TaskEntity[]): TaskEntity[] {
-    return tasks.filter(task => task.isUrgent() && !task.isCompleted)
+    return tasks.filter((task) => task.isUrgent() && !task.isCompleted)
   }
 }
 ```
@@ -136,15 +139,22 @@ export class TaskReminderService {
 ### 2. **Use Cases Layer** - "What does the application do?"
 
 **Create in `usecases/` when:**
+
 - Adding new user workflow (CreateTask, UpdateTask, etc.)
 - Orchestrating multiple domain operations
 - Adding business validation rules
 
 **Example: Adding Task Snoozing**
+
 ```typescript
 // usecases/tasks/SnoozeTaskUseCase.ts
-export class SnoozeTaskUseCase extends BaseUseCase<SnoozeTaskRequest, SnoozeTaskResponse> {
-  async execute(request: SnoozeTaskRequest): Promise<OperationResult<SnoozeTaskResponse>> {
+export class SnoozeTaskUseCase extends BaseUseCase<
+  SnoozeTaskRequest,
+  SnoozeTaskResponse
+> {
+  async execute(
+    request: SnoozeTaskRequest
+  ): Promise<OperationResult<SnoozeTaskResponse>> {
     // 1. Validate input
     // 2. Get current task
     // 3. Apply business rules for snoozing
@@ -157,10 +167,12 @@ export class SnoozeTaskUseCase extends BaseUseCase<SnoozeTaskRequest, SnoozeTask
 ### 3. **Interface Layer** - "What external dependencies do we need?"
 
 **Create in `interfaces/repositories/` when:**
+
 - Defining contracts for data access
 - Adding new repository methods for use cases
 
 **Example: Adding Search Capability**
+
 ```typescript
 // interfaces/repositories/TaskRepository.ts
 export interface TaskRepository {
@@ -171,10 +183,12 @@ export interface TaskRepository {
 ### 4. **Infrastructure Layer** - "How do we implement external dependencies?"
 
 **Create in `infrastructure/repositories/` when:**
+
 - Implementing repository interfaces
 - Adapting external APIs or databases
 
 **Example: Implementing Search**
+
 ```typescript
 // infrastructure/repositories/HttpTaskRepository.ts
 export class HttpTaskRepository implements TaskRepository {
@@ -187,10 +201,12 @@ export class HttpTaskRepository implements TaskRepository {
 ### 5. **Presentation Layer** - "How do users interact with this?"
 
 **Create in `presentation/components/` when:**
+
 - Adding new UI components
 - Creating user interaction handlers
 
 **Example: Search Component**
+
 ```typescript
 // presentation/components/TaskSearch.tsx
 export function TaskSearch() {
@@ -208,16 +224,19 @@ export function TaskSearch() {
 ### Backend Testing
 
 **Domain Layer Tests** - `backend/__tests__/domain/`
+
 ```bash
 npm run test:domain  # Test business logic
 ```
 
 **Use Cases Tests** - `backend/__tests__/usecases/`
+
 ```bash
 npm run test:usecases  # Test application logic
 ```
 
 **Integration Tests** - `backend/__tests__/integration/`
+
 ```bash
 npm run test:integration  # Test full workflows
 ```
@@ -225,6 +244,7 @@ npm run test:integration  # Test full workflows
 ### Frontend Testing
 
 **Domain Tests** - `frontend/src/domain/__tests__/`
+
 ```typescript
 // domain/__tests__/TaskEntity.test.ts
 describe('TaskEntity', () => {
@@ -236,6 +256,7 @@ describe('TaskEntity', () => {
 ```
 
 **Use Cases Tests** - `frontend/src/usecases/__tests__/`
+
 ```typescript
 // usecases/__tests__/CreateTaskUseCase.test.ts
 describe('CreateTaskUseCase', () => {
@@ -248,6 +269,7 @@ describe('CreateTaskUseCase', () => {
 ```
 
 **Component Tests** - `frontend/src/components/__tests__/`
+
 ```typescript
 // Test UI behavior, not business logic
 ```
@@ -255,21 +277,25 @@ describe('CreateTaskUseCase', () => {
 ## Clean Architecture Benefits in Practice
 
 ### 1. **Testability**
+
 - Domain logic tests don't need React or HTTP mocking
 - Use cases can be tested with mock repositories
 - Business rules are isolated and fast to test
 
 ### 2. **Maintainability**
+
 - Changes to UI don't affect business logic
 - Changes to API don't affect domain rules
 - Clear boundaries make debugging easier
 
 ### 3. **Reusability**
+
 - Domain entities work in any context (web, mobile, CLI)
 - Use cases can be shared between different UI frameworks
 - Business logic is framework-agnostic
 
 ### 4. **Team Collaboration**
+
 - Frontend and backend teams can work on domain logic together
 - Clear interfaces make parallel development possible
 - Business rules are documented in code
@@ -376,12 +402,12 @@ The application implements a sophisticated task sorting algorithm that prioritiz
 
 ### Sorting Order (Priority Descending)
 
-1. **Collected Tasks** - New created tasks without due dates that has to be changed (importance, complexity, tag, etc.)
-2. **Overdue Tasks** - Tasks past their due date (sorted by date ascending, then points descending)
-3. **Today Tasks** - Tasks due today (sorted by points descending)
-4. **Tomorrow Tasks** - Tasks due tomorrow (sorted by points descending)
-5. **No-Date Tasks** - Tasks without due dates (excluding collected tasks, sorted by points descending)
-6. **Future Tasks** - Tasks due day+2 or later (sorted by date ascending)
+1. **Collected Tasks** - New created tasks without planned dates that has to be changed (importance, complexity, tag, etc.)
+2. **Overdue Tasks** - Tasks past their planned date (sorted by date ascending, then points descending)
+3. **Today Tasks** - Tasks planned for today (sorted by points descending)
+4. **Tomorrow Tasks** - Tasks planned for tomorrow (sorted by points descending)
+5. **No-Date Tasks** - Tasks without planned dates (excluding collected tasks, sorted by points descending)
+6. **Future Tasks** - Tasks planned for day+2 or later (sorted by date ascending)
 
 ### Visual Category Indicators
 
