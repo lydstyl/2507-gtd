@@ -3,11 +3,11 @@ import { TaskEntity } from '../entities/Task'
 /**
  * Task sorting system implementation
  * Replicates the backend sorting rules (deterministic order):
- * 1. Collected tasks (500+ points without date) — highest priority new tasks
+ * 1. Collected tasks (without date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
  * 2. Overdue tasks — tasks past their due date
- * 3. Today tasks — tasks due today (including 500-point tasks with today's date)
- * 4. Tomorrow tasks — tasks due tomorrow (including 500-point tasks with tomorrow's date)
- * 5. Tasks without date — sorted by points DESC (excluding 500+ already handled)
+ * 3. Today tasks — tasks due today
+ * 4. Tomorrow tasks — tasks due tomorrow
+ * 5. Tasks without date — sorted by points DESC (excluding collected tasks already handled)
  * 6. Future tasks (day+2 or more) — sorted by date ASC
  */
 export class TaskSortingService {
@@ -46,11 +46,11 @@ export class TaskSortingService {
         const aIsFuture = aDate && aDate >= dayAfterTomorrow
         const bIsFuture = bDate && bDate >= dayAfterTomorrow
 
-        // Only consider 500+ points for tasks WITHOUT dates (collected tasks)
-        const aIsCollected = a.points >= 500 && !aDate
-        const bIsCollected = b.points >= 500 && !bDate
+        // Check for collected tasks: either high priority (500+ points) OR new default tasks (importance=0, complexity=3)
+        const aIsCollected = a.isCollected()
+        const bIsCollected = b.isCollected()
 
-        // 1. Collected tasks with 500 points (only if no due date)
+        // 1. Collected tasks (new default tasks OR high priority tasks, only if no due date)
         if (aIsCollected && !bIsCollected) return -1
         if (!aIsCollected && bIsCollected) return 1
         if (aIsCollected && bIsCollected) {

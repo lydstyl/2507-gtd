@@ -3,7 +3,14 @@ import { Tag } from './Tag'
 import { TaskActions } from './TaskActions'
 import { QuickActionsMenu } from './QuickActionsMenu'
 import { SubTaskCard } from './SubTaskCard'
-import { getPriorityColor, formatDate, isOverdue, getDateIndicator, getTaskCategory, getTaskCategoryStyle } from '../utils/taskUtils'
+import {
+  getPriorityColor,
+  formatDate,
+  isOverdue,
+  getDateIndicator,
+  getTaskCategory,
+  getTaskCategoryStyle
+} from '../utils/taskUtils'
 import { useState } from 'react'
 
 interface TaskCardProps {
@@ -46,8 +53,7 @@ export function TaskCard({
   const [showSubtasks, setShowSubtasks] = useState(false)
   const [showQuickActions, setShowQuickActions] = useState(false)
 
-  if (!task) return null;
-
+  if (!task) return null
 
   const indentStyle = level > 0 ? { marginLeft: `${level * 24}px` } : {}
 
@@ -64,9 +70,13 @@ export function TaskCard({
         className={`relative border border-gray-200 rounded-lg hover:bg-gray-50 h-full border-l-4 ${
           categoryStyle.borderColor
         } ${
-          task.isCompleted ? 'opacity-75 bg-green-50 border-green-200' :
-          selected ? categoryStyle.backgroundColor :
-          isEven ? categoryStyle.backgroundColor : categoryStyle.backgroundColor
+          task.isCompleted
+            ? 'opacity-75 bg-green-50 border-green-200'
+            : selected
+            ? categoryStyle.backgroundColor
+            : isEven
+            ? categoryStyle.backgroundColor
+            : categoryStyle.backgroundColor
         } ${selected ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg' : ''}`}
         onClick={() => {
           if (onSelectTask) {
@@ -77,7 +87,9 @@ export function TaskCard({
       >
         <div className='flex flex-col h-full p-4'>
           {/* Category indicator */}
-          <div className={`text-xs font-medium mb-2 ${categoryStyle.textColor}`}>
+          <div
+            className={`text-xs font-medium mb-2 ${categoryStyle.textColor}`}
+          >
             {categoryStyle.label}
           </div>
 
@@ -90,17 +102,27 @@ export function TaskCard({
             <div className='flex-1 min-w-0'>
               <div className='flex items-start space-x-2 mb-2'>
                 <h4
-                  data-testid="task-name"
+                  data-testid='task-name'
                   className={`font-medium break-words flex-1 ${
-                    task.isCompleted ? 'line-through text-gray-600' : 'text-gray-900'
+                    task.isCompleted
+                      ? 'line-through text-gray-600'
+                      : 'text-gray-900'
                   }`}
                 >
                   {task.name}
                 </h4>
                 {task.isCompleted && (
                   <span className='text-green-600 text-sm font-medium flex items-center space-x-1'>
-                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
-                      <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                    <svg
+                      className='w-4 h-4'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                        clipRule='evenodd'
+                      />
                     </svg>
                     <span>Terminé</span>
                   </span>
@@ -254,7 +276,7 @@ export function TaskCard({
             </div>
           )}
         </div>
-        
+
         {/* Menu actions rapides (mobile) */}
         {showQuickActions && (
           <QuickActionsMenu
@@ -271,8 +293,6 @@ export function TaskCard({
           />
         )}
       </div>
-
-
     </div>
   )
 }
