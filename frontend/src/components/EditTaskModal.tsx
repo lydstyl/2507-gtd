@@ -153,6 +153,31 @@ export function EditTaskModal({
           </div>
         </div>
 
+        <div className='px-6 py-3 bg-gray-50 border-b border-gray-200'>
+          <div className='grid grid-cols-2 gap-4 text-sm text-gray-600'>
+            <div>
+              <span className='font-medium'>Créée le :</span>
+              <div className='mt-1'>
+                {new Date(task.createdAt).toLocaleDateString('fr-FR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </div>
+            </div>
+            <div>
+              <span className='font-medium'>Modifiée le :</span>
+              <div className='mt-1'>
+                {new Date(task.updatedAt).toLocaleDateString('fr-FR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className='px-6 py-4 space-y-4'>
           {error && (
             <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md'>
