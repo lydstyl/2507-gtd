@@ -4,11 +4,13 @@ import { TaskWithSubtasks } from '../../domain/entities/Task'
  * Task sorting system implementation
  * Sorting rules (deterministic order):
  * 1. Collected tasks (without date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
- * 2. Overdue tasks — tasks past their planned date
- * 3. Today tasks — tasks planned for today
- * 4. Tomorrow tasks — tasks planned for tomorrow
+ * 2. Overdue tasks — tasks past their planned date OR past their due date
+ * 3. Today tasks — tasks planned for today OR due today
+ * 4. Tomorrow tasks — tasks planned for tomorrow OR due tomorrow
  * 5. Tasks without date — sorted by points DESC (excluding collected tasks already handled)
  * 6. Future tasks (day+2 or more) — sorted by date ASC
+ *
+ * Note: Due dates within 2 days (today, tomorrow, overdue) are treated as urgent and prioritized like planned dates
  */
 export class TaskSorting {
   /**
@@ -34,23 +36,30 @@ export class TaskSorting {
     return tasks
       .sort((a, b) => {
         // Parse dates and normalize to UTC at midnight
-        const aDate = a.plannedDate ? TaskSorting.parseAndNormalizeDate(a.plannedDate) : null
-        const bDate = b.plannedDate ? TaskSorting.parseAndNormalizeDate(b.plannedDate) : null
+        const aPlannedDate = a.plannedDate ? TaskSorting.parseAndNormalizeDate(a.plannedDate) : null
+        const bPlannedDate = b.plannedDate ? TaskSorting.parseAndNormalizeDate(b.plannedDate) : null
+        const aDueDate = a.dueDate ? TaskSorting.parseAndNormalizeDate(a.dueDate) : null
+        const bDueDate = b.dueDate ? TaskSorting.parseAndNormalizeDate(b.dueDate) : null
 
-        const aIsOverdue = aDate && aDate < today
-        const bIsOverdue = bDate && bDate < today
-        const aIsToday = aDate && aDate.getTime() === today.getTime()
-        const bIsToday = bDate && bDate.getTime() === today.getTime()
-        const aIsTomorrow = aDate && aDate.getTime() === tomorrow.getTime()
-        const bIsTomorrow = bDate && bDate.getTime() === tomorrow.getTime()
-        const aIsFuture = aDate && aDate >= dayAfterTomorrow
-        const bIsFuture = bDate && bDate >= dayAfterTomorrow
+        // Determine effective date: use due date if urgent (within 2 days), otherwise use planned date
+        const aEffectiveDate = aDueDate && aDueDate < dayAfterTomorrow ? aDueDate : aPlannedDate
+        const bEffectiveDate = bDueDate && bDueDate < dayAfterTomorrow ? bDueDate : bPlannedDate
+
+        const aIsOverdue = aEffectiveDate && aEffectiveDate < today
+        const bIsOverdue = bEffectiveDate && bEffectiveDate < today
+        const aIsToday = aEffectiveDate && aEffectiveDate.getTime() === today.getTime()
+        const bIsToday = bEffectiveDate && bEffectiveDate.getTime() === today.getTime()
+        const aIsTomorrow = aEffectiveDate && aEffectiveDate.getTime() === tomorrow.getTime()
+        const bIsTomorrow = bEffectiveDate && bEffectiveDate.getTime() === tomorrow.getTime()
+        const aIsFuture = aEffectiveDate && aEffectiveDate >= dayAfterTomorrow
+        const bIsFuture = bEffectiveDate && bEffectiveDate >= dayAfterTomorrow
 
         // Check for collected tasks: either high priority (500+ points) OR new default tasks (importance=0, complexity=3)
-        const aIsNewDefaultTask = a.importance === 0 && a.complexity === 3 && !aDate
-        const bIsNewDefaultTask = b.importance === 0 && b.complexity === 3 && !bDate
-        const aIsHighPriorityTask = a.points >= 500 && !aDate
-        const bIsHighPriorityTask = b.points >= 500 && !bDate
+        // Only consider as collected if no urgent due date and no planned date
+        const aIsNewDefaultTask = a.importance === 0 && a.complexity === 3 && !aEffectiveDate
+        const bIsNewDefaultTask = b.importance === 0 && b.complexity === 3 && !bEffectiveDate
+        const aIsHighPriorityTask = a.points >= 500 && !aEffectiveDate
+        const bIsHighPriorityTask = b.points >= 500 && !bEffectiveDate
         const aIsCollected = aIsNewDefaultTask || aIsHighPriorityTask
         const bIsCollected = bIsNewDefaultTask || bIsHighPriorityTask
 
@@ -68,7 +77,7 @@ export class TaskSorting {
         if (!aIsOverdue && bIsOverdue) return 1
         if (aIsOverdue && bIsOverdue) {
           // Both overdue, sort by date ASC (oldest overdue first), then points DESC
-          const dateComparison = aDate!.getTime() - bDate!.getTime()
+          const dateComparison = aEffectiveDate!.getTime() - bEffectiveDate!.getTime()
           if (dateComparison !== 0) return dateComparison
           return b.points - a.points
         }
@@ -90,9 +99,9 @@ export class TaskSorting {
         }
 
         // 5. Tasks without date (excluding the 500+ point ones already handled)
-        if (!aDate && bDate) return -1
-        if (aDate && !bDate) return 1
-        if (!aDate && !bDate) {
+        if (!aEffectiveDate && bEffectiveDate) return -1
+        if (aEffectiveDate && !bEffectiveDate) return 1
+        if (!aEffectiveDate && !bEffectiveDate) {
           // Both have no date, sort by points DESC
           return b.points - a.points
         }
@@ -100,7 +109,7 @@ export class TaskSorting {
         // 6. Future tasks (day+2 or more)
         if (aIsFuture && bIsFuture) {
           // Both are future tasks, sort by date ASC
-          return aDate!.getTime() - bDate!.getTime()
+          return aEffectiveDate!.getTime() - bEffectiveDate!.getTime()
         }
 
         // Fallback: sort by points DESC

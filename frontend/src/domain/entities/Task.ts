@@ -11,6 +11,7 @@ export interface Task {
   complexity: number
   points: number
   plannedDate?: string
+  dueDate?: string
   parentId?: string
   userId: string
   isCompleted: boolean
@@ -28,6 +29,7 @@ export interface CreateTaskData {
   importance?: number
   complexity?: number
   plannedDate?: string
+  dueDate?: string
   parentId?: string
   tagIds?: string[]
   isCompleted?: boolean
@@ -40,6 +42,7 @@ export interface UpdateTaskData {
   importance?: number
   complexity?: number
   plannedDate?: string | null
+  dueDate?: string | null
   parentId?: string
   tagIds?: string[]
   isCompleted?: boolean
@@ -71,6 +74,10 @@ export class TaskEntity {
 
   get plannedDate(): string | undefined {
     return this.task.plannedDate
+  }
+
+  get dueDate(): string | undefined {
+    return this.task.dueDate
   }
 
   get isCompleted(): boolean {
@@ -146,14 +153,17 @@ export class TaskEntity {
   }
 
   /**
-   * Check if task is collected (high priority without due date OR new default tasks)
+   * Check if task is collected (high priority without dates OR new default tasks)
    */
   isCollected(): boolean {
-    // New default tasks: importance=0, complexity=3, no due date
-    const isNewDefaultTask = this.task.importance === 0 && this.task.complexity === 3 && !this.task.plannedDate
+    // Check if task has urgent due date (within 2 days)
+    const hasUrgentDueDate = this.task.dueDate && this.isDateUrgent(this.task.dueDate)
 
-    // Legacy high priority tasks: 500+ points, no due date
-    const isHighPriorityTask = this.task.points >= 500 && !this.task.plannedDate
+    // New default tasks: importance=0, complexity=3, no planned date and no urgent due date
+    const isNewDefaultTask = this.task.importance === 0 && this.task.complexity === 3 && !this.task.plannedDate && !hasUrgentDueDate
+
+    // Legacy high priority tasks: 500+ points, no planned date and no urgent due date
+    const isHighPriorityTask = this.task.points >= 500 && !this.task.plannedDate && !hasUrgentDueDate
 
     return isNewDefaultTask || isHighPriorityTask
   }
@@ -162,37 +172,40 @@ export class TaskEntity {
    * Get the task category for sorting and display
    */
   getCategory(): TaskCategory {
+    // Determine effective date: use due date if urgent (within 2 days), otherwise use planned date
+    const effectiveDate = this.getEffectiveDate()
+
     // 1. High priority tasks with 500+ points WITHOUT dates (collected tasks)
     if (this.isCollected()) {
       return 'collected'
     }
 
-    // 2. Overdue tasks
-    if (this.isOverdue()) {
+    // 2. Overdue tasks (based on effective date)
+    if (effectiveDate && this.isDateOverdue(effectiveDate)) {
       return 'overdue'
     }
 
-    // 3. Today tasks
-    if (this.isDueToday()) {
+    // 3. Today tasks (based on effective date)
+    if (effectiveDate && this.isDateToday(effectiveDate)) {
       return 'today'
     }
 
-    // 4. Tomorrow tasks
-    if (this.isDueTomorrow()) {
+    // 4. Tomorrow tasks (based on effective date)
+    if (effectiveDate && this.isDateTomorrow(effectiveDate)) {
       return 'tomorrow'
     }
 
-    // 5. Tasks without date
-    if (!this.task.plannedDate) {
+    // 5. Tasks without effective date
+    if (!effectiveDate) {
       return 'no-date'
     }
 
     // 6. Future tasks (day+2 or more)
     try {
-      const plannedDate = this.parseDate(this.task.plannedDate)
+      const effectiveDateParsed = this.parseDate(effectiveDate)
       const dayAfterTomorrow = this.getDayAfterTomorrowUTC()
 
-      if (plannedDate >= dayAfterTomorrow) {
+      if (effectiveDateParsed >= dayAfterTomorrow) {
         return 'future'
       }
     } catch {
@@ -257,5 +270,67 @@ export class TaskEntity {
   private getDayAfterTomorrowUTC(): Date {
     const now = new Date()
     return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
+  }
+
+  /**
+   * Check if a date is urgent (within 2 days)
+   */
+  private isDateUrgent(dateStr: string): boolean {
+    try {
+      const date = this.parseDate(dateStr)
+      const dayAfterTomorrow = this.getDayAfterTomorrowUTC()
+      return date < dayAfterTomorrow
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Get effective date: use due date if urgent, otherwise use planned date
+   */
+  private getEffectiveDate(): string | undefined {
+    if (this.task.dueDate && this.isDateUrgent(this.task.dueDate)) {
+      return this.task.dueDate
+    }
+    return this.task.plannedDate
+  }
+
+  /**
+   * Check if a date is overdue
+   */
+  private isDateOverdue(dateStr: string): boolean {
+    try {
+      const date = this.parseDate(dateStr)
+      const today = this.getTodayUTC()
+      return date < today
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Check if a date is today
+   */
+  private isDateToday(dateStr: string): boolean {
+    try {
+      const date = this.parseDate(dateStr)
+      const today = this.getTodayUTC()
+      return date.getTime() === today.getTime()
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Check if a date is tomorrow
+   */
+  private isDateTomorrow(dateStr: string): boolean {
+    try {
+      const date = this.parseDate(dateStr)
+      const tomorrow = this.getTomorrowUTC()
+      return date.getTime() === tomorrow.getTime()
+    } catch {
+      return false
+    }
   }
 }
