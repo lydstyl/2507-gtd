@@ -40,8 +40,8 @@ export function TaskActions({
 }: TaskActionsProps) {
   const [workedOnState, setWorkedOnState] = useState<'idle' | 'loading' | 'success'>('idle')
 
-  const iconSize = size === 'small' ? 'w-2.5 h-2.5' : size === 'large' ? 'w-4 h-4' : 'w-3 h-3'
-  const buttonSize = size === 'small' ? 'p-0.5' : 'p-1'
+  const iconSize = size === 'small' ? 'w-3 h-3' : size === 'large' ? 'w-5 h-5' : 'w-4 h-4'
+  const buttonSize = size === 'small' ? 'p-1.5' : 'p-2'
   const visibilityClass = hideOnDesktop ? 'hidden md:block' : ''
 
   const handleWorkedOnClick = async () => {
@@ -344,11 +344,11 @@ export function TaskActions({
       {onQuickAction && setShowQuickActions && (
         <button
           onClick={() => setShowQuickActions(true)}
-          className='p-1 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors md:hidden'
+          className='p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors md:hidden'
           title='Actions rapides'
         >
           <svg
-            className='w-3 h-3'
+            className='w-4 h-4'
             fill='none'
             stroke='currentColor'
             viewBox='0 0 24 24'

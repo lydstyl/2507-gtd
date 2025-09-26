@@ -7,6 +7,7 @@ import { NoteModal } from './NoteModal'
 import { TaskFilters } from './TaskFilters'
 import { ShortcutsHelp } from './ShortcutsHelp'
 import { PinnedTaskSection } from './PinnedTaskSection'
+import { FloatingActionButton } from './FloatingActionButton'
 import type { Task, Tag } from '../types/task'
 import { api } from '../utils/api'
 import { useTaskFilters } from '../hooks/useTaskFilters'
@@ -303,7 +304,7 @@ export default function TaskListPage() {
           </button>
         </div>
       ) : (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-8 gap-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3 md:gap-4'>
           {filterHook.filteredTasks
             .filter(task => !pinnedTaskId || task.id !== pinnedTaskId)
             .map((task, index) => (
@@ -390,6 +391,12 @@ export default function TaskListPage() {
           onDelete={handleDeleteNote}
         />
       )}
+
+      {/* Floating Action Button for mobile task creation */}
+      <FloatingActionButton
+        onClick={modalHook.handleCreateTask}
+        ariaLabel="Créer une nouvelle tâche"
+      />
     </div>
   )
 }
