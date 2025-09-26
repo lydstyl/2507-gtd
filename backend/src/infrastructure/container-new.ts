@@ -145,22 +145,24 @@ export class Container {
     }
     return this._taskController
   }
-
   getTagController(): TagController {
     if (!this._tagController) {
       const createTagUseCase = new CreateTagUseCase(this.tagRepository)
       const getAllTagsUseCase = new GetAllTagsUseCase(this.tagRepository)
       const deleteTagUseCase = new DeleteTagUseCase(this.tagRepository)
       const updateTagUseCase = new UpdateTagUseCase(this.tagRepository)
+      const updateTagPositionsUseCase = new UpdateTagPositionsUseCase(this.tagRepository)
 
       this._tagController = new TagController(
         createTagUseCase,
         getAllTagsUseCase,
         deleteTagUseCase,
-        updateTagUseCase
+        updateTagUseCase,
+        updateTagPositionsUseCase
       )
     }
     return this._tagController
+  }
   }
 
   getAuthController(): AuthController {
