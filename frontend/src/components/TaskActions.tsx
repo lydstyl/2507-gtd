@@ -16,6 +16,7 @@ interface TaskActionsProps {
   setShowQuickActions?: (show: boolean) => void
   onToggleSubtasks?: () => void
   showSubtasks?: boolean
+  showQuickActions?: boolean
   size?: 'small' | 'medium' | 'large'
   hideOnDesktop?: boolean
 }
@@ -35,6 +36,7 @@ export function TaskActions({
   setShowQuickActions,
   onToggleSubtasks,
   showSubtasks = false,
+  showQuickActions = false,
   size = 'medium',
   hideOnDesktop = false
 }: TaskActionsProps) {
@@ -343,8 +345,12 @@ export function TaskActions({
       {/* Mobile quick actions button */}
       {onQuickAction && setShowQuickActions && (
         <button
-          onClick={() => setShowQuickActions(true)}
-          className='p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors md:hidden'
+          onClick={() => setShowQuickActions(!showQuickActions)}
+          className={`p-2 rounded transition-colors md:hidden ${
+            showQuickActions
+              ? 'text-blue-600 bg-blue-100 hover:text-blue-800 hover:bg-blue-200'
+              : 'text-blue-400 hover:text-blue-600 hover:bg-blue-50'
+          }`}
           title='Actions rapides'
         >
           <svg

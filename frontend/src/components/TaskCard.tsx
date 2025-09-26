@@ -266,6 +266,7 @@ export function TaskCard({
                 setShowQuickActions={setShowQuickActions}
                 onToggleSubtasks={() => setShowSubtasks(!showSubtasks)}
                 showSubtasks={showSubtasks}
+                showQuickActions={showQuickActions}
                 hideOnDesktop={true}
               />
             </div>
