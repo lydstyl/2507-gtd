@@ -1,5 +1,7 @@
 # AGENTS.md - Development Guidelines for GTD Task Management App
 
+This file provides guidance to AI assistants (including Claude Code) when working with code in this repository.
+
 ## Development Commands
 
 ### Monorepo Scripts (Root Level)
@@ -355,6 +357,7 @@ describe('CreateTaskUseCase', () => {
 - Real-time keyboard shortcuts
 - Search and filtering
 - Rich text notes with TipTap editor
+- **Progressive Web App (PWA)**: Offline support, installable, mobile-optimized
 
 ## Important Patterns
 
@@ -449,6 +452,49 @@ The frontend displays color-coded task cards to help users quickly identify task
 - `frontend/src/components/TaskCard.tsx` - Visual task representation
 - Tests in `backend/__tests__/task-sorting-*.test.ts` verify sorting behavior
 
+## Progressive Web App (PWA) Implementation
+
+The GTD app is implemented as a Progressive Web App, providing native-like functionality with offline support, installable interface, and enhanced mobile experience.
+
+### PWA Features
+
+- **Offline Access**: Service worker caches static assets and API responses
+- **Installable**: Can be installed on home screen like a native app
+- **Mobile Optimized**: Responsive design with touch-friendly interface
+- **Push Notifications**: Ready for future reminder/notification features
+- **Fast Loading**: Service worker provides instant startup from cache
+
+### PWA Configuration Files
+
+- `frontend/vite.config.ts` - VitePWA plugin configuration with manifest and workbox settings
+- `frontend/public/manifest.webmanifest` - Auto-generated web app manifest
+- `frontend/public/sw.js` - Auto-generated service worker file
+- `frontend/src/utils/pwa.ts` - PWA utility functions for registration and install prompts
+
+### PWA Components
+
+- `OfflineIndicator` - Shows offline status to users
+- `PWAInstallPrompt` - Prompts users to install the app
+- `useOnlineStatus` - Hook for detecting network connectivity
+
+### PWA Testing
+
+```bash
+# Build for production (PWA features only work in production)
+npm run build
+
+# Test production build with PWA features
+cd frontend && npm run serve
+
+# Access at http://localhost:3002 to test PWA functionality
+```
+
+### PWA Assets
+
+- Icons: `pwa-192x192.png`, `pwa-512x512.png`, `apple-touch-icon.png`, `favicon.ico`
+- Manifest: Auto-generated with GTD branding and theme colors
+- Service Worker: Auto-generated with caching strategies for static assets and API calls
+
 ## Port Configuration
 
 - **Development**: Backend 3000, Frontend 5173
@@ -468,3 +514,4 @@ The frontend displays color-coded task cards to help users quickly identify task
 - Follow clean architecture principles: Domain → Use Cases → Infrastructure → Presentation.
 - Write tests for domain logic and use cases before implementing UI.
 - Use the dependency injection container to access use cases in React components.
+- When adding or updating something in the domain (frontend or backend), always try to put it in the shared/src/domain to avoid code repetition.
