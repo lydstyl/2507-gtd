@@ -483,3 +483,4 @@ The frontend displays color-coded task cards to help users quickly identify task
 - Follow clean architecture principles: Domain → Use Cases → Infrastructure → Presentation.
 - Write tests for domain logic and use cases before implementing UI.
 - Use the dependency injection container to access use cases in React components.
+- When adding or updating something in the domain (frontend or backend), always to try do put it in the shared/src/domain to avoid code repetition.
