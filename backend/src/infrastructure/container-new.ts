@@ -31,6 +31,7 @@ import { CreateTagUseCase } from '../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../usecases/tags/GetAllTagsUseCase'
 import { DeleteTagUseCase } from '../usecases/tags/DeleteTagUseCase'
 import { UpdateTagUseCase } from '../usecases/tags/UpdateTagUseCase'
+import { UpdateTagPositionsUseCase } from '../usecases/tags/UpdateTagPositionsUseCase'
 
 // Controllers
 import { TaskController } from '../presentation/controllers/TaskController'
@@ -162,7 +163,6 @@ export class Container {
       )
     }
     return this._tagController
-  }
   }
 
   getAuthController(): AuthController {
