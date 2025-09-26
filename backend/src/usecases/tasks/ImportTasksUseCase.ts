@@ -62,12 +62,21 @@ export class ImportTasksUseCase {
       try {
         // Créer ou récupérer les tags
         const tagIds: string[] = []
-        for (const tagName of taskData.tagNames) {
+        for (let i = 0; i < taskData.tagNames.length; i++) {
+          const tagName = taskData.tagNames[i]
+          const tagColor = taskData.tagColors[i] || undefined
+
           let tag = await this.tagRepository.findByNameAndUser(tagName, userId)
           if (!tag) {
             tag = await this.tagRepository.create({
               name: tagName,
+              color: tagColor,
               userId
+            })
+          } else if (tagColor && tag.color !== tagColor) {
+            // Mettre à jour la couleur du tag si elle est différente
+            tag = await this.tagRepository.update(tag.id, {
+              color: tagColor
             })
           }
           tagIds.push(tag.id)
@@ -94,7 +103,7 @@ export class ImportTasksUseCase {
         }
 
         // Créer la tâche
-        const { tagNames, parentName, ...taskDataSansTagNames } = taskData
+        const { tagNames, tagColors, parentName, ...taskDataSansTagNames } = taskData
         const task = await this.taskRepository.create({
           ...taskDataSansTagNames,
           userId,

@@ -113,7 +113,7 @@ describe('CSV Export Tests', () => {
 
     // Vérifier que le CSV contient les en-têtes attendus
     expect(csvContent).toContain(
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags'
     )
 
     // Vérifier que le CSV contient les tâches créées
@@ -180,7 +180,7 @@ describe('CSV Export Tests', () => {
     const lines = csvContent.split('\n').filter((line) => line.trim())
     expect(lines).toHaveLength(1) // Seulement l'en-tête
     expect(lines[0]).toBe(
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags'
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags'
     )
 
     console.log('✅ Export CSV vide validé !')

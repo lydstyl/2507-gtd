@@ -149,7 +149,8 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
             </h4>
             <p className='text-sm text-gray-600 mb-3'>
               Importez des tâches depuis un fichier CSV. Les tags seront créés
-              automatiquement si ils n'existent pas.
+              automatiquement si ils n'existent pas. Les couleurs des tags
+              seront également importées si spécifiées.
             </p>
             <div className='flex items-center space-x-3'>
               <label className='inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50'>
@@ -295,6 +296,10 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
               <li>
                 <strong>Tags</strong> : Séparés par des points-virgules
                 (optionnel)
+              </li>
+              <li>
+                <strong>Couleurs tags</strong> : Couleurs hexadécimales (#FF0000)
+                séparées par des points-virgules (optionnel)
               </li>
             </ul>
           </div>

@@ -26,7 +26,8 @@ export class CSVService {
       'Date de modification',
       'Tâche parente',
       'Nom tâche parente',
-      'Tags'
+      'Tags',
+      'Couleurs tags'
     ]
 
     const rows = tasks.map((task) => [
@@ -43,7 +44,8 @@ export class CSVService {
       task.updatedAt.toISOString().split('T')[0],
       task.parentId || '',
       task.parentName || '',
-      task.tags.map((t) => t.tag.name).join(';')
+      task.tags.map((t) => t.tag.name).join(';'),
+      task.tags.map((t) => t.tag.color || '').join(';')
     ])
 
     const csvContent = [
@@ -71,6 +73,7 @@ export class CSVService {
         dueDate?: Date
         parentName?: string
         tagNames: string[]
+        tagColors: (string | null)[]
       }>
     errors: string[]
   } {
@@ -87,6 +90,7 @@ export class CSVService {
         dueDate?: Date
         parentName?: string
         tagNames: string[]
+        tagColors: (string | null)[]
       }> = []
 
     // Ignorer l'en-tête
@@ -94,11 +98,11 @@ export class CSVService {
       const line = lines[i]
       const columns = this.parseCSVLine(line)
 
-      if (columns.length < 14) {
+      if (columns.length < 15) {
         errors.push(
           `Ligne ${i + 1}: Nombre de colonnes insuffisant (${
             columns.length
-          } au lieu de 14)`
+          } au lieu de 15)`
         )
         continue
       }
@@ -118,7 +122,8 @@ export class CSVService {
           updatedAtStr, // Ignoré lors de l'import
           parentId, // Ignoré lors de l'import
           parentName,
-          tagNamesStr
+          tagNamesStr,
+          tagColorsStr
         ] = columns
 
         // Validation des données
@@ -174,6 +179,15 @@ export class CSVService {
           ? tagNamesStr.split(';').filter((tag) => tag.trim() !== '')
           : []
 
+        const tagColors = tagColorsStr
+          ? tagColorsStr.split(';').map((color) => color.trim() !== '' ? color.trim() : null)
+          : []
+
+        // S'assurer que tagColors a la même longueur que tagNames
+        while (tagColors.length < tagNames.length) {
+          tagColors.push(null)
+        }
+
         tasks.push({
           name: name.trim(),
           link: link && link.trim() !== '' ? link.trim() : undefined,
@@ -187,7 +201,8 @@ export class CSVService {
             parentName && parentName.trim() !== ''
               ? parentName.trim()
               : undefined,
-          tagNames
+          tagNames,
+          tagColors
         })
       } catch (error) {
         errors.push(`Ligne ${i + 1}: Erreur de parsing - ${error}`)
