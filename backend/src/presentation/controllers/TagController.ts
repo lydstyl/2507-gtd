@@ -3,13 +3,15 @@ import { CreateTagUseCase } from '../../usecases/tags/CreateTagUseCase'
 import { GetAllTagsUseCase } from '../../usecases/tags/GetAllTagsUseCase'
 import { DeleteTagUseCase } from '../../usecases/tags/DeleteTagUseCase'
 import { UpdateTagUseCase } from '../../usecases/tags/UpdateTagUseCase'
+import { UpdateTagPositionsUseCase } from '../../usecases/tags/UpdateTagPositionsUseCase'
 
 export class TagController {
   constructor(
     private createTagUseCase: CreateTagUseCase,
     private getAllTagsUseCase: GetAllTagsUseCase,
     private deleteTagUseCase: DeleteTagUseCase,
-    private updateTagUseCase: UpdateTagUseCase
+    private updateTagUseCase: UpdateTagUseCase,
+    private updateTagPositionsUseCase: UpdateTagPositionsUseCase
   ) {}
 
   async createTag(req: Request, res: Response): Promise<void> {
@@ -83,6 +85,26 @@ export class TagController {
         } else {
           res.status(400).json({ error: error.message })
         }
+      } else {
+        res.status(500).json({ error: 'Internal server error' })
+      }
+    }
+  }
+
+  async updateTagPositions(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const { tagPositions } = req.body
+      await this.updateTagPositionsUseCase.execute(tagPositions, userId)
+      res.status(200).json({ message: 'Tag positions updated successfully' })
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message })
       } else {
         res.status(500).json({ error: 'Internal server error' })
       }

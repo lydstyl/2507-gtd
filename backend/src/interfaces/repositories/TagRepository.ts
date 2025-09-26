@@ -14,4 +14,8 @@ export interface TagRepository {
   update(id: string, data: UpdateTagData): Promise<Tag>
   delete(id: string): Promise<void>
   findByTaskId(taskId: string): Promise<Tag[]>
+  /**
+   * Met à jour les positions des tags pour un utilisateur
+   */
+  updatePositions(userId: string, tagPositions: { id: string; position: number }[]): Promise<void>
 }

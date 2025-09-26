@@ -14,6 +14,8 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
   const [error, setError] = useState('')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingTag, setEditingTag] = useState<Tag | null>(null)
+  const [draggedTag, setDraggedTag] = useState<Tag | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -55,6 +57,56 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
     setEditingTag(null)
   }
 
+  const handleDragStart = (e: React.DragEvent, tag: Tag) => {
+    setDraggedTag(tag)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverIndex(index)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    setDragOverIndex(null)
+
+    if (!draggedTag) return
+
+    const dragIndex = tags.findIndex(tag => tag.id === draggedTag.id)
+    if (dragIndex === dropIndex) return
+
+    // Create new array with reordered tags
+    const newTags = [...tags]
+    const [movedTag] = newTags.splice(dragIndex, 1)
+    newTags.splice(dropIndex, 0, movedTag)
+
+    // Update positions
+    const tagPositions = newTags.map((tag, index) => ({
+      id: tag.id,
+      position: index
+    }))
+
+    try {
+      await api.updateTagPositions(tagPositions)
+      setTags(newTags.map((tag, index) => ({ ...tag, position: index })))
+    } catch (err) {
+      setError("Erreur lors de la mise à jour des positions des tags")
+    }
+
+    setDraggedTag(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedTag(null)
+    setDragOverIndex(null)
+  }
+
   if (!isOpen) return null
 
   return (
@@ -80,9 +132,28 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
             <div className='text-center text-gray-500'>Aucun tag</div>
           ) : (
             <ul className='divide-y divide-gray-200'>
-              {tags.map((tag) => (
-                <li key={tag.id} className='flex items-center justify-between py-2'>
+              {tags.map((tag, index) => (
+                <li
+                  key={tag.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, tag)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-center justify-between py-2 cursor-move transition-all duration-200 ${
+                    draggedTag?.id === tag.id ? 'opacity-50' : ''
+                  } ${
+                    dragOverIndex === index ? 'bg-blue-50 border-blue-200' : ''
+                  }`}
+                >
                   <div className='flex items-center space-x-2'>
+                    <span className='text-gray-400 text-sm' title='Position'>
+                      {index + 1}.
+                    </span>
+                    <svg className='w-4 h-4 text-gray-400' fill='currentColor' viewBox='0 0 24 24'>
+                      <path d='M9 5h2v14H9zm4 0h2v14h-2z' />
+                    </svg>
                     <span
                       className='inline-block w-4 h-4 rounded-full border border-gray-300'
                       style={{ backgroundColor: tag.color || '#e5e7eb' }}

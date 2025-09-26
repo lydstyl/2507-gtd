@@ -90,7 +90,7 @@ export function ShortcutsHelp({
           {tags.length > 0 && (
             <div className='mb-6'>
               <div className='text-xs text-gray-600 mb-1'>
-                Tags accessibles par raccourci :
+                Tags accessibles par raccourci (modifiable via le gestionnaire de tags) :
               </div>
               <div className='flex flex-wrap gap-2'>
                 {tags.slice(0, 9).map((tag, idx) => (

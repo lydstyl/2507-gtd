@@ -228,6 +228,12 @@ export const api = {
       method: 'DELETE'
     }),
 
+  updateTagPositions: (tagPositions: { id: string; position: number }[]) =>
+    apiCall<{ message: string }>('/tags/positions', {
+      method: 'PUT',
+      body: JSON.stringify({ tagPositions })
+    }),
+
   // CSV Export/Import
   exportTasks: () =>
     apiCallBlob('/tasks/export', {
