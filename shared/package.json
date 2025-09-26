@@ -1,0 +1,30 @@
+{
+  "name": "@gtd/shared",
+  "version": "1.0.0",
+  "description": "Shared domain logic for GTD application",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {},
+  "keywords": [
+    "gtd",
+    "domain",
+    "shared",
+    "business-logic"
+  ],
+  "author": "",
+  "license": "MIT",
+  "files": [
+    "dist/**/*"
+  ]
+}
