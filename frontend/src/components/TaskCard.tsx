@@ -194,9 +194,9 @@ export function TaskCard({
           </div>
 
           {/* Date et actions */}
-          <div className='flex items-center justify-between mt-auto'>
+          <div className='flex flex-wrap items-start justify-between gap-3 mt-auto'>
             {/* Dates */}
-            <div className='flex flex-col items-start space-y-2'>
+            <div className='flex flex-col items-start space-y-2 min-w-0 flex-shrink'>
               {task.plannedDate && (
                 <div className='flex flex-col items-start space-y-1'>
                   <div className='flex items-center space-x-1'>
@@ -250,23 +250,25 @@ export function TaskCard({
             </div>
 
             {/* Actions */}
-            <TaskActions
-              task={task}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onCreateSubtask={onCreateSubtask}
-              onAssignParent={onAssignParent}
-              onEditNote={onEditNote}
-              onMarkCompleted={onMarkCompleted}
-              onWorkedOn={onWorkedOn}
-              onPin={onPin}
-              isPinned={isPinned}
-              onQuickAction={onQuickAction}
-              setShowQuickActions={setShowQuickActions}
-              onToggleSubtasks={() => setShowSubtasks(!showSubtasks)}
-              showSubtasks={showSubtasks}
-              hideOnDesktop={true}
-            />
+            <div className='flex-shrink-0'>
+              <TaskActions
+                task={task}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onCreateSubtask={onCreateSubtask}
+                onAssignParent={onAssignParent}
+                onEditNote={onEditNote}
+                onMarkCompleted={onMarkCompleted}
+                onWorkedOn={onWorkedOn}
+                onPin={onPin}
+                isPinned={isPinned}
+                onQuickAction={onQuickAction}
+                setShowQuickActions={setShowQuickActions}
+                onToggleSubtasks={() => setShowSubtasks(!showSubtasks)}
+                showSubtasks={showSubtasks}
+                hideOnDesktop={true}
+              />
+            </div>
           </div>
 
           {/* Sous-tâches intégrées */}
