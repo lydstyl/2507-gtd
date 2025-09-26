@@ -335,6 +335,7 @@ describe('CreateTaskUseCase', () => {
 - Real-time keyboard shortcuts
 - Search and filtering
 - Rich text notes with TipTap editor
+- **Progressive Web App (PWA)**: Offline support, installable, mobile-optimized
 
 ## Important Patterns
 
@@ -395,6 +396,49 @@ describe('CreateTaskUseCase', () => {
 4. **Infrastructure**: Implement external dependencies
 5. **Presentation**: Build user interface
 6. **Tests**: Write tests for each layer
+
+## Progressive Web App (PWA) Implementation
+
+The GTD app is implemented as a Progressive Web App, providing native-like functionality with offline support, installable interface, and enhanced mobile experience.
+
+### PWA Features
+
+- **Offline Access**: Service worker caches static assets and API responses
+- **Installable**: Can be installed on home screen like a native app
+- **Mobile Optimized**: Responsive design with touch-friendly interface
+- **Push Notifications**: Ready for future reminder/notification features
+- **Fast Loading**: Service worker provides instant startup from cache
+
+### PWA Configuration Files
+
+- `frontend/vite.config.ts` - VitePWA plugin configuration with manifest and workbox settings
+- `frontend/public/manifest.webmanifest` - Auto-generated web app manifest
+- `frontend/public/sw.js` - Auto-generated service worker file
+- `frontend/src/utils/pwa.ts` - PWA utility functions for registration and install prompts
+
+### PWA Components
+
+- `OfflineIndicator` - Shows offline status to users
+- `PWAInstallPrompt` - Prompts users to install the app
+- `useOnlineStatus` - Hook for detecting network connectivity
+
+### PWA Testing
+
+```bash
+# Build for production (PWA features only work in production)
+npm run build
+
+# Test production build with PWA features
+cd frontend && npm run serve
+
+# Access at http://localhost:3002 to test PWA functionality
+```
+
+### PWA Assets
+
+- Icons: `pwa-192x192.png`, `pwa-512x512.png`, `apple-touch-icon.png`, `favicon.ico`
+- Manifest: Auto-generated with GTD branding and theme colors
+- Service Worker: Auto-generated with caching strategies for static assets and API calls
 
 ## Task Sorting System
 

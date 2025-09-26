@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#374151;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bgGradient)"/>
+
+  <!-- Checklist background -->
+  <rect x="96" y="128" width="320" height="256" rx="24" fill="#ffffff" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- Checklist items -->
+  <!-- Item 1 - Completed -->
+  <circle cx="128" cy="176" r="12" fill="#10b981" stroke="#065f46" stroke-width="2"/>
+  <path d="M123 176 l3 3 l6 -6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect x="156" y="168" width="220" height="16" rx="8" fill="#f3f4f6"/>
+
+  <!-- Item 2 - Completed -->
+  <circle cx="128" cy="224" r="12" fill="#10b981" stroke="#065f46" stroke-width="2"/>
+  <path d="M123 224 l3 3 l6 -6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect x="156" y="216" width="180" height="16" rx="8" fill="#f3f4f6"/>
+
+  <!-- Item 3 - Active -->
+  <circle cx="128" cy="272" r="12" fill="#ffffff" stroke="#1f2937" stroke-width="3"/>
+  <rect x="156" y="264" width="200" height="16" rx="8" fill="#1f2937"/>
+
+  <!-- Item 4 - Pending -->
+  <circle cx="128" cy="320" r="12" fill="#ffffff" stroke="#9ca3af" stroke-width="2"/>
+  <rect x="156" y="312" width="160" height="16" rx="8" fill="#e5e7eb"/>
+
+  <!-- GTD Logo text at bottom -->
+  <text x="256" y="440" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="32" font-weight="bold">GTD</text>
+</svg>
