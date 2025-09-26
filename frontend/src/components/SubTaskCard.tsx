@@ -1,6 +1,6 @@
 import type { Task } from '../types/task'
 import { TaskActions } from './TaskActions'
-import { getPriorityColor, formatDate, isOverdue } from '../utils/taskUtils'
+import { getPriorityColor, formatDate, isOverdue, isDueDateUrgent } from '../utils/taskUtils'
 
 interface SubTaskCardProps {
   task: Task
@@ -64,7 +64,9 @@ export function SubTaskCard({
                 </span>
               )}
               {task.dueDate && (
-                <span className='text-xs font-medium text-blue-600'>
+                <span className={`text-xs font-medium ${
+                  isDueDateUrgent(task.dueDate) ? 'text-red-600' : 'text-blue-600'
+                }`}>
                   📅 {formatDate(task.dueDate)}
                 </span>
               )}

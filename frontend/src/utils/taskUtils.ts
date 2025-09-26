@@ -71,6 +71,23 @@ export const isOverdue = (dateString: string): boolean => {
   }
 }
 
+export const isDueDateUrgent = (dateString: string): boolean => {
+  try {
+    const date = new Date(dateString)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    // Calculate date + 3 days from today
+    const threeDaysFromNow = new Date(today)
+    threeDaysFromNow.setDate(today.getDate() + 3)
+
+    // Check if due date is within the next 3 days (including today)
+    return date <= threeDaysFromNow
+  } catch {
+    return false
+  }
+}
+
 export const getDayOfWeek = (dateString: string): number => {
   try {
     const date = new Date(dateString)

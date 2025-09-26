@@ -7,6 +7,7 @@ import {
   getPriorityColor,
   formatDate,
   isOverdue,
+  isDueDateUrgent,
   getDateIndicator,
   getTaskCategory,
   getTaskCategoryStyle
@@ -207,13 +208,19 @@ export function TaskCard({
               {task.dueDate && (
                 <div className='flex flex-col items-start space-y-1'>
                   <div className='flex items-center space-x-1'>
-                    <span className='text-sm text-blue-600'>📅</span>
-                    <span className='text-sm font-medium text-blue-800'>
+                    <span className={`text-sm ${
+                      isDueDateUrgent(task.dueDate) ? 'text-red-600' : 'text-blue-600'
+                    }`}>📅</span>
+                    <span className={`text-sm font-medium ${
+                      isDueDateUrgent(task.dueDate) ? 'text-red-800' : 'text-blue-800'
+                    }`}>
                       {formatDate(task.dueDate)}
                     </span>
                   </div>
-                  <span className='text-xs text-blue-600'>
-                    Date limite
+                  <span className={`text-xs ${
+                    isDueDateUrgent(task.dueDate) ? 'text-red-600' : 'text-blue-600'
+                  }`}>
+                    {isDueDateUrgent(task.dueDate) ? 'Date limite urgente!' : 'Date limite'}
                   </span>
                 </div>
               )}
