@@ -1,22 +1,22 @@
 import request from 'supertest'
 import app from '../src/app'
 import { PrismaClient } from '@prisma/client'
+import { getTestAuthHeader, createTestUser } from './helpers/auth.helper'
 
 const prisma = new PrismaClient()
-
-// Simule le middleware d'auth (user-id)
-const authHeader = { Authorization: 'Bearer dev-token' }
+const TEST_USER = createTestUser('subtask-cascade')
+const authHeader = getTestAuthHeader(TEST_USER)
 
 describe('Subtask Cascade Delete API', () => {
   let server: any
   beforeAll(async () => {
     // Crée l'utilisateur de test si besoin
     await prisma.user.upsert({
-      where: { id: 'user-id' },
+      where: { id: TEST_USER.userId },
       update: {},
       create: {
-        id: 'user-id',
-        email: 'subtask-cascade-test@example.com',
+        id: TEST_USER.userId,
+        email: TEST_USER.email,
         password: 'hashed-password',
       },
     })
@@ -27,7 +27,7 @@ describe('Subtask Cascade Delete API', () => {
     // Clean up specific test tasks before each test to prevent contamination
     await prisma.task.deleteMany({
       where: {
-        userId: 'user-id',
+        userId: TEST_USER.userId,
         name: {
           in: ['Tâche parente cascade', 'Sous-tâche cascade 1', 'Sous-tâche cascade 2', 'Sous-tâche cascade 3']
         }
@@ -35,10 +35,10 @@ describe('Subtask Cascade Delete API', () => {
     })
   })
   afterAll(async () => {
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Tâche parente cascade' } })
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Sous-tâche cascade 1' } })
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Sous-tâche cascade 2' } })
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Sous-tâche cascade 3' } })
+    await prisma.task.deleteMany({ where: { userId: TEST_USER.userId, name: 'Tâche parente cascade' } })
+    await prisma.task.deleteMany({ where: { userId: TEST_USER.userId, name: 'Sous-tâche cascade 1' } })
+    await prisma.task.deleteMany({ where: { userId: TEST_USER.userId, name: 'Sous-tâche cascade 2' } })
+    await prisma.task.deleteMany({ where: { userId: TEST_USER.userId, name: 'Sous-tâche cascade 3' } })
     await prisma.$disconnect()
     server.close()
   })

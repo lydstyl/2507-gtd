@@ -1,8 +1,7 @@
 import { Request, Response } from 'express'
 import { AuthService } from '../../services/authService'
 import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret'
+import { config } from '../../config'
 
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -41,7 +40,7 @@ export function getUserFromToken(
   token: string
 ): { userId: string; email: string } | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as { userId: string; email: string }
+    return jwt.verify(token, config.env.JWT_SECRET) as { userId: string; email: string }
   } catch {
     return null
   }

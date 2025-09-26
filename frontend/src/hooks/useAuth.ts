@@ -6,10 +6,18 @@ export const AUTH_QUERY_KEYS = {
   currentUser: ['auth', 'currentUser'] as const,
 } as const
 
-// Utility function to decode JWT token
+// Utility function to decode JWT token (client-side only for user display)
+// Note: This is only for extracting user info for UI purposes
+// Server-side validation is still required for all API calls
 function decodeToken(token: string): { userId: string; email: string } | null {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
+
+    // Basic validation - check if token is expired
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return null
+    }
+
     return {
       userId: payload.userId,
       email: payload.email

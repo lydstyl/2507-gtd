@@ -1,29 +1,30 @@
 import request from 'supertest'
 import { PrismaClient } from '@prisma/client'
 import app from '../src/app'
+import { getTestAuthHeader, createTestUser } from './helpers/auth.helper'
 
 const prisma = new PrismaClient()
 
 describe('Task Sorting API Integration Tests', () => {
-  const testUser = {
-    id: 'user-id', // Use the same user-id as other tests
-    email: 'task-sorting-test@example.com',
-    password: 'hashed-password'
-  }
-  const authHeader = { Authorization: 'Bearer dev-token' } // Use dev token like other tests
+  const testUser = createTestUser('task-sorting')
+  const authHeader = getTestAuthHeader(testUser)
 
   beforeAll(async () => {
     // Create test user (same as other tests)
     await prisma.user.upsert({
-      where: { id: testUser.id },
+      where: { id: testUser.userId },
       update: {},
-      create: testUser
+      create: {
+        id: testUser.userId,
+        email: testUser.email,
+        password: 'hashed-password'
+      }
     })
   })
 
   afterAll(async () => {
     // Clean up all test tasks to prevent contamination
-    await prisma.task.deleteMany({ where: { userId: testUser.id } })
+    await prisma.task.deleteMany({ where: { userId: testUser.userId } })
     await prisma.task.deleteMany({
       where: {
         userId: {
@@ -36,7 +37,7 @@ describe('Task Sorting API Integration Tests', () => {
 
   beforeEach(async () => {
     // Clean up tasks before each test
-    await prisma.task.deleteMany({ where: { userId: testUser.id } })
+    await prisma.task.deleteMany({ where: { userId: testUser.userId } })
 
     // Also clean up any other test users' tasks to prevent contamination
     await prisma.task.deleteMany({

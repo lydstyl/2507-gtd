@@ -1,22 +1,22 @@
 import request from 'supertest'
 import app from '../src/app'
 import { PrismaClient } from '@prisma/client'
+import { getTestAuthHeader, createTestUser } from './helpers/auth.helper'
 
 const prisma = new PrismaClient()
-
-// Simule le middleware d'auth (user-id)
-const authHeader = { Authorization: 'Bearer dev-token' }
+const TEST_USER = createTestUser('tag')
+const authHeader = getTestAuthHeader(TEST_USER)
 
 describe('Tag API', () => {
   let server: any
   beforeAll(async () => {
     // Crée l'utilisateur de test si besoin
     await prisma.user.upsert({
-      where: { id: 'user-id' },
+      where: { id: TEST_USER.userId },
       update: {},
       create: {
-        id: 'user-id',
-        email: 'tag-test@example.com',
+        id: TEST_USER.userId,
+        email: TEST_USER.email,
         password: 'hashed-password'
       }
     })
@@ -24,10 +24,10 @@ describe('Tag API', () => {
   }, 15000)
   afterAll(async () => {
     await prisma.tag.deleteMany({
-      where: { userId: 'user-id', name: 'Tag test e2e' }
+      where: { userId: TEST_USER.userId, name: 'Tag test e2e' }
     })
     await prisma.tag.deleteMany({
-      where: { userId: 'user-id', name: 'Tag test frontend' }
+      where: { userId: TEST_USER.userId, name: 'Tag test frontend' }
     })
     await prisma.$disconnect()
     if (server) server.close()

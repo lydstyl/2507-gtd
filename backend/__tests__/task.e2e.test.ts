@@ -1,30 +1,30 @@
 import request from 'supertest'
 import app from '../src/app'
 import { PrismaClient } from '@prisma/client'
+import { getTestAuthHeader, createTestUser } from './helpers/auth.helper'
 
 const prisma = new PrismaClient()
-
-// Simule le middleware d'auth (user-id)
-const authHeader = { Authorization: 'Bearer dev-token' }
+const TEST_USER = createTestUser('task')
+const authHeader = getTestAuthHeader(TEST_USER)
 
 describe('Task API', () => {
   let server: any
   beforeAll(async () => {
     // Crée l'utilisateur de test si besoin
     await prisma.user.upsert({
-      where: { id: 'user-id' },
+      where: { id: TEST_USER.userId },
       update: {},
       create: {
-        id: 'user-id',
-        email: 'task-test@example.com',
+        id: TEST_USER.userId,
+        email: TEST_USER.email,
         password: 'hashed-password',
       },
     })
     server = app.listen(4000)
   })
   afterAll(async () => {
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Tâche test e2e' } })
-    await prisma.task.deleteMany({ where: { userId: 'user-id', name: 'Tâche test frontend' } })
+    await prisma.task.deleteMany({ where: { userId: TEST_USER.userId, name: 'Tâche test e2e' } })
+    await prisma.task.deleteMany({ where: { userId: TEST_USER.userId, name: 'Tâche test frontend' } })
     await prisma.$disconnect()
     server.close()
   })

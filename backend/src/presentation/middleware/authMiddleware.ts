@@ -18,12 +18,6 @@ export function authMiddleware(
 
     const token = authHeader.substring(7) // Enlever "Bearer "
 
-    // Token de test pour les tests e2e
-    if (token === 'dev-token') {
-      ;(req as any).user = { userId: 'user-id', email: 'user@example.com' }
-      next()
-      return
-    }
 
     // Vérifier et décoder le token
     const user = getUserFromToken(token)

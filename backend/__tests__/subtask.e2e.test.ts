@@ -1,22 +1,22 @@
 import request from 'supertest'
 import app from '../src/app'
 import { PrismaClient } from '@prisma/client'
+import { getTestAuthHeader, createTestUser } from './helpers/auth.helper'
 
 const prisma = new PrismaClient()
-
-// Simule le middleware d'auth (user-id)
-const authHeader = { Authorization: 'Bearer dev-token' }
+const TEST_USER = createTestUser('subtask')
+const authHeader = getTestAuthHeader(TEST_USER)
 
 describe('Subtask API', () => {
   let server: any
   beforeAll(async () => {
     // Crée l'utilisateur de test si besoin
     await prisma.user.upsert({
-      where: { id: 'user-id' },
+      where: { id: TEST_USER.userId },
       update: {},
       create: {
-        id: 'user-id',
-        email: 'subtask-test@example.com',
+        id: TEST_USER.userId,
+        email: TEST_USER.email,
         password: 'hashed-password'
       }
     })
@@ -27,7 +27,7 @@ describe('Subtask API', () => {
     // Clean up specific test tasks before each test to prevent contamination
     await prisma.task.deleteMany({
       where: {
-        userId: 'user-id',
+        userId: TEST_USER.userId,
         name: {
           in: ['Tâche parente test', 'Sous-tâche 1', 'Sous-tâche 2', 'Sous-tâche 3']
         }
@@ -36,16 +36,16 @@ describe('Subtask API', () => {
   })
   afterAll(async () => {
     await prisma.task.deleteMany({
-      where: { userId: 'user-id', name: 'Tâche parente test' }
+      where: { userId: TEST_USER.userId, name: 'Tâche parente test' }
     })
     await prisma.task.deleteMany({
-      where: { userId: 'user-id', name: 'Sous-tâche 1' }
+      where: { userId: TEST_USER.userId, name: 'Sous-tâche 1' }
     })
     await prisma.task.deleteMany({
-      where: { userId: 'user-id', name: 'Sous-tâche 2' }
+      where: { userId: TEST_USER.userId, name: 'Sous-tâche 2' }
     })
     await prisma.task.deleteMany({
-      where: { userId: 'user-id', name: 'Sous-tâche 3' }
+      where: { userId: TEST_USER.userId, name: 'Sous-tâche 3' }
     })
     await prisma.$disconnect()
     if (server) server.close()
