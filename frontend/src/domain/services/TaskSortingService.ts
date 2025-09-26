@@ -1,116 +1,27 @@
 import { TaskEntity } from '../entities/Task'
+import { TaskSortingPriorityService } from './TaskSortingPriorityService'
 
 /**
  * Task sorting system implementation
- * Replicates the backend sorting rules (deterministic order):
- * 1. Collected tasks (without date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
- * 2. Overdue tasks — tasks past their planned date OR past their due date
- * 3. Today tasks — tasks planned for today OR due today
- * 4. Tomorrow tasks — tasks planned for tomorrow OR due tomorrow
- * 5. Tasks without date — sorted by points DESC (excluding collected tasks already handled)
- * 6. Future tasks (day+2 or more) — sorted by date ASC
- *
- * Note: Due dates within 2 days (today, tomorrow, overdue) are treated as urgent and prioritized like planned dates
+ * Uses domain services for business logic while providing UI-specific sorting methods
  */
 export class TaskSortingService {
   /**
    * Parse date string and normalize to UTC at midnight
-   * This ensures consistent date handling across all environments
+   * Delegates to domain service for consistency
    */
   static parseAndNormalizeDate(dateInput: string | Date): Date {
-    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
-    // Create a new date in UTC with the same year, month, day
-    const normalizedDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-    return normalizedDate
+    return TaskSortingPriorityService.normalizeDate(dateInput)
   }
 
   /**
-   * Sort tasks according to the priority system
+   * Sort tasks according to the priority system using domain service
    */
   static sortTasksByPriority(tasks: TaskEntity[]): TaskEntity[] {
-    const now = new Date()
-    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
-    const tomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1))
-    const dayAfterTomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
+    const dateContext = TaskSortingPriorityService.createDateContext()
 
     return tasks
-      .sort((a, b) => {
-        // Parse dates and normalize to UTC at midnight
-        const aPlannedDate = a.plannedDate ? TaskSortingService.parseAndNormalizeDate(a.plannedDate) : null
-        const bPlannedDate = b.plannedDate ? TaskSortingService.parseAndNormalizeDate(b.plannedDate) : null
-        const aDueDate = a.dueDate ? TaskSortingService.parseAndNormalizeDate(a.dueDate) : null
-        const bDueDate = b.dueDate ? TaskSortingService.parseAndNormalizeDate(b.dueDate) : null
-
-        // Determine effective date: use due date if urgent (within 2 days), otherwise use planned date
-        const aEffectiveDate = aDueDate && aDueDate < dayAfterTomorrow ? aDueDate : aPlannedDate
-        const bEffectiveDate = bDueDate && bDueDate < dayAfterTomorrow ? bDueDate : bPlannedDate
-
-        const aIsOverdue = aEffectiveDate && aEffectiveDate < today
-        const bIsOverdue = bEffectiveDate && bEffectiveDate < today
-        const aIsToday = aEffectiveDate && aEffectiveDate.getTime() === today.getTime()
-        const bIsToday = bEffectiveDate && bEffectiveDate.getTime() === today.getTime()
-        const aIsTomorrow = aEffectiveDate && aEffectiveDate.getTime() === tomorrow.getTime()
-        const bIsTomorrow = bEffectiveDate && bEffectiveDate.getTime() === tomorrow.getTime()
-        const aIsFuture = aEffectiveDate && aEffectiveDate >= dayAfterTomorrow
-        const bIsFuture = bEffectiveDate && bEffectiveDate >= dayAfterTomorrow
-
-        // Check for collected tasks: either high priority (500+ points) OR new default tasks (importance=0, complexity=3)
-        // Only consider as collected if no urgent due date and no planned date
-        const aIsCollected = a.isCollected() && !aEffectiveDate
-        const bIsCollected = b.isCollected() && !bEffectiveDate
-
-        // 1. Collected tasks (new default tasks OR high priority tasks, only if no due date)
-        if (aIsCollected && !bIsCollected) return -1
-        if (!aIsCollected && bIsCollected) return 1
-        if (aIsCollected && bIsCollected) {
-          // Both are collected tasks, sort by points DESC, then creation date DESC
-          if (a.points !== b.points) return b.points - a.points
-          return new Date(b.rawTask.createdAt).getTime() - new Date(a.rawTask.createdAt).getTime()
-        }
-
-        // 2. Overdue tasks
-        if (aIsOverdue && !bIsOverdue) return -1
-        if (!aIsOverdue && bIsOverdue) return 1
-        if (aIsOverdue && bIsOverdue) {
-          // Both overdue, sort by date ASC (oldest overdue first), then points DESC
-          const dateComparison = aEffectiveDate!.getTime() - bEffectiveDate!.getTime()
-          if (dateComparison !== 0) return dateComparison
-          return b.points - a.points
-        }
-
-        // 3. Today tasks
-        if (aIsToday && !bIsToday) return -1
-        if (!aIsToday && bIsToday) return 1
-        if (aIsToday && bIsToday) {
-          // Both due today, sort by points DESC
-          return b.points - a.points
-        }
-
-        // 4. Tomorrow tasks
-        if (aIsTomorrow && !bIsTomorrow) return -1
-        if (!aIsTomorrow && bIsTomorrow) return 1
-        if (aIsTomorrow && bIsTomorrow) {
-          // Both due tomorrow, sort by points DESC
-          return b.points - a.points
-        }
-
-        // 5. Tasks without date (excluding the 500+ point ones already handled)
-        if (!aEffectiveDate && bEffectiveDate) return -1
-        if (aEffectiveDate && !bEffectiveDate) return 1
-        if (!aEffectiveDate && !bEffectiveDate) {
-          // Both have no date, sort by points DESC
-          return b.points - a.points
-        }
-
-        // 6. Future tasks (day+2 or more)
-        if (aIsFuture && bIsFuture) {
-          // Both are future tasks, sort by date ASC
-          return aEffectiveDate!.getTime() - bEffectiveDate!.getTime()
-        }
-
-        // Fallback: sort by points DESC
-        return b.points - a.points
-      })
+      .sort((a, b) => TaskSortingPriorityService.compareTasksPriority(a.rawTask, b.rawTask, dateContext))
       .map((task) => new TaskEntity({
         ...task.rawTask,
         subtasks: TaskSortingService.sortSubtasksByPriority(task.getSubtaskEntities()).map(t => t.rawTask)
@@ -118,11 +29,11 @@ export class TaskSortingService {
   }
 
   /**
-   * Sort subtasks by points
+   * Sort subtasks by points using domain service
    */
   static sortSubtasksByPriority(subtasks: TaskEntity[]): TaskEntity[] {
     return subtasks
-      .sort((a, b) => TaskSortingService.compareByPoints(a, b))
+      .sort((a, b) => TaskSortingPriorityService.compareByPoints(a.rawTask, b.rawTask))
       .map((subtask) => new TaskEntity({
         ...subtask.rawTask,
         subtasks: TaskSortingService.sortSubtasksByPriority(subtask.getSubtaskEntities()).map(t => t.rawTask)
@@ -131,15 +42,10 @@ export class TaskSortingService {
 
   /**
    * Compare two tasks by points (higher points = higher priority)
+   * Delegates to domain service
    */
   static compareByPoints(a: TaskEntity, b: TaskEntity): number {
-    // Sort by points DESC (higher points = higher priority)
-    if (a.points !== b.points) {
-      return b.points - a.points
-    }
-
-    // If points equal, sort by creation date DESC (newer first)
-    return new Date(b.rawTask.createdAt).getTime() - new Date(a.rawTask.createdAt).getTime()
+    return TaskSortingPriorityService.compareByPoints(a.rawTask, b.rawTask)
   }
 
   /**
