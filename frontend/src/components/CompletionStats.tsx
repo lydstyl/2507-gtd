@@ -35,6 +35,21 @@ export function CompletionStats() {
     setExpandedDays(newExpanded)
   }
 
+  const handleTaskDeleted = async (taskId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche terminée ?')) {
+      return
+    }
+
+    try {
+      await api.deleteTask(taskId)
+      // Reload stats after deletion
+      await loadStats()
+    } catch (error) {
+      console.error('Error deleting task:', error)
+      alert('Erreur lors de la suppression de la tâche')
+    }
+  }
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
     const today = new Date()
@@ -135,20 +150,31 @@ export function CompletionStats() {
                 )}
               </div>
 
-              {expandedDays.has(day.date) && day.tasks.length > 0 && (
-                <div className="mt-3 pl-4 border-l-2 border-green-200">
-                  <div className="space-y-1">
-                    {day.tasks.map((task) => (
-                      <div key={task.id} className="text-sm text-gray-600 flex items-center space-x-2">
-                        <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span>{task.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+               {expandedDays.has(day.date) && day.tasks.length > 0 && (
+                 <div className="mt-3 pl-4 border-l-2 border-green-200">
+                   <div className="space-y-1">
+                     {day.tasks.map((task) => (
+                       <div key={task.id} className="text-sm text-gray-600 flex items-center justify-between group">
+                         <div className="flex items-center space-x-2 flex-1">
+                           <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                           </svg>
+                           <span>{task.name}</span>
+                         </div>
+                         <button
+                           onClick={() => handleTaskDeleted(task.id)}
+                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded text-red-500 hover:text-red-700"
+                           title="Supprimer cette tâche"
+                         >
+                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                           </svg>
+                         </button>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               )}
             </div>
           ))}
         </div>
@@ -158,7 +184,7 @@ export function CompletionStats() {
       <div>
         <h4 className="text-md font-medium text-gray-800 mb-4">Progression hebdomadaire - 8 dernières semaines</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {stats.weeklyCompletions.map((week, index) => (
+          {stats.weeklyCompletions.map((week) => (
             <div
               key={week.weekStart}
               className="bg-gray-50 rounded-lg p-3 text-center"
