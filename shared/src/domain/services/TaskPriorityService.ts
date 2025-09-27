@@ -193,9 +193,14 @@ export class TaskPriorityService {
       return b.points - a.points
     }
     // If points equal, sort by creation date DESC (newer first)
-    const dateA = this.normalizeDate(a.createdAt)
-    const dateB = this.normalizeDate(b.createdAt)
-    return dateB.getTime() - dateA.getTime()
+    try {
+      const dateA = new Date(a.createdAt as string | number | Date)
+      const dateB = new Date(b.createdAt as string | number | Date)
+      return dateB.getTime() - dateA.getTime()
+    } catch {
+      // If date parsing fails, consider them equal
+      return 0
+    }
   }
 
   /**
@@ -254,8 +259,10 @@ export class TaskPriorityService {
         return this.compareByPoints(a, b)
 
       case 'future':
-        // Both are future tasks, sort by date ASC
-        return this.compareByEffectiveDate(a, b, context)
+        // Both are future tasks, sort by date ASC, then points DESC
+        const futureDateComparison = this.compareByEffectiveDate(a, b, context)
+        if (futureDateComparison !== 0) return futureDateComparison
+        return this.compareByPoints(a, b)
 
       default:
         // Fallback: sort by points DESC

@@ -1,5 +1,4 @@
 export * from './TaskCategoryService'
-export * from './TaskPriorityService'
+export { TaskPriorityService } from '@gtd/shared'
 export * from './TaskSortingService'
-export * from './TaskSortingPriorityService'
 export * from './DateService'

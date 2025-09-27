@@ -8,7 +8,7 @@
  */
 export function normalizeDate(dateInput: string | Date): Date {
   const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
-  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
 }
 
 /**
@@ -45,9 +45,9 @@ export function isDateUrgent(dateInput: string | Date, daysThreshold: number = 2
 export function createDateContext() {
   const now = new Date()
   return {
-    today: new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())),
-    tomorrow: new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1)),
-    dayAfterTomorrow: new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
+    today: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())),
+    tomorrow: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)),
+    dayAfterTomorrow: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 2))
   }
 }
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { TaskEntity } from '../entities/Task'
-import { TaskSortingPriorityService } from '../services/TaskSortingPriorityService'
+import { TaskPriorityService } from '@gtd/shared'
 
 // Mock timer for consistent date testing
 const mockDate = new Date('2025-01-15T10:00:00Z') // Wednesday
@@ -8,10 +8,10 @@ vi.useFakeTimers()
 vi.setSystemTime(mockDate)
 
 describe('Advanced Edge Cases', () => {
-  let dateContext: ReturnType<typeof TaskSortingPriorityService.createDateContext>
+  let dateContext: ReturnType<typeof TaskPriorityService.createDateContext>
 
   beforeEach(() => {
-    dateContext = TaskSortingPriorityService.createDateContext()
+    dateContext = TaskPriorityService.createDateContext()
   })
 
   describe('Task Categorization Edge Cases', () => {
@@ -187,10 +187,10 @@ describe('Advanced Edge Cases', () => {
       ]
 
       // Both in 'no-date' category, same points, should sort by creation DESC (newer first)
-      const comparison1 = TaskSortingPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
+      const comparison1 = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
       expect(comparison1).toBeGreaterThan(0) // older > newer means older comes after newer
 
-      const comparison2 = TaskSortingPriorityService.compareTasksPriority(tasks[1].rawTask, tasks[0].rawTask, dateContext)
+      const comparison2 = TaskPriorityService.compareTasksPriority(tasks[1].rawTask, tasks[0].rawTask, dateContext)
       expect(comparison2).toBeLessThan(0) // newer < older means newer comes before older
     })
 
@@ -235,7 +235,7 @@ describe('Advanced Edge Cases', () => {
       ]
 
       // Both overdue, same points, should sort by date ASC (oldest first)
-      const comparison = TaskSortingPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
       expect(comparison).toBeLessThan(0) // very-overdue < recently-overdue means very-overdue comes first
     })
 
@@ -280,7 +280,7 @@ describe('Advanced Edge Cases', () => {
       ]
 
       // Both future, same points, should sort by date ASC (soonest first)
-      const comparison = TaskSortingPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
       expect(comparison).toBeLessThan(0) // soon-future < far-future means soon-future comes first
     })
 
@@ -323,7 +323,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       // Overdue should always come before today, regardless of other factors
-      const comparison = TaskSortingPriorityService.compareTasksPriority(overdueTask.rawTask, todayTask.rawTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(overdueTask.rawTask, todayTask.rawTask, dateContext)
       expect(comparison).toBeLessThan(0) // overdue < today means overdue comes first
     })
   })
@@ -367,7 +367,7 @@ describe('Advanced Edge Cases', () => {
         })
       ]
 
-      const sortedTasks = TaskSortingPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
+      const sortedTasks = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
       // Both are 'no-date' category, so sorted by points DESC
       expect(sortedTasks).toBeLessThan(0) // completed-high (200 points) < incomplete-low (20 points) means completed-high comes first
     })
@@ -409,7 +409,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      const comparison = TaskSortingPriorityService.compareTasksPriority(nearFutureTask.rawTask, farFutureTask.rawTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(nearFutureTask.rawTask, farFutureTask.rawTask, dateContext)
       // Both are 'future' category, so sorted by date ASC
       expect(comparison).toBeLessThan(0) // near-future < far-future means near-future comes first
     })
@@ -451,7 +451,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      const comparison = TaskSortingPriorityService.compareTasksPriority(highPointsTask.rawTask, lowPointsTask.rawTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(highPointsTask.rawTask, lowPointsTask.rawTask, dateContext)
       // Both are 'future' category with same date, so sorted by points DESC
       expect(comparison).toBeLessThan(0) // high-points < low-points means high-points comes first
     })
@@ -493,7 +493,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      const comparison = TaskSortingPriorityService.compareTasksPriority(newerTask.rawTask, olderTask.rawTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(newerTask.rawTask, olderTask.rawTask, dateContext)
       // Both are 'future' category with same date and points, so sorted by creation DESC
       expect(comparison).toBeLessThan(0) // newer < older means newer comes first
     })
@@ -501,7 +501,7 @@ describe('Advanced Edge Cases', () => {
     it('should handle empty and single item sorting edge cases', () => {
       // Empty array should be handled gracefully
       expect(() => {
-        TaskSortingPriorityService.compareTasksPriority({} as any, {} as any, dateContext)
+        TaskPriorityService.compareTasksPriority({} as any, {} as any, dateContext)
         // This should not crash, though result is undefined
       }).not.toThrow()
 
@@ -524,7 +524,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       }
 
-      const selfComparison = TaskSortingPriorityService.compareTasksPriority(task, task, dateContext)
+      const selfComparison = TaskPriorityService.compareTasksPriority(task, task, dateContext)
       expect(selfComparison).toBe(0) // Same task should compare equal
     })
 
@@ -565,7 +565,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       }
 
-      const comparison = TaskSortingPriorityService.compareTasksPriority(maxPointsTask, minPointsTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(maxPointsTask, minPointsTask, dateContext)
       // Both 'no-date' category, max points should come first
       expect(comparison).toBeLessThan(0)
     })
@@ -819,12 +819,12 @@ describe('Advanced Edge Cases', () => {
 
       // Even with same priority scores, overdue should come before today,
       // and today should come before future
-      const overdueVsToday = TaskSortingPriorityService.compareTasksPriority(
+      const overdueVsToday = TaskPriorityService.compareTasksPriority(
         highestOverdue.rawTask, highestToday.rawTask, dateContext
       )
       expect(overdueVsToday).toBeLessThan(0) // overdue < today
 
-      const todayVsFuture = TaskSortingPriorityService.compareTasksPriority(
+      const todayVsFuture = TaskPriorityService.compareTasksPriority(
         highestToday.rawTask, highestFuture.rawTask, dateContext
       )
       expect(todayVsFuture).toBeLessThan(0) // today < future

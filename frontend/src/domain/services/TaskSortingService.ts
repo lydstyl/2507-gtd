@@ -1,5 +1,6 @@
 import { TaskEntity } from '../entities/Task'
-import { TaskSortingPriorityService } from './TaskSortingPriorityService'
+import { TaskPriorityService } from '@gtd/shared'
+import { TaskAdapter } from './TaskAdapter'
 
 /**
  * Task sorting system implementation
@@ -11,17 +12,21 @@ export class TaskSortingService {
    * Delegates to domain service for consistency
    */
   static parseAndNormalizeDate(dateInput: string | Date): Date {
-    return TaskSortingPriorityService.normalizeDate(dateInput)
+    return TaskPriorityService.normalizeDate(dateInput)
   }
 
   /**
-    * Sort tasks according to the priority system using domain service
-    */
+     * Sort tasks according to the priority system using domain service
+     */
   static sortTasksByPriority(tasks: TaskEntity[]): TaskEntity[] {
-    const dateContext = TaskSortingPriorityService.createDateContext()
+    const dateContext = TaskPriorityService.createDateContext()
 
     return [...tasks]
-      .sort((a, b) => TaskSortingPriorityService.compareTasksPriority(a.rawTask, b.rawTask, dateContext))
+      .sort((a, b) => TaskPriorityService.compareTasksPriority(
+        TaskAdapter.entityToSharedDomain(a),
+        TaskAdapter.entityToSharedDomain(b),
+        dateContext
+      ))
       .map((task) => new TaskEntity({
         ...task.rawTask,
         subtasks: TaskSortingService.sortSubtasksByPriority(task.getSubtaskEntities()).map(t => t.rawTask)
@@ -29,11 +34,14 @@ export class TaskSortingService {
   }
 
   /**
-    * Sort subtasks by points using domain service
-    */
+     * Sort subtasks by points using domain service
+     */
   static sortSubtasksByPriority(subtasks: TaskEntity[]): TaskEntity[] {
     return [...subtasks]
-      .sort((a, b) => TaskSortingPriorityService.compareByPoints(a.rawTask, b.rawTask))
+      .sort((a, b) => TaskPriorityService.compareByPoints(
+        TaskAdapter.entityToSharedDomain(a),
+        TaskAdapter.entityToSharedDomain(b)
+      ))
       .map((subtask) => new TaskEntity({
         ...subtask.rawTask,
         subtasks: TaskSortingService.sortSubtasksByPriority(subtask.getSubtaskEntities()).map(t => t.rawTask)
@@ -45,7 +53,10 @@ export class TaskSortingService {
    * Delegates to domain service
    */
   static compareByPoints(a: TaskEntity, b: TaskEntity): number {
-    return TaskSortingPriorityService.compareByPoints(a.rawTask, b.rawTask)
+    return TaskPriorityService.compareByPoints(
+      TaskAdapter.entityToSharedDomain(a),
+      TaskAdapter.entityToSharedDomain(b)
+    )
   }
 
   /**
@@ -139,36 +150,50 @@ export class TaskSortingService {
   }
 
   /**
-    * Get overdue tasks
-    */
+     * Get overdue tasks
+     */
   static getOverdueTasks(tasks: TaskEntity[]): TaskEntity[] {
-    const today = TaskSortingPriorityService.createDateContext().today
+    const dateContext = TaskPriorityService.createDateContext()
 
     return tasks.filter(task => {
-      if (!task.plannedDate) return false
-      const plannedDate = TaskSortingPriorityService.normalizeDate(task.plannedDate)
-      return plannedDate < today
+      const sharedTask = TaskAdapter.entityToSharedDomain(task)
+      return TaskPriorityService.isOverdueTask(sharedTask, dateContext)
     })
   }
 
   /**
-   * Get tasks due today
-   */
+    * Get tasks due today
+    */
   static getTodayTasks(tasks: TaskEntity[]): TaskEntity[] {
-    return tasks.filter(task => task.isDueToday())
+    const dateContext = TaskPriorityService.createDateContext()
+
+    return tasks.filter(task => {
+      const sharedTask = TaskAdapter.entityToSharedDomain(task)
+      return TaskPriorityService.isTodayTask(sharedTask, dateContext)
+    })
   }
 
   /**
-   * Get tasks due tomorrow
-   */
+    * Get tasks due tomorrow
+    */
   static getTomorrowTasks(tasks: TaskEntity[]): TaskEntity[] {
-    return tasks.filter(task => task.isDueTomorrow())
+    const dateContext = TaskPriorityService.createDateContext()
+
+    return tasks.filter(task => {
+      const sharedTask = TaskAdapter.entityToSharedDomain(task)
+      return TaskPriorityService.isTomorrowTask(sharedTask, dateContext)
+    })
   }
 
   /**
-   * Get collected tasks (high priority without dates)
-   */
+    * Get collected tasks (high priority without dates)
+    */
   static getCollectedTasks(tasks: TaskEntity[]): TaskEntity[] {
-    return tasks.filter(task => task.isCollected())
+    const dateContext = TaskPriorityService.createDateContext()
+
+    return tasks.filter(task => {
+      const sharedTask = TaskAdapter.entityToSharedDomain(task)
+      return TaskPriorityService.isCollectedTask(sharedTask, dateContext)
+    })
   }
 }

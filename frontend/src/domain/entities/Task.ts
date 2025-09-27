@@ -1,5 +1,6 @@
-import { Tag } from './Tag'
-import { TaskSortingPriorityService } from '../services/TaskSortingPriorityService'
+import type { Tag } from './Tag'
+import { TaskPriorityService } from '@gtd/shared'
+import { TaskAdapter } from '../services/TaskAdapter'
 
 export type TaskCategory = 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
 
@@ -51,7 +52,11 @@ export interface UpdateTaskData {
 }
 
 export class TaskEntity {
-  constructor(private task: Task) {}
+  private readonly task: Task
+
+  constructor(task: Task) {
+    this.task = task
+  }
 
   get id(): string {
     return this.task.id
@@ -108,66 +113,71 @@ export class TaskEntity {
   }
 
   /**
-   * Check if the task is overdue
-   */
+    * Check if the task is overdue
+    */
   isOverdue(): boolean {
     if (!this.task.plannedDate && !this.task.dueDate) return false
 
     try {
-      // Use TaskSortingPriorityService for consistency with getCategory
-      const context = TaskSortingPriorityService.createDateContext()
-      return TaskSortingPriorityService.isOverdueTask(this.task, context)
+      // Use shared TaskPriorityService for consistency with getCategory
+      const context = TaskPriorityService.createDateContext()
+      const sharedTask = TaskAdapter.toSharedDomain(this.task)
+      return TaskPriorityService.isOverdueTask(sharedTask, context)
     } catch {
       return false
     }
   }
 
   /**
-   * Check if the task is due today
-   */
+    * Check if the task is due today
+    */
   isDueToday(): boolean {
     if (!this.task.plannedDate) return false
 
     try {
-      // Use TaskSortingPriorityService for consistency with getCategory
-      const context = TaskSortingPriorityService.createDateContext()
-      return TaskSortingPriorityService.isTodayTask(this.task, context)
+      // Use shared TaskPriorityService for consistency with getCategory
+      const context = TaskPriorityService.createDateContext()
+      const sharedTask = TaskAdapter.toSharedDomain(this.task)
+      return TaskPriorityService.isTodayTask(sharedTask, context)
     } catch {
       return false
     }
   }
 
   /**
-   * Check if the task is due tomorrow
-   */
+    * Check if the task is due tomorrow
+    */
   isDueTomorrow(): boolean {
     if (!this.task.plannedDate && !this.task.dueDate) return false
 
     try {
-      // Use TaskSortingPriorityService for consistency with getCategory
-      const context = TaskSortingPriorityService.createDateContext()
-      return TaskSortingPriorityService.isTomorrowTask(this.task, context)
+      // Use shared TaskPriorityService for consistency with getCategory
+      const context = TaskPriorityService.createDateContext()
+      const sharedTask = TaskAdapter.toSharedDomain(this.task)
+      return TaskPriorityService.isTomorrowTask(sharedTask, context)
     } catch {
       return false
     }
   }
 
   /**
-   * Check if task is collected (high priority without dates OR new default tasks)
-   * Delegates to domain service for business logic
-   */
+    * Check if task is collected (high priority without dates OR new default tasks)
+    * Delegates to domain service for business logic
+    */
   isCollected(): boolean {
-    const dateContext = TaskSortingPriorityService.createDateContext()
-    return TaskSortingPriorityService.isCollectedTask(this.task, dateContext)
+    const dateContext = TaskPriorityService.createDateContext()
+    const sharedTask = TaskAdapter.toSharedDomain(this.task)
+    return TaskPriorityService.isCollectedTask(sharedTask, dateContext)
   }
 
   /**
-   * Get the task category for sorting and display
-   * Delegates to domain service for business logic
-   */
+    * Get the task category for sorting and display
+    * Delegates to domain service for business logic
+    */
   getCategory(): TaskCategory {
-    const dateContext = TaskSortingPriorityService.createDateContext()
-    return TaskSortingPriorityService.getTaskCategory(this.task, dateContext)
+    const dateContext = TaskPriorityService.createDateContext()
+    const sharedTask = TaskAdapter.toSharedDomain(this.task)
+    return TaskPriorityService.getTaskCategory(sharedTask, dateContext)
   }
 
   /**
@@ -203,26 +213,6 @@ export class TaskEntity {
     return this.task.subtasks.map(subtask => new TaskEntity(subtask))
   }
 
-  // Private helper methods
 
-  private parseDate(dateInput: string | Date): Date {
-    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
-  }
-
-  private getTodayUTC(): Date {
-    const now = new Date()
-    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
-  }
-
-  private getTomorrowUTC(): Date {
-    const now = new Date()
-    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1))
-  }
-
-  private getDayAfterTomorrowUTC(): Date {
-    const now = new Date()
-    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
-  }
 
 }

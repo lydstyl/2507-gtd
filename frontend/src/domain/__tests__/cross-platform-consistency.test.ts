@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { TaskSortingPriorityService } from '../services/TaskSortingPriorityService'
+import { TaskPriorityService } from '@gtd/shared'
 import { TaskEntity } from '../entities/Task'
 
 // Mock timer for consistent date testing
@@ -8,16 +8,16 @@ vi.useFakeTimers()
 vi.setSystemTime(mockDate)
 
 describe('Frontend Domain Consistency', () => {
-  let dateContext: ReturnType<typeof TaskSortingPriorityService.createDateContext>
+  let dateContext: ReturnType<typeof TaskPriorityService.createDateContext>
 
   beforeEach(() => {
-    dateContext = TaskSortingPriorityService.createDateContext()
+    dateContext = TaskPriorityService.createDateContext()
   })
 
   describe('Date Context Creation', () => {
     it('should create consistent date contexts', () => {
-      const context1 = TaskSortingPriorityService.createDateContext()
-      const context2 = TaskSortingPriorityService.createDateContext()
+      const context1 = TaskPriorityService.createDateContext()
+      const context2 = TaskPriorityService.createDateContext()
 
       expect(context1.today.getTime()).toBe(context2.today.getTime())
       expect(context1.tomorrow.getTime()).toBe(context2.tomorrow.getTime())
@@ -26,7 +26,7 @@ describe('Frontend Domain Consistency', () => {
 
     it('should normalize dates correctly', () => {
       const testDate = '2025-01-15T15:30:45.123Z'
-      const normalized = TaskSortingPriorityService.normalizeDate(testDate)
+      const normalized = TaskPriorityService.normalizeDate(testDate)
 
       // Should be normalized to UTC midnight of the same date
       expect(normalized.getUTCHours()).toBe(0)
@@ -60,7 +60,7 @@ describe('Frontend Domain Consistency', () => {
       })
 
       expect(collectedTask.getCategory()).toBe('collected')
-      expect(TaskSortingPriorityService.isCollectedTask(collectedTask.rawTask, dateContext)).toBe(true)
+      expect(TaskPriorityService.isCollectedTask(collectedTask.rawTask, dateContext)).toBe(true)
     })
 
     it('should correctly categorize overdue tasks', () => {
@@ -83,7 +83,7 @@ describe('Frontend Domain Consistency', () => {
       })
 
       expect(overdueTask.getCategory()).toBe('overdue')
-      expect(TaskSortingPriorityService.isOverdueTask(overdueTask.rawTask, dateContext)).toBe(true)
+      expect(TaskPriorityService.isOverdueTask(overdueTask.rawTask, dateContext)).toBe(true)
     })
 
     it('should correctly categorize today tasks', () => {
@@ -106,7 +106,7 @@ describe('Frontend Domain Consistency', () => {
       })
 
       expect(todayTask.getCategory()).toBe('today')
-      expect(TaskSortingPriorityService.isTodayTask(todayTask.rawTask, dateContext)).toBe(true)
+      expect(TaskPriorityService.isTodayTask(todayTask.rawTask, dateContext)).toBe(true)
     })
 
     it('should correctly categorize tomorrow tasks', () => {
@@ -129,7 +129,7 @@ describe('Frontend Domain Consistency', () => {
       })
 
       expect(tomorrowTask.getCategory()).toBe('tomorrow')
-      expect(TaskSortingPriorityService.isTomorrowTask(tomorrowTask.rawTask, dateContext)).toBe(true)
+      expect(TaskPriorityService.isTomorrowTask(tomorrowTask.rawTask, dateContext)).toBe(true)
     })
 
     it('should correctly categorize future tasks', () => {
@@ -152,7 +152,7 @@ describe('Frontend Domain Consistency', () => {
       })
 
       expect(futureTask.getCategory()).toBe('future')
-      expect(TaskSortingPriorityService.isFutureTask(futureTask.rawTask, dateContext)).toBe(true)
+      expect(TaskPriorityService.isFutureTask(futureTask.rawTask, dateContext)).toBe(true)
     })
 
     it('should correctly categorize no-date tasks', () => {
@@ -175,7 +175,7 @@ describe('Frontend Domain Consistency', () => {
       })
 
       expect(noDateTask.getCategory()).toBe('no-date')
-      expect(TaskSortingPriorityService.isCollectedTask(noDateTask.rawTask, dateContext)).toBe(false)
+      expect(TaskPriorityService.isCollectedTask(noDateTask.rawTask, dateContext)).toBe(false)
     })
 
     it('should prioritize urgent due dates over planned dates', () => {
@@ -198,7 +198,7 @@ describe('Frontend Domain Consistency', () => {
       })
 
       expect(taskWithBothDates.getCategory()).toBe('today')
-      expect(TaskSortingPriorityService.isTodayTask(taskWithBothDates.rawTask, dateContext)).toBe(true)
+      expect(TaskPriorityService.isTodayTask(taskWithBothDates.rawTask, dateContext)).toBe(true)
     })
   })
 
@@ -240,21 +240,21 @@ describe('Frontend Domain Consistency', () => {
     })
 
     it('should compare tasks by category priority', () => {
-      const comparison = TaskSortingPriorityService.compareByCategory(taskA.rawTask, taskB.rawTask, dateContext)
+      const comparison = TaskPriorityService.compareByCategory(taskA.rawTask, taskB.rawTask, dateContext)
       // Task A is 'today' (priority 3), Task B is 'tomorrow' (priority 4)
       // Lower priority number comes first
       expect(comparison).toBeLessThan(0) // today < tomorrow
     })
 
     it('should compare tasks by points', () => {
-      const comparison = TaskSortingPriorityService.compareByPoints(taskA.rawTask, taskB.rawTask)
+      const comparison = TaskPriorityService.compareByPoints(taskA.rawTask, taskB.rawTask)
       // Task A has 100 points, Task B has 40 points
       // Higher points come first
       expect(comparison).toBeLessThan(0) // 100 > 40
     })
 
     it('should perform complete task priority comparison', () => {
-      const comparison = TaskSortingPriorityService.compareTasksPriority(taskA.rawTask, taskB.rawTask, dateContext)
+      const comparison = TaskPriorityService.compareTasksPriority(taskA.rawTask, taskB.rawTask, dateContext)
       // Task A (today) should come before Task B (tomorrow)
       expect(comparison).toBeLessThan(0)
     })
@@ -265,32 +265,32 @@ describe('Frontend Domain Consistency', () => {
       const categories = ['collected', 'overdue', 'today', 'tomorrow', 'no-date', 'future'] as const
 
       categories.forEach((category, index) => {
-        const priority = TaskSortingPriorityService.getCategoryPriority(category)
+        const priority = TaskPriorityService.getCategoryPriority(category)
         expect(priority).toBe(index + 1)
       })
     })
 
     it('should have collected as highest priority', () => {
-      expect(TaskSortingPriorityService.getCategoryPriority('collected')).toBe(1)
+      expect(TaskPriorityService.getCategoryPriority('collected')).toBe(1)
     })
 
     it('should have future as lowest priority', () => {
-      expect(TaskSortingPriorityService.getCategoryPriority('future')).toBe(6)
+      expect(TaskPriorityService.getCategoryPriority('future')).toBe(6)
     })
   })
 
   describe('Date Urgency Detection', () => {
     it('should detect urgent dates correctly', () => {
       // Today should be urgent
-      expect(TaskSortingPriorityService.isDateUrgent('2025-01-15T10:00:00.000Z', dateContext)).toBe(true)
+      expect(TaskPriorityService.isDateUrgent('2025-01-15T10:00:00.000Z', dateContext)).toBe(true)
       // Tomorrow should be urgent
-      expect(TaskSortingPriorityService.isDateUrgent('2025-01-16T10:00:00.000Z', dateContext)).toBe(true)
+      expect(TaskPriorityService.isDateUrgent('2025-01-16T10:00:00.000Z', dateContext)).toBe(true)
       // Yesterday should be urgent (within 2 days window)
-      expect(TaskSortingPriorityService.isDateUrgent('2025-01-14T10:00:00.000Z', dateContext)).toBe(true)
+      expect(TaskPriorityService.isDateUrgent('2025-01-14T10:00:00.000Z', dateContext)).toBe(true)
       // Day after tomorrow should not be urgent
-      expect(TaskSortingPriorityService.isDateUrgent('2025-01-17T10:00:00.000Z', dateContext)).toBe(false)
+      expect(TaskPriorityService.isDateUrgent('2025-01-17T10:00:00.000Z', dateContext)).toBe(false)
       // Far future should not be urgent
-      expect(TaskSortingPriorityService.isDateUrgent('2025-01-20T10:00:00.000Z', dateContext)).toBe(false)
+      expect(TaskPriorityService.isDateUrgent('2025-01-20T10:00:00.000Z', dateContext)).toBe(false)
     })
   })
 
@@ -314,7 +314,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       }
 
-      const effectiveDate = TaskSortingPriorityService.getEffectiveDate(task, dateContext)
+      const effectiveDate = TaskPriorityService.getEffectiveDate(task, dateContext)
       expect(effectiveDate?.getTime()).toBe(new Date('2025-01-16T00:00:00.000Z').getTime())
     })
 
@@ -337,7 +337,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       }
 
-      const effectiveDate = TaskSortingPriorityService.getEffectiveDate(task, dateContext)
+      const effectiveDate = TaskPriorityService.getEffectiveDate(task, dateContext)
       // Should use due date since it's urgent
       expect(effectiveDate?.getTime()).toBe(new Date('2025-01-15T00:00:00.000Z').getTime())
     })
@@ -361,7 +361,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       }
 
-      const effectiveDate = TaskSortingPriorityService.getEffectiveDate(task, dateContext)
+      const effectiveDate = TaskPriorityService.getEffectiveDate(task, dateContext)
       expect(effectiveDate).toBeNull()
     })
   })
