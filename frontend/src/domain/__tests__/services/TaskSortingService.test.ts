@@ -61,12 +61,12 @@ describe('TaskSortingService', () => {
 
       const sorted = TaskSortingService.sortTasksByPriority(tasks)
 
-      expect(sorted[0]).toBe(testTasks.collected)
-      expect(sorted[1]).toBe(testTasks.overdue)
-      expect(sorted[2]).toBe(testTasks.today)
-      expect(sorted[3]).toBe(testTasks.tomorrow)
-      expect(sorted[4]).toBe(testTasks.noDate)
-      expect(sorted[5]).toBe(testTasks.future)
+      expect(sorted[0].name).toBe('Collected Task')
+      expect(sorted[1].name).toBe('Overdue Task')
+      expect(sorted[2].name).toBe('Today Task')
+      expect(sorted[3].name).toBe('Tomorrow Task')
+      expect(sorted[4].name).toBe('No Date Task')
+      expect(sorted[5].name).toBe('Future Task')
     })
 
     it('should sort collected tasks by points (highest first)', () => {
@@ -85,7 +85,7 @@ describe('TaskSortingService', () => {
         }),
         createMockTaskEntity({
           name: 'Medium Points Collected',
-          importance: 30,
+          importance: 0,
           complexity: 3,
           points: 100
         })
@@ -316,15 +316,15 @@ describe('TaskSortingService', () => {
       const tasks = [
         createMockTaskEntity({
           name: 'Old Task',
-          rawTask: { ...createMockTaskEntity().rawTask, createdAt: '2023-06-10T12:00:00Z' }
+          createdAt: '2023-06-10T12:00:00Z'
         }),
         createMockTaskEntity({
           name: 'New Task',
-          rawTask: { ...createMockTaskEntity().rawTask, createdAt: '2023-06-15T12:00:00Z' }
+          createdAt: '2023-06-15T12:00:00Z'
         }),
         createMockTaskEntity({
           name: 'Medium Task',
-          rawTask: { ...createMockTaskEntity().rawTask, createdAt: '2023-06-12T12:00:00Z' }
+          createdAt: '2023-06-12T12:00:00Z'
         })
       ]
 
@@ -342,7 +342,7 @@ describe('TaskSortingService', () => {
         createMockTaskEntity({
           name: 'Completed Task',
           isCompleted: true,
-          rawTask: { ...createMockTaskEntity().rawTask, completedAt: '2023-06-15T12:00:00Z' }
+          completedAt: '2023-06-15T12:00:00Z'
         }),
         createMockTaskEntity({
           name: 'Incomplete Task',
@@ -361,12 +361,12 @@ describe('TaskSortingService', () => {
         createMockTaskEntity({
           name: 'Completed Earlier',
           isCompleted: true,
-          rawTask: { ...createMockTaskEntity().rawTask, completedAt: '2023-06-10T12:00:00Z' }
+          completedAt: '2023-06-10T12:00:00Z'
         }),
         createMockTaskEntity({
           name: 'Completed Later',
           isCompleted: true,
-          rawTask: { ...createMockTaskEntity().rawTask, completedAt: '2023-06-15T12:00:00Z' }
+          completedAt: '2023-06-15T12:00:00Z'
         })
       ]
 
@@ -550,7 +550,7 @@ describe('TaskSortingService', () => {
     })
 
     it('should handle edge case at midnight', () => {
-      const yesterdayEnd = new Date(fixedDate.getTime() - 1) // 1ms before today
+      const yesterdayEnd = new Date(Date.UTC(fixedDate.getUTCFullYear(), fixedDate.getUTCMonth(), fixedDate.getUTCDate() - 1, 23, 59, 59, 999)) // End of yesterday
       const tasks = [
         createMockTaskEntity({
           name: 'Just Overdue',

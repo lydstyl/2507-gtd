@@ -15,12 +15,12 @@ export class TaskSortingService {
   }
 
   /**
-   * Sort tasks according to the priority system using domain service
-   */
+    * Sort tasks according to the priority system using domain service
+    */
   static sortTasksByPriority(tasks: TaskEntity[]): TaskEntity[] {
     const dateContext = TaskSortingPriorityService.createDateContext()
 
-    return tasks
+    return [...tasks]
       .sort((a, b) => TaskSortingPriorityService.compareTasksPriority(a.rawTask, b.rawTask, dateContext))
       .map((task) => new TaskEntity({
         ...task.rawTask,
@@ -29,10 +29,10 @@ export class TaskSortingService {
   }
 
   /**
-   * Sort subtasks by points using domain service
-   */
+    * Sort subtasks by points using domain service
+    */
   static sortSubtasksByPriority(subtasks: TaskEntity[]): TaskEntity[] {
-    return subtasks
+    return [...subtasks]
       .sort((a, b) => TaskSortingPriorityService.compareByPoints(a.rawTask, b.rawTask))
       .map((subtask) => new TaskEntity({
         ...subtask.rawTask,
@@ -139,15 +139,14 @@ export class TaskSortingService {
   }
 
   /**
-   * Get overdue tasks
-   */
+    * Get overdue tasks
+    */
   static getOverdueTasks(tasks: TaskEntity[]): TaskEntity[] {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const today = TaskSortingPriorityService.createDateContext().today
 
     return tasks.filter(task => {
       if (!task.plannedDate) return false
-      const plannedDate = new Date(task.plannedDate)
+      const plannedDate = TaskSortingPriorityService.normalizeDate(task.plannedDate)
       return plannedDate < today
     })
   }

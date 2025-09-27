@@ -111,13 +111,12 @@ export class TaskEntity {
    * Check if the task is overdue
    */
   isOverdue(): boolean {
-    if (!this.task.plannedDate) return false
+    if (!this.task.plannedDate && !this.task.dueDate) return false
 
     try {
-      const date = new Date(this.task.plannedDate)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      return date < today
+      // Use TaskSortingPriorityService for consistency with getCategory
+      const context = TaskSortingPriorityService.createDateContext()
+      return TaskSortingPriorityService.isOverdueTask(this.task, context)
     } catch {
       return false
     }
@@ -130,9 +129,9 @@ export class TaskEntity {
     if (!this.task.plannedDate) return false
 
     try {
-      const plannedDate = this.parseDate(this.task.plannedDate)
-      const today = this.getTodayUTC()
-      return plannedDate.getTime() === today.getTime()
+      // Use TaskSortingPriorityService for consistency with getCategory
+      const context = TaskSortingPriorityService.createDateContext()
+      return TaskSortingPriorityService.isTodayTask(this.task, context)
     } catch {
       return false
     }
@@ -142,12 +141,12 @@ export class TaskEntity {
    * Check if the task is due tomorrow
    */
   isDueTomorrow(): boolean {
-    if (!this.task.plannedDate) return false
+    if (!this.task.plannedDate && !this.task.dueDate) return false
 
     try {
-      const plannedDate = this.parseDate(this.task.plannedDate)
-      const tomorrow = this.getTomorrowUTC()
-      return plannedDate.getTime() === tomorrow.getTime()
+      // Use TaskSortingPriorityService for consistency with getCategory
+      const context = TaskSortingPriorityService.createDateContext()
+      return TaskSortingPriorityService.isTomorrowTask(this.task, context)
     } catch {
       return false
     }
@@ -177,19 +176,17 @@ export class TaskEntity {
   getDayOfWeek(): number {
     if (!this.task.plannedDate) return -1
 
-    try {
-      const date = new Date(this.task.plannedDate)
-      return date.getDay()
-    } catch {
-      return -1
-    }
+    const date = new Date(this.task.plannedDate)
+    if (isNaN(date.getTime())) return -1
+
+    return date.getDay()
   }
 
   /**
    * Check if task has subtasks
    */
   hasSubtasks(): boolean {
-    return this.task.subtasks && this.task.subtasks.length > 0
+    return Boolean(this.task.subtasks && this.task.subtasks.length > 0)
   }
 
   /**
@@ -210,7 +207,7 @@ export class TaskEntity {
 
   private parseDate(dateInput: string | Date): Date {
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
-    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
   }
 
   private getTodayUTC(): Date {

@@ -1,9 +1,22 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { TaskCategoryService } from '../../services/TaskCategoryService'
 import { TaskCategory } from '../../entities/Task'
-import { createTestTasksByCategory, createMockTaskEntity } from '../../../__tests__/utils/test-helpers'
+import { createTestTasksByCategory, createMockTaskEntity, createTestDates } from '../../../__tests__/utils/test-helpers'
 
 describe('TaskCategoryService', () => {
+  let fixedDate: Date
+  let dates: ReturnType<typeof createTestDates>
+
+  beforeEach(() => {
+    fixedDate = new Date('2023-06-15T12:00:00Z')
+    vi.useFakeTimers()
+    vi.setSystemTime(fixedDate)
+    dates = createTestDates(fixedDate)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
   describe('getCategoryStyle', () => {
     it('should return correct styles for collected category', () => {
       const style = TaskCategoryService.getCategoryStyle('collected')
