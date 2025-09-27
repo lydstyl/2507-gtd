@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { TaskCard } from './TaskCard'
+import { SwipeableTaskCard } from './SwipeableTaskCard'
 import { CreateTaskModal } from './CreateTaskModal'
 import { EditTaskModal } from './EditTaskModal'
 import { AssignParentModal } from './AssignParentModal'
@@ -8,6 +8,8 @@ import { TaskFilters } from './TaskFilters'
 import { ShortcutsHelp } from './ShortcutsHelp'
 import { PinnedTaskSection } from './PinnedTaskSection'
 import { FloatingActionButton } from './FloatingActionButton'
+import { QuickAddInput } from './QuickAddInput'
+import { BottomActionBar } from './BottomActionBar'
 import type { Task, Tag } from '../types/task'
 import { api } from '../utils/api'
 import { useTaskFilters } from '../hooks/useTaskFilters'
@@ -24,6 +26,7 @@ export default function TaskListPage() {
   const [pinnedTaskId, setPinnedTaskId] = useState<string | null>(null)
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+  const [showQuickAdd, setShowQuickAdd] = useState(false)
 
   const pinnedRef = useRef<HTMLDivElement>(null)
 
@@ -222,13 +225,37 @@ export default function TaskListPage() {
     <div className='w-full p-4'>
       <div className='flex justify-between items-center mb-6'>
         <h1 className='text-2xl font-bold'>Toutes les tâches</h1>
-        <button
-          onClick={modalHook.handleCreateTask}
-          className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
-        >
-          + Nouvelle tâche
-        </button>
+        <div className='flex items-center space-x-2'>
+          <button
+            onClick={() => setShowQuickAdd(!showQuickAdd)}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              showQuickAdd
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+            }`}
+            title="Ajout rapide"
+          >
+            ⚡ Rapide
+          </button>
+          <button
+            onClick={modalHook.handleCreateTask}
+            className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
+          >
+            + Nouvelle tâche
+          </button>
+        </div>
       </div>
+
+      {/* Quick Add Input */}
+      <QuickAddInput
+        isVisible={showQuickAdd}
+        onTaskCreated={() => {
+          setShowQuickAdd(false)
+          handleTaskCreated()
+        }}
+        onCancel={() => setShowQuickAdd(false)}
+        placeholder="Nom de la nouvelle tâche..."
+      />
 
       <ShortcutsHelp
         showShortcutsHelp={showShortcutsHelp}
@@ -308,7 +335,7 @@ export default function TaskListPage() {
           {filterHook.filteredTasks
             .filter(task => !pinnedTaskId || task.id !== pinnedTaskId)
             .map((task, index) => (
-              <TaskCard
+              <SwipeableTaskCard
                 key={task.id}
                 task={task}
                 level={0}
@@ -335,7 +362,7 @@ export default function TaskListPage() {
           <div className="mb-2 text-yellow-800 font-semibold">
             Tâche modifiée hors de la vue filtrée
           </div>
-          <TaskCard
+          <SwipeableTaskCard
             task={tasks.find((t) => t.id === focusTaskId)!}
             isSelected={true}
             onEdit={modalHook.handleEditTask}
@@ -396,6 +423,18 @@ export default function TaskListPage() {
       <FloatingActionButton
         onClick={modalHook.handleCreateTask}
         ariaLabel="Créer une nouvelle tâche"
+      />
+
+      {/* Bottom Action Bar for mobile navigation */}
+      <BottomActionBar
+        onCreateTask={modalHook.handleCreateTask}
+        onToggleFilters={() => setShowFilters(!showFilters)}
+        onRefreshTasks={loadTasks}
+        onToggleShortcuts={() => setShowShortcutsHelp(!showShortcutsHelp)}
+        onToggleQuickAdd={() => setShowQuickAdd(!showQuickAdd)}
+        hasActiveFilters={filterHook.hasActiveFilters}
+        isQuickAddVisible={showQuickAdd}
+        isFiltersVisible={showFilters}
       />
     </div>
   )

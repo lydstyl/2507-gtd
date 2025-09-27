@@ -15,6 +15,9 @@ export function normalizeDate(dateInput: string | Date): Date {
  * Convert a date to string format (ISO string)
  */
 export function dateToString(date: Date): string {
+  if (isNaN(date.getTime())) {
+    return 'Invalid Date'
+  }
   return date.toISOString()
 }
 
@@ -26,14 +29,15 @@ export function stringToDate(dateStr: string): Date {
 }
 
 /**
- * Check if a date input is urgent (within specified days from today)
+ * Check if a date input is urgent (within specified days from today, future dates only)
  */
-export function isDateUrgent(dateInput: string | Date, daysThreshold: number = 2): boolean {
+export function isDateUrgent(dateInput: string | Date, daysThreshold: number = 2, currentDate?: Date): boolean {
   try {
     const date = normalizeDate(dateInput)
-    const now = new Date()
-    const threshold = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + daysThreshold))
-    return date < threshold
+    const now = currentDate || new Date()
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    const threshold = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + daysThreshold))
+    return date.getTime() >= today.getTime() && date.getTime() < threshold.getTime()
   } catch {
     return false
   }

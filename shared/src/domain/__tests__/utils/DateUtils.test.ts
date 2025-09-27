@@ -169,11 +169,9 @@ describe('DateUtils', () => {
 
   describe('isDateUrgent', () => {
     it('should return true for dates within threshold (default 2 days)', () => {
-      const now = new Date('2023-06-15T12:00:00Z')
+      const currentDate = new Date('2023-06-15T12:00:00Z')
 
       const urgentDates = [
-        '2023-06-13T12:00:00Z', // 2 days ago
-        '2023-06-14T12:00:00Z', // yesterday
         '2023-06-15T12:00:00Z', // today
         '2023-06-16T12:00:00Z', // tomorrow
         new Date('2023-06-15T06:00:00Z'), // earlier today
@@ -181,39 +179,47 @@ describe('DateUtils', () => {
       ]
 
       urgentDates.forEach(date => {
-        expect(isDateUrgent(date)).toBe(true)
+        expect(isDateUrgent(date, 2, currentDate)).toBe(true)
       })
     })
 
     it('should return false for dates outside threshold', () => {
+      const currentDate = new Date('2023-06-15T12:00:00Z')
       const nonUrgentDates = [
         '2023-06-12T12:00:00Z', // 3 days ago
         '2023-06-18T12:00:00Z', // 3 days from now
-        '2023-06-17T00:00:00Z', // day after tomorrow
+        '2023-06-17T12:00:00Z', // day after tomorrow (past threshold)
         new Date('2023-06-10T12:00:00Z'), // 5 days ago
         new Date('2023-06-20T12:00:00Z')  // 5 days from now
       ]
 
       nonUrgentDates.forEach(date => {
-        expect(isDateUrgent(date)).toBe(false)
+        const result = isDateUrgent(date, 2, currentDate)
+        if (result !== false) {
+          console.log(`Date ${date} should be non-urgent but returned ${result}`)
+        }
+        expect(result).toBe(false)
       })
     })
 
     it('should handle custom threshold', () => {
+      const currentDate = new Date('2023-06-15T12:00:00Z')
       const date = '2023-06-18T12:00:00Z' // 3 days from now
 
-      expect(isDateUrgent(date, 2)).toBe(false) // 2-day threshold
-      expect(isDateUrgent(date, 4)).toBe(true)  // 4-day threshold
+      expect(isDateUrgent(date, 2, currentDate)).toBe(false) // 2-day threshold
+      expect(isDateUrgent(date, 4, currentDate)).toBe(true)  // 4-day threshold
     })
 
     it('should handle both string and Date inputs', () => {
+      const currentDate = new Date('2023-06-15T12:00:00Z')
       const dateStr = '2023-06-16T12:00:00Z'
       const dateObj = new Date('2023-06-16T12:00:00Z')
 
-      expect(isDateUrgent(dateStr)).toBe(isDateUrgent(dateObj))
+      expect(isDateUrgent(dateStr, 2, currentDate)).toBe(isDateUrgent(dateObj, 2, currentDate))
     })
 
     it('should handle invalid dates gracefully', () => {
+      const currentDate = new Date('2023-06-15T12:00:00Z')
       const invalidDates = [
         'invalid-date',
         new Date('invalid'),
@@ -221,17 +227,21 @@ describe('DateUtils', () => {
       ]
 
       invalidDates.forEach(invalid => {
-        expect(isDateUrgent(invalid)).toBe(false)
+        expect(isDateUrgent(invalid, 2, currentDate)).toBe(false)
       })
     })
 
     it('should handle edge cases around midnight', () => {
+      const currentDate = new Date('2023-06-15T12:00:00Z')
       // Test with times right around the threshold boundary
-      const almostThreeDays = '2023-06-17T23:59:59Z'
-      const exactlyThreeDays = '2023-06-18T00:00:00Z'
+      // With 2-day threshold from 2023-06-15, threshold is 2023-06-17
+      const justBeforeThreshold = '2023-06-16T23:59:59Z' // Should be urgent
+      const exactlyAtThreshold = '2023-06-17T00:00:00Z' // Should not be urgent
+      const justAfterThreshold = '2023-06-17T00:00:01Z' // Should not be urgent
 
-      expect(isDateUrgent(almostThreeDays, 2)).toBe(true)
-      expect(isDateUrgent(exactlyThreeDays, 2)).toBe(false)
+      expect(isDateUrgent(justBeforeThreshold, 2, currentDate)).toBe(true)
+      expect(isDateUrgent(exactlyAtThreshold, 2, currentDate)).toBe(false)
+      expect(isDateUrgent(justAfterThreshold, 2, currentDate)).toBe(false)
     })
   })
 

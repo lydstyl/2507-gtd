@@ -156,7 +156,7 @@ describe('Shared TaskPriorityService', () => {
       })
 
       const result = TaskPriorityService.getEffectiveDate(task, dateContext)
-      expect(result).toEqual(today)
+      expect(result).toEqual(tomorrow) // Due date is urgent, so it should be returned
     })
   })
 

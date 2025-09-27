@@ -1,5 +1,5 @@
 import React from 'react'
-import { TaskCard } from './TaskCard'
+import { SwipeableTaskCard } from './SwipeableTaskCard'
 import type { Task } from '../types/task'
 import { api } from '../utils/api'
 
@@ -55,7 +55,7 @@ export function PinnedTaskSection({
       <div className='mb-2 text-yellow-800 font-semibold'>
         Tâche fixée en haut de la liste
       </div>
-      <TaskCard
+      <SwipeableTaskCard
         task={pinnedTask}
         isSelected={selectedTaskId === pinnedTaskId}
         onEdit={onEdit}
