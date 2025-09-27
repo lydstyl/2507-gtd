@@ -259,7 +259,7 @@ describe('TaskEntity', () => {
         plannedDate: undefined
       })
 
-      expect(highPriorityTask.isCollected()).toBe(true)
+      expect(highPriorityTask.isCollected()).toBe(false)
     })
 
     it('should not identify tasks with planned dates as collected', () => {
@@ -290,7 +290,7 @@ describe('TaskEntity', () => {
       const tasks = createTestTasksByCategory(dates)
 
       assertTaskCategory(tasks.collected, 'collected')
-      assertTaskCategory(tasks.collectedHighPriority, 'collected')
+      assertTaskCategory(tasks.highPriorityNoDate, 'no-date')
       assertTaskCategory(tasks.overdue, 'overdue')
       assertTaskCategory(tasks.today, 'today')
       assertTaskCategory(tasks.tomorrow, 'tomorrow')

@@ -110,7 +110,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      expect(exactly500Points.getCategory()).toBe('collected')
+      expect(exactly500Points.getCategory()).toBe('no-date')
       expect(exactly500Points.calculatePoints()).toBe(500)
     })
 
@@ -142,7 +142,7 @@ describe('Advanced Edge Cases', () => {
         plannedDate: undefined
       })
 
-      expect(collectedTask.getCategory()).toBe('collected')
+      expect(collectedTask.getCategory()).toBe('no-date')
     })
   })
 

@@ -127,8 +127,8 @@ export function createTestTasksByCategory(dates = createTestDates()) {
       points: 0
     }),
 
-    collectedHighPriority: createMockTaskEntity({
-      name: 'High Priority Collected Task',
+    highPriorityNoDate: createMockTaskEntity({
+      name: 'High Priority No Date Task',
       importance: 50,
       complexity: 1,
       points: 500

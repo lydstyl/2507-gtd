@@ -142,7 +142,7 @@ describe('TaskCategoryService', () => {
       const groups = TaskCategoryService.groupTasksByCategory(allTasks)
 
       expect(groups.collected).toContain(testTasks.collected)
-      expect(groups.collected).toContain(testTasks.collectedHighPriority)
+      expect(groups['no-date']).toContain(testTasks.highPriorityNoDate)
       expect(groups.overdue).toContain(testTasks.overdue)
       expect(groups.today).toContain(testTasks.today)
       expect(groups.tomorrow).toContain(testTasks.tomorrow)
@@ -214,11 +214,11 @@ describe('TaskCategoryService', () => {
 
       const stats = TaskCategoryService.getCategoryStats(allTasks)
 
-      expect(stats.collected).toBe(2) // collected + collectedHighPriority
+      expect(stats.collected).toBe(1) // only collected (default task)
       expect(stats.overdue).toBe(1)
       expect(stats.today).toBe(1)
       expect(stats.tomorrow).toBe(1)
-      expect(stats['no-date']).toBe(1)
+      expect(stats['no-date']).toBe(2) // noDate + highPriorityNoDate
       expect(stats.future).toBe(1)
     })
 
@@ -322,7 +322,7 @@ describe('TaskCategoryService', () => {
     it('should handle multiple tasks in same category', () => {
       const collectedTasks = [
         createMockTaskEntity({ importance: 0, complexity: 3, points: 0 }),
-        createMockTaskEntity({ importance: 50, complexity: 1, points: 500 })
+        createMockTaskEntity({ importance: 0, complexity: 3, points: 0, name: 'Another collected' })
       ]
 
       const filtered = TaskCategoryService.filterTasksByCategory(collectedTasks, 'collected')
@@ -406,7 +406,7 @@ describe('TaskCategoryService', () => {
         // Map test task names to expected categories
         const categoryMap: Record<string, TaskCategory> = {
           collected: 'collected',
-          collectedHighPriority: 'collected',
+          highPriorityNoDate: 'no-date',
           overdue: 'overdue',
           today: 'today',
           tomorrow: 'tomorrow',

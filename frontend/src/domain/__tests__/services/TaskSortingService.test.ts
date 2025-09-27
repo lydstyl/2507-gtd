@@ -79,22 +79,22 @@ describe('TaskSortingService', () => {
         }),
         createMockTaskEntity({
           name: 'High Points Collected',
-          importance: 50,
-          complexity: 1,
-          points: 500
+          importance: 0,
+          complexity: 3,
+          points: 100
         }),
         createMockTaskEntity({
           name: 'Medium Points Collected',
           importance: 0,
           complexity: 3,
-          points: 100
+          points: 50
         })
       ]
 
       const sorted = TaskSortingService.sortTasksByPriority(collectedTasks)
 
-      expect(sorted[0].points).toBe(500)
-      expect(sorted[1].points).toBe(100)
+      expect(sorted[0].points).toBe(100)
+      expect(sorted[1].points).toBe(50)
       expect(sorted[2].points).toBe(0)
     })
 
@@ -637,8 +637,8 @@ describe('TaskSortingService', () => {
 
       const collected = TaskSortingService.getCollectedTasks(tasks)
 
-      expect(collected).toHaveLength(2)
-      expect(collected.map(t => t.name)).toEqual(['Collected Default', 'Collected High Priority'])
+      expect(collected).toHaveLength(1)
+      expect(collected.map(t => t.name)).toEqual(['Collected Default'])
     })
 
     it('should not return scheduled tasks even if they match collected criteria', () => {

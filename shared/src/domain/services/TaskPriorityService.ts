@@ -48,9 +48,7 @@ export class TaskPriorityService {
 
   /**
    * Check if a task is a collected task (business rule)
-   * Collected tasks are either:
-   * 1. New default tasks: importance=0, complexity=3, no effective date
-   * 2. High priority tasks: 500+ points, no effective date
+   * Collected tasks are only new default tasks: importance=0, complexity=3, no effective date
    */
   static isCollectedTask<TDate extends string | Date>(
     task: GenericTaskWithSubtasks<TDate>,
@@ -61,13 +59,8 @@ export class TaskPriorityService {
     // Only consider as collected if no effective date (no planned date and no urgent due date)
     if (effectiveDate) return false
 
-    // New default tasks: importance=0, complexity=3
-    const isNewDefaultTask = task.importance === 0 && task.complexity === 3
-
-    // Legacy high priority tasks: 500+ points
-    const isHighPriorityTask = task.points >= 500
-
-    return isNewDefaultTask || isHighPriorityTask
+    // Only new default tasks: importance=0, complexity=3
+    return task.importance === 0 && task.complexity === 3
   }
 
   /**

@@ -35,7 +35,7 @@ describe('Business Rules Integration', () => {
         tags: []
       })
 
-      expect(collectedTask.getCategory()).toBe('collected')
+      expect(collectedTask.getCategory()).toBe('no-date')
       expect(collectedTask.calculatePoints()).toBe(500) // 10 * 50 / 1
 
       // Add due date for today - should become today task
@@ -460,7 +460,7 @@ describe('Business Rules Integration', () => {
         tags: []
       })
 
-      expect(collectedTask.getCategory()).toBe('collected') // High priority, no date
+      expect(collectedTask.getCategory()).toBe('no-date') // High priority, no date
       expect(oldNoDateTask.getCategory()).toBe('no-date') // Not high priority
       expect(futureDatedTask.getCategory()).toBe('future') // Has future date
     })

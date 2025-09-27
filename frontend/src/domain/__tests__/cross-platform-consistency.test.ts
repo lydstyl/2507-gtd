@@ -59,8 +59,8 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(collectedTask.getCategory()).toBe('collected')
-      expect(TaskPriorityService.isCollectedTask(collectedTask.rawTask, dateContext)).toBe(true)
+      expect(collectedTask.getCategory()).toBe('no-date')
+      expect(TaskPriorityService.isCollectedTask(collectedTask.rawTask, dateContext)).toBe(false)
     })
 
     it('should correctly categorize overdue tasks', () => {
