@@ -169,11 +169,10 @@ export const getTaskCategory = (task: { points: number; importance: number; comp
     effectiveDate = parseDate(task.plannedDate)
   }
 
-  // 1. Collected tasks (without effective date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
+  // 1. Collected tasks (without effective date) — only new default tasks (importance=0, complexity=3)
   if (!effectiveDate) {
     const isNewDefaultTask = task.importance === 0 && task.complexity === 3
-    const isHighPriorityTask = task.points >= 500
-    if (isNewDefaultTask || isHighPriorityTask) {
+    if (isNewDefaultTask) {
       return 'collected'
     }
     return 'no-date'

@@ -114,7 +114,7 @@ export class TaskPriorityService {
     task: GenericTaskWithSubtasks<TDate>,
     context: DateContext
   ): TaskCategory {
-    // 1. Collected tasks (new default tasks OR high priority tasks, only if no effective date)
+    // 1. Collected tasks (new default tasks that need user categorization, only if no effective date)
     if (this.isCollectedTask(task, context)) {
       return 'collected'
     }
