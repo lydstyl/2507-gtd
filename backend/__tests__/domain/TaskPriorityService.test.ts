@@ -98,14 +98,14 @@ describe('TaskPriorityService', () => {
       expect(TaskPriorityService.isCollectedTask(task, dateContext)).toBe(true)
     })
 
-    it('should identify high priority tasks as collected', () => {
+    it('should not identify high priority tasks as collected', () => {
       const task: BackendTaskWithSubtasks = createTestTask({
         importance: 9,
         complexity: 1,
         points: 500
       })
 
-      expect(TaskPriorityService.isCollectedTask(task, dateContext)).toBe(true)
+      expect(TaskPriorityService.isCollectedTask(task, dateContext)).toBe(false)
     })
 
     it('should not identify tasks with effective dates as collected', () => {

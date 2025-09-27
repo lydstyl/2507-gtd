@@ -1,4 +1,4 @@
-# CLAUDE.md
+# CLAUDE.md - Development Guidelines for GTD Task Management App
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -103,19 +103,16 @@ When adding a new feature, follow this decision tree:
 ### 1. **Domain Layer First** - "What is the business rule?"
 
 **Create in `domain/entities/` when:**
-
 - Adding new business entity (User, Task, Tag, etc.)
 - Adding business methods to existing entities
 - Defining core domain types
 
 **Create in `domain/services/` when:**
-
 - Complex business logic that spans multiple entities
 - Domain calculations (priority, sorting, categorization)
 - Business rules that don't belong to a single entity
 
 **Example: Adding Due Date Reminders**
-
 ```typescript
 // domain/entities/Task.ts
 export class TaskEntity {
@@ -131,7 +128,7 @@ export class TaskEntity {
 // domain/services/TaskReminderService.ts
 export class TaskReminderService {
   static getTasksNeedingReminders(tasks: TaskEntity[]): TaskEntity[] {
-    return tasks.filter((task) => task.isUrgent() && !task.isCompleted)
+    return tasks.filter(task => task.isUrgent() && !task.isCompleted)
   }
 }
 ```
@@ -139,22 +136,15 @@ export class TaskReminderService {
 ### 2. **Use Cases Layer** - "What does the application do?"
 
 **Create in `usecases/` when:**
-
 - Adding new user workflow (CreateTask, UpdateTask, etc.)
 - Orchestrating multiple domain operations
 - Adding business validation rules
 
 **Example: Adding Task Snoozing**
-
 ```typescript
 // usecases/tasks/SnoozeTaskUseCase.ts
-export class SnoozeTaskUseCase extends BaseUseCase<
-  SnoozeTaskRequest,
-  SnoozeTaskResponse
-> {
-  async execute(
-    request: SnoozeTaskRequest
-  ): Promise<OperationResult<SnoozeTaskResponse>> {
+export class SnoozeTaskUseCase extends BaseUseCase<SnoozeTaskRequest, SnoozeTaskResponse> {
+  async execute(request: SnoozeTaskRequest): Promise<OperationResult<SnoozeTaskResponse>> {
     // 1. Validate input
     // 2. Get current task
     // 3. Apply business rules for snoozing
@@ -167,12 +157,10 @@ export class SnoozeTaskUseCase extends BaseUseCase<
 ### 3. **Interface Layer** - "What external dependencies do we need?"
 
 **Create in `interfaces/repositories/` when:**
-
 - Defining contracts for data access
 - Adding new repository methods for use cases
 
 **Example: Adding Search Capability**
-
 ```typescript
 // interfaces/repositories/TaskRepository.ts
 export interface TaskRepository {
@@ -183,12 +171,10 @@ export interface TaskRepository {
 ### 4. **Infrastructure Layer** - "How do we implement external dependencies?"
 
 **Create in `infrastructure/repositories/` when:**
-
 - Implementing repository interfaces
 - Adapting external APIs or databases
 
 **Example: Implementing Search**
-
 ```typescript
 // infrastructure/repositories/HttpTaskRepository.ts
 export class HttpTaskRepository implements TaskRepository {
@@ -201,12 +187,10 @@ export class HttpTaskRepository implements TaskRepository {
 ### 5. **Presentation Layer** - "How do users interact with this?"
 
 **Create in `presentation/components/` when:**
-
 - Adding new UI components
 - Creating user interaction handlers
 
 **Example: Search Component**
-
 ```typescript
 // presentation/components/TaskSearch.tsx
 export function TaskSearch() {
@@ -224,19 +208,16 @@ export function TaskSearch() {
 ### Backend Testing
 
 **Domain Layer Tests** - `backend/__tests__/domain/`
-
 ```bash
 npm run test:domain  # Test business logic
 ```
 
 **Use Cases Tests** - `backend/__tests__/usecases/`
-
 ```bash
 npm run test:usecases  # Test application logic
 ```
 
 **Integration Tests** - `backend/__tests__/integration/`
-
 ```bash
 npm run test:integration  # Test full workflows
 ```
@@ -244,7 +225,6 @@ npm run test:integration  # Test full workflows
 ### Frontend Testing
 
 **Domain Tests** - `frontend/src/domain/__tests__/`
-
 ```typescript
 // domain/__tests__/TaskEntity.test.ts
 describe('TaskEntity', () => {
@@ -256,7 +236,6 @@ describe('TaskEntity', () => {
 ```
 
 **Use Cases Tests** - `frontend/src/usecases/__tests__/`
-
 ```typescript
 // usecases/__tests__/CreateTaskUseCase.test.ts
 describe('CreateTaskUseCase', () => {
@@ -269,7 +248,6 @@ describe('CreateTaskUseCase', () => {
 ```
 
 **Component Tests** - `frontend/src/components/__tests__/`
-
 ```typescript
 // Test UI behavior, not business logic
 ```
@@ -277,28 +255,72 @@ describe('CreateTaskUseCase', () => {
 ## Clean Architecture Benefits in Practice
 
 ### 1. **Testability**
-
 - Domain logic tests don't need React or HTTP mocking
 - Use cases can be tested with mock repositories
 - Business rules are isolated and fast to test
 
 ### 2. **Maintainability**
-
 - Changes to UI don't affect business logic
 - Changes to API don't affect domain rules
 - Clear boundaries make debugging easier
 
 ### 3. **Reusability**
-
 - Domain entities work in any context (web, mobile, CLI)
 - Use cases can be shared between different UI frameworks
 - Business logic is framework-agnostic
 
 ### 4. **Team Collaboration**
-
 - Frontend and backend teams can work on domain logic together
 - Clear interfaces make parallel development possible
 - Business rules are documented in code
+
+## Code Style Guidelines
+
+### TypeScript & Architecture
+- **Clean Architecture**: Domain entities → Use cases → Infrastructure → Presentation
+- **Strict typing**: Use explicit types, avoid `any`, prefer interfaces over types
+- **Async/await**: Always use async/await, never Promises directly
+- **Error handling**: Use try/catch with instanceof checks, return structured error responses
+
+### Backend Patterns
+- **Controllers**: RESTful endpoints with consistent error handling (400/404/500)
+- **Use cases**: Business logic separated from HTTP concerns
+- **Repositories**: Interface-based with Prisma implementations
+- **Dependency injection**: Constructor injection pattern
+- **Authentication**: JWT tokens, user isolation enforced at repository level
+
+### Frontend Patterns
+- **React**: Functional components with hooks, no class components
+- **Styling**: Tailwind CSS with utility-first approach
+- **State management**: React hooks and context, TanStack Query for server state
+- **Components**: PascalCase naming, prop interfaces defined above component
+- **Imports**: Type imports first, then components, then utilities
+
+### Naming Conventions
+- **Files**: PascalCase for components, camelCase for utilities/hooks
+- **Variables**: camelCase, descriptive names (no abbreviations)
+- **Functions**: camelCase, verb-noun pattern (getUser, createTask)
+- **Interfaces**: PascalCase with 'I' prefix (ITaskRepository)
+- **Types**: PascalCase, descriptive names (CreateTaskData)
+
+### Code Organization
+- **Imports**: Group by type (React, external libs, internal modules)
+- **Error handling**: Centralized in controllers, specific error messages
+- **Validation**: Use Zod schemas for input validation
+- **Comments**: No comments unless complex business logic requires explanation
+- **File structure**: Feature-based organization within clean architecture layers
+
+### Testing
+- **Framework**: Vitest for backend, Jest for frontend
+- **Structure**: `__tests__/` directories with `.test.ts` files
+- **Patterns**: Arrange-Act-Assert, descriptive test names
+- **Coverage**: Focus on business logic and edge cases
+
+### Database & Security
+- **ORM**: Prisma with SQLite (dev) / PostgreSQL (prod)
+- **Migrations**: Version-controlled schema changes
+- **Security**: User data isolation, input sanitization, JWT authentication
+- **Validation**: Server-side validation with detailed error messages
 
 ## Development Best Practices
 
@@ -397,6 +419,39 @@ describe('CreateTaskUseCase', () => {
 5. **Presentation**: Build user interface
 6. **Tests**: Write tests for each layer
 
+## Task Sorting System
+
+The application implements a sophisticated task sorting algorithm that prioritizes tasks in a deterministic order. This system is implemented in `backend/src/infrastructure/repositories/TaskSorting.ts` and mirrored in the frontend for visual categorization.
+
+### Sorting Order (Priority Descending)
+
+1. **Collected Tasks** - Only new default tasks (importance=0, complexity=3, no dates) that need user categorization
+2. **Overdue Tasks** - Tasks past their planned date (sorted by date ascending, then points descending)
+3. **Today Tasks** - Tasks planned for today (sorted by points descending)
+4. **Tomorrow Tasks** - Tasks planned for tomorrow (sorted by points descending)
+5. **No-Date Tasks** - Tasks without planned dates (including high-priority tasks, sorted by points descending)
+6. **Future Tasks** - Tasks planned for day+2 or later (sorted by date ascending)
+
+### Visual Category Indicators
+
+The frontend displays color-coded task cards to help users quickly identify task categories.
+
+### Implementation Notes
+
+- Date normalization prevents timezone issues between development/production
+- Points system combines importance and complexity for task prioritization
+- Subtasks are sorted by points within each parent task
+- Sorting is handled server-side to ensure consistency across clients
+- Frontend category detection mirrors backend logic exactly
+
+### Key Files
+
+- `backend/src/infrastructure/repositories/TaskSorting.ts` - Core sorting logic
+- `frontend/src/domain/services/TaskSortingService.ts` - Frontend sorting logic (mirrors backend)
+- `frontend/src/domain/services/TaskCategoryService.ts` - Category detection and styling
+- `frontend/src/components/TaskCard.tsx` - Visual task representation
+- Tests in `backend/__tests__/task-sorting-*.test.ts` verify sorting behavior
+
 ## Progressive Web App (PWA) Implementation
 
 The GTD app is implemented as a Progressive Web App, providing native-like functionality with offline support, installable interface, and enhanced mobile experience.
@@ -440,47 +495,23 @@ cd frontend && npm run serve
 - Manifest: Auto-generated with GTD branding and theme colors
 - Service Worker: Auto-generated with caching strategies for static assets and API calls
 
-## Task Sorting System
-
-The application implements a sophisticated task sorting algorithm that prioritizes tasks in a deterministic order. This system is implemented in `backend/src/infrastructure/repositories/TaskSorting.ts` and mirrored in the frontend for visual categorization.
-
-### Sorting Order (Priority Descending)
-
-1. **Collected Tasks** - New created tasks without planned dates that has to be changed (importance, complexity, tag, etc.)
-2. **Overdue Tasks** - Tasks past their planned date (sorted by date ascending, then points descending)
-3. **Today Tasks** - Tasks planned for today (sorted by points descending)
-4. **Tomorrow Tasks** - Tasks planned for tomorrow (sorted by points descending)
-5. **No-Date Tasks** - Tasks without planned dates (excluding collected tasks, sorted by points descending)
-6. **Future Tasks** - Tasks planned for day+2 or later (sorted by date ascending)
-
-### Visual Category Indicators
-
-The frontend displays color-coded task cards to help users quickly identify task categories.
-
-### Implementation Notes
-
-- Date normalization prevents timezone issues between development/production
-- Points system combines importance and complexity for task prioritization
-- Subtasks are sorted by points within each parent task
-- Sorting is handled server-side to ensure consistency across clients
-- Frontend category detection mirrors backend logic exactly
-
-### Key Files
-
-- `backend/src/infrastructure/repositories/TaskSorting.ts` - Core sorting logic
-- `frontend/src/domain/services/TaskSortingService.ts` - Frontend sorting logic (mirrors backend)
-- `frontend/src/domain/services/TaskCategoryService.ts` - Category detection and styling
-- `frontend/src/components/TaskCard.tsx` - Visual task representation
-- Tests in `backend/__tests__/task-sorting-*.test.ts` verify sorting behavior
-
 ## Port Configuration
 
 - **Development**: Backend 3000, Frontend 5173
 - **Local Testing**: Backend 3001, Frontend 3002
 - **Production**: Backend 3000 (proxied via Nginx)
+
+## Key Project Patterns
+- **Task hierarchy**: Self-referencing parentId relationships
+- **Priority system**: Importance (1-5) × Complexity (1-9) = Points
+- **Tag system**: Many-to-many with user isolation
+- **Rich text**: TipTap editor for task notes
+- **CSV import/export**: Full data portability
+
+## Final Notes
 - Lint files you create.
 - Run tests and build after adding a new feature.
 - Follow clean architecture principles: Domain → Use Cases → Infrastructure → Presentation.
 - Write tests for domain logic and use cases before implementing UI.
 - Use the dependency injection container to access use cases in React components.
-- When adding or updating something in the domain (frontend or backend), always to try do put it in the shared/src/domain to avoid code repetition.
+- When adding or updating something in the domain (frontend or backend), always try to put it in the shared/src/domain to avoid code repetition.
