@@ -178,8 +178,7 @@ export function TaskCard({
               </div>
 
               <p className='text-xs md:text-sm text-gray-500 mb-2'>
-                <span className='md:hidden'>I: {task.importance} | C: {task.complexity} | P: {task.points}</span>
-                <span className='hidden md:inline'>Importance: {task.importance} | Complexité: {task.complexity} | Points: {task.points}</span>
+                I: {task.importance} | C: {task.complexity} | P: {task.points}
               </p>
 
               {/* Tags */}
