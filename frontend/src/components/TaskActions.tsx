@@ -62,28 +62,6 @@ export function TaskActions({
 
   return (
     <div className='flex items-center flex-wrap gap-1'>
-      {/* Toggle subtasks button */}
-      {task.subtasks && task.subtasks.length > 0 && onToggleSubtasks && (
-        <button
-          onClick={onToggleSubtasks}
-          className={`${buttonSize} text-purple-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors ${visibilityClass}`}
-          title={showSubtasks ? 'Masquer les sous-tâches' : 'Afficher les sous-tâches'}
-        >
-          <svg
-            className={`${iconSize} transition-transform ${showSubtasks ? 'rotate-90' : ''}`}
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M9 5l7 7-7 7'
-            />
-          </svg>
-        </button>
-      )}
 
       {/* Create subtask button */}
       {onCreateSubtask && (

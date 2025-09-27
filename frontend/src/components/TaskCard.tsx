@@ -275,8 +275,28 @@ export function TaskCard({
           {/* Sous-tâches intégrées */}
           {task.subtasks && task.subtasks.length > 0 && showSubtasks && (
             <div className='mt-3 pt-3 border-t border-gray-200'>
-              <div className='text-xs text-gray-500 mb-2 font-medium'>
-                Sous-tâches ({task.subtasks.length})
+              <div
+                className='text-xs text-gray-500 mb-2 font-medium cursor-pointer hover:text-gray-700 transition-colors inline-flex items-center space-x-1'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowSubtasks(false)
+                }}
+                title='Masquer les sous-tâches'
+              >
+                <svg
+                  className='w-3 h-3 transition-transform rotate-90'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M9 5l7 7-7 7'
+                  />
+                </svg>
+                <span>Sous-tâches ({task.subtasks.length})</span>
               </div>
               <div className='space-y-2'>
                 {task.subtasks.map((subtask) => (
@@ -302,7 +322,14 @@ export function TaskCard({
           {/* Indicateur de sous-tâches masquées */}
           {task.subtasks && task.subtasks.length > 0 && !showSubtasks && (
             <div className='mt-3 pt-3 border-t border-gray-200'>
-              <div className='text-xs text-gray-500 bg-gray-100 rounded-md px-2 py-1 inline-flex items-center space-x-1'>
+              <div
+                className='text-xs text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md px-2 py-1 inline-flex items-center space-x-1 cursor-pointer transition-colors'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowSubtasks(true)
+                }}
+                title='Afficher les sous-tâches'
+              >
                 <svg
                   className='w-3 h-3'
                   fill='none'
