@@ -29,7 +29,7 @@ const { api } = await import('../src/utils/api')
 const createTestTask = (
   name: string,
   points: number,
-  dueDate?: string,
+  plannedDate?: string,
   importance: number = 30,
   complexity: number = 3
 ): Task => ({
@@ -38,7 +38,7 @@ const createTestTask = (
   points,
   importance,
   complexity,
-  dueDate,
+  plannedDate,
   isCompleted: false,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -157,8 +157,8 @@ describe('TaskListPage Sorting Display', () => {
       expect(screen.getByText('Overdue task 1')).toBeInTheDocument()
     })
 
-    // Check that overdue task displays "En retard" label
-    expect(screen.getByText('En retard')).toBeInTheDocument()
+    // Check that overdue task displays "En retard" label in the category header
+    expect(screen.getAllByText('En retard')).toHaveLength(2) // Category label + date indicator
   })
 
   test('should maintain task order when applying filters', async () => {

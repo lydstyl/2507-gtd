@@ -1,3 +1,5 @@
+export type TaskCategory = 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
+
 export const getPriorityColor = (importance: number): string => {
   switch (importance) {
     case 1:
@@ -117,51 +119,64 @@ export const getDateIndicator = (dateString: string) => {
   return null
 }
 
-export type TaskCategory = 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
-
-export const getTaskCategory = (task: { points: number; importance: number; complexity: number; plannedDate?: string | Date | null }): TaskCategory => {
+export const getTaskCategory = (task: { points: number; importance: number; complexity: number; plannedDate?: string | Date | null; dueDate?: string | Date | null }): TaskCategory => {
   // Parse and normalize date like in backend TaskSorting (UTC-based)
   const parseDate = (dateInput: string | Date): Date => {
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
   }
 
-  const plannedDate = task.plannedDate ? parseDate(task.plannedDate) : null
-
+  // Determine effective date: use due date if urgent, otherwise planned date (mirrors domain logic)
   const now = new Date()
   const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
   const tomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 1))
   const dayAfterTomorrow = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() + 2))
 
-  // 1. Collected tasks (without date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
-  const isNewDefaultTask = task.importance === 0 && task.complexity === 3 && !plannedDate
-  const isHighPriorityTask = task.points >= 500 && !plannedDate
-  if (isNewDefaultTask || isHighPriorityTask) {
-    return 'collected'
+  // Check if due date is urgent (within 2 days from today)
+  const isDueDateUrgent = (dueDate: string | Date): boolean => {
+    try {
+      const date = parseDate(dueDate)
+      return date < dayAfterTomorrow
+    } catch {
+      return false
+    }
+  }
+
+  // Get effective date: use due date if urgent, otherwise planned date
+  let effectiveDate: Date | null = null
+  if (task.dueDate && isDueDateUrgent(task.dueDate)) {
+    effectiveDate = parseDate(task.dueDate)
+  } else if (task.plannedDate) {
+    effectiveDate = parseDate(task.plannedDate)
+  }
+
+  // 1. Collected tasks (without effective date) — new default tasks (importance=0, complexity=3) OR high priority tasks (500+ points)
+  if (!effectiveDate) {
+    const isNewDefaultTask = task.importance === 0 && task.complexity === 3
+    const isHighPriorityTask = task.points >= 500
+    if (isNewDefaultTask || isHighPriorityTask) {
+      return 'collected'
+    }
+    return 'no-date'
   }
 
   // 2. Overdue tasks
-  if (plannedDate && plannedDate < today) {
+  if (effectiveDate < today) {
     return 'overdue'
   }
 
   // 3. Today tasks
-  if (plannedDate && plannedDate.getTime() === today.getTime()) {
+  if (effectiveDate.getTime() === today.getTime()) {
     return 'today'
   }
 
   // 4. Tomorrow tasks
-  if (plannedDate && plannedDate.getTime() === tomorrow.getTime()) {
+  if (effectiveDate.getTime() === tomorrow.getTime()) {
     return 'tomorrow'
   }
 
-  // 5. Tasks without date
-  if (!plannedDate) {
-    return 'no-date'
-  }
-
-  // 6. Future tasks (day+2 or more)
-  if (plannedDate && plannedDate >= dayAfterTomorrow) {
+  // 5. Future tasks (day+2 or more)
+  if (effectiveDate >= dayAfterTomorrow) {
     return 'future'
   }
 
