@@ -29,9 +29,9 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
     try {
       const tagsData = await api.getTags()
       setTags(tagsData)
-    } catch (err) {
-      setError("Erreur lors du chargement des tags")
-    } finally {
+     } catch {
+       setError("Erreur lors du chargement des tags")
+     } finally {
       setIsLoading(false)
     }
   }
@@ -41,9 +41,9 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
       try {
         await api.deleteTag(tagId)
         loadTags()
-      } catch (err) {
-        setError("Erreur lors de la suppression du tag")
-      }
+       } catch {
+         setError("Erreur lors de la suppression du tag")
+       }
     }
   }
 
@@ -95,9 +95,9 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
     try {
       await api.updateTagPositions(tagPositions)
       setTags(newTags.map((tag, index) => ({ ...tag, position: index })))
-    } catch (err) {
-      setError("Erreur lors de la mise à jour des positions des tags")
-    }
+     } catch {
+       setError("Erreur lors de la mise à jour des positions des tags")
+     }
 
     setDraggedTag(null)
   }

@@ -35,9 +35,9 @@ export function RegisterForm() {
         password: data.password
       })
       navigate('/tasks')
-    } catch (error) {
-      // Error is handled by the mutation
-    }
+     } catch {
+       // Error is handled by the mutation
+     }
   }
 
   return (

@@ -5,16 +5,12 @@ import { CreateTagModal } from './CreateTagModal'
 import { TagManagerModal } from './TagManagerModal'
 import { AssignParentModal } from './AssignParentModal'
 import { NoteModal } from './NoteModal'
-import { useCurrentUser } from '../hooks/useAuth'
-import { useAllTasks } from '../hooks/useTasks'
-import { useTags } from '../hooks/useTags'
+ import { useAllTasks } from '../hooks/useTasks'
 import { api } from '../utils/api'
 
-export function ModalRenderer() {
-  const { state, dispatch } = useApp()
-  const { data: user } = useCurrentUser()
-  const { data: tasks = [] } = useAllTasks()
-  const { data: tags = [] } = useTags()
+ export function ModalRenderer() {
+   const { state, dispatch } = useApp()
+   const { data: tasks = [] } = useAllTasks()
 
   const handleCloseModal = (modalType: keyof typeof state.modals) => {
     dispatch({ type: 'CLOSE_MODAL', payload: modalType })
@@ -36,10 +32,7 @@ export function ModalRenderer() {
     handleCloseModal('createTag')
   }
 
-  const handleTagUpdated = () => {
-    // Refresh tags - this will be handled by React Query
-    handleCloseModal('editTag')
-  }
+
 
   const handleSaveNote = async (taskId: string, note: string) => {
     try {

@@ -95,12 +95,12 @@ export function PinnedTaskSection({
                     key={value}
                     onClick={async () => {
                       try {
-                        await api.updateTask(pinnedTaskId, {
-                          importance: value
-                        })
-                        onTaskUpdated()
-                      } catch (err: any) {
-                        setError(err.message)
+                         await api.updateTask(pinnedTaskId, {
+                           importance: value
+                         })
+                         onTaskUpdated()
+                       } catch (err: unknown) {
+                         setError(err instanceof Error ? err.message : 'An error occurred')
                       }
                     }}
                     className={`px-2 py-1 text-xs rounded border ${
@@ -135,12 +135,12 @@ export function PinnedTaskSection({
                     key={value}
                     onClick={async () => {
                       try {
-                        await api.updateTask(pinnedTaskId, {
-                          complexity: value
-                        })
-                        onTaskUpdated()
-                      } catch (err: any) {
-                        setError(err.message)
+                         await api.updateTask(pinnedTaskId, {
+                           complexity: value
+                         })
+                         onTaskUpdated()
+                       } catch (err: unknown) {
+                         setError(err instanceof Error ? err.message : 'An error occurred')
                       }
                     }}
                     className={`px-2 py-1 text-xs rounded border ${

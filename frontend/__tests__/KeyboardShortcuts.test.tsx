@@ -747,8 +747,7 @@ describe('Keyboard Shortcuts', () => {
 
   test('should adjust planned date relative to existing date when pressing D', async () => {
     const today = new Date()
-    const existingDate = new Date(today)
-    existingDate.setDate(today.getDate() + 5) // 5 days from today
+    const existingDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 5)) // 5 days from today UTC
 
     const task = createTestTask('Test Task', 30, 3, existingDate.toISOString().split('T')[0])
     const tasks: Task[] = [task]

@@ -14,8 +14,7 @@ interface TaskActionsProps {
   isPinned?: boolean
   onQuickAction?: (taskId: string, action: string) => void
   setShowQuickActions?: (show: boolean) => void
-  onToggleSubtasks?: () => void
-  showSubtasks?: boolean
+
   showQuickActions?: boolean
   size?: 'small' | 'medium' | 'large'
   hideOnDesktop?: boolean
@@ -32,11 +31,9 @@ export function TaskActions({
   onWorkedOn,
   onPin,
   isPinned = false,
-  onQuickAction,
-  setShowQuickActions,
-  onToggleSubtasks,
-  showSubtasks = false,
-  showQuickActions = false,
+   onQuickAction,
+   setShowQuickActions,
+   showQuickActions = false,
   size = 'medium',
   hideOnDesktop = false
 }: TaskActionsProps) {
@@ -55,9 +52,9 @@ export function TaskActions({
       setWorkedOnState('success')
       // Reset to idle after success animation
       setTimeout(() => setWorkedOnState('idle'), 1500)
-    } catch (error) {
-      setWorkedOnState('idle')
-    }
+     } catch {
+       setWorkedOnState('idle')
+     }
   }
 
   return (

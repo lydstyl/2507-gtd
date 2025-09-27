@@ -10,7 +10,7 @@ import { PinnedTaskSection } from './PinnedTaskSection'
 import { FloatingActionButton } from './FloatingActionButton'
 import { QuickAddInput } from './QuickAddInput'
 import { BottomActionBar } from './BottomActionBar'
-import type { Task, Tag } from '../types/task'
+ import type { Task, Tag, UpdateTaskData } from '../types/task'
 import { api } from '../utils/api'
 import { useTaskFilters } from '../hooks/useTaskFilters'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
@@ -38,18 +38,18 @@ export default function TaskListPage() {
     try {
       const tasksData = await api.getRootTasks()
       setTasks(tasksData)
-    } catch (err: any) {
-      setError(err.message)
-    }
+     } catch (err: unknown) {
+       setError(err instanceof Error ? err.message : 'An error occurred')
+     }
   }
 
   const loadTags = async () => {
     try {
       const tagsData = await api.getTags()
       setTags(tagsData)
-    } catch (err: any) {
-      console.error('Erreur lors du chargement des tags:', err)
-    }
+     } catch (err: unknown) {
+       console.error('Erreur lors du chargement des tags:', err)
+     }
   }
 
   useEffect(() => {
@@ -126,7 +126,7 @@ export default function TaskListPage() {
     const task = findTaskById(tasks, taskId)
     if (!task) return
 
-    let update: any = {}
+     let update: Partial<UpdateTaskData> = {}
     let shouldDelete = false
 
     switch (action) {
@@ -142,12 +142,13 @@ export default function TaskListPage() {
       case 'complexity-down':
         update.complexity = Math.max(1, task.complexity - 2)
         break
-      case 'date-today':
-        const today = new Date()
-        update.plannedDate = today.getFullYear() + '-' +
-          String(today.getMonth() + 1).padStart(2, '0') + '-' +
-          String(today.getDate()).padStart(2, '0')
-        break
+       case 'date-today': {
+         const today = new Date()
+         update.plannedDate = today.getFullYear() + '-' +
+           String(today.getMonth() + 1).padStart(2, '0') + '-' +
+           String(today.getDate()).padStart(2, '0')
+         break
+       }
       case 'date-remove':
         update.plannedDate = null
         break
@@ -163,9 +164,9 @@ export default function TaskListPage() {
         await api.updateTask(taskId, update)
         await loadTasks()
       }
-    } catch (err) {
-      alert("Erreur lors de l'action rapide")
-    }
+     } catch {
+       alert("Erreur lors de l'action rapide")
+     }
   }
 
   const handleMarkCompleted = async (taskId: string) => {

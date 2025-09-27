@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { tagsApi } from '../services/api'
-import type { Tag, CreateTagData } from '../types/task'
+ import type { CreateTagData } from '../types/task'
 
 export const TAGS_QUERY_KEYS = {
   all: ['tags'] as const,

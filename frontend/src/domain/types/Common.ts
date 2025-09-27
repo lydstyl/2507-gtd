@@ -1,10 +1,10 @@
 // Core domain types
 
-export interface DomainError {
-  code: string
-  message: string
-  details?: Record<string, any>
-}
+ export interface DomainError {
+   code: string
+   message: string
+   details?: Record<string, unknown>
+ }
 
 export interface ValidationResult {
   isValid: boolean

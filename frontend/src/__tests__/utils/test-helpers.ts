@@ -203,16 +203,16 @@ export class MockRepository<T> {
     return item
   }
 
-  async findById(id: string): Promise<T | null> {
-    return this.items.find((item: any) => item.id === id) || null
-  }
+   async findById(id: string): Promise<T | null> {
+     return this.items.find((item) => (item as T & { id: string }).id === id) || null
+   }
 
   async findAll(): Promise<T[]> {
     return [...this.items]
   }
 
-  async update(id: string, data: Partial<T>): Promise<T | null> {
-    const index = this.items.findIndex((item: any) => item.id === id)
+   async update(id: string, data: Partial<T>): Promise<T | null> {
+     const index = this.items.findIndex((item) => (item as T & { id: string }).id === id)
     if (index === -1) return null
 
     this.items[index] = {
@@ -224,8 +224,8 @@ export class MockRepository<T> {
     return this.items[index]
   }
 
-  async delete(id: string): Promise<boolean> {
-    const index = this.items.findIndex((item: any) => item.id === id)
+   async delete(id: string): Promise<boolean> {
+     const index = this.items.findIndex((item) => (item as T & { id: string }).id === id)
     if (index === -1) return false
 
     this.items.splice(index, 1)
@@ -257,7 +257,7 @@ export class TestError extends Error {
   }
 }
 
-export function expectToThrow(fn: () => any, expectedMessage?: string): void {
+ export function expectToThrow(fn: () => unknown, expectedMessage?: string): void {
   let didThrow = false
   try {
     fn()
@@ -275,7 +275,7 @@ export function expectToThrow(fn: () => any, expectedMessage?: string): void {
   }
 }
 
-export async function expectToThrowAsync(fn: () => Promise<any>, expectedMessage?: string): Promise<void> {
+ export async function expectToThrowAsync(fn: () => Promise<unknown>, expectedMessage?: string): Promise<void> {
   let didThrow = false
   try {
     await fn()

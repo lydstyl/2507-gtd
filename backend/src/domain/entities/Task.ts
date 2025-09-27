@@ -1,46 +1,32 @@
-import { Tag } from './Tag'
-import { User } from './User'
+// Re-export shared domain entities and types for backend compatibility
+export { TaskEntity, TagEntity, UserEntity } from '@gtd/shared'
+export type {
+   BackendTask as Task,
+   BackendTaskWithSubtasks as TaskWithSubtasks,
+   BackendTag as Tag,
+   BackendUser as User
+} from '@gtd/shared'
 
-export interface Task {
-  id: string
-  name: string
-  link?: string
-  note?: string // Optional rich text note
-  importance: number // 0-50, higher = more important
-  complexity: number // 1-9, higher = more complex
-  points: number // Computed: round(10 * importance / complexity), clamped to [0, 500]
-   parentId?: string
-   plannedDate?: Date
-   dueDate?: Date
-   isCompleted: boolean
-  completedAt?: Date
-  createdAt: Date
-  updatedAt: Date
-  userId: string
-  user?: User
-}
+// Import types for use in legacy interfaces
+import type { BackendTask, BackendTag } from '@gtd/shared'
 
+// Legacy interfaces for backward compatibility
 export interface TaskTag {
-  id: string
-  taskId: string
-  tagId: string
-  task?: Task
-  tag?: Tag
-}
-
-export interface TaskWithSubtasks extends Task {
-  subtasks: TaskWithSubtasks[]
-  tags: Tag[]
+   id: string
+   taskId: string
+   tagId: string
+   task?: BackendTask
+   tag?: BackendTag
 }
 
 export interface CreateTaskData {
-  name: string
-  link?: string
-  note?: string // Optional rich text note
-  importance?: number // 0-50, defaults to 50
-  complexity?: number // 1-9, defaults to 1
-  parentId?: string
-  tagIds?: string[]
+   name: string
+   link?: string
+   note?: string
+   importance?: number
+   complexity?: number
+   parentId?: string
+   tagIds?: string[]
    userId: string
    plannedDate?: Date
    dueDate?: Date
@@ -48,18 +34,18 @@ export interface CreateTaskData {
 }
 
 export interface UpdateTaskData {
-  name?: string
-  link?: string
-  note?: string // Optional rich text note
-  importance?: number // 0-50
-  complexity?: number // 1-9
-  parentId?: string
-  tagIds?: string[]
+   name?: string
+   link?: string
+   note?: string
+   importance?: number
+   complexity?: number
+   parentId?: string
+   tagIds?: string[]
    userId?: string
    plannedDate?: Date | null
    dueDate?: Date | null
    isCompleted?: boolean
-  completedAt?: Date | null
+   completedAt?: Date | null
 }
 
 export interface TaskFilters {

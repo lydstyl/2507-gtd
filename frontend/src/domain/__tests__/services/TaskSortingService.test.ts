@@ -61,6 +61,7 @@ describe('TaskSortingService', () => {
 
       const sorted = TaskSortingService.sortTasksByPriority(tasks)
 
+      expect(sorted.length).toBe(6) // First check that we have the right number of tasks
       expect(sorted[0].name).toBe('Collected Task')
       expect(sorted[1].name).toBe('Overdue Task')
       expect(sorted[2].name).toBe('Today Task')

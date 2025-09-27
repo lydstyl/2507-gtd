@@ -42,9 +42,9 @@ export function EditTagModal({ isOpen, onClose, tag, onTagUpdated }: EditTagModa
 
       onTagUpdated()
       onClose()
-    } catch (err: any) {
-      setError('Erreur lors de la mise à jour du tag')
-      console.error('Erreur:', err)
+     } catch (err: unknown) {
+       setError('Erreur lors de la mise à jour du tag')
+       console.error('Erreur:', err)
     } finally {
       setLoading(false)
     }

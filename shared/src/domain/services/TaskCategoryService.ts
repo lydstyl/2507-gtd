@@ -1,4 +1,5 @@
-import { TaskCategory } from '../entities/TaskTypes'
+import { TaskCategory, GenericTaskWithSubtasks } from '../entities/TaskTypes'
+import { TaskPriorityService } from './TaskPriorityService'
 
 /**
  * Service for task category display and styling utilities
@@ -6,55 +7,153 @@ import { TaskCategory } from '../entities/TaskTypes'
  */
 export class TaskCategoryService {
   /**
-   * Get display information for a task category
+    * Get display information for a task category
+    */
+   static getCategoryDisplayInfo(category: TaskCategory) {
+     const displayInfo = {
+       collected: {
+         label: 'Collecté',
+         borderColor: 'border-l-purple-500',
+         backgroundColor: 'bg-white',
+         textColor: 'text-purple-700',
+         icon: '📝'
+       },
+       overdue: {
+         label: 'En retard',
+         borderColor: 'border-l-red-500',
+         backgroundColor: 'bg-red-50',
+         textColor: 'text-red-700',
+         icon: '⚠️'
+       },
+       today: {
+         label: "Aujourd'hui",
+         borderColor: 'border-l-blue-500',
+         backgroundColor: 'bg-blue-50',
+         textColor: 'text-blue-700',
+         icon: '📅'
+       },
+       tomorrow: {
+         label: 'Demain',
+         borderColor: 'border-l-green-500',
+         backgroundColor: 'bg-green-50',
+         textColor: 'text-green-700',
+         icon: '🌅'
+       },
+       'no-date': {
+         label: 'Sans date',
+         borderColor: 'border-l-gray-400',
+         backgroundColor: 'bg-white',
+         textColor: 'text-gray-600',
+         icon: '📋'
+       },
+       future: {
+         label: 'Futur',
+         borderColor: 'border-l-amber-500',
+         backgroundColor: 'bg-amber-50',
+         textColor: 'text-amber-700',
+         icon: '🔮'
+       }
+     }
+
+     return displayInfo[category]
+   }
+
+  /**
+   * Get task category with display styles (legacy method for frontend compatibility)
    */
-  static getCategoryDisplayInfo(category: TaskCategory) {
-    const displayInfo = {
-      collected: {
-        label: 'Collecté',
-        borderColor: 'border-l-purple-500',
-        backgroundColor: 'bg-white',
-        textColor: 'text-purple-700',
-        icon: '📝'
-      },
-      overdue: {
-        label: 'En retard',
-        borderColor: 'border-l-red-500',
-        backgroundColor: 'bg-red-50',
-        textColor: 'text-red-700',
-        icon: '⚠️'
-      },
-      today: {
-        label: "Aujourd'hui",
-        borderColor: 'border-l-blue-500',
-        backgroundColor: 'bg-blue-50',
-        textColor: 'text-blue-700',
-        icon: '📅'
-      },
-      tomorrow: {
-        label: 'Demain',
-        borderColor: 'border-l-green-500',
-        backgroundColor: 'bg-green-50',
-        textColor: 'text-green-700',
-        icon: '🌅'
-      },
-      'no-date': {
-        label: 'Sans date',
-        borderColor: 'border-l-gray-400',
-        backgroundColor: 'bg-white',
-        textColor: 'text-gray-600',
-        icon: '📋'
-      },
-      future: {
-        label: 'Futur',
-        borderColor: 'border-l-amber-500',
-        backgroundColor: 'bg-amber-50',
-        textColor: 'text-amber-700',
-        icon: '🔮'
-      }
+  static getCategoryStyle(category: TaskCategory) {
+    const displayInfo = this.getCategoryDisplayInfo(category)
+    return {
+      borderColor: displayInfo.borderColor,
+      backgroundColor: displayInfo.backgroundColor,
+      label: displayInfo.label,
+      textColor: displayInfo.textColor
+    }
+  }
+
+  /**
+   * Get priority order for categories (lower number = higher priority)
+   */
+  static getCategoryPriority(category: TaskCategory): number {
+    const priorities = {
+      collected: 1,
+      overdue: 2,
+      today: 3,
+      tomorrow: 4,
+      'no-date': 5,
+      future: 6
     }
 
-    return displayInfo[category]
+    return priorities[category]
+  }
+
+  /**
+   * Group tasks by category
+   */
+  static groupTasksByCategory<TDate extends string | Date>(
+    tasks: GenericTaskWithSubtasks<TDate>[]
+  ): Record<TaskCategory, GenericTaskWithSubtasks<TDate>[]> {
+    const groups: Record<TaskCategory, GenericTaskWithSubtasks<TDate>[]> = {
+      collected: [],
+      overdue: [],
+      today: [],
+      tomorrow: [],
+      'no-date': [],
+      future: []
+    }
+
+    // Use TaskPriorityService for categorization
+    const dateContext = TaskPriorityService.createDateContext()
+
+    tasks.forEach(task => {
+      const category = TaskPriorityService.getTaskCategory(task, dateContext)
+      groups[category].push(task)
+    })
+
+    return groups
+  }
+
+  /**
+   * Get category statistics
+   */
+  static getCategoryStats<TDate extends string | Date>(
+    tasks: GenericTaskWithSubtasks<TDate>[]
+  ): Record<TaskCategory, number> {
+    const groups = this.groupTasksByCategory(tasks)
+    return {
+      collected: groups.collected.length,
+      overdue: groups.overdue.length,
+      today: groups.today.length,
+      tomorrow: groups.tomorrow.length,
+      'no-date': groups['no-date'].length,
+      future: groups.future.length
+    }
+  }
+
+  /**
+   * Filter tasks by category
+   */
+  static filterTasksByCategory<TDate extends string | Date>(
+    tasks: GenericTaskWithSubtasks<TDate>[],
+    category: TaskCategory
+  ): GenericTaskWithSubtasks<TDate>[] {
+    const dateContext = TaskPriorityService.createDateContext()
+
+    return tasks.filter(task =>
+      TaskPriorityService.getTaskCategory(task, dateContext) === category
+    )
+  }
+
+  /**
+   * Get all categories with tasks
+   */
+  static getActiveCategories<TDate extends string | Date>(
+    tasks: GenericTaskWithSubtasks<TDate>[]
+  ): TaskCategory[] {
+    const stats = this.getCategoryStats(tasks)
+    return Object.entries(stats)
+      .filter(([_, count]) => count > 0)
+      .map(([category, _]) => category as TaskCategory)
   }
 
   /**

@@ -24,14 +24,14 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema)
   })
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      await loginMutation.mutateAsync(data)
-      navigate('/tasks')
-    } catch (error) {
-      // Error is handled by the mutation
-    }
-  }
+   const onSubmit = async (data: LoginFormData) => {
+     try {
+       await loginMutation.mutateAsync(data)
+       navigate('/tasks')
+     } catch {
+       // Error is handled by the mutation
+     }
+   }
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>

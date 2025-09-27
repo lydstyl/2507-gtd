@@ -54,9 +54,9 @@ export function Dashboard({
     try {
       await api.deleteAllTasks()
       if (onRefreshTasks) onRefreshTasks()
-    } catch (e) {
-      alert('Erreur lors de la suppression des tâches.')
-    } finally {
+     } catch {
+       alert('Erreur lors de la suppression des tâches.')
+     } finally {
       setDeleting(false)
     }
   }
@@ -69,9 +69,9 @@ export function Dashboard({
         await api.updateTask(taskId, { isCompleted: false })
       }
       if (onRefreshTasks) onRefreshTasks()
-    } catch (e) {
-      alert('Erreur lors de la modification du statut de la tâche.')
-    }
+     } catch {
+       alert('Erreur lors de la modification du statut de la tâche.')
+     }
   }
 
   return (

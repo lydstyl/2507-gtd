@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+ import { useState, useEffect, useCallback } from 'react'
 import type { Task } from '../types/task'
 import { api } from '../utils/api'
 
@@ -14,15 +14,19 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
   const [selectedParentId, setSelectedParentId] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState<string>('')
+   const [searchTerm, setSearchTerm] = useState<string>('')
 
-  useEffect(() => {
-    if (isOpen && task) {
-      loadAvailableTasks()
-    }
-  }, [isOpen, task])
+   // Fonction récursive pour vérifier si une tâche est un descendant d'une autre
+   const isDescendantOf = (potentialDescendant: Task, ancestor: Task, allTasks: Task[]): boolean => {
+     if (potentialDescendant.parentId === ancestor.id) return true
 
-  const loadAvailableTasks = async () => {
+     const parent = allTasks.find(t => t.id === potentialDescendant.parentId)
+     if (!parent) return false
+
+     return isDescendantOf(parent, ancestor, allTasks)
+   }
+
+   const loadAvailableTasks = useCallback(async () => {
     try {
       setLoading(true)
       const tasks = await api.getTasks()
@@ -45,25 +49,22 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
       const sortedTasks = availableTasks.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
       
       setAvailableTasks(sortedTasks)
-    } catch (err: any) {
-      setError('Erreur lors du chargement des tâches')
-      console.error('Erreur:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
+      } catch (err: unknown) {
+        setError('Erreur lors du chargement des tâches')
+        console.error('Erreur:', err)
+     } finally {
+       setLoading(false)
+     }
+   }, [task])
 
   // Fonction récursive pour vérifier si une tâche est un descendant d'une autre
-  const isDescendantOf = (potentialDescendant: Task, ancestor: Task, allTasks: Task[]): boolean => {
-    if (potentialDescendant.parentId === ancestor.id) return true
-    
-    const parent = allTasks.find(t => t.id === potentialDescendant.parentId)
-    if (!parent) return false
-    
-    return isDescendantOf(parent, ancestor, allTasks)
-  }
+   useEffect(() => {
+     if (isOpen && task) {
+       loadAvailableTasks()
+     }
+   }, [isOpen, task, loadAvailableTasks])
 
-  const handleAssignParent = async () => {
+   const handleAssignParent = async () => {
     if (!task || !selectedParentId) return
 
     try {
@@ -86,9 +87,9 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
       onParentAssigned()
       onClose()
       setSelectedParentId('')
-    } catch (err: any) {
-      setError('Erreur lors de l\'assignation de la tâche parente')
-      console.error('Erreur:', err)
+     } catch (err: unknown) {
+       setError('Erreur lors de l\'assignation de la tâche parente')
+       console.error('Erreur:', err)
     } finally {
       setLoading(false)
     }
@@ -111,7 +112,7 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
         urgency: task.urgency,
         priority: task.priority,
         plannedDate: task.plannedDate,
-        parentId: null as any, // Utiliser null pour supprimer le parent (cast pour éviter l'erreur TypeScript)
+         parentId: undefined, // Utiliser undefined pour supprimer le parent
         tagIds: task.tags.map(tag => tag.id)
       }
       
@@ -127,9 +128,9 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
         onClose()
         setSelectedParentId('')
       }, 500)
-    } catch (err: any) {
-      setError('Erreur lors de la suppression de la tâche parente')
-      console.error('Erreur:', err)
+     } catch (err: unknown) {
+       setError('Erreur lors de la suppression de la tâche parente')
+       console.error('Erreur:', err)
     } finally {
       setLoading(false)
     }

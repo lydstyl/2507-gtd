@@ -90,11 +90,11 @@ export interface TagImportResult {
   imported: number
   skipped: number
   merged: number
-  errors: Array<{
-    row: number
-    message: string
-    data?: any
-  }>
+   errors: Array<{
+     row: number
+     message: string
+     data?: unknown
+   }>
 }
 
 export interface TagExportOptions {

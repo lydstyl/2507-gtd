@@ -43,12 +43,25 @@ export interface TaskWithSubtasks<TDate = Date | string> extends TaskBase<TDate>
  * Generic Tag interface
  */
 export interface TagBase<TDate = Date | string> {
-  id: string
-  name: string
-  color?: string
-  userId: string
-  createdAt: TDate
-  updatedAt: TDate
+   id: string
+   name: string
+   color?: string
+   userId: string
+   createdAt: TDate
+   updatedAt: TDate
+}
+
+/**
+ * Generic User interface
+ */
+export interface UserBase<TDate = Date | string> {
+   id: string
+   email: string
+   password: string
+   createdAt: TDate
+   updatedAt: TDate
+   tasks?: any[]
+   tags?: any[]
 }
 
 /**
@@ -59,11 +72,13 @@ export interface TagBase<TDate = Date | string> {
 export type BackendTask = TaskBase<Date>
 export type BackendTaskWithSubtasks = TaskWithSubtasks<Date>
 export type BackendTag = TagBase<Date>
+export type BackendUser = UserBase<Date>
 
 // Frontend types (using string dates from JSON API)
 export type FrontendTask = TaskBase<string>
 export type FrontendTaskWithSubtasks = TaskWithSubtasks<string>
 export type FrontendTag = TagBase<string>
+export type FrontendUser = UserBase<string>
 
 // Generic types for domain services
 export type GenericTask<TDate = Date | string> = TaskBase<TDate>

@@ -7,7 +7,7 @@ import { useAllTasks } from '../hooks/useTasks'
 import { api } from '../utils/api'
 
 export function DashboardComponent() {
-  const { state, dispatch } = useApp()
+   const { dispatch } = useApp()
   const { data: user } = useCurrentUser()
   const { data: tasks = [] } = useAllTasks()
   const logout = useLogout()

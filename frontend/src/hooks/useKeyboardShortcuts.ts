@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import type { Task, Tag } from '../types/task'
+ import type { Task, Tag, UpdateTaskData } from '../types/task'
 import { api } from '../utils/api'
+
 
 interface UseKeyboardShortcutsProps {
   filteredTasks: Task[]
@@ -11,7 +12,7 @@ interface UseKeyboardShortcutsProps {
   isModalOpen: boolean
   onTaskDeleted: (taskId: string) => Promise<void>
   onTasksReload: () => Promise<void>
-  setPinnedTaskId: (id: string | null) => void
+  setPinnedTaskId: (id: string | null | ((prev: string | null) => string | null)) => void
   setShowShortcutsHelp: (show: boolean | ((prev: boolean) => boolean)) => void
   setFocusTaskId: (id: string | null) => void
   applyFilters: (tasks: Task[]) => Task[]
@@ -58,7 +59,7 @@ export function useKeyboardShortcuts({
       // Navigation ↑/↓
       if (["ArrowDown", "ArrowUp"].includes(e.key)) {
         e.preventDefault()
-        let idx = filteredTasks.findIndex((t) => t.id === selectedTaskId)
+        const idx = filteredTasks.findIndex((t) => t.id === selectedTaskId)
         if (e.key === "ArrowDown") {
           if (idx === -1 || idx === filteredTasks.length - 1) {
             setSelectedTaskId(filteredTasks[0].id)
@@ -86,7 +87,7 @@ export function useKeyboardShortcuts({
       if (e.key.toLowerCase() === "f") {
         e.preventDefault()
         if (!selectedTaskId) return
-        setPinnedTaskId((prev) => (prev === selectedTaskId ? null : selectedTaskId))
+        setPinnedTaskId((prev: string | null) => (prev === selectedTaskId ? null : selectedTaskId))
         return
       }
 
@@ -94,7 +95,7 @@ export function useKeyboardShortcuts({
       if (!selectedTaskId) return
       const task = findTaskById(tasks, selectedTaskId)
       if (!task) return
-      let update: any = {}
+       let update: Partial<Pick<UpdateTaskData, 'importance' | 'complexity' | 'plannedDate' | 'tagIds'>> = {}
       let handled = false
 
       // Delete selected task (Delete)
@@ -128,56 +129,56 @@ export function useKeyboardShortcuts({
         handled = true
       }
 
-      // Due date +1j/-1j
-      if (e.key.toLowerCase() === "d") {
-        e.preventDefault()
-        let baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
-        if (e.shiftKey) {
-          baseDate.setDate(baseDate.getDate() - 1)
-        } else {
-          baseDate.setDate(baseDate.getDate() + 1)
+       // Due date +1j/-1j
+       if (e.key.toLowerCase() === "d") {
+         e.preventDefault()
+          const baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
+         if (e.shiftKey) {
+           baseDate.setDate(baseDate.getDate() - 1)
+         } else {
+           baseDate.setDate(baseDate.getDate() + 1)
+         }
+         // Format as YYYY-MM-DD to avoid timezone issues
+         update.plannedDate = baseDate.getFullYear() + '-' +
+           String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
+           String(baseDate.getDate()).padStart(2, '0')
+         handled = true
+       }
+
+        // Due date +1 week
+        if (e.key.toLowerCase() === "w") {
+          e.preventDefault()
+          const baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
+          baseDate.setDate(baseDate.getDate() + 7)
+          // Format as YYYY-MM-DD in local timezone
+          update.plannedDate = baseDate.getFullYear() + '-' +
+            String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
+            String(baseDate.getDate()).padStart(2, '0')
+          handled = true
         }
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.plannedDate = baseDate.getFullYear() + '-' +
-          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-          String(baseDate.getDate()).padStart(2, '0')
-        handled = true
-      }
 
-      // Due date +1 week
-      if (e.key.toLowerCase() === "w") {
-        e.preventDefault()
-        let baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
-        baseDate.setDate(baseDate.getDate() + 7)
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.plannedDate = baseDate.getFullYear() + '-' +
-          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-          String(baseDate.getDate()).padStart(2, '0')
-        handled = true
-      }
+        // Due date +1 month
+        if (e.key.toLowerCase() === "m") {
+          e.preventDefault()
+          const baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
+          baseDate.setMonth(baseDate.getMonth() + 1)
+          // Format as YYYY-MM-DD in local timezone
+          update.plannedDate = baseDate.getFullYear() + '-' +
+            String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
+            String(baseDate.getDate()).padStart(2, '0')
+          handled = true
+        }
 
-      // Due date +1 month
-      if (e.key.toLowerCase() === "m") {
-        e.preventDefault()
-        let baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
-        baseDate.setMonth(baseDate.getMonth() + 1)
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.plannedDate = baseDate.getFullYear() + '-' +
-          String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-          String(baseDate.getDate()).padStart(2, '0')
-        handled = true
-      }
-
-      // Set date to today (T)
-      if (e.key.toLowerCase() === "t") {
-        e.preventDefault()
-        const today = new Date()
-        // Format as YYYY-MM-DD to avoid timezone issues
-        update.plannedDate = today.getFullYear() + '-' +
-          String(today.getMonth() + 1).padStart(2, '0') + '-' +
-          String(today.getDate()).padStart(2, '0')
-        handled = true
-      }
+        // Set date to today (T)
+        if (e.key.toLowerCase() === "t") {
+          e.preventDefault()
+          const today = new Date()
+          // Format as YYYY-MM-DD in local timezone for "today"
+          update.plannedDate = today.getFullYear() + '-' +
+            String(today.getMonth() + 1).padStart(2, '0') + '-' +
+            String(today.getDate()).padStart(2, '0')
+          handled = true
+        }
 
       // Remove date (E)
       if (e.key.toLowerCase() === "e") {
@@ -212,9 +213,9 @@ export function useKeyboardShortcuts({
               setFocusTaskId(null)
             }
           }, 300)
-        } catch (err) {
-          alert("Erreur lors de la modification rapide de la tâche")
-        }
+         } catch {
+           alert("Erreur lors de la modification rapide de la tâche")
+         }
         return
       }
 
@@ -228,9 +229,9 @@ export function useKeyboardShortcuts({
             await api.markTaskCompleted(task.id)
           }
           await onTasksReload()
-        } catch (err) {
-          alert("Erreur lors de la modification du statut de la tâche")
-        }
+         } catch {
+           alert("Erreur lors de la modification du statut de la tâche")
+         }
         return
       }
 
