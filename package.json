@@ -19,7 +19,8 @@
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install && cd ../shared && npm install",
     "test": "cd backend && npm run test && cd ../frontend && npm run test",
     "test:shared": "cd shared && npm run test",
-    "test:ui": "cd backend && npm run test:ui"
+    "test:ui": "cd backend && npm run test:ui",
+    "prod:update": "git fetch && git pull && npm run build && pm2 restart gtd2"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
