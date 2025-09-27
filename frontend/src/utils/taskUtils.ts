@@ -17,6 +17,25 @@ export const getPriorityColor = (importance: number): string => {
   }
 }
 
+export const getPointsColor = (points: number): string => {
+  // Clamp points between 0 and 500
+  const clampedPoints = Math.max(0, Math.min(500, points))
+
+  // Calculate intensity: 0 points = 0%, 500 points = 100%
+  const intensity = clampedPoints / 500
+
+  if (intensity === 0) {
+    return 'bg-white'
+  } else if (intensity === 1) {
+    return 'bg-black'
+  } else {
+    // Generate gray levels from gray-100 (lightest) to gray-900 (darkest)
+    // Map intensity 0.1-0.9 to gray levels 100-900
+    const grayLevel = Math.round(intensity * 9) * 100
+    return `bg-gray-${grayLevel}`
+  }
+}
+
 export const formatDate = (dateString: string): string => {
   try {
     const date = new Date(dateString)
