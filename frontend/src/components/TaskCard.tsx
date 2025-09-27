@@ -250,7 +250,7 @@ export function TaskCard({
             </div>
 
             {/* Actions */}
-            <div className='flex-shrink-0'>
+            <div>
               <TaskActions
                 task={task}
                 onEdit={onEdit}

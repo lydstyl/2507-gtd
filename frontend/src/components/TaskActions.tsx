@@ -61,7 +61,7 @@ export function TaskActions({
   }
 
   return (
-    <div className='flex items-center space-x-1'>
+    <div className='flex items-center flex-wrap gap-1'>
       {/* Toggle subtasks button */}
       {task.subtasks && task.subtasks.length > 0 && onToggleSubtasks && (
         <button
