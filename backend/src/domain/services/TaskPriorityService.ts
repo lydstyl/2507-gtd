@@ -227,9 +227,11 @@ export class TaskPriorityService {
         // Both have no date, sort by points DESC
         return this.compareByPoints(a, b)
 
-      case 'future':
-        // Both are future tasks, sort by date ASC
-        return this.compareByEffectiveDate(a, b, context)
+       case 'future':
+         // Both are future tasks, sort by date ASC, then points DESC
+         const futureDateComparison = this.compareByEffectiveDate(a, b, context)
+         if (futureDateComparison !== 0) return futureDateComparison
+         return this.compareByPoints(a, b)
 
       default:
         // Fallback: sort by points DESC
