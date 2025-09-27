@@ -1,6 +1,10 @@
 import { TaskEntity } from '../entities/Task'
 
-export class TaskPriorityService {
+/**
+ * UI-specific service for task priority display and styling
+ * Contains presentation logic that depends on UI frameworks
+ */
+export class TaskPriorityUIService {
   /**
    * Calculate points based on importance and complexity
    */
@@ -67,24 +71,31 @@ export class TaskPriorityService {
   /**
    * Determine if task is high priority
    */
-  static isHighPriority(task: TaskEntity): boolean {
-    return task.points >= 200 || task.importance >= 30
+  static isHighPriority(task: TaskEntity | { points: number; importance: number }): boolean {
+    const points = task.points
+    const importance = task.importance
+    return points >= 200 || importance >= 30
   }
 
   /**
    * Determine if task is low priority
    */
-  static isLowPriority(task: TaskEntity): boolean {
-    return task.points < 50 && task.importance < 10
+  static isLowPriority(task: TaskEntity | { points: number; importance: number }): boolean {
+    const points = task.points
+    const importance = task.importance
+    return points < 50 && importance < 10
   }
 
   /**
    * Get priority score (0-100) for comparison
    */
-  static getPriorityScore(task: TaskEntity): number {
+  static getPriorityScore(task: TaskEntity | { points: number; importance: number }): number {
+    const points = task.points
+    const importance = task.importance
+
     // Combine points and importance with different weights
-    const pointsScore = Math.min(task.points / 5, 100) // Max 500 points = 100 score
-    const importanceScore = task.importance * 2 // Max 50 importance = 100 score
+    const pointsScore = Math.min(points / 5, 100) // Max 500 points = 100 score
+    const importanceScore = importance * 2 // Max 50 importance = 100 score
 
     // Weighted average: 60% points, 40% importance
     return Math.round(pointsScore * 0.6 + importanceScore * 0.4)
@@ -93,7 +104,7 @@ export class TaskPriorityService {
   /**
    * Sort tasks by priority (higher priority first)
    */
-  static sortByPriority(tasks: TaskEntity[]): TaskEntity[] {
+  static sortByPriority(tasks: Array<{ points: number; importance: number; complexity: number }>): Array<{ points: number; importance: number; complexity: number }> {
     return [...tasks].sort((a, b) => {
       // First sort by points (descending)
       if (b.points !== a.points) {
@@ -113,17 +124,17 @@ export class TaskPriorityService {
   /**
    * Group tasks by priority level
    */
-  static groupTasksByPriority(tasks: TaskEntity[]): {
-    critical: TaskEntity[]
-    high: TaskEntity[]
-    medium: TaskEntity[]
-    low: TaskEntity[]
+  static groupTasksByPriority(tasks: Array<{ points: number; importance: number }>): {
+    critical: Array<{ points: number; importance: number }>
+    high: Array<{ points: number; importance: number }>
+    medium: Array<{ points: number; importance: number }>
+    low: Array<{ points: number; importance: number }>
   } {
     const groups = {
-      critical: [] as TaskEntity[],
-      high: [] as TaskEntity[],
-      medium: [] as TaskEntity[],
-      low: [] as TaskEntity[]
+      critical: [] as Array<{ points: number; importance: number }>,
+      high: [] as Array<{ points: number; importance: number }>,
+      medium: [] as Array<{ points: number; importance: number }>,
+      low: [] as Array<{ points: number; importance: number }>
     }
 
     tasks.forEach(task => {
@@ -146,7 +157,7 @@ export class TaskPriorityService {
   /**
    * Calculate optimal task difficulty distribution
    */
-  static analyzeTaskDifficulty(tasks: TaskEntity[]): {
+  static analyzeTaskDifficulty(tasks: Array<{ complexity: number; importance: number; points: number }>): {
     averageComplexity: number
     averageImportance: number
     averagePoints: number

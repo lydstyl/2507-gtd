@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { TaskEntity } from '../entities/Task'
-import { TaskPriorityService } from '../services/TaskPriorityService'
+import { TaskPriorityUIService } from '../services/TaskPriorityUIService'
 import { TaskCategoryService } from '../services/TaskCategoryService'
 import { TaskSortingService } from '../services/TaskSortingService'
 
@@ -152,7 +152,7 @@ describe('Business Rules Integration', () => {
         tags: []
       })
 
-      const priorityDescription = TaskPriorityService.getPriorityDescription(task.importance)
+      const priorityDescription = TaskPriorityUIService.getPriorityDescription(task.importance)
       const categoryStyle = TaskCategoryService.getCategoryStyle('today')
 
       // High priority task should have appropriate description
@@ -184,7 +184,7 @@ describe('Business Rules Integration', () => {
       expect(maxPriorityOverdueTask.getCategory()).toBe('overdue')
       expect(maxPriorityOverdueTask.isOverdue()).toBe(true)
 
-      const priorityDescription = TaskPriorityService.getPriorityDescription(50)
+      const priorityDescription = TaskPriorityUIService.getPriorityDescription(50)
       expect(priorityDescription).toBe('Critique')
     })
 
@@ -210,7 +210,7 @@ describe('Business Rules Integration', () => {
       expect(minPriorityFutureTask.calculatePoints()).toBe(1) // Math.round(10 * 1 / 9) = 1
       expect(minPriorityFutureTask.getCategory()).toBe('future')
 
-      const priorityDescription = TaskPriorityService.getPriorityDescription(1)
+      const priorityDescription = TaskPriorityUIService.getPriorityDescription(1)
       expect(priorityDescription).toBe('Très faible')
     })
   })

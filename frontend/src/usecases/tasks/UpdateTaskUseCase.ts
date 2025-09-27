@@ -1,7 +1,7 @@
 import { BaseUseCase } from '../base/UseCase'
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { TaskEntity, UpdateTaskData } from '../../domain/entities/Task'
-import { TaskPriorityService } from '../../domain/services/TaskPriorityService'
+import { TaskPriorityService } from '@gtd/shared'
 import { TASK_CONSTANTS } from '../../domain/types/BusinessConstants'
 import { OperationResult } from '../../domain/types/Common'
 
