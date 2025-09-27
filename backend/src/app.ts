@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Application } from 'express'
 import cors from 'cors'
 import path from 'path'
 import { Container } from './infrastructure/container'
@@ -6,7 +6,7 @@ import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
 import authRoutes from './presentation/routes/authRoutes'
 
-const app = express()
+const app: Application = express()
 const PORT = process.env.PORT || 3000
 
 // Configuration CORS

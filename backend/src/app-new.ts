@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Application } from 'express'
 import cors from 'cors'
 import path from 'path'
 
@@ -18,7 +18,7 @@ import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
 import authRoutes from './presentation/routes/authRoutes'
 
-const app = express()
+const app: Application = express()
 
 // Middleware setup
 app.use(cors({

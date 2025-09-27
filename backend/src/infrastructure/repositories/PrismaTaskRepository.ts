@@ -453,14 +453,14 @@ export class PrismaTaskRepository implements TaskRepository {
     for (let i = 0; i < 7; i++) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
       const dateStr = date.toISOString().split('T')[0]
-      const tasksForDate = dailyTasks.filter(task =>
+      const tasksForDate = dailyTasks.filter((task: { id: string; name: string; completedAt: Date | null }) =>
         task.completedAt && task.completedAt.toISOString().split('T')[0] === dateStr
       )
 
       dailyCompletions.push({
         date: dateStr,
         count: tasksForDate.length,
-        tasks: tasksForDate.map(task => ({ id: task.id, name: task.name }))
+        tasks: tasksForDate.map((task: { id: string; name: string; completedAt: Date | null }) => ({ id: task.id, name: task.name }))
       })
     }
 
@@ -526,7 +526,7 @@ export class PrismaTaskRepository implements TaskRepository {
       }
     })
 
-    return tasks.map(task => this.formatTaskWithSubtasks(task))
+    return tasks.map((task: any) => this.formatTaskWithSubtasks(task))
   }
 
   async deleteOldCompletedTasks(cutoffDate: Date): Promise<number> {

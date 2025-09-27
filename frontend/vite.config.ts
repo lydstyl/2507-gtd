@@ -7,6 +7,19 @@ const isProduction = process.env.NODE_ENV === 'production'
 const apiPort = process.env.VITE_API_PORT || (isProduction ? '3001' : '3000')
 const frontendPort = process.env.VITE_FRONTEND_PORT || '5173'
 
+// Force specific port to avoid port hunting
+const serverConfig = {
+  port: parseInt(frontendPort),
+  strictPort: true,
+  host: true,
+  proxy: {
+    '/api': {
+      target: `http://localhost:${apiPort}`,
+      changeOrigin: true
+    }
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -64,13 +77,5 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false
   },
-  server: {
-    port: parseInt(frontendPort),
-    proxy: {
-      '/api': {
-        target: `http://localhost:${apiPort}`,
-        changeOrigin: true
-      }
-    }
-  }
+   server: serverConfig
 })

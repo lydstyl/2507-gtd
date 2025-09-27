@@ -16,7 +16,7 @@
     "serve": "serve -s dist -l 3002"
   },
   "dependencies": {
-    "@gtd/shared": "workspace:*",
+    "@gtd/shared": "file:../shared",
     "@headlessui/react": "^2.2.8",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",

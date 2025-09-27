@@ -1,10 +1,10 @@
-import { Router } from 'express'
+import express, { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { PrismaUserRepository } from '../../infrastructure/repositories/PrismaUserRepository'
 import { AuthService } from '../../services/authService'
 import { AuthController } from '../controllers/AuthController'
 
-const router = Router()
+const router: Router = Router()
 const prisma = new PrismaClient()
 const userRepository = new PrismaUserRepository(prisma)
 const authService = new AuthService(userRepository)

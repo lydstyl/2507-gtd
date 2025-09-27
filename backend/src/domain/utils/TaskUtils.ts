@@ -1,44 +1,42 @@
+import { TaskValidationService, TaskPriorityService } from '@gtd/shared'
+
 /**
  * Utility functions for task management and points calculation
+ * @deprecated Use TaskValidationService from @gtd/shared instead
  */
 
 /**
  * Computes points based on importance and complexity
- * Formula: points = round(10 * importance / complexity), clamped to [0, 500]
+ * @deprecated Use TaskPriorityService.calculatePoints from @gtd/shared
  */
 export function computePoints(importance: number, complexity: number): number {
-  // Validate inputs
+  // Clamp values to valid ranges like the old implementation
   const validImportance = Math.max(0, Math.min(50, importance))
   const validComplexity = Math.max(1, Math.min(9, complexity))
 
-  // Compute points
-  const points = Math.round(10 * validImportance / validComplexity)
-
-  // Clamp to valid range
-  return Math.max(0, Math.min(500, points))
+  return TaskPriorityService.calculatePoints(validImportance, validComplexity)
 }
 
 /**
  * Validates importance value
+ * @deprecated Use TaskValidationService.validateImportance from @gtd/shared
  */
 export function validateImportance(importance: number): boolean {
-  return Number.isInteger(importance) && importance >= 0 && importance <= 50
+  return TaskValidationService.validateImportance(importance)
 }
 
 /**
  * Validates complexity value
+ * @deprecated Use TaskValidationService.validateComplexity from @gtd/shared
  */
 export function validateComplexity(complexity: number): boolean {
-  return Number.isInteger(complexity) && complexity >= 1 && complexity <= 9
+  return TaskValidationService.validateComplexity(complexity)
 }
 
 /**
  * Gets default values for new tasks
+ * @deprecated Use TaskValidationService.getDefaultTaskValues from @gtd/shared
  */
 export function getDefaultTaskValues() {
-  return {
-    importance: 50, // Maximum importance for high priority
-    complexity: 1,  // Minimum complexity for maximum points
-    points: 500,    // 10 * 50 / 1 = 500 (maximum points)
-  }
+  return TaskValidationService.getDefaultTaskValues()
 }
