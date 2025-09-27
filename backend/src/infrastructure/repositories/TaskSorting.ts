@@ -1,5 +1,6 @@
 import { TaskWithSubtasks } from '../../domain/entities/Task'
-import { TaskPriorityService } from '../../domain/services/TaskPriorityService'
+import { TaskPriorityService } from '@gtd/shared'
+import { TaskAdapter } from '../adapters/TaskAdapter'
 
 /**
  * Infrastructure implementation of task sorting
@@ -16,13 +17,15 @@ export class TaskSorting {
   }
 
   /**
-   * Sort tasks according to the priority system using domain service
+   * Sort tasks according to the priority system using shared domain service
    */
   static sortTasksByPriority(tasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
     const dateContext = TaskPriorityService.createDateContext()
 
     return tasks
+      .map(task => TaskAdapter.toSharedDomain(task))
       .sort((a, b) => TaskPriorityService.compareTasksPriority(a, b, dateContext))
+      .map((task) => TaskAdapter.fromSharedDomain(task))
       .map((task) => ({
         ...task,
         subtasks: TaskSorting.sortSubtasksByPriority(task.subtasks)
@@ -30,11 +33,13 @@ export class TaskSorting {
   }
 
   /**
-   * Sort subtasks by points using domain service
+   * Sort subtasks by points using shared domain service
    */
   static sortSubtasksByPriority(subtasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
     return subtasks
+      .map(subtask => TaskAdapter.toSharedDomain(subtask))
       .sort((a, b) => TaskPriorityService.compareByPoints(a, b))
+      .map(subtask => TaskAdapter.fromSharedDomain(subtask))
       .map((subtask) => ({
         ...subtask,
         subtasks: TaskSorting.sortSubtasksByPriority(subtask.subtasks)
@@ -43,9 +48,11 @@ export class TaskSorting {
 
   /**
    * Compare two tasks by points (higher points = higher priority)
-   * Delegates to domain service
+   * Delegates to shared domain service
    */
   static compareByPoints(a: TaskWithSubtasks, b: TaskWithSubtasks): number {
-    return TaskPriorityService.compareByPoints(a, b)
+    const sharedA = TaskAdapter.toSharedDomain(a)
+    const sharedB = TaskAdapter.toSharedDomain(b)
+    return TaskPriorityService.compareByPoints(sharedA, sharedB)
   }
 }

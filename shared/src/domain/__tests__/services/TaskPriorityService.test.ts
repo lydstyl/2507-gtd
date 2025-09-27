@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { TaskPriorityService, DateContext } from '../../services/TaskPriorityService'
-import { GenericTaskWithSubtasks } from '../../entities/TaskTypes'
+import { TaskPriorityService } from '../../services/TaskPriorityService'
+import { GenericTaskWithSubtasks, DateContext } from '../../entities/TaskTypes'
 
 describe('Shared TaskPriorityService', () => {
   let dateContext: DateContext

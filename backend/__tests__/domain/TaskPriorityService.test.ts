@@ -1,5 +1,4 @@
-import { TaskPriorityService, DateContext } from '../../src/domain/services/TaskPriorityService'
-import { TaskWithSubtasks } from '../../src/domain/entities/Task'
+import { TaskPriorityService, DateContext, BackendTaskWithSubtasks } from '@gtd/shared'
 import { vi } from 'vitest'
 
 describe('TaskPriorityService', () => {
@@ -61,9 +60,9 @@ describe('TaskPriorityService', () => {
 
   describe('getEffectiveDate', () => {
     it('should return due date if urgent', () => {
-      const task: TaskWithSubtasks = createTestTask({
-        plannedDate: dayAfterTomorrow.toISOString(),
-        dueDate: today.toISOString()
+      const task: BackendTaskWithSubtasks = createTestTask({
+        plannedDate: dayAfterTomorrow,
+        dueDate: today
       })
 
       const result = TaskPriorityService.getEffectiveDate(task, dateContext)
@@ -71,9 +70,9 @@ describe('TaskPriorityService', () => {
     })
 
     it('should return planned date if due date is not urgent', () => {
-      const task: TaskWithSubtasks = createTestTask({
-        plannedDate: today.toISOString(),
-        dueDate: dayAfterTomorrow.toISOString()
+      const task: BackendTaskWithSubtasks = createTestTask({
+        plannedDate: today,
+        dueDate: dayAfterTomorrow
       })
 
       const result = TaskPriorityService.getEffectiveDate(task, dateContext)
@@ -81,7 +80,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should return null if no dates', () => {
-      const task: TaskWithSubtasks = createTestTask({})
+      const task: BackendTaskWithSubtasks = createTestTask({})
 
       const result = TaskPriorityService.getEffectiveDate(task, dateContext)
       expect(result).toBeNull()
@@ -90,7 +89,7 @@ describe('TaskPriorityService', () => {
 
   describe('isCollectedTask', () => {
     it('should identify new default tasks as collected', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         importance: 0,
         complexity: 3,
         points: 0
@@ -100,7 +99,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should identify high priority tasks as collected', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         importance: 9,
         complexity: 1,
         points: 500
@@ -110,7 +109,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should not identify tasks with effective dates as collected', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         importance: 0,
         complexity: 3,
         points: 0,
@@ -123,7 +122,7 @@ describe('TaskPriorityService', () => {
 
   describe('getTaskCategory', () => {
     it('should categorize collected tasks', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         importance: 0,
         complexity: 3,
         points: 0
@@ -133,7 +132,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should categorize overdue tasks', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         plannedDate: yesterday.toISOString()
       })
 
@@ -141,7 +140,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should categorize today tasks', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         plannedDate: today.toISOString()
       })
 
@@ -149,7 +148,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should categorize tomorrow tasks', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         plannedDate: tomorrow.toISOString()
       })
 
@@ -157,7 +156,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should categorize future tasks', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         plannedDate: dayAfterTomorrow.toISOString()
       })
 
@@ -165,7 +164,7 @@ describe('TaskPriorityService', () => {
     })
 
     it('should categorize no-date tasks', () => {
-      const task: TaskWithSubtasks = createTestTask({
+      const task: BackendTaskWithSubtasks = createTestTask({
         importance: 5,
         complexity: 5,
         points: 10
@@ -177,12 +176,12 @@ describe('TaskPriorityService', () => {
 
   describe('compareTasksPriority', () => {
     it('should sort collected tasks before others', () => {
-      const collectedTask: TaskWithSubtasks = createTestTask({
+      const collectedTask: BackendTaskWithSubtasks = createTestTask({
         importance: 0,
         complexity: 3,
         points: 0
       })
-      const normalTask: TaskWithSubtasks = createTestTask({
+      const normalTask: BackendTaskWithSubtasks = createTestTask({
         importance: 5,
         complexity: 5,
         points: 10
@@ -193,11 +192,11 @@ describe('TaskPriorityService', () => {
     })
 
     it('should sort overdue tasks before today tasks', () => {
-      const overdueTask: TaskWithSubtasks = createTestTask({
+      const overdueTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: yesterday.toISOString(),
         points: 10
       })
-      const todayTask: TaskWithSubtasks = createTestTask({
+      const todayTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: today.toISOString(),
         points: 10
       })
@@ -207,11 +206,11 @@ describe('TaskPriorityService', () => {
     })
 
     it('should sort by points within same category', () => {
-      const highPointsTask: TaskWithSubtasks = createTestTask({
+      const highPointsTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: today.toISOString(),
         points: 100
       })
-      const lowPointsTask: TaskWithSubtasks = createTestTask({
+      const lowPointsTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: today.toISOString(),
         points: 10
       })
@@ -221,11 +220,11 @@ describe('TaskPriorityService', () => {
     })
 
     it('should sort overdue tasks by date (oldest first)', () => {
-      const veryOverdueTask: TaskWithSubtasks = createTestTask({
+      const veryOverdueTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: new Date(Date.UTC(2023, 5, 13)).toISOString(), // June 13
         points: 10
       })
-      const recentlyOverdueTask: TaskWithSubtasks = createTestTask({
+      const recentlyOverdueTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: yesterday.toISOString(), // June 14
         points: 10
       })
@@ -247,7 +246,7 @@ describe('TaskPriorityService', () => {
   })
 })
 
-function createTestTask(overrides: Partial<TaskWithSubtasks> = {}): TaskWithSubtasks {
+function createTestTask(overrides: Partial<BackendTaskWithSubtasks> = {}): BackendTaskWithSubtasks {
   return {
     id: '1',
     name: 'Test Task',
@@ -260,8 +259,8 @@ function createTestTask(overrides: Partial<TaskWithSubtasks> = {}): TaskWithSubt
     userId: 'user1',
     isCompleted: false,
     completedAt: undefined,
-    createdAt: '2023-06-15T10:00:00Z',
-    updatedAt: '2023-06-15T10:00:00Z',
+    createdAt: new Date('2023-06-15T10:00:00Z'),
+    updatedAt: new Date('2023-06-15T10:00:00Z'),
     subtasks: [],
     tags: [],
     ...overrides

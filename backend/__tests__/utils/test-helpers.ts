@@ -1,5 +1,5 @@
 import { Task, TaskWithSubtasks, User, Tag, CreateTaskData, UpdateTaskData } from '../../src/domain/entities/Task'
-import { DateContext } from '../../src/domain/services/TaskPriorityService'
+import { DateContext } from '@gtd/shared'
 
 /**
  * Test utilities and helpers for domain and use case testing

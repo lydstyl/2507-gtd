@@ -27,6 +27,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@gtd/shared": "workspace:*",
     "@prisma/client": "^6.10.1",
     "@types/cors": "^2.8.19",
     "@types/node-cron": "^3.0.11",
