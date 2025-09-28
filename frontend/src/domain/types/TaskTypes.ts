@@ -112,18 +112,8 @@ export interface TaskPerformanceMetrics {
   productivityScore: number // 0-100
 }
 
-// Task business rules
-export interface TaskBusinessRules {
-  maxImportance: number
-  maxComplexity: number
-  maxPoints: number
-  collectedThreshold: number
-  overdueGracePeriod: number // days
-  maxSubtaskDepth: number
-  maxTagsPerTask: number
-  taskNameMaxLength: number
-  taskNoteMaxLength: number
-}
+// Re-export shared business rules
+export type { TaskBusinessRules } from '@gtd/shared'
 
 // Task import/export types
 export interface TaskImportResult {

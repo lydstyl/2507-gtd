@@ -47,6 +47,127 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a full-stack GTD (Getting Things Done) task management application using **Clean Architecture** principles on both backend and frontend.
 
+## Shared Domain Package (@gtd/shared)
+
+The application uses a **shared domain package** to eliminate code duplication and ensure consistency between frontend and backend. This package contains all business logic, domain types, validation rules, and constants.
+
+### Shared Package Structure
+
+```
+shared/src/
+├── domain/
+│   ├── entities/
+│   │   ├── TaskTypes.ts          # Core task interfaces & types
+│   │   ├── TagTypes.ts           # Tag interfaces & types
+│   │   ├── TaskEntity.ts         # Task business logic
+│   │   ├── TagEntity.ts          # Tag business logic
+│   │   └── UserEntity.ts         # User business logic
+│   ├── services/
+│   │   ├── TaskPriorityService.ts    # Task sorting & priority logic
+│   │   ├── TaskCategoryService.ts    # Task categorization logic
+│   │   ├── TaskValidationService.ts  # Task validation rules
+│   │   ├── TagValidationService.ts   # Tag validation logic
+│   │   ├── TaskSortingService.ts     # Task sorting algorithms
+│   │   └── CsvService.ts             # CSV parsing & formatting
+│   ├── constants/
+│   │   ├── BusinessRules.ts          # Business rules & constants
+│   │   └── ValidationRules.ts        # Validation patterns
+│   ├── errors/
+│   │   └── DomainErrors.ts           # Domain-specific errors
+│   └── utils/
+│       ├── DateUtils.ts              # Date handling utilities
+│       └── TaskDisplayUtils.ts       # Task styling utilities
+└── index.ts                          # Public API exports
+```
+
+### Shared Package Commands
+
+- `cd shared && npm run build` - Build shared package (both ESM and CommonJS)
+- `cd shared && npm test` - Run shared domain tests (119 tests)
+- `npm run build:shared` - Build shared package from root level
+
+### Key Shared Components
+
+**Domain Services:**
+- `TaskPriorityService` - Task sorting and priority calculation
+- `TaskCategoryService` - Task categorization (collected, overdue, etc.)
+- `TaskValidationService` - Task validation with business rules
+- `TagValidationService` - Tag validation with business rules
+- `CsvService` - CSV import/export logic
+
+**Domain Types:**
+- `TaskBase<TDate>` - Generic task interface (Date or string)
+- `TagBase<TDate>` - Generic tag interface (Date or string)
+- Backend types: `BackendTask`, `BackendTag` (using Date objects)
+- Frontend types: `FrontendTask`, `FrontendTag` (using string dates)
+
+**Business Rules:**
+- `TASK_CONSTANTS` - Task validation limits and defaults
+- `TAG_CONSTANTS` - Tag validation limits and defaults
+- `PRIORITY_LEVELS` - Task priority categorization
+- `COMPLEXITY_LEVELS` - Task complexity levels
+- `VALIDATION_PATTERNS` - Regex patterns for validation
+
+**Domain Errors:**
+- `BaseError` - Abstract base error class
+- `ValidationError` - Input validation errors
+- `TaskValidationError` - Task-specific validation errors
+- `TagValidationError` - Tag-specific validation errors
+- `CsvError` - CSV import/export errors
+
+### Generic Type Strategy
+
+The shared package uses generic types to handle the Date/string difference between backend and frontend:
+
+```typescript
+// Shared domain with generic date handling
+interface TaskBase<TDate = Date | string> {
+  id: string
+  name: string
+  plannedDate?: TDate
+  dueDate?: TDate
+  createdAt: TDate
+  updatedAt: TDate
+  // ... other properties
+}
+
+// Backend uses Date objects from database
+type BackendTask = TaskBase<Date>
+
+// Frontend uses string dates from JSON API
+type FrontendTask = TaskBase<string>
+```
+
+### Integration Pattern
+
+Both frontend and backend integrate with the shared package through adapters:
+
+```typescript
+// Backend adapter (TaskAdapter.ts)
+class BackendTaskAdapter {
+  static toGeneric(task: PrismaTask): BackendTask {
+    // Convert Prisma types to shared domain types
+  }
+}
+
+// Frontend adapter (TaskAdapter.ts)
+class FrontendTaskAdapter {
+  static toGeneric(task: ApiTask): FrontendTask {
+    // Convert API response to shared domain types
+  }
+}
+```
+
+### Benefits Achieved
+
+✅ **770+ lines of duplication eliminated** across all phases
+✅ **Single source of truth** for all business logic
+✅ **Type safety** with shared interfaces
+✅ **Consistent validation** between frontend and backend
+✅ **Unified business rules** and constants
+✅ **Comprehensive test coverage** (119 shared domain tests)
+✅ **Clean separation** of domain vs. infrastructure concerns
+
 ## Clean Architecture Implementation
 
 Both backend and frontend follow Uncle Bob's Clean Architecture with clear layer separation:
@@ -56,16 +177,16 @@ Both backend and frontend follow Uncle Bob's Clean Architecture with clear layer
 ```
 backend/src/
 ├── domain/
-│   ├── entities/         # Core business entities (Task, Tag, User)
-│   └── utils/           # Domain utilities
-├── usecases/            # Business logic and application rules
+│   └── entities/         # Re-exports from @gtd/shared (Task, Tag, User)
+├── usecases/            # Business logic using shared domain services
 ├── interfaces/
 │   └── repositories/    # Repository contracts
 ├── infrastructure/
-│   ├── repositories/    # Prisma implementations
+│   ├── repositories/    # Prisma implementations with shared domain integration
+│   ├── adapters/        # Platform-specific adapters (e.g., CsvFileAdapter)
 │   └── container.ts     # Dependency injection
 ├── presentation/
-│   ├── controllers/     # HTTP controllers
+│   ├── controllers/     # HTTP controllers using shared validation
 │   ├── routes/         # Express routes
 │   ├── middleware/     # Authentication, validation
 │   └── dto/           # Data transfer objects
@@ -77,17 +198,18 @@ backend/src/
 ```
 frontend/src/
 ├── domain/
-│   ├── entities/        # Business entities with methods (TaskEntity, TagEntity)
-│   ├── services/        # Domain services (TaskSortingService, TaskCategoryService)
-│   └── types/          # Business types and constants
+│   ├── entities/        # Re-exports from @gtd/shared (TaskEntity, TagEntity)
+│   ├── services/        # Re-exports from @gtd/shared + UI-specific services
+│   └── types/          # Re-exports from @gtd/shared + UI-specific types
 ├── usecases/
-│   ├── tasks/          # Task business operations
-│   ├── tags/           # Tag business operations
+│   ├── tasks/          # Task business operations using shared domain services
+│   ├── tags/           # Tag business operations using shared domain services
 │   └── base/           # Base use case classes
 ├── interfaces/
 │   └── repositories/   # Repository contracts
 ├── infrastructure/
-│   ├── repositories/   # HTTP implementations
+│   ├── repositories/   # HTTP implementations with shared domain integration
+│   ├── adapters/       # Platform-specific adapters (e.g., CsvBrowserAdapter)
 │   └── container.ts    # Dependency injection
 ├── presentation/
 │   ├── components/     # React components (UI only)
@@ -100,17 +222,31 @@ frontend/src/
 
 When adding a new feature, follow this decision tree:
 
-### 1. **Domain Layer First** - "What is the business rule?"
+### 1. **Shared Domain Package First** - "Is this business logic?"
 
-**Create in `domain/entities/` when:**
-- Adding new business entity (User, Task, Tag, etc.)
-- Adding business methods to existing entities
-- Defining core domain types
+**🎯 IMPORTANT: Always check if the logic should go in the shared package (@gtd/shared) first!**
 
-**Create in `domain/services/` when:**
-- Complex business logic that spans multiple entities
-- Domain calculations (priority, sorting, categorization)
-- Business rules that don't belong to a single entity
+**Add to shared package when:**
+- Business rules that apply to both frontend and backend
+- Validation logic (task validation, tag validation)
+- Domain calculations (priority, points, categorization)
+- Data transformations (CSV parsing, date handling)
+- Core domain types and interfaces
+
+**Create in local `domain/` when:**
+- Platform-specific extensions (e.g., position field for frontend tags)
+- UI-specific types (search results, statistics, performance metrics)
+- Re-exports from shared package for backward compatibility
+
+**Example: Adding validation should go in shared package first**
+```typescript
+// shared/src/domain/services/TaskValidationService.ts
+export class TaskValidationService {
+  static validateDueDate(dueDate: Date): ValidationResult {
+    // Business rule: due date cannot be in the past
+  }
+}
+```
 
 **Example: Adding Due Date Reminders**
 ```typescript

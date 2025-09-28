@@ -11,7 +11,7 @@ import {
   UpdateTaskData
 } from '../../domain/entities/Task'
 import { TaskWithTags } from '../../application/services/CsvService'
-import { computePoints, getDefaultTaskValues } from '../../domain/utils/TaskUtils'
+import { TaskPriorityService, TaskValidationService } from '@gtd/shared'
 import { TaskSorting } from './TaskSorting'
 
 export class PrismaTaskRepository implements TaskRepository {
@@ -19,14 +19,14 @@ export class PrismaTaskRepository implements TaskRepository {
 
   async create(data: CreateTaskData): Promise<TaskWithSubtasks> {
     const { tagIds, ...taskData } = data
-    const defaults = getDefaultTaskValues()
+    const defaults = TaskValidationService.getDefaultTaskValues()
 
     // Use provided values or defaults
     const importance = taskData.importance ?? defaults.importance
     const complexity = taskData.complexity ?? defaults.complexity
 
     // Compute points server-side (client values ignored)
-    const points = computePoints(importance, complexity)
+    const points = TaskPriorityService.calculatePoints(importance, complexity)
 
     const task = await this.prisma.task.create({
       data: {
@@ -284,7 +284,7 @@ export class PrismaTaskRepository implements TaskRepository {
       const newComplexity = cleanTaskData.complexity ?? currentTask.complexity
 
       if (cleanTaskData.importance !== undefined || cleanTaskData.complexity !== undefined) {
-        updateData.points = computePoints(newImportance, newComplexity)
+        updateData.points = TaskPriorityService.calculatePoints(newImportance, newComplexity)
       }
 
       const updatedTask = await tx.task.update({
