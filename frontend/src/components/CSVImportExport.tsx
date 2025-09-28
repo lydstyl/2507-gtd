@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../utils/api'
+import { CsvBrowserAdapter } from '../infrastructure/adapters/CsvBrowserAdapter'
 
 interface CSVImportExportProps {
   onImportSuccess: () => void
@@ -18,22 +19,17 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
       const token = localStorage.getItem('token')
       console.log('🔑 Token présent:', !!token)
 
-      const csvContent = await api.exportTasks()
-      console.log('📄 Contenu CSV reçu:', csvContent.size, 'bytes')
+      const csvBlob = await api.exportTasks()
+      console.log('📄 Contenu CSV reçu:', csvBlob.size, 'bytes')
 
-      // Créer un lien de téléchargement
-      const blob = new Blob([csvContent], { type: 'text/csv' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute(
-        'download',
+      // Convert blob to string
+      const csvContent = await csvBlob.text()
+
+      // Use browser adapter for download
+      CsvBrowserAdapter.downloadCsv(
+        csvContent,
         `tasks-export-${new Date().toISOString().split('T')[0]}.csv`
       )
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Erreur lors de l'export:", error)
       alert("Erreur lors de l'export des tâches")
@@ -51,9 +47,10 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
     setImportSuccess('')
 
     try {
-      const text = await file.text()
+      // Use browser adapter to read file
+      const csvContent = await CsvBrowserAdapter.readCsvFile(file)
 
-      const response = await api.importTasks(text)
+      const response = await api.importTasks(csvContent)
 
       if (response.errors && response.errors.length > 0) {
         setImportErrors(response.errors)

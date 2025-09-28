@@ -15,6 +15,7 @@ export { TaskPriorityService } from './domain/services/TaskPriorityService'
 export { TaskCategoryService } from './domain/services/TaskCategoryService'
 export { TaskSortingService } from './domain/services/TaskSortingService'
 export { TaskValidationService } from './domain/services/TaskValidationService'
+export { CsvService } from './domain/services/CsvService'
 
 // Constants and business rules
 export * from './domain/constants/BusinessRules'

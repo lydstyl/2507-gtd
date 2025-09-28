@@ -5,7 +5,7 @@ import {
   UpdateTaskData,
   TaskFilters as BaseTaskFilters
 } from '../../domain/entities/Task'
-import { TaskWithTags } from '../../services/csvService'
+import { TaskWithTags } from '../../application/services/CsvService'
 
 export interface TaskFilters extends BaseTaskFilters {
   // userId est maintenant obligatoire dans BaseTaskFilters

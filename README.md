@@ -10,7 +10,8 @@ Une application complète de gestion de tâches (GTD - Getting Things Done) avec
 - ✅ Gestion des tâches avec sous-tâches illimitées
 - ✅ Système de priorités (importance, urgence, priorité)
 - ✅ Dates d'échéance optionnelles pour les tâches
-- ✅ Gestion des tags
+- ✅ Gestion des tags avec couleurs
+- ✅ **Import/Export CSV** complet avec préservation des dates et couleurs de tags
 - ✅ API REST complète
 - ✅ Base de données SQLite avec Prisma
 - ✅ TypeScript pour la sécurité des types

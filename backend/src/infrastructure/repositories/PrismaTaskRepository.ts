@@ -10,7 +10,7 @@ import {
   CreateTaskData,
   UpdateTaskData
 } from '../../domain/entities/Task'
-import { TaskWithTags } from '../../services/csvService'
+import { TaskWithTags } from '../../application/services/CsvService'
 import { computePoints, getDefaultTaskValues } from '../../domain/utils/TaskUtils'
 import { TaskSorting } from './TaskSorting'
 

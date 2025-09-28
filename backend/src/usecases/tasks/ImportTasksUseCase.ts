@@ -1,6 +1,6 @@
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { TagRepository } from '../../interfaces/repositories/TagRepository'
-import { CSVService } from '../../services/csvService'
+import { CsvService } from '../../application/services/CsvService'
 
 export class ImportTasksUseCase {
   constructor(
@@ -16,7 +16,7 @@ export class ImportTasksUseCase {
     errors: string[]
   }> {
     // Parser le CSV
-    const { tasks, errors } = CSVService.importTasksFromCSV(csvContent, userId)
+    const { tasks, errors } = CsvService.importTasksFromCSV(csvContent, userId)
 
     if (errors.length > 0) {
       return { importedCount: 0, errors }
@@ -64,20 +64,18 @@ export class ImportTasksUseCase {
         const tagIds: string[] = []
         for (let i = 0; i < taskData.tagNames.length; i++) {
           const tagName = taskData.tagNames[i]
-          const tagColor = taskData.tagColors[i] || undefined
+          const tagColor = taskData.tagColors?.[i] // Get corresponding color if available
 
           let tag = await this.tagRepository.findByNameAndUser(tagName, userId)
           if (!tag) {
             tag = await this.tagRepository.create({
               name: tagName,
-              color: tagColor,
+              color: tagColor || undefined, // Use color from CSV or undefined
               userId
             })
           } else if (tagColor && tag.color !== tagColor) {
-            // Mettre à jour la couleur du tag si elle est différente
-            tag = await this.tagRepository.update(tag.id, {
-              color: tagColor
-            })
+            // Update existing tag color if different
+            await this.tagRepository.update(tag.id, { color: tagColor })
           }
           tagIds.push(tag.id)
         }
