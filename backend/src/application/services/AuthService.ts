@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 import { UserRepository } from '../../interfaces/repositories/UserRepository'
 import { User } from '../../domain/entities/User'
-import { ConflictError, UnauthorizedError } from '../../shared/errors'
+import { ConflictError, UnauthorizedError } from '@gtd/shared'
 import { config } from '../../config'
 import { logger } from '../../shared/logger'
 

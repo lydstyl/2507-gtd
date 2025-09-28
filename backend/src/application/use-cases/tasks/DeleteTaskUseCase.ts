@@ -1,5 +1,5 @@
 import { TaskRepository } from '../../../interfaces/repositories/TaskRepository'
-import { NotFoundError, ForbiddenError } from '../../../shared/errors'
+import { NotFoundError, ForbiddenError } from '@gtd/shared'
 import { logger } from '../../../shared/logger'
 
 export class DeleteTaskUseCase {

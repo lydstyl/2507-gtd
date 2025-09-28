@@ -1,6 +1,6 @@
 import { TaskRepository } from '../../../interfaces/repositories/TaskRepository'
 import { TaskWithSubtasks, TaskFilters } from '../../../domain/entities/Task'
-import { ValidationError } from '../../../shared/errors'
+import { ValidationError } from '@gtd/shared'
 import { logger } from '../../../shared/logger'
 import { TASK_CONSTANTS } from '@gtd/shared'
 

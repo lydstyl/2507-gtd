@@ -1,6 +1,6 @@
 import { Task, TaskTag } from '../../domain/entities/Task'
 import { Tag } from '../../domain/entities/Tag'
-import { ValidationError } from '../../shared/errors'
+import { ValidationError } from '@gtd/shared'
 import { CsvFileAdapter } from '../../infrastructure/adapters/CsvFileAdapter'
 
 export interface TaskWithTags extends Omit<Task, 'note'> {

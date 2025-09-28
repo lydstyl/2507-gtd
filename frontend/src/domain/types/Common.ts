@@ -1,10 +1,16 @@
+import { BaseError } from '@gtd/shared'
+
 // Core domain types
 
- export interface DomainError {
-   code: string
-   message: string
-   details?: Record<string, unknown>
- }
+// Re-export shared domain errors for use in frontend
+export { BaseError, ValidationError, NotFoundError, UnauthorizedError, ForbiddenError, ConflictError, InternalServerError, BusinessRuleError, TaskValidationError, TagValidationError, CsvError } from '@gtd/shared'
+
+// Legacy DomainError interface for backward compatibility
+export interface DomainError {
+  code: string
+  message: string
+  details?: Record<string, unknown>
+}
 
 export interface ValidationResult {
   isValid: boolean

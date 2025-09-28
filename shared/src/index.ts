@@ -24,3 +24,6 @@ export * from './domain/constants/ValidationRules'
 // Utilities
 export * from './domain/utils/DateUtils'
 export * from './domain/utils/TaskDisplayUtils'
+
+// Domain errors
+export * from './domain/errors'

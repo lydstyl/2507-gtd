@@ -5,5 +5,9 @@ export {
   UnauthorizedError,
   ForbiddenError,
   ConflictError,
-  InternalServerError
-} from './DomainError'
+  InternalServerError,
+  BusinessRuleError,
+  TaskValidationError,
+  TagValidationError,
+  CsvError
+} from './DomainErrors'

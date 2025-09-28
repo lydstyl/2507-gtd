@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { BaseError } from '../../shared/errors'
+import { BaseError } from '@gtd/shared'
 
 export interface ErrorResponse {
   error: {

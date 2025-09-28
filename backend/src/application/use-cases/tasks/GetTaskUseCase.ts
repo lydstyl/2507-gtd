@@ -1,6 +1,6 @@
 import { TaskRepository } from '../../../interfaces/repositories/TaskRepository'
 import { TaskWithSubtasks } from '../../../domain/entities/Task'
-import { NotFoundError, ForbiddenError } from '../../../shared/errors'
+import { NotFoundError, ForbiddenError } from '@gtd/shared'
 import { logger } from '../../../shared/logger'
 
 export class GetTaskUseCase {

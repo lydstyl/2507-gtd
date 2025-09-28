@@ -6,6 +6,7 @@ import type {
   CreateTagData,
   CompletionStats
 } from '../types/task'
+import { BaseError } from '@gtd/shared'
 
 // Détecter automatiquement l'environnement et l'URL de base
 const isProduction = import.meta.env.PROD
@@ -13,12 +14,19 @@ const apiPort =
   import.meta.env.VITE_API_PORT || (isProduction ? undefined : '3000')
 const API_BASE_URL = isProduction ? '/api' : `http://localhost:${apiPort}/api`
 
-export class ApiError extends Error {
-  status: number
-  constructor(status: number, message: string) {
-    super(message)
-    this.name = 'ApiError'
-    this.status = status
+export class ApiError extends BaseError {
+  readonly code = 'API_ERROR'
+  readonly statusCode: number
+  readonly isOperational = true
+
+  constructor(status: number, message: string, context?: Record<string, unknown>) {
+    super(message, context)
+    this.statusCode = status
+  }
+
+  // Legacy compatibility
+  get status(): number {
+    return this.statusCode
   }
 }
 

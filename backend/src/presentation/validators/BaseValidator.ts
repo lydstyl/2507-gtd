@@ -1,4 +1,4 @@
-import { ValidationError } from '../../shared/errors'
+import { ValidationError } from '@gtd/shared'
 
 export interface ValidationRule<T = any> {
   validate: (value: T, context?: Record<string, any>) => boolean

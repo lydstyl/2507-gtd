@@ -1,4 +1,4 @@
-import { ValidationError } from '../shared/errors'
+import { ValidationError } from '@gtd/shared'
 
 export interface Environment {
   NODE_ENV: 'development' | 'production' | 'test'

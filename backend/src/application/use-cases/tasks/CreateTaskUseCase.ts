@@ -1,6 +1,6 @@
 import { TaskRepository } from '../../../interfaces/repositories/TaskRepository'
 import { CreateTaskData, TaskWithSubtasks } from '../../../domain/entities/Task'
-import { ValidationError, NotFoundError } from '../../../shared/errors'
+import { ValidationError, NotFoundError } from '@gtd/shared'
 import { logger } from '../../../shared/logger'
 import { TASK_CONSTANTS } from '@gtd/shared'
 
