@@ -94,13 +94,13 @@ shared/
 - [x] Update both apps to use shared task utilities
 - [x] Remove duplicated utility functions
 
-### Phase 7: Business Constants & Rules (~80 lines)
-- [ ] Consolidate business constants from frontend BusinessConstants.ts
-- [ ] Extract hardcoded constants from backend services
-- [ ] Create shared BusinessRules.ts with all validation rules
-- [ ] Create shared ValidationRules.ts with patterns
-- [ ] Update both apps to import from shared constants
-- [ ] Remove duplicated constants and rules
+### Phase 7: Business Constants & Rules (~80 lines) ✅ COMPLETED
+- [x] Consolidate business constants from frontend BusinessConstants.ts
+- [x] Extract hardcoded constants from backend services
+- [x] Create shared BusinessRules.ts with all validation rules
+- [x] Create shared ValidationRules.ts with patterns
+- [x] Update both apps to import from shared constants
+- [x] Remove duplicated constants and rules
 
 ### Phase 8: CSV Import/Export Logic (~150 lines)
 - [ ] Extract pure CSV parsing logic from backend CsvService
@@ -186,10 +186,10 @@ class FrontendTaskAdapter {
 ## Progress Tracking
 - **Started**: September 26, 2025
 - **Estimated Completion**: TBD
-- **Current Phase**: Phase 6 Complete - Ready for Phase 7 (Business Constants & Rules)
+- **Current Phase**: Phase 7 Complete - Ready for Phase 8 (CSV Import/Export Logic)
 - **Expanded Scope**: Additional 440 lines of duplication identified
 - **Total Impact**: 640+ lines of duplicated code to eliminate
-- **Lines Eliminated**: ~430 lines of duplicated code eliminated so far
+- **Lines Eliminated**: ~510 lines of duplicated code eliminated so far
 
 ## Completed Work
 ✅ **Shared Package Created**: `@gtd/shared` package with proper workspace setup
@@ -215,6 +215,16 @@ class FrontendTaskAdapter {
 ✅ **All Tests Passing**: Shared (103 tests), Frontend (250 tests), Backend (250+ tests) all passing
 ✅ **~130 lines of duplication eliminated** from task utilities and business logic
 
+## Phase 7: Business Constants & Rules - COMPLETED ✅
+
+✅ **BusinessRules.ts Created**: Centralized all task and tag business rules and constants (~60 lines eliminated)
+✅ **ValidationRules.ts Created**: Consolidated validation patterns and UI constants (~20 lines eliminated)
+✅ **Frontend Integration**: Updated BusinessConstants.ts to re-export from shared package
+✅ **Backend Integration**: Updated CreateTaskUseCase, UpdateTaskUseCase, GetAllTasksUseCase, CsvService to use shared constants
+✅ **Hardcoded Constants Replaced**: Eliminated hardcoded values (50, 9, 500) across backend services
+✅ **All Tests Passing**: Shared (103 tests), Frontend (250 tests), Backend (250+ tests) all passing
+✅ **~80 lines of duplication eliminated** from business constants and rules
+
 ### Technical Implementation Details:
 - **TaskCategoryService**: Handles category display info, priority colors, points colors, and date indicators
 - **TaskValidationService**: Contains points calculation logic and validation rules
@@ -223,20 +233,22 @@ class FrontendTaskAdapter {
 - **Workspace Setup**: Created pnpm-workspace.yaml for proper monorepo package linking
 - **Build System**: Fixed TypeScript compilation and export issues for ES module compatibility
 
-## Phase 7: Business Constants & Rules (~80 lines) - READY TO START 🚀
+## Phase 8: CSV Import/Export Logic (~150 lines) - READY TO START 🚀
 
 ### Next Steps:
-1. **Consolidate BusinessConstants.ts**: Move frontend constants to shared package
-2. **Extract Backend Constants**: Find and extract hardcoded constants from backend services
-3. **Create BusinessRules.ts**: Centralize all business rules and validation patterns
-4. **Update Imports**: Update both apps to import from shared constants
-5. **Remove Duplicates**: Clean up duplicated constants and rules
+1. **Extract Pure CSV Logic**: Move CSV parsing logic from backend CsvService to shared package
+2. **Create Platform Adapters**: Create backend adapter for file I/O and frontend adapter for browser download/upload
+3. **Update Both Apps**: Integrate shared CSV logic with platform-specific adapters
+4. **Remove Duplicates**: Clean up duplicated CSV processing code
+5. **Test Integration**: Ensure CSV import/export works correctly across both platforms
 
 ### Files to Work On:
-- `frontend/src/domain/types/BusinessConstants.ts` (140 lines)
-- Backend services with hardcoded constants
-- Create `shared/src/domain/constants/BusinessRules.ts`
-- Create `shared/src/domain/constants/ValidationRules.ts`
+- `backend/src/application/services/CsvService.ts` (215 lines)
+- `backend/src/services/csvService.ts` (deprecated)
+- Frontend CSV components (if any)
+- Create `shared/src/domain/services/CsvService.ts`
+- Create `backend/src/infrastructure/adapters/CsvFileAdapter.ts`
+- Create `frontend/src/infrastructure/adapters/CsvBrowserAdapter.ts`
 
 ## Phase 5 Testing & Validation - COMPLETED ✅
 

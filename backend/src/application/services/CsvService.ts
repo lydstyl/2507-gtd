@@ -2,6 +2,7 @@ import { Task, TaskTag } from '../../domain/entities/Task'
 import { Tag } from '../../domain/entities/Tag'
 import { ValidationError } from '../../shared/errors'
 import { logger } from '../../shared/logger'
+import { TASK_CONSTANTS } from '@gtd/shared'
 
 export interface TaskWithTags extends Omit<Task, 'note'> {
   tags: (TaskTag & { tag: Tag })[]
@@ -140,9 +141,9 @@ export class CsvService {
       throw new Error('Task name is required')
     }
 
-    const importance = this.parseNumber(importanceStr, 'importance', 0, 50)
-    const complexity = this.parseNumber(complexityStr, 'complexity', 1, 9)
-    const points = this.parseNumber(pointsStr, 'points', 0, 500)
+    const importance = this.parseNumber(importanceStr, 'importance', 0, TASK_CONSTANTS.maxImportance)
+    const complexity = this.parseNumber(complexityStr, 'complexity', 1, TASK_CONSTANTS.maxComplexity)
+    const points = this.parseNumber(pointsStr, 'points', 0, TASK_CONSTANTS.maxPoints)
 
     let plannedDate: Date | undefined
     if (dueDateStr && dueDateStr.trim() !== '') {

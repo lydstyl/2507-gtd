@@ -16,6 +16,10 @@ export { TaskCategoryService } from './domain/services/TaskCategoryService'
 export { TaskSortingService } from './domain/services/TaskSortingService'
 export { TaskValidationService } from './domain/services/TaskValidationService'
 
+// Constants and business rules
+export * from './domain/constants/BusinessRules'
+export * from './domain/constants/ValidationRules'
+
 // Utilities
 export * from './domain/utils/DateUtils'
 export * from './domain/utils/TaskDisplayUtils'

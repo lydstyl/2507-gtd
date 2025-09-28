@@ -1,5 +1,6 @@
 import { Task, TaskTag } from '../domain/entities/Task'
 import { Tag } from '../domain/entities/Tag'
+import { TASK_CONSTANTS } from '@gtd/shared'
 
 export interface TaskWithTags extends Omit<Task, 'note'> {
   tags: (TaskTag & { tag: Tag })[]
@@ -136,23 +137,23 @@ export class CSVService {
         const complexity = parseInt(complexityStr)
         const points = parseInt(pointsStr)
 
-        if (isNaN(importance) || importance < 0 || importance > 50) {
+        if (isNaN(importance) || importance < 0 || importance > TASK_CONSTANTS.maxImportance) {
           errors.push(
-            `Ligne ${i + 1}: Importance invalide (doit être entre 0 et 50)`
+            `Ligne ${i + 1}: Importance invalide (doit être entre 0 et ${TASK_CONSTANTS.maxImportance})`
           )
           continue
         }
 
-        if (isNaN(complexity) || complexity < 1 || complexity > 9) {
+        if (isNaN(complexity) || complexity < 1 || complexity > TASK_CONSTANTS.maxComplexity) {
           errors.push(
-            `Ligne ${i + 1}: Complexité invalide (doit être entre 1 et 9)`
+            `Ligne ${i + 1}: Complexité invalide (doit être entre 1 et ${TASK_CONSTANTS.maxComplexity})`
           )
           continue
         }
 
-        if (isNaN(points) || points < 0 || points > 500) {
+        if (isNaN(points) || points < 0 || points > TASK_CONSTANTS.maxPoints) {
           errors.push(
-            `Ligne ${i + 1}: Points invalides (doit être entre 0 et 500)`
+            `Ligne ${i + 1}: Points invalides (doit être entre 0 et ${TASK_CONSTANTS.maxPoints})`
           )
           continue
         }

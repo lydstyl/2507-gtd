@@ -2,6 +2,7 @@ import { TaskRepository } from '../../../interfaces/repositories/TaskRepository'
 import { UpdateTaskData, TaskWithSubtasks } from '../../../domain/entities/Task'
 import { ValidationError, NotFoundError, ForbiddenError } from '../../../shared/errors'
 import { logger } from '../../../shared/logger'
+import { TASK_CONSTANTS } from '@gtd/shared'
 
 export class UpdateTaskUseCase {
   constructor(private taskRepository: TaskRepository) {}
@@ -58,16 +59,16 @@ export class UpdateTaskUseCase {
       }
     }
 
-    if (data.importance !== undefined && (data.importance < 0 || data.importance > 50)) {
-      throw new ValidationError('Importance must be between 0 and 50')
+    if (data.importance !== undefined && (data.importance < 0 || data.importance > TASK_CONSTANTS.maxImportance)) {
+      throw new ValidationError(`Importance must be between 0 and ${TASK_CONSTANTS.maxImportance}`)
     }
 
-    if (data.complexity !== undefined && (data.complexity < 1 || data.complexity > 9)) {
-      throw new ValidationError('Complexity must be between 1 and 9')
+    if (data.complexity !== undefined && (data.complexity < 1 || data.complexity > TASK_CONSTANTS.maxComplexity)) {
+      throw new ValidationError(`Complexity must be between 1 and ${TASK_CONSTANTS.maxComplexity}`)
     }
 
-    if (data.link !== undefined && data.link && data.link.length > 500) {
-      throw new ValidationError('Link must be 500 characters or less')
+    if (data.link !== undefined && data.link && data.link.length > TASK_CONSTANTS.taskLinkMaxLength) {
+      throw new ValidationError(`Link must be ${TASK_CONSTANTS.taskLinkMaxLength} characters or less`)
     }
 
     // Validate parent task exists and prevent circular references
