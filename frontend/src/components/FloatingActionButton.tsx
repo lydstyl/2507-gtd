@@ -22,7 +22,7 @@ export function FloatingActionButton({
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
       className={`
-        fixed bottom-6 right-6 z-50
+        fixed bottom-[4rem] right-6 z-[60]
         w-14 h-14 md:w-16 md:h-16
         bg-blue-600 hover:bg-blue-700
         text-white rounded-full shadow-lg hover:shadow-xl
