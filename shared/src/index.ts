@@ -9,12 +9,14 @@ export { UserEntity } from './domain/entities/UserEntity'
 
 // Types and interfaces
 export * from './domain/entities/TaskTypes'
+export * from './domain/entities/TagTypes'
 
 // Domain services
 export { TaskPriorityService } from './domain/services/TaskPriorityService'
 export { TaskCategoryService } from './domain/services/TaskCategoryService'
 export { TaskSortingService } from './domain/services/TaskSortingService'
 export { TaskValidationService } from './domain/services/TaskValidationService'
+export { TagValidationService } from './domain/services/TagValidationService'
 export { CsvService } from './domain/services/CsvService'
 
 // Constants and business rules

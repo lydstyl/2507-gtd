@@ -45,16 +45,14 @@ export interface UpdateTaskData {
   completedAt?: string | null
 }
 
-export interface Tag {
-  id: string
-  name: string
-  color?: string
+// Frontend tag interface with position field (for UI ordering)
+import type { FrontendTag } from '@gtd/shared'
+
+export interface Tag extends FrontendTag {
   position: number
-  userId: string
-  createdAt: string
-  updatedAt: string
 }
 
+// Frontend-specific tag creation data (userId is handled by auth context)
 export interface CreateTagData {
   name: string
   color?: string

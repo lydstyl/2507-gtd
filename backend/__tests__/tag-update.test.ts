@@ -107,7 +107,7 @@ describe('Tag Update API', () => {
       })
 
     expect(updateResponse.status).toBe(400)
-    expect(updateResponse.body.error).toContain('Valid color is required')
+    expect(updateResponse.body.error).toContain('Tag color must be a valid hex color')
   }, 15000)
 
   it('should reject update with empty name', async () => {
