@@ -1,18 +1,11 @@
 import { Tag, CreateTagData, UpdateTagData } from '../../domain/entities/Tag'
-import { TagFilters } from '../../domain/types/TagTypes'
+import { FrontendTagRepositoryContract } from '@gtd/shared'
 
-export interface TagRepository {
-  // Query operations
-  getAll(): Promise<Tag[]>
-  getById(id: string): Promise<Tag | null>
-  getByFilters(filters: TagFilters): Promise<Tag[]>
-  getByName(name: string): Promise<Tag | null>
-
-  // Command operations
-  create(data: CreateTagData): Promise<Tag>
-  update(id: string, data: UpdateTagData): Promise<Tag>
-  delete(id: string): Promise<void>
-
-  // Bulk operations
-  deleteMany(ids: string[]): Promise<void>
+/**
+ * Frontend tag repository interface
+ * Extends shared contract with frontend-specific types (string dates)
+ */
+export interface TagRepository extends FrontendTagRepositoryContract<string> {
+  // All methods inherited from FrontendTagRepositoryContract
+  // The interface is now aligned with the shared contract
 }

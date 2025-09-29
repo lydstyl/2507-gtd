@@ -34,3 +34,8 @@ export * from './domain/errors'
 export * from './domain/types/OperationResult'
 export { BaseUseCase } from './domain/usecases/BaseUseCase'
 export { SharedUseCaseValidator } from './domain/usecases/SharedUseCaseValidator'
+
+// Repository contracts and types
+export * from './domain/repositories/RepositoryTypes'
+export * from './domain/repositories/TaskRepositoryContract'
+export * from './domain/repositories/TagRepositoryContract'

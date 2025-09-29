@@ -83,3 +83,58 @@ export type FrontendUser = UserBase<string>
 // Generic types for domain services
 export type GenericTask<TDate = Date | string> = TaskBase<TDate>
 export type GenericTaskWithSubtasks<TDate = Date | string> = TaskWithSubtasks<TDate>
+
+/**
+ * Data for creating a new task
+ */
+export interface CreateTaskData {
+  name: string
+  link?: string
+  note?: string
+  importance?: number
+  complexity?: number
+  parentId?: string
+  tagIds?: string[]
+  userId: string
+  plannedDate?: Date | string
+  dueDate?: Date | string
+  isCompleted?: boolean
+}
+
+/**
+ * Data for updating an existing task
+ */
+export interface UpdateTaskData {
+  name?: string
+  link?: string
+  note?: string
+  importance?: number
+  complexity?: number
+  parentId?: string
+  tagIds?: string[]
+  userId?: string
+  plannedDate?: Date | string | null
+  dueDate?: Date | string | null
+  isCompleted?: boolean
+  completedAt?: Date | string | null
+}
+
+/**
+ * Filters for querying tasks
+ */
+export interface TaskFilters {
+  userId: string
+  parentId?: string
+  tagIds?: string[]
+  importance?: number
+  complexity?: number
+  points?: number
+  search?: string
+  status?: 'active' | 'completed' | 'all'
+  plannedDateFrom?: Date | string
+  plannedDateTo?: Date | string
+  dueDateFrom?: Date | string
+  dueDateTo?: Date | string
+  priority?: number
+  searchQuery?: string
+}
