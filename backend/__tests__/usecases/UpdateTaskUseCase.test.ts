@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { UpdateTaskUseCase } from '../../src/usecases/tasks/UpdateTaskUseCase'
-import { createMockTaskWithSubtasks, createMockUpdateTaskData, MockRepository, expectToThrowAsync } from '../utils/test-helpers'
+import { createMockTaskWithSubtasks, createMockUpdateTaskData, MockRepository } from '../utils/test-helpers'
 import { TaskWithSubtasks, UpdateTaskData } from '../../src/domain/entities/Task'
 
 describe('UpdateTaskUseCase', () => {
@@ -35,10 +35,11 @@ describe('UpdateTaskUseCase', () => {
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
       expect(result).toBeDefined()
-      expect(result!.name).toBe('Updated Task')
-      expect(result!.importance).toBe(35)
-      expect(result!.complexity).toBe(7)
-      expect(result!.updatedAt).toBeInstanceOf(Date)
+      expect(result.success).toBe(true)
+      expect(result.data!.name).toBe('Updated Task')
+      expect(result.data!.importance).toBe(35)
+      expect(result.data!.complexity).toBe(7)
+      expect(result.data!.updatedAt).toBeInstanceOf(Date)
     })
 
     it('should perform partial updates correctly', async () => {
@@ -62,11 +63,12 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
-      expect(result!.name).toBe('Partially Updated Task')
-      expect(result!.importance).toBe(40)
-      expect(result!.complexity).toBe(4) // Should remain unchanged
-      expect(result!.link).toBe('https://original.com') // Should remain unchanged
-      expect(result!.note).toBe('Original note') // Should remain unchanged
+      expect(result.success).toBe(true)
+      expect(result.data!.name).toBe('Partially Updated Task')
+      expect(result.data!.importance).toBe(40)
+      expect(result.data!.complexity).toBe(4) // Should remain unchanged
+      expect(result.data!.link).toBe('https://original.com') // Should remain unchanged
+      expect(result.data!.note).toBe('Original note') // Should remain unchanged
     })
 
     it('should update completion status correctly', async () => {
@@ -87,8 +89,9 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
-      expect(result!.isCompleted).toBe(true)
-      expect(result!.completedAt).toBeInstanceOf(Date)
+      expect(result.success).toBe(true)
+      expect(result.data!.isCompleted).toBe(true)
+      expect(result.data!.completedAt).toBeInstanceOf(Date)
     })
 
     it('should update dates correctly', async () => {
@@ -112,8 +115,9 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
-      expect(result!.plannedDate).toEqual(newPlannedDate)
-      expect(result!.dueDate).toEqual(newDueDate)
+      expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toEqual(newPlannedDate)
+      expect(result.data!.dueDate).toEqual(newDueDate)
     })
 
     it('should clear dates with null values', async () => {
@@ -136,9 +140,10 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
-      expect(result!.plannedDate).toBeNull()
-      expect(result!.dueDate).toBeNull()
-      expect(result!.completedAt).toBeNull()
+      expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toBeNull()
+      expect(result.data!.dueDate).toBeNull()
+      expect(result.data!.completedAt).toBeNull()
     })
 
     it('should update parent-child relationships', async () => {
@@ -164,7 +169,8 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute('child-1', updateData)
 
-      expect(result!.parentId).toBe('parent-1')
+      expect(result.success).toBe(true)
+      expect(result.data!.parentId).toBe('parent-1')
     })
 
     it('should update tags', async () => {
@@ -183,19 +189,20 @@ describe('UpdateTaskUseCase', () => {
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
       expect(result).toBeDefined()
+      expect(result.success).toBe(true)
       // tagIds processing would be handled by repository layer
     })
 
-    it('should throw error for non-existent task', async () => {
+    it('should return error for non-existent task', async () => {
       const updateData: UpdateTaskData = {
         name: 'Updated Task',
         userId: 'user-1'
       }
 
-      await expectToThrowAsync(
-        () => updateTaskUseCase.execute('non-existent-id', updateData),
-        'Task not found'
-      )
+      const result = await updateTaskUseCase.execute('non-existent-id', updateData)
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Task not found')
     })
   })
 
@@ -213,10 +220,10 @@ describe('UpdateTaskUseCase', () => {
         userId: 'user-1'
       }
 
-      await expectToThrowAsync(
-        () => updateTaskUseCase.execute(existingTask.id, updateData),
-        'Task name cannot be empty'
-      )
+      const result = await updateTaskUseCase.execute(existingTask.id, updateData)
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Task name is required')
     })
 
     it('should reject whitespace-only task name', async () => {
@@ -232,10 +239,10 @@ describe('UpdateTaskUseCase', () => {
         userId: 'user-1'
       }
 
-      await expectToThrowAsync(
-        () => updateTaskUseCase.execute(existingTask.id, updateData),
-        'Task name cannot be empty'
-      )
+      const result = await updateTaskUseCase.execute(existingTask.id, updateData)
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Task name cannot be empty')
     })
 
     it('should reject invalid importance values', async () => {
@@ -254,10 +261,10 @@ describe('UpdateTaskUseCase', () => {
           userId: 'user-1'
         }
 
-        await expectToThrowAsync(
-          () => updateTaskUseCase.execute(existingTask.id, updateData),
-          'Importance must be between 0 and 50'
-        )
+        const result = await updateTaskUseCase.execute(existingTask.id, updateData)
+
+        expect(result.success).toBe(false)
+        expect(result.error?.message).toContain('Importance must be between 0 and 50')
       }
     })
 
@@ -278,10 +285,10 @@ describe('UpdateTaskUseCase', () => {
           userId: 'user-1'
         }
 
-        await expectToThrowAsync(
-          () => updateTaskUseCase.execute(existingTask.id, updateData),
-          'Complexity must be between 1 and 9'
-        )
+        const result = await updateTaskUseCase.execute(existingTask.id, updateData)
+
+        expect(result.success).toBe(false)
+        expect(result.error?.message).toContain('Complexity must be between 1 and 9')
       }
     })
 
@@ -310,8 +317,9 @@ describe('UpdateTaskUseCase', () => {
         }
 
         const result = await updateTaskUseCase.execute(existingTask.id, updateData)
-        expect(result!.importance).toBe(update.importance)
-        expect(result!.complexity).toBe(update.complexity)
+        expect(result.success).toBe(true)
+        expect(result.data!.importance).toBe(update.importance)
+        expect(result.data!.complexity).toBe(update.complexity)
       }
     })
 
@@ -355,11 +363,12 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
-      expect(result!.importance).toBe(30)
-      expect(result!.complexity).toBe(6)
+      expect(result.success).toBe(true)
+      expect(result.data!.importance).toBe(30)
+      expect(result.data!.complexity).toBe(6)
       // Points should be recalculated: 10 * 30 / 6 = 50
       const expectedPoints = Math.round(10 * 30 / 6)
-      expect(result!.points || expectedPoints).toBe(expectedPoints)
+      expect(result.data!.points || expectedPoints).toBe(expectedPoints)
     })
 
     it('should maintain task category consistency', async () => {
@@ -383,8 +392,9 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(collectedTask.id, updateData)
 
-      expect(result!.importance).toBe(50)
-      expect(result!.complexity).toBe(1)
+      expect(result.success).toBe(true)
+      expect(result.data!.importance).toBe(50)
+      expect(result.data!.complexity).toBe(1)
     })
 
     it('should handle completion workflow correctly', async () => {
@@ -406,11 +416,12 @@ describe('UpdateTaskUseCase', () => {
 
       const completedResult = await updateTaskUseCase.execute(incompleteTask.id, completeData)
 
-      expect(completedResult!.isCompleted).toBe(true)
-      expect(completedResult!.completedAt).toBeInstanceOf(Date)
+      expect(completedResult.success).toBe(true)
+      expect(completedResult.data!.isCompleted).toBe(true)
+      expect(completedResult.data!.completedAt).toBeInstanceOf(Date)
 
       // Mark as incomplete again
-      mockTaskRepository.setItems([completedResult!])
+      mockTaskRepository.setItems([completedResult.data!])
 
       const incompleteData: UpdateTaskData = {
         isCompleted: false,
@@ -418,10 +429,11 @@ describe('UpdateTaskUseCase', () => {
         userId: 'user-1'
       }
 
-      const incompleteResult = await updateTaskUseCase.execute(completedResult!.id, incompleteData)
+      const incompleteResult = await updateTaskUseCase.execute(completedResult.data!.id, incompleteData)
 
-      expect(incompleteResult!.isCompleted).toBe(false)
-      expect(incompleteResult!.completedAt).toBeNull()
+      expect(incompleteResult.success).toBe(true)
+      expect(incompleteResult.data!.isCompleted).toBe(false)
+      expect(incompleteResult.data!.completedAt).toBeNull()
     })
 
     it('should handle scheduled task updates', async () => {
@@ -444,8 +456,9 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(scheduledTask.id, rescheduleData)
 
-      expect(result!.plannedDate).toEqual(new Date('2023-06-25'))
-      expect(result!.dueDate).toEqual(new Date('2023-06-30'))
+      expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toEqual(new Date('2023-06-25'))
+      expect(result.data!.dueDate).toEqual(new Date('2023-06-30'))
     })
   })
 
@@ -467,9 +480,10 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
-      expect(result!.name).toBe('Unchanged Task')
-      expect(result!.importance).toBe(25)
-      expect(result!.complexity).toBe(5)
+      expect(result.success).toBe(true)
+      expect(result.data!.name).toBe('Unchanged Task')
+      expect(result.data!.importance).toBe(25)
+      expect(result.data!.complexity).toBe(5)
     })
 
     it('should handle special characters in updates', async () => {
@@ -496,7 +510,8 @@ describe('UpdateTaskUseCase', () => {
         }
 
         const result = await updateTaskUseCase.execute(existingTask.id, updateData)
-        expect(result!.name).toBe(name)
+        expect(result.success).toBe(true)
+        expect(result.data!.name).toBe(name)
       }
     })
 
@@ -523,8 +538,9 @@ describe('UpdateTaskUseCase', () => {
       // All updates should succeed (in mock repository)
       results.forEach((result, i) => {
         expect(result).toBeDefined()
-        expect(result!.name).toBe(`Concurrent Update ${i}`)
-        expect(result!.importance).toBe(20 + i)
+        expect(result.success).toBe(true)
+        expect(result.data!.name).toBe(`Concurrent Update ${i}`)
+        expect(result.data!.importance).toBe(20 + i)
       })
     })
 
@@ -542,10 +558,10 @@ describe('UpdateTaskUseCase', () => {
         userId: 'user-1'
       }
 
-      await expectToThrowAsync(
-        () => errorUseCase.execute('task-id', updateData),
-        'Database update failed'
-      )
+      const result = await errorUseCase.execute('task-id', updateData)
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Database update failed')
     })
 
     it('should handle very large updates', async () => {
@@ -564,7 +580,8 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
-      expect(result!.note).toBe(largeNote)
+      expect(result.success).toBe(true)
+      expect(result.data!.note).toBe(largeNote)
     })
 
     it('should preserve unchanged fields during partial updates', async () => {
@@ -591,15 +608,16 @@ describe('UpdateTaskUseCase', () => {
 
       const result = await updateTaskUseCase.execute(complexTask.id, updateData)
 
-      expect(result!.importance).toBe(40) // Changed
-      expect(result!.name).toBe('Complex Task') // Unchanged
-      expect(result!.link).toBe('https://example.com') // Unchanged
-      expect(result!.note).toBe('Original note') // Unchanged
-      expect(result!.complexity).toBe(6) // Unchanged
-      expect(result!.plannedDate).toEqual(new Date('2023-06-20')) // Unchanged
-      expect(result!.dueDate).toEqual(new Date('2023-06-25')) // Unchanged
-      expect(result!.parentId).toBe('parent-1') // Unchanged
-      expect(result!.isCompleted).toBe(false) // Unchanged
+      expect(result.success).toBe(true)
+      expect(result.data!.importance).toBe(40) // Changed
+      expect(result.data!.name).toBe('Complex Task') // Unchanged
+      expect(result.data!.link).toBe('https://example.com') // Unchanged
+      expect(result.data!.note).toBe('Original note') // Unchanged
+      expect(result.data!.complexity).toBe(6) // Unchanged
+      expect(result.data!.plannedDate).toEqual(new Date('2023-06-20')) // Unchanged
+      expect(result.data!.dueDate).toEqual(new Date('2023-06-25')) // Unchanged
+      expect(result.data!.parentId).toBe('parent-1') // Unchanged
+      expect(result.data!.isCompleted).toBe(false) // Unchanged
     })
   })
 

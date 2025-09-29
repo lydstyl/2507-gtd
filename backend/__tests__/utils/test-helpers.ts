@@ -235,8 +235,13 @@ export function createTestDates(baseDate: Date = new Date('2023-06-15T12:00:00Z'
 export class MockRepository<T> {
   private items: T[] = []
   private nextId = 1
+  public shouldThrowError = false
+  public errorMessage = 'Mock repository error'
 
   async create(data: Partial<T>): Promise<T> {
+    if (this.shouldThrowError) {
+      throw new Error(this.errorMessage)
+    }
     const item = {
       id: `mock-id-${this.nextId++}`,
       createdAt: new Date(),

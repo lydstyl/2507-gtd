@@ -14,11 +14,13 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
     super()
   }
 
-  async execute(request: UpdateTaskRequest): AsyncOperationResult<UpdateTaskResponse> {
-    const { id, data } = request
+  async execute(idOrRequest: string | UpdateTaskRequest, data?: UpdateTaskData): AsyncOperationResult<UpdateTaskResponse> {
+    // Support both (id, data) and ({ id, data }) calling conventions
+    const id = typeof idOrRequest === 'string' ? idOrRequest : idOrRequest.id
+    const updateData = typeof idOrRequest === 'string' ? data! : idOrRequest.data
 
     // Use shared validation
-    const validation = SharedUseCaseValidator.validateUpdateTaskData(data)
+    const validation = SharedUseCaseValidator.validateUpdateTaskData(updateData)
     if (!validation.success) {
       return validation as OperationResult<UpdateTaskResponse>
     }
@@ -30,7 +32,7 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
         throw new Error('Task not found')
       }
 
-      return await this.taskRepository.update(id, data)
+      return await this.taskRepository.update(id, updateData)
     }, 'task update')
   }
 }
