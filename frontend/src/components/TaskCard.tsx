@@ -365,6 +365,9 @@ export function TaskCard({
             onQuickAction={onQuickAction}
             onToggleSubtasks={() => setShowSubtasks(!showSubtasks)}
             onClose={() => setShowQuickActions(false)}
+            onEdit={onEdit}
+            onEditNote={onEditNote}
+            onWorkedOn={onWorkedOn}
           />
         )}
       </div>
