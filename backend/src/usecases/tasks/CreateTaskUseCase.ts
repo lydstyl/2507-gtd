@@ -1,37 +1,36 @@
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { CreateTaskData, TaskWithSubtasks } from '../../domain/entities/Task'
+import { BaseUseCase, SharedUseCaseValidator, OperationResult, AsyncOperationResult } from '@gtd/shared'
 
-export class CreateTaskUseCase {
-  constructor(private taskRepository: TaskRepository) {}
+export interface CreateTaskRequest extends CreateTaskData {}
+export interface CreateTaskResponse extends TaskWithSubtasks {}
 
-  async execute(data: CreateTaskData): Promise<TaskWithSubtasks> {
-    // Validation métier
-    this.validateTaskData(data)
-
-    // Logique métier : valeurs par défaut
-    const taskData = {
-      ...data,
-      importance: data.importance || 0,
-      complexity: data.complexity || 3,
-      plannedDate: data.plannedDate,
-      dueDate: data.dueDate,
-      userId: data.userId
-    }
-
-    return await this.taskRepository.create(taskData)
+export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTaskResponse> {
+  constructor(private taskRepository: TaskRepository) {
+    super()
   }
 
-  private validateTaskData(data: CreateTaskData): void {
-    if (!data.name || data.name.trim().length === 0) {
-      throw new Error('Task name is required')
+  async execute(request: CreateTaskRequest): AsyncOperationResult<CreateTaskResponse> {
+    // Use shared validation
+    const validation = SharedUseCaseValidator.validateCreateTaskData(request)
+    if (!validation.success) {
+      return validation as OperationResult<CreateTaskResponse>
     }
 
-    if (data.importance && (data.importance < 0 || data.importance > 50)) {
-      throw new Error('Importance must be between 0 and 50')
+    // Apply business logic defaults
+    const taskData = {
+      ...request,
+      importance: request.importance || 0,
+      complexity: request.complexity || 3,
+      plannedDate: request.plannedDate,
+      dueDate: request.dueDate,
+      userId: request.userId
     }
 
-    if (data.complexity && (data.complexity < 1 || data.complexity > 9)) {
-      throw new Error('Complexity must be between 1 and 9')
-    }
+    // Execute with error handling
+    return await this.handleAsync(
+      () => this.taskRepository.create(taskData),
+      'task creation'
+    )
   }
 }

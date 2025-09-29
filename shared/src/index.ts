@@ -29,3 +29,8 @@ export * from './domain/utils/TaskDisplayUtils'
 
 // Domain errors
 export * from './domain/errors'
+
+// Use case base classes and validation
+export * from './domain/types/OperationResult'
+export { BaseUseCase } from './domain/usecases/BaseUseCase'
+export { SharedUseCaseValidator } from './domain/usecases/SharedUseCaseValidator'

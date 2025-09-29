@@ -1,36 +1,36 @@
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { UpdateTaskData, TaskWithSubtasks } from '../../domain/entities/Task'
+import { BaseUseCase, SharedUseCaseValidator, AsyncOperationResult, OperationResult } from '@gtd/shared'
 
-export class UpdateTaskUseCase {
-  constructor(private taskRepository: TaskRepository) {}
+export interface UpdateTaskRequest {
+  id: string
+  data: UpdateTaskData
+}
 
-  async execute(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks> {
-    // Validation métier
-    this.validateUpdateData(data)
+export interface UpdateTaskResponse extends TaskWithSubtasks {}
 
-    // Vérifier que la tâche existe
-    const exists = await this.taskRepository.exists(id)
-    if (!exists) {
-      throw new Error('Task not found')
-    }
-
-    return await this.taskRepository.update(id, data)
+export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTaskResponse> {
+  constructor(private taskRepository: TaskRepository) {
+    super()
   }
 
-  private validateUpdateData(data: UpdateTaskData): void {
-    if (
-      data.name !== undefined &&
-      (!data.name || data.name.trim().length === 0)
-    ) {
-      throw new Error('Task name cannot be empty')
+  async execute(request: UpdateTaskRequest): AsyncOperationResult<UpdateTaskResponse> {
+    const { id, data } = request
+
+    // Use shared validation
+    const validation = SharedUseCaseValidator.validateUpdateTaskData(data)
+    if (!validation.success) {
+      return validation as OperationResult<UpdateTaskResponse>
     }
 
-    if (data.importance && (data.importance < 0 || data.importance > 50)) {
-      throw new Error('Importance must be between 0 and 50')
-    }
+    // Check if task exists and update
+    return await this.handleAsync(async () => {
+      const exists = await this.taskRepository.exists(id)
+      if (!exists) {
+        throw new Error('Task not found')
+      }
 
-    if (data.complexity && (data.complexity < 1 || data.complexity > 9)) {
-      throw new Error('Complexity must be between 1 and 9')
-    }
+      return await this.taskRepository.update(id, data)
+    }, 'task update')
   }
 }

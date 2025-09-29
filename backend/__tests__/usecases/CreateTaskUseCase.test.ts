@@ -24,13 +24,24 @@ describe('CreateTaskUseCase', () => {
       const result = await createTaskUseCase.execute(taskData)
 
       expect(result).toBeDefined()
-      expect(result.name).toBe('Test Task')
-      expect(result.importance).toBe(30)
-      expect(result.complexity).toBe(6)
-      expect(result.userId).toBe('user-1')
-      expect(result.id).toBeDefined()
-      expect(result.createdAt).toBeInstanceOf(Date)
-      expect(result.updatedAt).toBeInstanceOf(Date)
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data).toBeDefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.name).toBe('Test Task')
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.importance).toBe(30)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.complexity).toBe(6)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.userId).toBe('user-1')
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.id).toBeDefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.createdAt).toBeInstanceOf(Date)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.updatedAt).toBeInstanceOf(Date)
     })
 
     it('should apply default values correctly', async () => {
@@ -45,9 +56,14 @@ describe('CreateTaskUseCase', () => {
 
       const result = await createTaskUseCase.execute(taskData)
 
-      expect(result.importance).toBe(0) // Default for collected tasks
-      expect(result.complexity).toBe(3) // Default complexity
-      expect(result.isCompleted).toBe(false)
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.importance).toBe(0) // Default for collected tasks
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.complexity).toBe(3) // Default complexity
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.isCompleted).toBe(false)
     })
 
     it('should handle optional fields correctly', async () => {
@@ -65,12 +81,20 @@ describe('CreateTaskUseCase', () => {
 
       const result = await createTaskUseCase.execute(taskData)
 
-      expect(result.name).toBe('Complete Task')
-      expect(result.link).toBe('https://example.com')
-      expect(result.note).toBe('Detailed task note')
-      expect(result.plannedDate).toEqual(new Date('2023-06-20'))
-      expect(result.dueDate).toEqual(new Date('2023-06-25'))
-      expect(result.parentId).toBe('parent-task-id')
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.name).toBe('Complete Task')
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.link).toBe('https://example.com')
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.note).toBe('Detailed task note')
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.plannedDate).toEqual(new Date('2023-06-20'))
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.dueDate).toEqual(new Date('2023-06-25'))
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.parentId).toBe('parent-task-id')
     })
 
     it('should pass importance and complexity to repository', async () => {
@@ -93,9 +117,14 @@ describe('CreateTaskUseCase', () => {
         const result = await createTaskUseCase.execute(taskData)
 
         // Use case passes data to repository, points calculation is done there
-        expect(result.importance).toBe(importance)
-        expect(result.complexity).toBe(complexity)
-        expect(result.name).toBe(`Task ${importance}-${complexity}`)
+        expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+        expect(result.success).toBe(true)
+      expect(result.data!.data!.importance).toBe(importance)
+        expect(result.success).toBe(true)
+      expect(result.data!.data!.complexity).toBe(complexity)
+        expect(result.success).toBe(true)
+      expect(result.data!.data!.name).toBe(`Task ${importance}-${complexity}`)
       }
     })
 
@@ -107,16 +136,19 @@ describe('CreateTaskUseCase', () => {
 
       const parentTask = await createTaskUseCase.execute(parentTaskData)
 
+      expect(parentTask.success).toBe(true)
+
       const subtaskData = createMockCreateTaskData({
         name: 'Subtask',
-        parentId: parentTask.id,
+        parentId: parentTask.data!.id,
         userId: 'user-1'
       })
 
       const subtask = await createTaskUseCase.execute(subtaskData)
 
-      expect(subtask.parentId).toBe(parentTask.id)
-      expect(subtask.name).toBe('Subtask')
+      expect(subtask.success).toBe(true)
+      expect(subtask.data!.parentId).toBe(parentTask.data!.id)
+      expect(subtask.data!.name).toBe('Subtask')
     })
   })
 
@@ -127,10 +159,12 @@ describe('CreateTaskUseCase', () => {
         userId: 'user-1'
       })
 
-      await expectToThrowAsync(
-        () => createTaskUseCase.execute(taskData),
-        'Task name is required'
-      )
+      const result = await createTaskUseCase.execute(taskData)
+
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(false)
+      expect(result.success).toBe(true)
+      expect(result.data!.error?.message).toContain('Task name cannot be empty')
     })
 
     it('should reject whitespace-only task name', async () => {
@@ -139,10 +173,11 @@ describe('CreateTaskUseCase', () => {
         userId: 'user-1'
       })
 
-      await expectToThrowAsync(
-        () => createTaskUseCase.execute(taskData),
-        'Task name is required'
-      )
+      const result = await createTaskUseCase.execute(taskData)
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(false)
+      expect(result.success).toBe(true)
+      expect(result.data!.error?.message).toContain('Task name cannot be empty')
     })
 
     it('should reject invalid importance values', async () => {
@@ -155,10 +190,11 @@ describe('CreateTaskUseCase', () => {
           userId: 'user-1'
         })
 
-        await expectToThrowAsync(
-          () => createTaskUseCase.execute(taskData),
-          'Importance must be between 0 and 50'
-        )
+        const result = await createTaskUseCase.execute(taskData)
+        expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(false)
+        expect(result.success).toBe(true)
+      expect(result.data!.error?.message).toContain('Importance must be between 0 and 50')
       }
     })
 
@@ -174,10 +210,11 @@ describe('CreateTaskUseCase', () => {
           userId: 'user-1'
         })
 
-        await expectToThrowAsync(
-          () => createTaskUseCase.execute(taskData),
-          'Complexity must be between 1 and 9'
-        )
+        const result = await createTaskUseCase.execute(taskData)
+        expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(false)
+        expect(result.success).toBe(true)
+      expect(result.data!.error?.message).toContain('Complexity must be between 1 and 9')
       }
     })
 
@@ -193,7 +230,10 @@ describe('CreateTaskUseCase', () => {
         })
 
         const result = await createTaskUseCase.execute(taskData)
-        expect(result.importance).toBe(importance)
+        expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+        expect(result.success).toBe(true)
+      expect(result.data!.data!.importance).toBe(importance)
       }
     })
 
@@ -209,7 +249,10 @@ describe('CreateTaskUseCase', () => {
         })
 
         const result = await createTaskUseCase.execute(taskData)
-        expect(result.complexity).toBe(complexity)
+        expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+        expect(result.success).toBe(true)
+      expect(result.data!.data!.complexity).toBe(complexity)
       }
     })
 
@@ -221,7 +264,10 @@ describe('CreateTaskUseCase', () => {
 
       // The use case doesn't validate userId, so it should work
       const result = await createTaskUseCase.execute(taskData)
-      expect(result.name).toBe('Test Task')
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.name).toBe('Test Task')
     })
 
     it('should validate date formats', async () => {
@@ -234,8 +280,12 @@ describe('CreateTaskUseCase', () => {
       })
 
       const result = await createTaskUseCase.execute(validTaskData)
-      expect(result.plannedDate).toEqual(new Date('2023-06-20'))
-      expect(result.dueDate).toEqual(new Date('2023-06-25'))
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.plannedDate).toEqual(new Date('2023-06-20'))
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.dueDate).toEqual(new Date('2023-06-25'))
     })
   })
 
@@ -250,10 +300,16 @@ describe('CreateTaskUseCase', () => {
 
       const result = await createTaskUseCase.execute(collectedTaskData)
 
-      expect(result.importance).toBe(0)
-      expect(result.complexity).toBe(3)
-      expect(result.plannedDate).toBeUndefined()
-      expect(result.name).toBe('Collected Task')
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.importance).toBe(0)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.complexity).toBe(3)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.plannedDate).toBeUndefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.name).toBe('Collected Task')
     })
 
     it('should create high priority tasks correctly', async () => {
@@ -266,9 +322,14 @@ describe('CreateTaskUseCase', () => {
 
       const result = await createTaskUseCase.execute(highPriorityTaskData)
 
-      expect(result.importance).toBe(50)
-      expect(result.complexity).toBe(1)
-      expect(result.name).toBe('High Priority Task')
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.importance).toBe(50)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.complexity).toBe(1)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.name).toBe('High Priority Task')
     })
 
     it('should handle task with tags', async () => {
@@ -280,7 +341,10 @@ describe('CreateTaskUseCase', () => {
 
       const result = await createTaskUseCase.execute(taskWithTagsData)
 
-      expect(result.name).toBe('Tagged Task')
+      expect(result.success).toBe(true)
+      expect(result.data!.success).toBe(true)
+      expect(result.success).toBe(true)
+      expect(result.data!.data!.name).toBe('Tagged Task')
       // tagIds would be processed by the repository layer
     })
 
@@ -319,9 +383,11 @@ describe('CreateTaskUseCase', () => {
       const incompleteTask = await createTaskUseCase.execute(incompleteTaskData)
       const completedTask = await createTaskUseCase.execute(completedTaskData)
 
-      expect(incompleteTask.isCompleted).toBe(false)
-      expect(incompleteTask.completedAt).toBeUndefined()
-      expect(completedTask.isCompleted).toBe(true)
+      expect(incompleteTask.success).toBe(true)
+      expect(completedTask.success).toBe(true)
+      expect(incompleteTask.data!.isCompleted).toBe(false)
+      expect(incompleteTask.data!.completedAt).toBeUndefined()
+      expect(completedTask.data!.isCompleted).toBe(true)
       // completedAt would be set by repository if needed
     })
   })
@@ -336,7 +402,8 @@ describe('CreateTaskUseCase', () => {
 
       // The use case doesn't validate name length, so it should work
       const result = await createTaskUseCase.execute(taskData)
-      expect(result.name).toBe(longName)
+      expect(result.success).toBe(true)
+      expect(result.data!.name).toBe(longName)
     })
 
     it('should handle special characters in task name', async () => {
@@ -357,7 +424,8 @@ describe('CreateTaskUseCase', () => {
         })
 
         const result = await createTaskUseCase.execute(taskData)
-        expect(result.name).toBe(name)
+        expect(result.success).toBe(true)
+      expect(result.data!.name).toBe(name)
       }
     })
 
@@ -379,7 +447,8 @@ describe('CreateTaskUseCase', () => {
           })
 
           const result = await createTaskUseCase.execute(taskData)
-          expect(result.plannedDate).toEqual(date)
+          expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toEqual(date)
         }
       }
     })
@@ -397,11 +466,16 @@ describe('CreateTaskUseCase', () => {
 
       const result = await createTaskUseCase.execute(taskData)
 
-      expect(result.link).toBeUndefined()
-      expect(result.note).toBeUndefined()
-      expect(result.plannedDate).toBeUndefined()
-      expect(result.dueDate).toBeUndefined()
-      expect(result.parentId).toBeUndefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.link).toBeUndefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.note).toBeUndefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toBeUndefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.dueDate).toBeUndefined()
+      expect(result.success).toBe(true)
+      expect(result.data!.parentId).toBeUndefined()
     })
 
     it('should handle concurrent task creation', async () => {
@@ -470,7 +544,8 @@ describe('CreateTaskUseCase', () => {
       const result = await createTaskUseCase.execute(taskData)
       const endTime = Date.now()
 
-      expect(result.note).toBe(largeNote)
+      expect(result.success).toBe(true)
+      expect(result.data!.note).toBe(largeNote)
       expect(endTime - startTime).toBeLessThan(100) // Should be fast even with large data
     })
   })

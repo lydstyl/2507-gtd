@@ -22,8 +22,16 @@ export class TagController {
         return
       }
       const tagData = { ...req.body, userId }
-      const tag = await this.createTagUseCase.execute(tagData)
-      res.status(201).json(tag)
+      const result = await this.createTagUseCase.execute(tagData)
+      if (!result.success) {
+        if (result.error?.code === 'VALIDATION_ERROR') {
+          res.status(400).json({ error: result.error.message })
+          return
+        }
+        res.status(500).json({ error: result.error?.message || 'Failed to create tag' })
+        return
+      }
+      res.status(201).json(result.data)
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ error: error.message })

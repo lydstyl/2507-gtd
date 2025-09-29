@@ -35,8 +35,16 @@ export class TaskController {
         return
       }
       const taskData = { ...req.body, userId }
-      const task = await this.createTaskUseCase.execute(taskData)
-      res.status(201).json(task)
+      const result = await this.createTaskUseCase.execute(taskData)
+      if (!result.success) {
+        if (result.error?.code === 'VALIDATION_ERROR') {
+          res.status(400).json({ error: result.error.message })
+          return
+        }
+        res.status(500).json({ error: result.error?.message || 'Failed to create task' })
+        return
+      }
+      res.status(201).json(result.data)
     } catch (error) {
       console.error('❌ Erreur dans createTask:', error)
       if (error instanceof Error) {
@@ -157,7 +165,16 @@ export class TaskController {
         return
       }
       const taskData = { ...req.body, userId }
-      const task = await this.updateTaskUseCase.execute(id, taskData)
+      const result = await this.updateTaskUseCase.execute({ id, data: taskData })
+      if (!result.success) {
+        if (result.error?.code === 'VALIDATION_ERROR') {
+          res.status(400).json({ error: result.error.message })
+          return
+        }
+        res.status(500).json({ error: result.error?.message || 'Failed to update task' })
+        return
+      }
+      const task = result.data
       res.json(task)
     } catch (error) {
       if (error instanceof Error) {

@@ -1,8 +1,7 @@
 import { BaseUseCase } from '../base/UseCase'
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { TaskEntity, CreateTaskData } from '../../domain/entities/Task'
-import { TaskPriorityService } from '@gtd/shared'
-import { TASK_CONSTANTS } from '../../domain/types/BusinessConstants'
+import { TaskPriorityService, SharedUseCaseValidator, TASK_CONSTANTS } from '@gtd/shared'
 import { OperationResult } from '../../domain/types/Common'
 
 export interface CreateTaskRequest extends CreateTaskData {
@@ -21,14 +20,20 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
 
   async execute(request: CreateTaskRequest): Promise<OperationResult<CreateTaskResponse>> {
     return this.handleAsync(async () => {
-      // Validate input
-      const validation = this.validateCreateTaskRequest(request)
-      if (!validation.isValid) {
-        throw new Error(validation.errors.join(', '))
+      // Use shared validation
+      const validation = SharedUseCaseValidator.validateCreateTaskData(request)
+      if (!validation.success) {
+        throw new Error(validation.error?.message || 'Validation failed')
       }
 
-      // Apply business rules and defaults
+      // Apply frontend-specific business rules and defaults
       const taskData = this.applyBusinessRules(request)
+
+      // Perform additional frontend-specific validation
+      const frontendValidation = this.validateFrontendSpecificRules(request)
+      if (!frontendValidation.isValid) {
+        throw new Error(frontendValidation.errors.join(', '))
+      }
 
       // Create the task
       const createdTask = await this.taskRepository.create(taskData)
@@ -40,48 +45,25 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
     }, 'Failed to create task')
   }
 
-  private validateCreateTaskRequest(request: CreateTaskRequest): { isValid: boolean; errors: string[] } {
+  private validateFrontendSpecificRules(request: CreateTaskRequest): { isValid: boolean; errors: string[] } {
     const errors: string[] = []
 
-    // Validate required fields
-    if (!request.name || request.name.trim().length === 0) {
-      errors.push('Task name is required')
-    }
-
-    if (request.name && request.name.length > TASK_CONSTANTS.taskNameMaxLength) {
-      errors.push(`Task name cannot exceed ${TASK_CONSTANTS.taskNameMaxLength} characters`)
-    }
-
-    // Validate importance
-    if (request.importance !== undefined) {
-      if (request.importance < 0 || request.importance > TASK_CONSTANTS.maxImportance) {
-        errors.push(`Importance must be between 0 and ${TASK_CONSTANTS.maxImportance}`)
-      }
-    }
-
-    // Validate complexity
-    if (request.complexity !== undefined) {
-      if (request.complexity < 1 || request.complexity > TASK_CONSTANTS.maxComplexity) {
-        errors.push(`Complexity must be between 1 and ${TASK_CONSTANTS.maxComplexity}`)
-      }
-    }
-
-    // Validate note length
+    // Validate note length (frontend-specific business rule)
     if (request.note && request.note.length > TASK_CONSTANTS.taskNoteMaxLength) {
       errors.push(`Note cannot exceed ${TASK_CONSTANTS.taskNoteMaxLength} characters`)
     }
 
-    // Validate tag count
-    if (request.tagIds && request.tagIds.length > TASK_CONSTANTS.maxTagsPerTask) {
-      errors.push(`Cannot assign more than ${TASK_CONSTANTS.maxTagsPerTask} tags to a task`)
-    }
-
-    // Validate due date
+    // Validate planned date format (frontend-specific validation)
     if (request.plannedDate) {
       const date = new Date(request.plannedDate)
       if (isNaN(date.getTime())) {
-        errors.push('Invalid due date format')
+        errors.push('Invalid planned date format')
       }
+    }
+
+    // Validate link format if provided (frontend-specific validation)
+    if (request.link && request.link.length > TASK_CONSTANTS.taskLinkMaxLength) {
+      errors.push(`Link cannot exceed ${TASK_CONSTANTS.taskLinkMaxLength} characters`)
     }
 
     return {

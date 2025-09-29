@@ -1,27 +1,34 @@
 import { TagRepository } from '../../interfaces/repositories/TagRepository'
 import { CreateTagData, Tag } from '../../domain/entities/Tag'
-import { TagValidationService } from '@gtd/shared'
+import { BaseUseCase, SharedUseCaseValidator, TagValidationService, AsyncOperationResult, OperationResult } from '@gtd/shared'
 
-export class CreateTagUseCase {
-  constructor(private tagRepository: TagRepository) {}
+export interface CreateTagRequest extends CreateTagData {}
+export interface CreateTagResponse extends Tag {}
 
-  async execute(data: CreateTagData): Promise<Tag> {
-    // Use shared validation service
-    const validation = TagValidationService.validateCreateData(data)
+export class CreateTagUseCase extends BaseUseCase<CreateTagRequest, CreateTagResponse> {
+  constructor(private tagRepository: TagRepository) {
+    super()
+  }
+
+  async execute(request: CreateTagRequest): AsyncOperationResult<CreateTagResponse> {
+    // Use shared validation
+    const validation = SharedUseCaseValidator.validateCreateTagData(request)
     if (!validation.success) {
-      throw new Error(validation.validationErrors?.join(', ') || 'Tag validation failed')
+      return validation as OperationResult<CreateTagResponse>
     }
 
-    // Check for duplicate names among existing tags
-    const existingTags = await this.tagRepository.findAll(data.userId)
-    const uniqueValidation = TagValidationService.validateUniqueNameAmongTags(
-      data.name,
-      existingTags
-    )
-    if (!uniqueValidation.success) {
-      throw new Error(uniqueValidation.validationErrors?.join(', ') || 'Tag name already exists')
-    }
+    // Check for duplicates and create tag
+    return await this.handleAsync(async () => {
+      const existingTags = await this.tagRepository.findAll(request.userId)
+      const uniqueValidation = TagValidationService.validateUniqueNameAmongTags(
+        request.name,
+        existingTags
+      )
+      if (!uniqueValidation.success) {
+        throw new Error(uniqueValidation.validationErrors?.join(', ') || 'Tag name already exists')
+      }
 
-    return await this.tagRepository.create(data)
+      return await this.tagRepository.create(request)
+    }, 'tag creation')
   }
 }
