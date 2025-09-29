@@ -39,3 +39,19 @@ export { SharedUseCaseValidator } from './domain/usecases/SharedUseCaseValidator
 export * from './domain/repositories/RepositoryTypes'
 export * from './domain/repositories/TaskRepositoryContract'
 export * from './domain/repositories/TagRepositoryContract'
+
+// Utility patterns
+export * from './domain/utils/patterns/PaginationUtils'
+export { SortingUtils, type SortDirection, type SortField, type SortOptions as SortingOptions } from './domain/utils/patterns/SortingUtils'
+export * from './domain/utils/patterns/FilterUtils'
+
+// Business workflows
+export * from './domain/services/workflows/TaskWorkflowService'
+export { BulkOperationService, type BulkOperationResult as BulkResult, type BulkUpdateRequest } from './domain/services/workflows/BulkOperationService'
+
+// Cross-cutting concerns
+export * from './domain/patterns/Logger'
+export * from './domain/patterns/EventBus'
+
+// Enhanced validation
+export * from './domain/services/validation/ValidationComposer'
