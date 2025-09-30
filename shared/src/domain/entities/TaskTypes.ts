@@ -21,6 +21,7 @@ export interface TaskBase<TDate = Date | string> {
   importance: number
   complexity: number
   points: number
+  position: number
   plannedDate?: TDate
   dueDate?: TDate
   parentId?: string
@@ -110,6 +111,7 @@ export interface UpdateTaskData {
   note?: string
   importance?: number
   complexity?: number
+  position?: number
   parentId?: string
   tagIds?: string[]
   userId?: string

@@ -27,6 +27,7 @@ model Task {
   importance  Int       @default(50)
   complexity  Int       @default(1)
   points      Int       @default(500)
+  position    Int       @default(0)
   plannedDate DateTime?
   dueDate     DateTime?
   isCompleted Boolean   @default(false)

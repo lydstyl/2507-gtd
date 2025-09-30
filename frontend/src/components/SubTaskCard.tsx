@@ -1,6 +1,8 @@
 import type { Task } from '../types/task'
 import { TaskActions } from './TaskActions'
 import { getPriorityColor, formatDate, isOverdue, isDueDateUrgent } from '../utils/taskUtils'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface SubTaskCardProps {
   task: Task
@@ -14,6 +16,7 @@ interface SubTaskCardProps {
   onSelectTask?: (taskId: string) => void
   onQuickAction?: (taskId: string, action: string) => void
   level?: number
+  isDraggable?: boolean
 }
 
 export function SubTaskCard({
@@ -27,7 +30,8 @@ export function SubTaskCard({
   onWorkedOn,
   onSelectTask,
   onQuickAction,
-  level = 1
+  level = 1,
+  isDraggable = true
 }: SubTaskCardProps) {
   const bgColor = level === 1 ? 'bg-gray-50' : 'bg-gray-100'
   const borderColor = level === 1 ? 'border-gray-200' : 'border-gray-300'
@@ -35,14 +39,49 @@ export function SubTaskCard({
   const textSize = level === 1 ? 'text-sm' : 'text-xs'
   const actionSize = level === 1 ? 'medium' : 'small'
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
+    id: task.id,
+    disabled: !isDraggable
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
   return (
     <div
-      className={`${bgColor} rounded-md ${padding} border ${borderColor} hover:bg-gray-50 transition-colors`}
+      ref={setNodeRef}
+      style={style}
+      className={`${bgColor} rounded-md ${padding} border ${borderColor} hover:bg-gray-50 transition-colors ${
+        isDragging ? 'z-50 shadow-lg' : ''
+      }`}
       onClick={() => onSelectTask?.(task.id)}
     >
       <div className='flex flex-col space-y-2'>
-        {/* Row 1: Checkbox, priority dot, name and link */}
+        {/* Row 1: Drag handle, Checkbox, priority dot, name and link */}
         <div className='flex items-center space-x-2'>
+          {/* Drag handle */}
+          {isDraggable && (
+            <div
+              {...attributes}
+              {...listeners}
+              className='cursor-move flex-shrink-0 text-gray-400 hover:text-gray-600 touch-none'
+              title='Glisser pour réorganiser'
+            >
+              <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                <path d='M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z'></path>
+              </svg>
+            </div>
+          )}
           {/* Mobile-first completion checkbox for subtasks */}
           <button
             onClick={(e) => {
@@ -207,6 +246,7 @@ export function SubTaskCard({
                   onSelectTask={onSelectTask}
                   onQuickAction={onQuickAction}
                   level={level + 1}
+                  isDraggable={false}
                 />
               ))}
             </div>

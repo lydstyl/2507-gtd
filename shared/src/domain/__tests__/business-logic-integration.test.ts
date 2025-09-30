@@ -47,6 +47,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 0, // Must be 0 for collected
         complexity: 3, // Must be 3 for collected
         points: 0,
+        position: 0,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -70,6 +71,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
         dueDate: undefined,
         parentId: undefined,
@@ -93,6 +95,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: '2025-01-15T15:00:00.000Z', // Today
         dueDate: undefined,
         parentId: undefined,
@@ -116,6 +119,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: '2025-01-16T10:00:00.000Z', // Tomorrow
         dueDate: undefined,
         parentId: undefined,
@@ -139,6 +143,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: '2025-01-18T10:00:00.000Z', // Future
         dueDate: undefined,
         parentId: undefined,
@@ -162,6 +167,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -185,6 +191,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: '2025-01-20T10:00:00.000Z', // Future planned date
         dueDate: '2025-01-15T15:00:00.000Z', // Today urgent due date
         parentId: undefined,
@@ -209,6 +216,7 @@ describe('Shared Domain Business Logic Integration', () => {
       importance: 30,
       complexity: 3,
       points: 100,
+        position: 0,
       plannedDate: '2025-01-15T15:00:00.000Z', // Today
       dueDate: undefined,
       parentId: undefined,
@@ -227,6 +235,7 @@ describe('Shared Domain Business Logic Integration', () => {
       importance: 20,
       complexity: 5,
       points: 40,
+        position: 0,
       plannedDate: '2025-01-16T10:00:00.000Z', // Tomorrow
       dueDate: undefined,
       parentId: undefined,
@@ -302,6 +311,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: '2025-01-16T10:00:00.000Z', // Tomorrow
         dueDate: undefined,
         parentId: undefined,
@@ -325,6 +335,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: '2025-01-20T10:00:00.000Z', // Future planned date
         dueDate: '2025-01-15T15:00:00.000Z', // Today urgent due date
         parentId: undefined,
@@ -349,6 +360,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 5,
         points: 50,
+        position: 0,
         plannedDate: undefined,
         dueDate: '2025-01-20T10:00:00.000Z', // Non-urgent due date
         parentId: undefined,
@@ -375,6 +387,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 0,
         complexity: 3,
         points: 0,
+        position: 0,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -398,6 +411,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 30,
         complexity: 2,
         points: 150,
+        position: 0,
         plannedDate: '2025-01-25T10:00:00.000Z', // Far future
         dueDate: '2025-01-16T10:00:00.000Z', // Tomorrow (urgent)
         parentId: undefined,
@@ -422,6 +436,7 @@ describe('Shared Domain Business Logic Integration', () => {
         importance: 25,
         complexity: 4,
         points: 62,
+        position: 0,
         plannedDate: '2025-01-17T10:00:00.000Z', // Day after tomorrow
         dueDate: '2025-01-20T10:00:00.000Z', // Non-urgent due date
         parentId: undefined,
@@ -454,6 +469,7 @@ describe('Shared Domain Business Logic Integration', () => {
       importance,
       complexity,
       points: TaskPriorityService.calculatePoints(importance, complexity),
+      position: 0,
       plannedDate,
       dueDate,
       parentId: undefined,

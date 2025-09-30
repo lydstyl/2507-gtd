@@ -33,12 +33,23 @@ export class TaskSorting {
   }
 
   /**
-   * Sort subtasks by points using shared domain service
+   * Sort subtasks by position first, then by points
+   * Position allows manual reordering via drag & drop
    */
   static sortSubtasksByPriority(subtasks: TaskWithSubtasks[]): TaskWithSubtasks[] {
     return subtasks
       .map(subtask => TaskAdapter.toSharedDomain(subtask))
-      .sort((a, b) => TaskPriorityService.compareByPoints(a, b))
+      .sort((a, b) => {
+        // If both have custom position (non-zero), sort by position descending
+        if (a.position !== 0 && b.position !== 0) {
+          return b.position - a.position
+        }
+        // If only one has custom position, it goes first
+        if (a.position !== 0) return -1
+        if (b.position !== 0) return 1
+        // Otherwise sort by points
+        return TaskPriorityService.compareByPoints(a, b)
+      })
       .map(subtask => TaskAdapter.fromSharedDomain(subtask))
       .map((subtask) => ({
         ...subtask,

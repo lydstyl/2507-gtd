@@ -12,7 +12,23 @@ import {
   getTaskCategory,
   getTaskCategoryStyle
 } from '../utils/taskUtils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { calculateReorderedPosition } from '../utils/subtaskReordering'
 
 interface TaskCardProps {
   task: Task
@@ -23,6 +39,7 @@ interface TaskCardProps {
   onEditNote?: (task: Task) => void
   onMarkCompleted?: (taskId: string) => void
   onWorkedOn?: (taskId: string) => void
+  onReorderSubtasks?: (taskId: string, newPosition: number) => Promise<void>
   level?: number
   isEven?: boolean
   isSelected?: boolean // Ajouté pour la sélection
@@ -42,6 +59,7 @@ export function TaskCard({
   onEditNote,
   onMarkCompleted,
   onWorkedOn,
+  onReorderSubtasks,
   level = 0,
   isEven = false,
   isSelected = false,
@@ -53,6 +71,49 @@ export function TaskCard({
 }: TaskCardProps) {
   const [showSubtasks, setShowSubtasks] = useState(false)
   const [showQuickActions, setShowQuickActions] = useState(false)
+  const [sortedSubtasks, setSortedSubtasks] = useState(task.subtasks || [])
+
+  // Update sorted subtasks when task.subtasks changes
+  useEffect(() => {
+    setSortedSubtasks(task.subtasks || [])
+  }, [task.subtasks])
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) {
+      return
+    }
+
+    const oldIndex = sortedSubtasks.findIndex((t) => t.id === active.id)
+    const newIndex = sortedSubtasks.findIndex((t) => t.id === over.id)
+
+    // Reorder locally for immediate feedback
+    const reordered = arrayMove(sortedSubtasks, oldIndex, newIndex)
+    setSortedSubtasks(reordered)
+
+    // Calculate new position for the dragged task
+    const newPosition = calculateReorderedPosition(sortedSubtasks, oldIndex, newIndex)
+
+    // Update on server
+    if (onReorderSubtasks) {
+      try {
+        await onReorderSubtasks(active.id as string, newPosition)
+      } catch (error) {
+        // Revert on error
+        setSortedSubtasks(task.subtasks || [])
+        console.error('Failed to reorder subtasks:', error)
+      }
+    }
+  }
 
   if (!task) return null
 
@@ -297,24 +358,36 @@ export function TaskCard({
                 </svg>
                 <span>Sous-tâches ({task.subtasks.length})</span>
               </div>
-              <div className='space-y-2'>
-                {task.subtasks.map((subtask) => (
-                  <SubTaskCard
-                    key={subtask.id}
-                    task={subtask}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onCreateSubtask={onCreateSubtask}
-                    onAssignParent={onAssignParent}
-                    onEditNote={onEditNote}
-                    onMarkCompleted={onMarkCompleted}
-                    onWorkedOn={onWorkedOn}
-                    onSelectTask={onSelectTask}
-                    onQuickAction={onQuickAction}
-                    level={1}
-                  />
-                ))}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={sortedSubtasks.map((st) => st.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className='space-y-2'>
+                    {sortedSubtasks.map((subtask) => (
+                      <SubTaskCard
+                        key={subtask.id}
+                        task={subtask}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onCreateSubtask={onCreateSubtask}
+                        onAssignParent={onAssignParent}
+                        onEditNote={onEditNote}
+                        onMarkCompleted={onMarkCompleted}
+                        onWorkedOn={onWorkedOn}
+                        onSelectTask={onSelectTask}
+                        onQuickAction={onQuickAction}
+                        level={1}
+                        isDraggable={true}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
           )}
 

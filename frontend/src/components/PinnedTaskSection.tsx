@@ -15,6 +15,7 @@ interface PinnedTaskSectionProps {
   onEditNote: (task: Task) => void
   onMarkCompleted: (taskId: string) => Promise<void>
   onWorkedOn: (taskId: string) => Promise<void>
+  onReorderSubtasks?: (taskId: string, newPosition: number) => Promise<void>
   onSelectTask: (taskId: string) => void
   onQuickAction: (taskId: string, action: string) => Promise<void>
   onTaskUpdated: () => void
@@ -35,6 +36,7 @@ export function PinnedTaskSection({
   onEditNote,
   onMarkCompleted,
   onWorkedOn,
+  onReorderSubtasks,
   onSelectTask,
   onQuickAction,
   onTaskUpdated,
@@ -65,6 +67,7 @@ export function PinnedTaskSection({
         onEditNote={onEditNote}
         onMarkCompleted={onMarkCompleted}
         onWorkedOn={onWorkedOn}
+        onReorderSubtasks={onReorderSubtasks}
         onSelectTask={onSelectTask}
         selectedTaskId={selectedTaskId ?? undefined}
         onQuickAction={onQuickAction}

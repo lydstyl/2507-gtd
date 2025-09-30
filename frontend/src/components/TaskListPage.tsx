@@ -199,6 +199,18 @@ export default function TaskListPage() {
     }
   }
 
+  const handleReorderSubtasks = async (taskId: string, newPosition: number) => {
+    try {
+      await api.updateTask(taskId, {
+        position: newPosition
+      })
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la réorganisation de la sous-tâche:', err)
+      throw err
+    }
+  }
+
   const handleSaveNote = async (taskId: string, note: string) => {
     try {
       await api.updateTaskNote(taskId, note)
@@ -277,6 +289,7 @@ export default function TaskListPage() {
         onEditNote={modalHook.handleEditNote}
         onMarkCompleted={handleMarkCompleted}
         onWorkedOn={handleWorkedOn}
+        onReorderSubtasks={handleReorderSubtasks}
         onSelectTask={handleSelectTask}
         onQuickAction={handleQuickAction}
         onTaskUpdated={handleTaskUpdated}
@@ -347,6 +360,7 @@ export default function TaskListPage() {
                 onEditNote={modalHook.handleEditNote}
                 onMarkCompleted={handleMarkCompleted}
                 onWorkedOn={handleWorkedOn}
+                onReorderSubtasks={handleReorderSubtasks}
                 isEven={index % 2 === 1}
                 onSelectTask={handleSelectTask}
                 selectedTaskId={selectedTaskId ?? undefined}
@@ -373,6 +387,7 @@ export default function TaskListPage() {
             onEditNote={modalHook.handleEditNote}
             onMarkCompleted={handleMarkCompleted}
             onWorkedOn={handleWorkedOn}
+            onReorderSubtasks={handleReorderSubtasks}
             onSelectTask={handleSelectTask}
             selectedTaskId={selectedTaskId ?? undefined}
             onQuickAction={handleQuickAction}

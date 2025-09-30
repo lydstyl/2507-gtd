@@ -12,6 +12,7 @@ interface SwipeableTaskCardProps {
   onEditNote?: (task: Task) => void
   onMarkCompleted?: (taskId: string) => void
   onWorkedOn?: (taskId: string) => void
+  onReorderSubtasks?: (taskId: string, newPosition: number) => Promise<void>
   level?: number
   isEven?: boolean
   isSelected?: boolean
