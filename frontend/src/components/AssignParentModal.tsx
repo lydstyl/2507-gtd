@@ -72,16 +72,8 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
       setError(null)
 
       // Mettre à jour la tâche avec le nouveau parentId
-      // Envoyer seulement les champs nécessaires pour la mise à jour
       await api.updateTask(task.id, {
-        name: task.name,
-        link: task.link,
-        importance: task.importance,
-        urgency: task.urgency,
-        priority: task.priority,
-        plannedDate: task.plannedDate,
-        parentId: selectedParentId === 'none' ? undefined : selectedParentId,
-        tagIds: task.tags.map(tag => tag.id)
+        parentId: selectedParentId === 'none' ? null : selectedParentId
       })
 
       onParentAssigned()
@@ -104,30 +96,20 @@ export function AssignParentModal({ isOpen, onClose, task, onParentAssigned }: A
       setLoading(true)
       setError(null)
 
-      // Envoyer seulement les champs nécessaires pour la mise à jour
+      // Envoyer seulement parentId: null pour supprimer le parent
       const updateData = {
-        name: task.name,
-        link: task.link,
-        importance: task.importance,
-        urgency: task.urgency,
-        priority: task.priority,
-        plannedDate: task.plannedDate,
-         parentId: undefined, // Utiliser undefined pour supprimer le parent
-        tagIds: task.tags.map(tag => tag.id)
+        parentId: null
       }
-      
+
       console.log('Données envoyées au backend:', updateData)
       const result = await api.updateTask(task.id, updateData)
       console.log('Réponse du backend:', result)
 
       console.log('Parent supprimé avec succès')
-      
-      // Attendre un peu avant de fermer pour s'assurer que la mise à jour est traitée
-      setTimeout(() => {
-        onParentAssigned()
-        onClose()
-        setSelectedParentId('')
-      }, 500)
+
+      onParentAssigned()
+      onClose()
+      setSelectedParentId('')
      } catch (err: unknown) {
        setError('Erreur lors de la suppression de la tâche parente')
        console.error('Erreur:', err)
