@@ -28,12 +28,39 @@ export class PrismaTaskRepository implements TaskRepository {
     // Compute points server-side (client values ignored)
     const points = TaskPriorityService.calculatePoints(importance, complexity)
 
+    // Calculate position for new task (place at top of siblings)
+    let position = 10000
+    if (taskData.parentId) {
+      // Find highest position among siblings
+      const siblings = await this.prisma.task.findMany({
+        where: { parentId: taskData.parentId },
+        select: { position: true },
+        orderBy: { position: 'desc' },
+        take: 1
+      })
+      if (siblings.length > 0 && siblings[0].position > 0) {
+        position = siblings[0].position + 100
+      }
+    } else {
+      // Root task: find highest position among root tasks
+      const rootTasks = await this.prisma.task.findMany({
+        where: { parentId: null, userId: taskData.userId },
+        select: { position: true },
+        orderBy: { position: 'desc' },
+        take: 1
+      })
+      if (rootTasks.length > 0 && rootTasks[0].position > 0) {
+        position = rootTasks[0].position + 100
+      }
+    }
+
     const task = await this.prisma.task.create({
       data: {
         ...taskData,
         importance,
         complexity,
         points,
+        position,
         plannedDate: taskData.plannedDate ? new Date(taskData.plannedDate) : undefined,
         dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
         userId: taskData.userId,
