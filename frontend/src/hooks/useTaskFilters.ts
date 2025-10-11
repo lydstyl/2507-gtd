@@ -9,6 +9,8 @@ export interface FilterState {
   complexityFilterType: 'exact' | 'gte'
   tagFilter: string
   dateFilter: string
+  updatedAtFilter: string
+  createdAtFilter: string
 }
 
 export function useTaskFilters(tasks: Task[]) {
@@ -23,6 +25,8 @@ export function useTaskFilters(tasks: Task[]) {
   >('gte')
   const [tagFilter, setTagFilter] = useState<string>('')
   const [dateFilter, setDateFilter] = useState<string>('')
+  const [updatedAtFilter, setUpdatedAtFilter] = useState<string>('')
+  const [createdAtFilter, setCreatedAtFilter] = useState<string>('')
 
   const applyFilters = (tasksToFilter: Task[]) => {
     let filtered = tasksToFilter
@@ -96,12 +100,53 @@ export function useTaskFilters(tasks: Task[]) {
             return taskDate.getTime() === today.getTime()
           case 'tomorrow':
             return taskDate.getTime() === tomorrow.getTime()
-          case 'this-week':
+          case 'this-week': {
             const endOfWeek = new Date(today)
             endOfWeek.setDate(today.getDate() + 7)
             return taskDate >= today && taskDate <= endOfWeek
+          }
           case 'future':
             return taskDate > tomorrow
+          default:
+            return true
+        }
+      })
+    }
+
+    // Updated at filter
+    if (updatedAtFilter) {
+      const now = new Date()
+      filtered = filtered.filter((task) => {
+        const updatedAt = new Date(task.updatedAt)
+        const daysDiff = Math.floor((now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60 * 24))
+
+        switch (updatedAtFilter) {
+          case '1-month':
+            return daysDiff >= 30
+          case '3-months':
+            return daysDiff >= 90
+          case '6-months':
+            return daysDiff >= 180
+          default:
+            return true
+        }
+      })
+    }
+
+    // Created at filter
+    if (createdAtFilter) {
+      const now = new Date()
+      filtered = filtered.filter((task) => {
+        const createdAt = new Date(task.createdAt)
+        const daysDiff = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24))
+
+        switch (createdAtFilter) {
+          case '1-month':
+            return daysDiff >= 30
+          case '3-months':
+            return daysDiff >= 90
+          case '6-months':
+            return daysDiff >= 180
           default:
             return true
         }
@@ -121,7 +166,9 @@ export function useTaskFilters(tasks: Task[]) {
       complexityFilter,
       complexityFilterType,
       tagFilter,
-      dateFilter
+      dateFilter,
+      updatedAtFilter,
+      createdAtFilter
     ]
   )
 
@@ -131,6 +178,8 @@ export function useTaskFilters(tasks: Task[]) {
     setComplexityFilter('')
     setTagFilter('')
     setDateFilter('')
+    setUpdatedAtFilter('')
+    setCreatedAtFilter('')
   }
 
   const hasActiveFilters = Boolean(
@@ -138,7 +187,9 @@ export function useTaskFilters(tasks: Task[]) {
       importanceFilter !== '' ||
       complexityFilter !== '' ||
       tagFilter ||
-      dateFilter
+      dateFilter ||
+      updatedAtFilter ||
+      createdAtFilter
   )
 
   return {
@@ -156,6 +207,10 @@ export function useTaskFilters(tasks: Task[]) {
     setTagFilter,
     dateFilter,
     setDateFilter,
+    updatedAtFilter,
+    setUpdatedAtFilter,
+    createdAtFilter,
+    setCreatedAtFilter,
     filteredTasks,
     clearAllFilters,
     hasActiveFilters

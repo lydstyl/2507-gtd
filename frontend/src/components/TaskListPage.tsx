@@ -313,6 +313,10 @@ export default function TaskListPage() {
         setTagFilter={filterHook.setTagFilter}
         dateFilter={filterHook.dateFilter}
         setDateFilter={filterHook.setDateFilter}
+        updatedAtFilter={filterHook.updatedAtFilter}
+        setUpdatedAtFilter={filterHook.setUpdatedAtFilter}
+        createdAtFilter={filterHook.createdAtFilter}
+        setCreatedAtFilter={filterHook.setCreatedAtFilter}
         tags={tags}
         clearAllFilters={filterHook.clearAllFilters}
         hasActiveFilters={filterHook.hasActiveFilters}

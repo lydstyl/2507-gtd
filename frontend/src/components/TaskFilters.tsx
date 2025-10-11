@@ -16,6 +16,10 @@ interface TaskFiltersProps {
   setTagFilter: (tagId: string) => void
   dateFilter: string
   setDateFilter: (filter: string) => void
+  updatedAtFilter: string
+  setUpdatedAtFilter: (filter: string) => void
+  createdAtFilter: string
+  setCreatedAtFilter: (filter: string) => void
   tags: Tag[]
   clearAllFilters: () => void
   hasActiveFilters: boolean
@@ -40,6 +44,10 @@ export function TaskFilters({
   setTagFilter,
   dateFilter,
   setDateFilter,
+  updatedAtFilter,
+  setUpdatedAtFilter,
+  createdAtFilter,
+  setCreatedAtFilter,
   tags,
   clearAllFilters,
   hasActiveFilters,
@@ -236,6 +244,40 @@ export function TaskFilters({
               <option value='this-week'>Cette semaine</option>
               <option value='future'>Plus tard</option>
               <option value='no-date'>Sans date</option>
+            </select>
+          </div>
+
+          {/* Updated at filter */}
+          <div className='mt-4'>
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
+              Dernière modification
+            </label>
+            <select
+              value={updatedAtFilter}
+              onChange={(e) => setUpdatedAtFilter(e.target.value)}
+              className='w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+            >
+              <option value=''>Toutes</option>
+              <option value='1-month'>Plus de 1 mois</option>
+              <option value='3-months'>Plus de 3 mois</option>
+              <option value='6-months'>Plus de 6 mois</option>
+            </select>
+          </div>
+
+          {/* Created at filter */}
+          <div className='mt-4'>
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
+              Date de création
+            </label>
+            <select
+              value={createdAtFilter}
+              onChange={(e) => setCreatedAtFilter(e.target.value)}
+              className='w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+            >
+              <option value=''>Toutes</option>
+              <option value='1-month'>Plus de 1 mois</option>
+              <option value='3-months'>Plus de 3 mois</option>
+              <option value='6-months'>Plus de 6 mois</option>
             </select>
           </div>
 
