@@ -5,11 +5,12 @@ export interface Task {
   note?: string
   importance: number
   complexity: number
-   points: number
-   plannedDate?: string
-   dueDate?: string
-   parentId?: string
-   userId: string
+  points: number
+  position: number
+  plannedDate?: string
+  dueDate?: string
+  parentId?: string
+  userId: string
   isCompleted: boolean
   completedAt?: string
   createdAt: string
@@ -36,10 +37,11 @@ export interface UpdateTaskData {
   link?: string
   note?: string
   importance?: number
-   complexity?: number
-   plannedDate?: string | null
-   dueDate?: string | null
-   parentId?: string
+  complexity?: number
+  position?: number
+  plannedDate?: string | null
+  dueDate?: string | null
+  parentId?: string
   tagIds?: string[]
   isCompleted?: boolean
   completedAt?: string | null
