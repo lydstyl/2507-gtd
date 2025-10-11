@@ -29,6 +29,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { calculateReorderedPosition } from '../utils/subtaskReordering'
+import { container } from '../infrastructure/container'
 
 interface TaskCardProps {
   task: Task
@@ -75,8 +76,18 @@ export function TaskCard({
 
   // Update sorted subtasks when task.subtasks changes
   useEffect(() => {
-    setSortedSubtasks(task.subtasks || [])
-  }, [task.subtasks])
+    const newSubtasks = task.subtasks || []
+
+    // Log when subtasks are updated from server
+    if (newSubtasks.length > 0) {
+      container.logger.debug('Subtasks updated from server', {
+        parentTask: { id: task.id, name: task.name },
+        subtasks: newSubtasks.map(st => ({ id: st.id, name: st.name, position: st.position }))
+      }, 'DRAG_DROP')
+    }
+
+    setSortedSubtasks(newSubtasks)
+  }, [task.subtasks, task.id, task.name])
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -95,6 +106,16 @@ export function TaskCard({
 
     const oldIndex = sortedSubtasks.findIndex((t) => t.id === active.id)
     const newIndex = sortedSubtasks.findIndex((t) => t.id === over.id)
+    const draggedTask = sortedSubtasks[oldIndex]
+
+    // Log before reorder
+    container.logger.info('Subtask drag started', {
+      parentTask: { id: task.id, name: task.name },
+      draggedTask: { id: draggedTask.id, name: draggedTask.name, position: draggedTask.position },
+      oldIndex,
+      newIndex,
+      subtasksBefore: sortedSubtasks.map(st => ({ id: st.id, name: st.name, position: st.position }))
+    }, 'DRAG_DROP')
 
     // Reorder locally for immediate feedback
     const reordered = arrayMove(sortedSubtasks, oldIndex, newIndex)
@@ -103,13 +124,35 @@ export function TaskCard({
     // Calculate new position for the dragged task
     const newPosition = calculateReorderedPosition(sortedSubtasks, oldIndex, newIndex)
 
+    // Log position calculation
+    container.logger.info('Position calculated', {
+      draggedTask: { id: draggedTask.id, name: draggedTask.name },
+      oldPosition: draggedTask.position,
+      newPosition,
+      calculationInput: { oldIndex, newIndex }
+    }, 'DRAG_DROP')
+
     // Update on server
     if (onReorderSubtasks) {
       try {
         await onReorderSubtasks(active.id as string, newPosition)
+
+        // Log success
+        container.logger.info('Subtask reorder completed', {
+          draggedTask: { id: draggedTask.id, name: draggedTask.name },
+          newPosition,
+          success: true
+        }, 'DRAG_DROP')
       } catch (error) {
         // Revert on error
         setSortedSubtasks(task.subtasks || [])
+
+        // Log error
+        container.logger.error('Failed to reorder subtasks', {
+          draggedTask: { id: draggedTask.id, name: draggedTask.name },
+          error: error instanceof Error ? error.message : String(error)
+        }, 'DRAG_DROP')
+
         console.error('Failed to reorder subtasks:', error)
       }
     }

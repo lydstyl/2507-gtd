@@ -1,6 +1,8 @@
 // Dependency Injection Container for Clean Architecture
 import { TaskRepository, TagRepository, UserRepository } from '../interfaces/repositories'
 import { HttpTaskRepository, HttpTagRepository, HttpUserRepository } from './repositories'
+import { LoggerService } from '@gtd/shared'
+import { ConsoleLogger } from './logging/ConsoleLogger'
 
 // Use Cases
 import {
@@ -28,6 +30,9 @@ export interface Container {
   tagRepository: TagRepository
   userRepository: UserRepository
 
+  // Services
+  logger: LoggerService
+
   // Task Use Cases
   getTasksUseCase: GetTasksUseCase
   getTaskByIdUseCase: GetTaskByIdUseCase
@@ -54,6 +59,9 @@ class DIContainer implements Container {
   public readonly tagRepository: TagRepository
   public readonly userRepository: UserRepository
 
+  // Services
+  public readonly logger: LoggerService
+
   // Task Use Cases
   public readonly getTasksUseCase: GetTasksUseCase
   public readonly getTaskByIdUseCase: GetTaskByIdUseCase
@@ -71,6 +79,9 @@ class DIContainer implements Container {
   public readonly deleteTagUseCase: DeleteTagUseCase
 
   private constructor() {
+    // Initialize services
+    this.logger = new LoggerService(new ConsoleLogger())
+
     // Initialize repositories
     this.taskRepository = new HttpTaskRepository()
     this.tagRepository = new HttpTagRepository()

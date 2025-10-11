@@ -21,15 +21,19 @@ import { UpdateTagUseCase } from '../usecases/tags/UpdateTagUseCase'
 import { UpdateTagPositionsUseCase } from '../usecases/tags/UpdateTagPositionsUseCase'
 import { TaskController } from '../presentation/controllers/TaskController'
 import { TagController } from '../presentation/controllers/TagController'
+import { LoggerService } from '@gtd/shared'
+import { FileLogger } from './logging/FileLogger'
 
 export class Container {
   private static instance: Container
   private prisma: PrismaClient
   private taskRepository: TaskRepository
   private tagRepository: TagRepository
+  private logger: LoggerService
 
   private constructor() {
     this.prisma = new PrismaClient()
+    this.logger = new LoggerService(new FileLogger())
     this.taskRepository = new PrismaTaskRepository(this.prisma)
     this.tagRepository = new PrismaTagRepository(this.prisma)
   }
@@ -43,6 +47,10 @@ export class Container {
 
   getTaskRepository(): TaskRepository {
     return this.taskRepository
+  }
+
+  getLogger(): LoggerService {
+    return this.logger
   }
 
   getTaskController(): TaskController {
