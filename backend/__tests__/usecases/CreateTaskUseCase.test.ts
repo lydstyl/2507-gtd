@@ -390,7 +390,9 @@ describe('CreateTaskUseCase', () => {
       expect(result.data!.link).toBeNull()
       expect(result.data!.note).toBeUndefined()
       expect(result.data!.plannedDate).toBeNull()
-      expect(result.data!.dueDate).toBeUndefined()
+      // dueDate should be set to 6 months from now as default when not provided
+      expect(result.data!.dueDate).toBeDefined()
+      expect(result.data!.dueDate).toBeInstanceOf(Date)
       expect(result.data!.parentId).toBeNull()
     })
 
