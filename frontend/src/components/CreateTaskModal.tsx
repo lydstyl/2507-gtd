@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { api, ApiError } from '../utils/api'
-import type { CreateTaskData, Tag } from '../types/task'
+import type { CreateTaskData, Tag, Task } from '../types/task'
 
 interface CreateTaskModalProps {
   isOpen: boolean
@@ -25,19 +25,21 @@ export function CreateTaskModal({
     parentId: parentId // Initialiser avec le parentId si fourni
   })
   const [tags, setTags] = useState<Tag[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (isOpen) {
       loadTags()
+      loadTasks()
     }
   }, [isOpen])
 
   // Mettre à jour le parentId quand la prop change
   useEffect(() => {
     console.log('🔄 parentId changé:', parentId)
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       parentId: parentId
     }))
@@ -52,6 +54,15 @@ export function CreateTaskModal({
     }
   }
 
+  const loadTasks = async () => {
+    try {
+      const tasksData = await api.getTasks()
+      setTasks(tasksData)
+    } catch (err) {
+      console.error('Erreur lors du chargement des tâches:', err)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -59,7 +70,7 @@ export function CreateTaskModal({
 
     try {
       console.log('📤 Envoi des données:', formData)
-      
+
       // Formater la date correctement pour le backend
       const formattedData = {
         ...formData,
@@ -99,7 +110,9 @@ export function CreateTaskModal({
       ...prev,
       [name]:
         name === 'importance' || name === 'complexity'
-          ? value === '' ? undefined : parseInt(value)
+          ? value === ''
+            ? undefined
+            : parseInt(value)
           : value
     }))
   }
@@ -112,6 +125,54 @@ export function CreateTaskModal({
         : (prev.tagIds || []).filter((id) => id !== tagId)
     }))
   }
+
+  // Detect duplicate words in real-time
+  const duplicateWordMatches = useMemo(() => {
+    if (!formData.name || formData.name.trim().length < 3) {
+      return []
+    }
+
+    // Extract words from current task name (more than 3 letters, ignore common words)
+    const commonWords = new Set([
+      'the',
+      'and',
+      'for',
+      'with',
+      'une',
+      'des',
+      'les',
+      'dans',
+      'pour',
+      'sur'
+    ])
+    const currentWords = formData.name
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((word) => word.length > 3 && !commonWords.has(word))
+
+    if (currentWords.length === 0) {
+      return []
+    }
+
+    // Find tasks that contain any of these words (exclude completed tasks)
+    const matches: Array<{ task: Task; matchedWords: string[] }> = []
+
+    tasks.forEach((task) => {
+      // Skip completed tasks
+      if (task.isCompleted) return
+
+      const taskWords = task.name.toLowerCase().split(/\s+/)
+      const matchedWords = currentWords.filter((word) =>
+        taskWords.some((taskWord) => taskWord.includes(word))
+      )
+
+      if (matchedWords.length > 0) {
+        matches.push({ task, matchedWords })
+      }
+    })
+
+    return matches
+  }, [formData.name, tasks])
 
   if (!isOpen) return null
 
@@ -168,6 +229,51 @@ export function CreateTaskModal({
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
               placeholder='Ex: Réviser le projet GTD'
             />
+
+            {/* Duplicate word alert */}
+            {duplicateWordMatches.length > 0 && (
+              <div className='mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md'>
+                <div className='flex items-start'>
+                  <svg
+                    className='w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0'
+                    fill='currentColor'
+                    viewBox='0 0 20 20'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                  <div className='flex-1'>
+                    <p className='text-sm font-medium text-yellow-800 mb-1'>
+                      Tâches similaires détectées
+                    </p>
+                    <div className='text-sm text-yellow-700 space-y-1 max-h-32 overflow-y-auto'>
+                      {duplicateWordMatches
+                        .slice(0, 5)
+                        .map(({ task, matchedWords }) => (
+                          <div key={task.id} className='flex items-start'>
+                            <span className='mr-1'>•</span>
+                            <div>
+                              <span className='font-medium'>{task.name}</span>
+                              <span className='text-xs text-yellow-600 ml-1'>
+                                (mots: {matchedWords.join(', ')})
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      {duplicateWordMatches.length > 5 && (
+                        <p className='text-xs text-yellow-600 italic'>
+                          ... et {duplicateWordMatches.length - 5} autre(s)
+                          tâche(s)
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -234,7 +340,6 @@ export function CreateTaskModal({
                 <span>9 (Complexe)</span>
               </div>
             </div>
-
           </div>
 
           <div>
