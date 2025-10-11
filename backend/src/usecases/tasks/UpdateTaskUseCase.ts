@@ -1,6 +1,6 @@
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { UpdateTaskData, TaskWithSubtasks } from '../../domain/entities/Task'
-import { BaseUseCase, SharedUseCaseValidator, AsyncOperationResult, OperationResult } from '@gtd/shared'
+import { BaseUseCase, SharedUseCaseValidator, AsyncOperationResult, OperationResult, ParentDateSyncService } from '@gtd/shared'
 
 export interface UpdateTaskRequest {
   id: string
@@ -32,7 +32,45 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
         throw new Error('Task not found')
       }
 
-      return await this.taskRepository.update(id, updateData)
+      const updatedTask = await this.taskRepository.update(id, updateData)
+
+      // Sync parent dates if the task has a parent
+      if (updatedTask.parentId) {
+        await this.syncParentDates(updatedTask.parentId)
+      }
+
+      // If this task is a parent and its dates changed, update it
+      if (updatedTask.subtasks && updatedTask.subtasks.length > 0) {
+        const calculatedDates = ParentDateSyncService.calculateParentDates(updatedTask.subtasks)
+
+        // Only update if dates actually need to change
+        if (ParentDateSyncService.shouldUpdateParentDates(updatedTask, updatedTask.subtasks)) {
+          return await this.taskRepository.update(updatedTask.id, {
+            plannedDate: calculatedDates.plannedDate ?? null,
+            dueDate: calculatedDates.dueDate ?? null,
+          })
+        }
+      }
+
+      return updatedTask
     }, 'task update')
+  }
+
+  /**
+   * Sync parent task dates based on its children
+   */
+  private async syncParentDates(parentId: string): Promise<void> {
+    const parent = await this.taskRepository.findById(parentId)
+    if (!parent) return
+
+    if (parent.subtasks && parent.subtasks.length > 0) {
+      if (ParentDateSyncService.shouldUpdateParentDates(parent, parent.subtasks)) {
+        const calculatedDates = ParentDateSyncService.calculateParentDates(parent.subtasks)
+        await this.taskRepository.update(parentId, {
+          plannedDate: calculatedDates.plannedDate ?? null,
+          dueDate: calculatedDates.dueDate ?? null,
+        })
+      }
+    }
   }
 }
