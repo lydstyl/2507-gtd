@@ -25,32 +25,43 @@ export class ImportTasksUseCase {
     let importedCount = 0
     const importErrors: string[] = []
 
-    // Première passe : importer toutes les tâches sans parentId
-    const importedTasks = new Map<string, string>() // nom -> id
+    // Map to track imported tasks by name -> id (case-insensitive)
+    const importedTasks = new Map<string, string>()
     const tasksToProcess = [...tasks]
 
-    // Trier les tâches par niveau de profondeur pour gérer les structures imbriquées
-    // Créer un map des tâches par nom pour calculer la profondeur
+    // Calculate depth for each task (0 = root, 1 = child, 2 = grandchild, etc.)
     const taskMap = new Map<string, { task: any; depth: number }>()
-    
-    // Première passe : calculer la profondeur de chaque tâche
+    const tasksByName = new Map<string, any>()
+
+    // Build quick lookup map (case-insensitive keys)
+    for (const task of tasks) {
+      const normalizedName = task.name.trim().toLowerCase()
+      tasksByName.set(normalizedName, task)
+    }
+
+    // Calculate depth for each task by traversing up to root
     for (const task of tasks) {
       let depth = 0
       let currentTask = task
       const visited = new Set<string>()
-      
-      while (currentTask.parentName && !visited.has(currentTask.parentName)) {
-        visited.add(currentTask.parentName)
+
+      // Traverse up the parent chain to calculate depth
+      while (currentTask.parentName && !visited.has(currentTask.parentName.toLowerCase())) {
+        const normalizedParentName = currentTask.parentName.trim().toLowerCase()
+        visited.add(normalizedParentName)
         depth++
-        const foundTask = tasks.find(t => t.name === currentTask.parentName)
-        if (!foundTask) break
-        currentTask = foundTask
+        const parentTask = tasksByName.get(normalizedParentName)
+        if (!parentTask) {
+          // Parent doesn't exist in CSV - this will be handled as an error later
+          break
+        }
+        currentTask = parentTask
       }
-      
+
       taskMap.set(task.name, { task, depth })
     }
-    
-    // Trier par profondeur (les parents d'abord)
+
+    // Sort by depth (parents with depth 0 first, then children, grandchildren, etc.)
     tasksToProcess.sort((a, b) => {
       const depthA = taskMap.get(a.name)?.depth || 0
       const depthB = taskMap.get(b.name)?.depth || 0
@@ -83,18 +94,29 @@ export class ImportTasksUseCase {
         // Déterminer le parentId si c'est une sous-tâche
         let parentId: string | undefined
         if (taskData.parentName) {
+          const normalizedParentName = taskData.parentName.trim().toLowerCase()
+          const normalizedTaskName = taskData.name.trim().toLowerCase()
+
           // Vérifier qu'il ne s'agit pas d'une auto-référence
-          if (taskData.parentName === taskData.name) {
+          if (normalizedParentName === normalizedTaskName) {
             console.log(`⚠️ Auto-référence détectée pour "${taskData.name}", parentId ignoré`)
             parentId = undefined
           } else {
-            const parentTaskId = importedTasks.get(taskData.parentName)
+            const parentTaskId = importedTasks.get(normalizedParentName)
             if (parentTaskId) {
               parentId = parentTaskId
             } else {
-              importErrors.push(
-                `Impossible de trouver la tâche parente "${taskData.parentName}" pour "${taskData.name}"`
-              )
+              // Check if parent exists in CSV but wasn't imported yet (shouldn't happen with sorting)
+              const parentExistsInCsv = tasksByName.has(normalizedParentName)
+              if (parentExistsInCsv) {
+                importErrors.push(
+                  `Erreur interne: la tâche parente "${taskData.parentName}" existe mais n'a pas été importée pour "${taskData.name}"`
+                )
+              } else {
+                importErrors.push(
+                  `Impossible de trouver la tâche parente "${taskData.parentName}" pour "${taskData.name}". Vérifiez que le nom correspond exactement à une tâche dans le CSV.`
+                )
+              }
               continue
             }
           }
@@ -109,8 +131,9 @@ export class ImportTasksUseCase {
           tagIds
         })
 
-        // Enregistrer la tâche importée pour les futures références
-        importedTasks.set(taskData.name, task.id)
+        // Enregistrer la tâche importée pour les futures références (case-insensitive)
+        const normalizedTaskName = taskData.name.trim().toLowerCase()
+        importedTasks.set(normalizedTaskName, task.id)
         importedCount++
       } catch (error) {
         importErrors.push(

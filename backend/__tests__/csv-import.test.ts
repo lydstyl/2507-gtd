@@ -422,4 +422,211 @@ describe('CSV Import Tests', () => {
     // Vérifier que le nombre de tâches correspond exactement
     expect(totalTasksInDb).toBe(expectedTaskCount)
   })
+
+  test('should import parent-child tasks in correct order', async () => {
+    console.log('\n🔄 Test import parent-child avec ordre inversé...')
+
+    // Nettoyer toutes les tâches existantes
+    await prisma.task.deleteMany({ where: { userId } })
+
+    // CSV avec subtasks AVANT leur parent (ordre inversé pour tester)
+    const csvContent = [
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Subtask 2,,,2,2,4,,,,,,"Parent Task",,', // Subtask listed FIRST
+      ',Subtask 1,,,1,1,1,,,,,,"Parent Task",,', // Subtask listed SECOND
+      ',Parent Task,,,5,5,25,,,,,,,,', // Parent listed LAST
+    ].join('\n')
+
+    console.log('📥 Import du CSV avec ordre inversé...')
+    const importRes = await request(server)
+      .post('/api/tasks/import')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ csvContent })
+      .expect(200)
+
+    console.log(`Tâches importées: ${importRes.body.importedCount}`)
+    console.log(`Erreurs: ${importRes.body.errors.length}`)
+    if (importRes.body.errors.length > 0) {
+      console.log('Erreurs:', importRes.body.errors)
+    }
+
+    // All 3 tasks should be imported successfully
+    expect(importRes.body.importedCount).toBe(3)
+    expect(importRes.body.errors).toHaveLength(0)
+
+    // Verify parent-child relationships
+    const tasks = await prisma.task.findMany({
+      where: { userId },
+      orderBy: { name: 'asc' }
+    })
+
+    expect(tasks).toHaveLength(3)
+
+    const parentTask = tasks.find(t => t.name === 'Parent Task')
+    const subtask1 = tasks.find(t => t.name === 'Subtask 1')
+    const subtask2 = tasks.find(t => t.name === 'Subtask 2')
+
+    expect(parentTask).toBeDefined()
+    expect(subtask1).toBeDefined()
+    expect(subtask2).toBeDefined()
+
+    // Verify parent has no parent
+    expect(parentTask!.parentId).toBeNull()
+
+    // Verify subtasks reference the correct parent
+    expect(subtask1!.parentId).toBe(parentTask!.id)
+    expect(subtask2!.parentId).toBe(parentTask!.id)
+
+    console.log('✅ Parent-child import succeeded with proper ordering!')
+  })
+
+  test('should import nested tasks (grandparent -> parent -> child)', async () => {
+    console.log('\n🔄 Test import with 3 levels of nesting...')
+
+    // Nettoyer toutes les tâches existantes
+    await prisma.task.deleteMany({ where: { userId } })
+
+    // CSV with 3 levels: Grandparent -> Parent -> Child (listed in reverse)
+    const csvContent = [
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Child Task,,,1,1,1,,,,,,"Parent Task",,', // Child listed FIRST
+      ',Parent Task,,,2,2,4,,,,,,"Grandparent Task",,', // Parent listed SECOND
+      ',Grandparent Task,,,3,3,9,,,,,,,,', // Grandparent listed LAST
+    ].join('\n')
+
+    console.log('📥 Import du CSV avec 3 niveaux imbriqués...')
+    const importRes = await request(server)
+      .post('/api/tasks/import')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ csvContent })
+      .expect(200)
+
+    console.log(`Tâches importées: ${importRes.body.importedCount}`)
+    console.log(`Erreurs: ${importRes.body.errors.length}`)
+    if (importRes.body.errors.length > 0) {
+      console.log('Erreurs:', importRes.body.errors)
+    }
+
+    // All 3 tasks should be imported successfully
+    expect(importRes.body.importedCount).toBe(3)
+    expect(importRes.body.errors).toHaveLength(0)
+
+    // Verify nested relationships
+    const tasks = await prisma.task.findMany({
+      where: { userId },
+      orderBy: { name: 'asc' }
+    })
+
+    expect(tasks).toHaveLength(3)
+
+    const grandparentTask = tasks.find(t => t.name === 'Grandparent Task')
+    const parentTask = tasks.find(t => t.name === 'Parent Task')
+    const childTask = tasks.find(t => t.name === 'Child Task')
+
+    expect(grandparentTask).toBeDefined()
+    expect(parentTask).toBeDefined()
+    expect(childTask).toBeDefined()
+
+    // Verify hierarchy
+    expect(grandparentTask!.parentId).toBeNull()
+    expect(parentTask!.parentId).toBe(grandparentTask!.id)
+    expect(childTask!.parentId).toBe(parentTask!.id)
+
+    console.log('✅ Nested task import succeeded!')
+  })
+
+  test('should handle missing parent task gracefully', async () => {
+    console.log('\n🔄 Test import with missing parent...')
+
+    // Nettoyer toutes les tâches existantes
+    await prisma.task.deleteMany({ where: { userId } })
+
+    // CSV with child referencing non-existent parent
+    const csvContent = [
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Child Task,,,1,1,1,,,,,,"NonExistent Parent",,',
+      ',Valid Task,,,2,2,4,,,,,,,,',
+    ].join('\n')
+
+    console.log('📥 Import du CSV avec parent manquant...')
+    const importRes = await request(server)
+      .post('/api/tasks/import')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ csvContent })
+      .expect(200)
+
+    console.log(`Tâches importées: ${importRes.body.importedCount}`)
+    console.log(`Erreurs: ${importRes.body.errors.length}`)
+    if (importRes.body.errors.length > 0) {
+      console.log('Erreurs:', importRes.body.errors)
+    }
+
+    // Only valid task should be imported
+    expect(importRes.body.importedCount).toBe(1)
+    expect(importRes.body.errors).toHaveLength(1)
+    expect(importRes.body.errors[0]).toMatch(/NonExistent Parent/)
+
+    const tasks = await prisma.task.findMany({ where: { userId } })
+    expect(tasks).toHaveLength(1)
+    expect(tasks[0].name).toBe('Valid Task')
+
+    console.log('✅ Missing parent handled correctly!')
+  })
+
+  test('should handle case-insensitive parent name matching', async () => {
+    console.log('\n🔄 Test import avec différences de casse dans les noms de parents...')
+
+    // Nettoyer toutes les tâches existantes
+    await prisma.task.deleteMany({ where: { userId } })
+
+    // CSV with parent names in different cases
+    const csvContent = [
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Subtask with lowercase parent,,,1,1,1,,,,,,"gtd project",,', // Parent name in lowercase
+      ',GTD Project,,,5,5,25,,,,,,,,', // Parent name with capitals
+      ',Another subtask,,,2,2,4,,,,,,"GTD PROJECT",,', // Parent name in uppercase
+    ].join('\n')
+
+    console.log('📥 Import du CSV avec différentes casses...')
+    const importRes = await request(server)
+      .post('/api/tasks/import')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ csvContent })
+      .expect(200)
+
+    console.log(`Tâches importées: ${importRes.body.importedCount}`)
+    console.log(`Erreurs: ${importRes.body.errors.length}`)
+    if (importRes.body.errors.length > 0) {
+      console.log('Erreurs:', importRes.body.errors)
+    }
+
+    // All 3 tasks should be imported successfully (case-insensitive matching)
+    expect(importRes.body.importedCount).toBe(3)
+    expect(importRes.body.errors).toHaveLength(0)
+
+    // Verify parent-child relationships
+    const tasks = await prisma.task.findMany({
+      where: { userId },
+      orderBy: { name: 'asc' }
+    })
+
+    expect(tasks).toHaveLength(3)
+
+    const parentTask = tasks.find(t => t.name === 'GTD Project')
+    const subtask1 = tasks.find(t => t.name === 'Subtask with lowercase parent')
+    const subtask2 = tasks.find(t => t.name === 'Another subtask')
+
+    expect(parentTask).toBeDefined()
+    expect(subtask1).toBeDefined()
+    expect(subtask2).toBeDefined()
+
+    // Verify parent has no parent
+    expect(parentTask!.parentId).toBeNull()
+
+    // Verify both subtasks reference the same parent (case-insensitive)
+    expect(subtask1!.parentId).toBe(parentTask!.id)
+    expect(subtask2!.parentId).toBe(parentTask!.id)
+
+    console.log('✅ Case-insensitive parent matching works correctly!')
+  })
 })
