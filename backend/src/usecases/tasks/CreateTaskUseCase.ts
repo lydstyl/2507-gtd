@@ -17,13 +17,21 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
       return validation as OperationResult<CreateTaskResponse>
     }
 
+    // Calculate default dueDate if not provided (6 months from now)
+    let dueDate = request.dueDate
+    if (!dueDate) {
+      const sixMonthsFromNow = new Date()
+      sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6)
+      dueDate = sixMonthsFromNow
+    }
+
     // Apply business logic defaults
     const taskData = {
       ...request,
       importance: request.importance || 0,
       complexity: request.complexity || 3,
       plannedDate: request.plannedDate,
-      dueDate: request.dueDate,
+      dueDate: dueDate,
       userId: request.userId
     }
 
