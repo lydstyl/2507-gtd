@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useHapticFeedback } from '../hooks/useHapticFeedback'
-import type { Task } from '../types/task'
+import { useDuplicateWordDetection } from '../hooks/useDuplicateWordDetection'
+import { DuplicateTaskAlert } from './DuplicateTaskAlert'
 
 interface QuickAddInputProps {
   onTaskCreated?: () => void
@@ -24,16 +25,11 @@ export function QuickAddInput({
   const [importance, setImportance] = useState(20)
   const [complexity, setComplexity] = useState(3)
   const [plannedDate, setPlannedDate] = useState('')
-  const [tasks, setTasks] = useState<Task[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const haptic = useHapticFeedback()
 
-  // Load tasks when visible
-  useEffect(() => {
-    if (isVisible) {
-      loadTasks()
-    }
-  }, [isVisible])
+  // Use duplicate word detection hook
+  const duplicateWordMatches = useDuplicateWordDetection(taskName)
 
   // Focus input when visible
   useEffect(() => {
@@ -55,52 +51,6 @@ export function QuickAddInput({
       setPlannedDate('')
     }
   }, [isVisible])
-
-  const loadTasks = async () => {
-    try {
-      const tasksData = await api.getTasks()
-      setTasks(tasksData)
-    } catch (err) {
-      console.error('Erreur lors du chargement des tâches:', err)
-    }
-  }
-
-  // Detect duplicate words in real-time
-  const duplicateWordMatches = useMemo(() => {
-    if (!taskName || taskName.trim().length < 3) {
-      return []
-    }
-
-    // Extract words from current task name (more than 3 letters, ignore common words)
-    const commonWords = new Set(['the', 'and', 'for', 'with', 'une', 'des', 'les', 'dans', 'pour', 'sur'])
-    const currentWords = taskName
-      .toLowerCase()
-      .split(/\s+/)
-      .filter((word) => word.length > 3 && !commonWords.has(word))
-
-    if (currentWords.length === 0) {
-      return []
-    }
-
-    // Find tasks that contain any of these words (exclude completed tasks)
-    const matches: Array<{ task: Task; matchedWords: string[] }> = []
-
-    tasks.forEach((task) => {
-      // Skip completed tasks
-      if (task.completedAt) return
-
-      const taskWords = task.name.toLowerCase().split(/\s+/)
-      const matchedWords = currentWords.filter((word) =>
-        taskWords.some((taskWord) => taskWord.includes(word))
-      )
-
-      if (matchedWords.length > 0) {
-        matches.push({ task, matchedWords })
-      }
-    })
-
-    return matches
-  }, [taskName, tasks])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -162,38 +112,7 @@ export function QuickAddInput({
           />
 
           {/* Duplicate word alert */}
-          {duplicateWordMatches.length > 0 && (
-            <div className='mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md'>
-              <div className='flex items-start'>
-                <svg className='w-4 h-4 text-yellow-600 mt-0.5 mr-2 flex-shrink-0' fill='currentColor' viewBox='0 0 20 20'>
-                  <path fillRule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clipRule='evenodd' />
-                </svg>
-                <div className='flex-1'>
-                  <p className='text-xs font-medium text-yellow-800 mb-1'>
-                    Tâches similaires détectées
-                  </p>
-                  <div className='text-xs text-yellow-700 space-y-1 max-h-24 overflow-y-auto'>
-                    {duplicateWordMatches.slice(0, 3).map(({ task, matchedWords }) => (
-                      <div key={task.id} className='flex items-start'>
-                        <span className='mr-1'>•</span>
-                        <div>
-                          <span className='font-medium'>{task.name}</span>
-                          <span className='text-xs text-yellow-600 ml-1'>
-                            ({matchedWords.join(', ')})
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                    {duplicateWordMatches.length > 3 && (
-                      <p className='text-xs text-yellow-600 italic'>
-                        ... et {duplicateWordMatches.length - 3} autre(s)
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <DuplicateTaskAlert matches={duplicateWordMatches} maxVisible={3} compact />
         </div>
 
         {/* Advanced options toggle */}
