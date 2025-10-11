@@ -39,19 +39,6 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
         await this.syncParentDates(updatedTask.parentId)
       }
 
-      // If this task is a parent and its dates changed, update it
-      if (updatedTask.subtasks && updatedTask.subtasks.length > 0) {
-        const calculatedDates = ParentDateSyncService.calculateParentDates(updatedTask.subtasks)
-
-        // Only update if dates actually need to change
-        if (ParentDateSyncService.shouldUpdateParentDates(updatedTask, updatedTask.subtasks)) {
-          return await this.taskRepository.update(updatedTask.id, {
-            plannedDate: calculatedDates.plannedDate ?? null,
-            dueDate: calculatedDates.dueDate ?? null,
-          })
-        }
-      }
-
       return updatedTask
     }, 'task update')
   }

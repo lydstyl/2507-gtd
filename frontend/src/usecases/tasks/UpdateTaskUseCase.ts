@@ -38,24 +38,11 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
       const updateData = this.applyBusinessRules(request.data, currentTask)
 
       // Update the task
-      let updatedTask = await this.taskRepository.update(request.id, updateData)
+      const updatedTask = await this.taskRepository.update(request.id, updateData)
 
       // Sync parent dates if the task has a parent
       if (updatedTask.parentId) {
         await this.syncParentDates(updatedTask.parentId)
-      }
-
-      // If this task is a parent and its dates changed, update it
-      if (updatedTask.subtasks && updatedTask.subtasks.length > 0) {
-        const calculatedDates = ParentDateSyncService.calculateParentDates(updatedTask.subtasks)
-
-        // Only update if dates actually need to change
-        if (ParentDateSyncService.shouldUpdateParentDates(updatedTask, updatedTask.subtasks)) {
-          updatedTask = await this.taskRepository.update(updatedTask.id, {
-            plannedDate: calculatedDates.plannedDate ?? null,
-            dueDate: calculatedDates.dueDate ?? null,
-          })
-        }
       }
 
       const taskEntity = new TaskEntity(updatedTask)
