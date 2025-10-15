@@ -5,9 +5,8 @@ import { CreateTaskData, TaskWithSubtasks } from '../types/task.js';
 export const CreateTaskSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   name: z.string().min(1, 'Task name is required'),
-  importance: z.number().min(1).max(9).optional().default(5),
-  urgency: z.number().min(1).max(9).optional().default(5),
-  priority: z.number().min(1).max(9).optional().default(5),
+  importance: z.number().min(1).max(100).optional().default(50),
+  complexity: z.number().min(1).max(5).optional().default(1),
   link: z.string().optional(),
   note: z.string().optional(),
   dueDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
@@ -60,13 +59,18 @@ export class TaskCreator {
 
     // Create the task
     const { tagIds, ...taskData } = data;
-    
+
+    // Calculate points based on importance and complexity
+    const importance = taskData.importance || 50;
+    const complexity = taskData.complexity || 1;
+    const points = importance * complexity * 10;
+
     const task = await this.prisma.task.create({
       data: {
         ...taskData,
-        importance: taskData.importance || 5,
-        urgency: taskData.urgency || 5,
-        priority: taskData.priority || 5,
+        importance,
+        complexity,
+        points,
         dueDate: taskData.dueDate,
         userId: taskData.userId,
         parentId: taskData.parentId,
@@ -77,7 +81,7 @@ export class TaskCreator {
             }
           }))
         } : undefined
-      },
+      } as any,
       include: {
         tags: {
           include: {
@@ -106,8 +110,8 @@ export class TaskCreator {
       link: task.link,
       note: task.note,
       importance: task.importance,
-      urgency: task.urgency,
-      priority: task.priority,
+      complexity: task.complexity,
+      points: task.points,
       dueDate: task.dueDate,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,

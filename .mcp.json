@@ -2,9 +2,11 @@
   "mcpServers": {
     "gtd-task-manager": {
       "command": "node",
-      "args": ["${WORKSPACE_DIR}/mcp-server/dist/index.js"],
+      "args": [
+        "/home/gab/apps/2507-gtd/mcp-server/build/index.js"
+      ],
       "env": {
-        "DATABASE_URL": "file:${WORKSPACE_DIR}/backend/prisma/dev.db"
+        "DATABASE_URL": "file:/home/gab/apps/2507-gtd/backend/prisma/dev.db"
       }
     }
   }

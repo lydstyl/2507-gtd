@@ -4,9 +4,9 @@ export interface Task {
   name: string;
   link?: string;
   note?: string;
-  importance: number; // 1-9, 1 being most important
-  urgency: number; // 1-9
-  priority: number; // 1-9
+  importance: number; // 1-100, default 50
+  complexity: number; // 1-5, default 1
+  points: number; // calculated: importance * complexity * 10
   parentId?: string;
   dueDate?: Date;
   createdAt: Date;
@@ -33,8 +33,7 @@ export interface CreateTaskData {
   link?: string;
   note?: string;
   importance?: number;
-  urgency?: number;
-  priority?: number;
+  complexity?: number;
   parentId?: string;
   tagIds?: string[];
   userId: string;

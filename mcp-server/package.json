@@ -16,16 +16,20 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.6.0",
-    "@prisma/client": "^6.10.1",
+    "@prisma/client": "^6.17.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^24.0.8",
-    "typescript": "^5.8.3",
+    "prisma": "^6.10.1",
     "ts-node": "^10.9.2",
-    "prisma": "^6.10.1"
+    "typescript": "^5.8.3"
   },
-  "keywords": ["mcp", "task-management", "gtd"],
+  "keywords": [
+    "mcp",
+    "task-management",
+    "gtd"
+  ],
   "author": "",
   "license": "MIT"
 }

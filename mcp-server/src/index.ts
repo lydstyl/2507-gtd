@@ -45,23 +45,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             importance: {
               type: 'number',
               minimum: 1,
-              maximum: 9,
-              description: 'Importance level (1-9, 1 being most important)',
-              default: 5
+              maximum: 100,
+              description: 'Importance level (1-100, default: 50, higher = more important)',
+              default: 50
             },
-            urgency: {
+            complexity: {
               type: 'number',
               minimum: 1,
-              maximum: 9,
-              description: 'Urgency level (1-9)',
-              default: 5
-            },
-            priority: {
-              type: 'number',
-              minimum: 1,
-              maximum: 9,
-              description: 'Priority level (1-9)',
-              default: 5
+              maximum: 5,
+              description: 'Complexity level (1-5, default: 1, higher = more complex)',
+              default: 1
             },
             link: {
               type: 'string',
@@ -109,7 +102,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         content: [
           {
             type: 'text',
-            text: `✅ Task created successfully!\n\n**Task Details:**\n- ID: ${task.id}\n- Name: ${task.name}\n- Importance: ${task.importance}\n- Urgency: ${task.urgency}\n- Priority: ${task.priority}\n- Created: ${task.createdAt.toISOString()}\n- User ID: ${task.userId}${task.parentId ? `\n- Parent Task ID: ${task.parentId}` : ''}${task.dueDate ? `\n- Due Date: ${task.dueDate}` : ''}${task.link ? `\n- Link: ${task.link}` : ''}${task.tags.length > 0 ? `\n- Tags: ${task.tags.map(tag => tag.name).join(', ')}` : ''}`
+            text: `✅ Task created successfully!\n\n**Task Details:**\n- ID: ${task.id}\n- Name: ${task.name}\n- Importance: ${task.importance}\n- Complexity: ${task.complexity}\n- Points: ${task.points}\n- Created: ${task.createdAt.toISOString()}\n- User ID: ${task.userId}${task.parentId ? `\n- Parent Task ID: ${task.parentId}` : ''}${task.dueDate ? `\n- Due Date: ${task.dueDate}` : ''}${task.link ? `\n- Link: ${task.link}` : ''}${task.tags.length > 0 ? `\n- Tags: ${task.tags.map(tag => tag.name).join(', ')}` : ''}`
           }
         ]
       };

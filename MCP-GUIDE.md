@@ -4,6 +4,23 @@
 
 The GTD MCP Server allows Claude Code (and other MCP-compatible AI assistants) to create tasks directly in your GTD system using the `create-task-for-user` tool.
 
+## Quick Start (3 Steps)
+
+```bash
+# 1. Build the MCP server
+cd mcp-server && npm install && npm run build
+
+# 2. Add to Claude Code (replace path with your actual path!)
+claude mcp add --transport stdio gtd-task-manager \
+  --env DATABASE_URL="file:/home/gab/apps/2507-gtd/backend/prisma/dev.db" \
+  -- node /home/gab/apps/2507-gtd/mcp-server/build/index.js
+
+# 3. Verify it's working
+claude mcp list
+```
+
+Then restart Claude Code (VSCode: Reload Window, CLI: restart terminal).
+
 ## Setup Instructions
 
 ### 1. Build the MCP Server
@@ -14,50 +31,60 @@ npm install
 npm run build
 ```
 
-### 2. Configure MCP Server (Project-Specific - Recommended)
+### 2. Configure MCP Server
 
-The project already includes a `.mcp.json` file in the root directory. This is the **recommended approach** as it:
-- Keeps configuration with the project (can be version controlled)
-- Uses `${WORKSPACE_DIR}` for automatic path resolution
-- Doesn't clutter your global Claude Code settings
+**IMPORTANT:** Claude Code reads MCP servers from the global configuration file. Choose ONE of the following methods:
 
-The `.mcp.json` file contains:
+#### Method 1: Using `claude mcp add` Command (Recommended ✅)
+
+This is the easiest and safest method. It automatically updates your configuration:
+
+```bash
+# Add the GTD MCP server with environment variable
+claude mcp add --transport stdio gtd-task-manager \
+  --env DATABASE_URL="file:/home/gab/apps/2507-gtd/backend/prisma/dev.db" \
+  -- node /home/gab/apps/2507-gtd/mcp-server/build/index.js
+```
+
+**Important:** Replace `/home/gab/apps/2507-gtd/` with your actual project path!
+
+To verify it was added:
+```bash
+claude mcp list
+```
+
+To remove it if needed:
+```bash
+claude mcp remove gtd-task-manager
+```
+
+#### Method 2: Manual Configuration (~/.config/Claude/claude_desktop_config.json)
+
+Alternatively, manually add the GTD MCP server to your global Claude Desktop config file at `~/.config/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
+    "dice-roller": {
+      "command": "node",
+      "args": ["/home/gab/apps/250913-first-mcp/dist/server.js"]
+    },
     "gtd-task-manager": {
       "command": "node",
-      "args": ["${WORKSPACE_DIR}/mcp-server/dist/index.js"],
+      "args": ["/home/gab/apps/2507-gtd/mcp-server/build/index.js"],
       "env": {
-        "DATABASE_URL": "file:${WORKSPACE_DIR}/backend/prisma/dev.db"
+        "DATABASE_URL": "file:/home/gab/apps/2507-gtd/backend/prisma/dev.db"
       }
     }
   }
 }
 ```
 
-**That's it!** Claude Code will automatically detect this file when you open the project.
-
-#### Alternative: Global Configuration
-
-If you prefer global configuration, add to `~/.claude/settings.json`:
-
-```json
-{
-  "mcpServers": {
-    "gtd-task-manager": {
-      "command": "node",
-      "args": ["/absolute/path/to/2507-gtd/mcp-server/dist/index.js"],
-      "env": {
-        "DATABASE_URL": "file:/absolute/path/to/2507-gtd/backend/prisma/dev.db"
-      }
-    }
-  }
-}
-```
-
-**Note**: For **Claude Desktop** (not Claude Code), use `~/.config/Claude/claude_desktop_config.json` instead.
+**Important Notes:**
+- Replace `/home/gab/apps/2507-gtd/` with your actual project path
+- Use **absolute paths** - relative paths and `${WORKSPACE_DIR}` are not supported in global config
+- This file is shared between Claude Desktop app and Claude Code CLI
+- After updating, restart Claude Code for changes to take effect
 
 ### 3. Approve the MCP Server
 
@@ -174,19 +201,72 @@ Claude Code understands natural language, so you can be conversational:
 
 ## Troubleshooting
 
-**Server not appearing in Claude Code?**
-- Check that paths in config are absolute and correct
-- Verify the MCP server builds successfully (`npm run build`)
-- Check Claude Code logs for connection errors
+### Server not appearing in Claude Code?
 
-**Tasks not appearing in the app?**
+**1. Verify the server is configured:**
+```bash
+claude mcp list
+```
+You should see `gtd-task-manager` in the output with status "Connected".
+
+**2. Check the configuration file directly:**
+```bash
+cat ~/.config/Claude/claude_desktop_config.json
+```
+Ensure `gtd-task-manager` appears in the `mcpServers` section.
+
+**3. Verify the build exists:**
+```bash
+ls -la /home/gab/apps/2507-gtd/mcp-server/build/index.js
+```
+
+**4. Test the server manually:**
+```bash
+DATABASE_URL="file:/home/gab/apps/2507-gtd/backend/prisma/dev.db" \
+  node /home/gab/apps/2507-gtd/mcp-server/build/index.js
+```
+You should see: "GTD MCP Server is running..."
+
+**5. Restart Claude Code completely:**
+- Close all Claude Code instances (in VSCode and terminal)
+- Wait 5 seconds
+- Reopen Claude Code in your project
+- Try `/mcp` command to see available servers
+
+**6. Check for connection errors:**
+```bash
+# Run Claude Code with debug logging
+CLAUDE_LOG_LEVEL=debug claude
+```
+
+**7. Reset and re-add the server:**
+```bash
+# Remove old configuration
+claude mcp remove gtd-task-manager
+
+# Re-add with correct paths
+claude mcp add --transport stdio gtd-task-manager \
+  --env DATABASE_URL="file:/home/gab/apps/2507-gtd/backend/prisma/dev.db" \
+  -- node /home/gab/apps/2507-gtd/mcp-server/build/index.js
+
+# Verify
+claude mcp get gtd-task-manager
+```
+
+### Tasks not appearing in the app?
 - Verify you're using the correct user ID
 - Check that the database path is correct in the config
 - Ensure the backend is using the same database file
 
-**Permission errors?**
+### Permission errors?
 - Make sure the database file has write permissions
 - Check that the user exists in the database
+
+### Claude Code not detecting the server after restart?
+- **VSCode Extension**: Make sure you're restarting the Claude Code extension in VSCode, not just the editor
+  - In VSCode: `Cmd/Ctrl + Shift + P` → "Developer: Reload Window"
+- **CLI**: Make sure you're running `claude` from the terminal after updating the config
+- The config file path is: `~/.config/Claude/claude_desktop_config.json` (NOT `~/.claude/settings.json`)
 
 ## Advanced: Multiple Environments
 
@@ -197,14 +277,14 @@ You can set up different MCP server configurations for dev/production:
   "mcpServers": {
     "gtd-dev": {
       "command": "node",
-      "args": ["/path/to/mcp-server/dist/index.js"],
+      "args": ["/path/to/mcp-server/build/index.js"],
       "env": {
         "DATABASE_URL": "file:/path/to/dev.db"
       }
     },
     "gtd-prod": {
       "command": "node",
-      "args": ["/path/to/mcp-server/dist/index.js"],
+      "args": ["/path/to/mcp-server/build/index.js"],
       "env": {
         "DATABASE_URL": "postgresql://user:pass@localhost:5432/gtd"
       }
