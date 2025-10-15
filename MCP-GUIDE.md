@@ -16,9 +16,9 @@ npm run build
 
 ### 2. Configure Claude Code
 
-Add this configuration to your Claude Code MCP settings file:
+Add this configuration to your Claude Code settings file:
 
-**Location**: `~/.config/Claude/claude_desktop_config.json` (Linux/Mac) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+**Location**: `~/.claude/settings.json` (Linux/Mac) or `%USERPROFILE%\.claude\settings.json` (Windows)
 
 ```json
 {
@@ -35,6 +35,8 @@ Add this configuration to your Claude Code MCP settings file:
 ```
 
 **Important**: Update the paths to match your actual installation directory.
+
+**Note**: If you're using **Claude Desktop** (not Claude Code), the configuration file is at `~/.config/Claude/claude_desktop_config.json` instead.
 
 ### 3. Restart Claude Code
 
