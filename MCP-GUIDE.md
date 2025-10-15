@@ -14,37 +14,61 @@ npm install
 npm run build
 ```
 
-### 2. Configure Claude Code
+### 2. Configure MCP Server (Project-Specific - Recommended)
 
-Add this configuration to your Claude Code settings file:
+The project already includes a `.mcp.json` file in the root directory. This is the **recommended approach** as it:
+- Keeps configuration with the project (can be version controlled)
+- Uses `${WORKSPACE_DIR}` for automatic path resolution
+- Doesn't clutter your global Claude Code settings
 
-**Location**: `~/.claude/settings.json` (Linux/Mac) or `%USERPROFILE%\.claude\settings.json` (Windows)
+The `.mcp.json` file contains:
 
 ```json
 {
   "mcpServers": {
     "gtd-task-manager": {
       "command": "node",
-      "args": ["/home/gab/apps/2507-gtd/mcp-server/dist/index.js"],
+      "args": ["${WORKSPACE_DIR}/mcp-server/dist/index.js"],
       "env": {
-        "DATABASE_URL": "file:/home/gab/apps/2507-gtd/backend/prisma/dev.db"
+        "DATABASE_URL": "file:${WORKSPACE_DIR}/backend/prisma/dev.db"
       }
     }
   }
 }
 ```
 
-**Important**: Update the paths to match your actual installation directory.
+**That's it!** Claude Code will automatically detect this file when you open the project.
 
-**Note**: If you're using **Claude Desktop** (not Claude Code), the configuration file is at `~/.config/Claude/claude_desktop_config.json` instead.
+#### Alternative: Global Configuration
 
-### 3. Restart Claude Code
+If you prefer global configuration, add to `~/.claude/settings.json`:
 
-Close and reopen Claude Code for the configuration to take effect.
+```json
+{
+  "mcpServers": {
+    "gtd-task-manager": {
+      "command": "node",
+      "args": ["/absolute/path/to/2507-gtd/mcp-server/dist/index.js"],
+      "env": {
+        "DATABASE_URL": "file:/absolute/path/to/2507-gtd/backend/prisma/dev.db"
+      }
+    }
+  }
+}
+```
+
+**Note**: For **Claude Desktop** (not Claude Code), use `~/.config/Claude/claude_desktop_config.json` instead.
+
+### 3. Approve the MCP Server
+
+When you first open Claude Code in this project:
+1. Claude Code will prompt you to approve the `gtd-task-manager` MCP server
+2. Click "Approve" to allow Claude to use it
+3. If you need to reset approval choices: `claude mcp reset-project-choices`
 
 ### 4. Verify Connection
 
-In Claude Code, you should see the `gtd-task-manager` server listed in the MCP section. The server provides one tool: `create-task-for-user`.
+Use `/mcp` command in Claude Code to see available MCP servers. You should see `gtd-task-manager` listed with the `create-task-for-user` tool.
 
 ## Usage Examples
 

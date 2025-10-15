@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "gtd-task-manager": {
+      "command": "node",
+      "args": ["${WORKSPACE_DIR}/mcp-server/dist/index.js"],
+      "env": {
+        "DATABASE_URL": "file:${WORKSPACE_DIR}/backend/prisma/dev.db"
+      }
+    }
+  }
+}
