@@ -2,7 +2,14 @@
 
 ## What is this?
 
-The GTD MCP Server allows Claude Code (and other MCP-compatible AI assistants) to create tasks directly in your GTD system using the `create-task-for-user` tool.
+The GTD MCP Server allows Claude Code (and other MCP-compatible AI assistants) to manage tasks in your GTD system with two tools:
+- **`create-task-for-user`** - Create new tasks
+- **`list-tasks-for-user`** - List and filter tasks
+
+**New Features:**
+- ✅ Use email instead of user ID (e.g., `gab@example.com` instead of `cmgsjy73j00008gxp9tqjmpsw`)
+- ✅ List tasks with filters (planned date, due date, completion status)
+- ✅ Support for planned dates (when you plan to work on a task)
 
 ## Quick Start (3 Steps)
 
@@ -171,32 +178,114 @@ cd backend
 sqlite3 prisma/dev.db "SELECT id, email FROM User;"
 ```
 
-## Tool Parameters Reference
+## Outils Disponibles / Available Tools
 
-### Required Parameters
-- `userId` (string) - Your GTD user ID
-- `name` (string) - Task name/title
+### 1. create-task-for-user
+Créer une nouvelle tâche pour un utilisateur spécifique.
 
-### Optional Parameters
-- `importance` (number 1-9) - How important (1 = most important, default: 5)
-- `urgency` (number 1-9) - How urgent (default: 5)
-- `priority` (number 1-9) - Overall priority (default: 5)
-- `dueDate` (string) - Due date in ISO format (YYYY-MM-DD)
-- `link` (string) - Associated URL
-- `note` (string) - Rich text notes
-- `parentId` (string) - Parent task ID for creating subtasks
-- `tagIds` (array of strings) - Tag IDs to associate with task
+### 2. list-tasks-for-user
+Lister les tâches d'un utilisateur avec filtres optionnels.
 
-## Natural Language Examples
+## Paramètres des Outils / Tool Parameters
+
+### create-task-for-user
+
+**Paramètres Requis / Required:**
+- `name` (string) - Nom de la tâche / Task name
+
+**Paramètres Optionnels / Optional:**
+- `userId` (string) - ID de l'utilisateur (ou userEmail) / User ID (or userEmail)
+- `userEmail` (string) - Email de l'utilisateur (ou userId) / User email (or userId)
+- `importance` (number 1-100) - Niveau d'importance (défaut: 50) / Importance level (default: 50)
+- `complexity` (number 1-5) - Niveau de complexité (défaut: 1) / Complexity level (default: 1)
+- `plannedDate` (string) - Date prévue au format ISO (AAAA-MM-JJ) / Planned date in ISO format (YYYY-MM-DD)
+- `dueDate` (string) - Date d'échéance au format ISO (AAAA-MM-JJ) / Due date in ISO format (YYYY-MM-DD)
+- `link` (string) - URL associée / Associated URL
+- `note` (string) - Notes en texte riche / Rich text notes
+- `parentId` (string) - ID de la tâche parente pour créer une sous-tâche / Parent task ID for creating subtasks
+- `tagIds` (array of strings) - IDs des étiquettes à associer / Tag IDs to associate
+
+### list-tasks-for-user
+
+**Paramètres Optionnels / Optional:**
+- `userId` (string) - ID de l'utilisateur (ou userEmail) / User ID (or userEmail)
+- `userEmail` (string) - Email de l'utilisateur (ou userId) / User email (or userId)
+- `isCompleted` (boolean) - Filtrer par statut (vrai = complété, faux = non complété) / Filter by status (true = completed, false = not completed)
+- `plannedDate` (string) - Filtrer par date prévue au format ISO (AAAA-MM-JJ) / Filter by planned date in ISO format (YYYY-MM-DD)
+- `dueDate` (string) - Filtrer par date d'échéance au format ISO (AAAA-MM-JJ) / Filter by due date in ISO format (YYYY-MM-DD)
+- `limit` (number 1-100) - Nombre maximum de tâches à retourner (défaut: 50) / Maximum number of tasks to return (default: 50)
+
+## Exemples en Français / French Examples
+
+### Créer une tâche / Create a task
+
+```
+Créer une tâche pour l'utilisateur gab@example.com avec le nom "Appeler le dentiste"
+```
+
+```
+Créer une tâche importante pour gab@example.com :
+- Nom: "Réviser le rapport financier Q4"
+- Importance: 80
+- Complexité: 3
+- Date prévue: 2025-10-20
+```
+
+```
+Ajouter une tâche pour gab@example.com :
+- Nom: "Organiser la réunion d'équipe"
+- Date d'échéance: 2025-10-18
+- Note: "Inviter tous les chefs de projet"
+```
+
+### Lister les tâches / List tasks
+
+```
+Lister toutes les tâches non complétées pour gab@example.com
+```
+
+```
+Afficher les tâches prévues pour aujourd'hui pour gab@example.com
+```
+
+```
+Montrer les tâches avec date d'échéance pour demain pour l'utilisateur gab@example.com
+```
+
+```
+Lister les 20 premières tâches pour gab@example.com
+```
+
+### Exemples avec sous-tâches / Examples with subtasks
+
+```
+Créer une sous-tâche sous la tâche xyz789 pour gab@example.com :
+- Nom: "Rédiger les tests unitaires"
+- Complexité: 2
+```
+
+## Natural Language Examples (English)
 
 Claude Code understands natural language, so you can be conversational:
 
 ```
-"I need to create a reminder to call the dentist tomorrow. Make it for user clzr52iyk0000ufw2qj88kfgq"
+"Create a task for user gab@example.com with the name 'Call the dentist'"
+```
 
-"Add a high-priority task to review the security audit findings for user clzr52iyk0000ufw2qj88kfgq"
+```
+"List all uncompleted tasks for gab@example.com"
+```
 
-"Create a subtask under task xyz789 to update the documentation"
+```
+"Show me tasks planned for today for user gab@example.com"
+```
+
+```
+"Create a high-priority task for gab@example.com:
+- Name: Review Q4 financial report
+- Importance: 80
+- Complexity: 3
+- Planned date: 2025-10-20"
 ```
 
 ## Troubleshooting

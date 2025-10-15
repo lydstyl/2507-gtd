@@ -8,9 +8,11 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { DatabaseConfig } from './config/database.js';
 import { TaskCreator, CreateTaskSchema } from './tools/createTask.js';
+import { TaskLister, ListTasksSchema } from './tools/listTasks.js';
 
 const prisma = DatabaseConfig.getInstance();
 const taskCreator = new TaskCreator(prisma);
+const taskLister = new TaskLister(prisma);
 
 const server = new Server(
   {
@@ -30,13 +32,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'create-task-for-user',
-        description: 'Create a new task for a specific user in the GTD system',
+        description: 'Create a new task for a specific user in the GTD system. You can use either userId or userEmail.',
         inputSchema: {
           type: 'object',
           properties: {
             userId: {
               type: 'string',
-              description: 'The ID of the user to create the task for'
+              description: 'The ID of the user (either userId or userEmail must be provided)'
+            },
+            userEmail: {
+              type: 'string',
+              description: 'The email of the user (either userId or userEmail must be provided)'
             },
             name: {
               type: 'string',
@@ -64,6 +70,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: 'string',
               description: 'Optional rich text note for the task'
             },
+            plannedDate: {
+              type: 'string',
+              description: 'Optional planned date in ISO format (YYYY-MM-DD)'
+            },
             dueDate: {
               type: 'string',
               description: 'Optional due date in ISO format (YYYY-MM-DD)'
@@ -80,7 +90,44 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               description: 'Optional array of tag IDs to associate with the task'
             }
           },
-          required: ['userId', 'name']
+          required: ['name']
+        }
+      },
+      {
+        name: 'list-tasks-for-user',
+        description: 'List tasks for a specific user. You can filter by completion status, planned date, or due date. You can use either userId or userEmail.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            userId: {
+              type: 'string',
+              description: 'The ID of the user (either userId or userEmail must be provided)'
+            },
+            userEmail: {
+              type: 'string',
+              description: 'The email of the user (either userId or userEmail must be provided)'
+            },
+            isCompleted: {
+              type: 'boolean',
+              description: 'Filter by completion status (true = completed, false = not completed)'
+            },
+            plannedDate: {
+              type: 'string',
+              description: 'Filter by planned date in ISO format (YYYY-MM-DD)'
+            },
+            dueDate: {
+              type: 'string',
+              description: 'Filter by due date in ISO format (YYYY-MM-DD)'
+            },
+            limit: {
+              type: 'number',
+              minimum: 1,
+              maximum: 100,
+              description: 'Maximum number of tasks to return (default: 50)',
+              default: 50
+            }
+          },
+          required: []
         }
       }
     ]
@@ -108,7 +155,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      
+
       return {
         content: [
           {
@@ -120,7 +167,79 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
   }
-  
+
+  if (name === 'list-tasks-for-user') {
+    try {
+      // Validate input using Zod schema
+      const validatedInput = ListTasksSchema.parse(args);
+
+      // List the tasks
+      const tasks = await taskLister.listTasks(validatedInput);
+
+      if (tasks.length === 0) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: '📋 No tasks found matching the criteria.'
+            }
+          ]
+        };
+      }
+
+      const tasksList = tasks.map((task, index) => {
+        const taskInfo = [
+          `${index + 1}. **${task.name}**`,
+          `   - ID: ${task.id}`,
+          `   - Importance: ${task.importance} | Complexity: ${task.complexity} | Points: ${task.points}`
+        ];
+
+        if (task.plannedDate) {
+          taskInfo.push(`   - Planned: ${new Date(task.plannedDate).toISOString().split('T')[0]}`);
+        }
+
+        if (task.dueDate) {
+          taskInfo.push(`   - Due: ${new Date(task.dueDate).toISOString().split('T')[0]}`);
+        }
+
+        if (task.link) {
+          taskInfo.push(`   - Link: ${task.link}`);
+        }
+
+        if (task.tags && task.tags.length > 0) {
+          taskInfo.push(`   - Tags: ${task.tags.map(tag => tag.name).join(', ')}`);
+        }
+
+        if (task.subtasks && task.subtasks.length > 0) {
+          taskInfo.push(`   - Subtasks: ${task.subtasks.length}`);
+        }
+
+        return taskInfo.join('\n');
+      }).join('\n\n');
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `✅ Found ${tasks.length} task(s):\n\n${tasksList}`
+          }
+        ]
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `❌ Error listing tasks: ${errorMessage}`
+          }
+        ],
+        isError: true
+      };
+    }
+  }
+
   throw new Error(`Unknown tool: ${name}`);
 });
 

@@ -8,6 +8,7 @@ export interface Task {
   complexity: number; // 1-5, default 1
   points: number; // calculated: importance * complexity * 10
   parentId?: string;
+  plannedDate?: Date;
   dueDate?: Date;
   createdAt: Date;
   updatedAt: Date;

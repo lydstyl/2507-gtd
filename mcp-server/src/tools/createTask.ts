@@ -3,15 +3,19 @@ import { PrismaClient } from '@prisma/client';
 import { CreateTaskData, TaskWithSubtasks } from '../types/task.js';
 
 export const CreateTaskSchema = z.object({
-  userId: z.string().min(1, 'User ID is required'),
+  userId: z.string().optional(),
+  userEmail: z.string().email().optional(),
   name: z.string().min(1, 'Task name is required'),
   importance: z.number().min(1).max(100).optional().default(50),
   complexity: z.number().min(1).max(5).optional().default(1),
   link: z.string().optional(),
   note: z.string().optional(),
+  plannedDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
   dueDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
   parentId: z.string().optional(),
   tagIds: z.array(z.string()).optional()
+}).refine((data) => data.userId || data.userEmail, {
+  message: "Either userId or userEmail must be provided"
 });
 
 export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
@@ -20,21 +24,40 @@ export class TaskCreator {
   constructor(private prisma: PrismaClient) {}
 
   async createTask(data: CreateTaskInput): Promise<TaskWithSubtasks> {
+    // Find user by email if provided
+    let userId = data.userId;
+
+    if (data.userEmail && !userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { email: data.userEmail }
+      });
+
+      if (!user) {
+        throw new Error(`User with email ${data.userEmail} not found`);
+      }
+
+      userId = user.id;
+    }
+
+    if (!userId) {
+      throw new Error('User ID could not be determined');
+    }
+
     // Validate that user exists
     const user = await this.prisma.user.findUnique({
-      where: { id: data.userId }
+      where: { id: userId }
     });
 
     if (!user) {
-      throw new Error(`User with ID ${data.userId} not found`);
+      throw new Error(`User with ID ${userId} not found`);
     }
 
     // Validate parent task if specified
     if (data.parentId) {
       const parentTask = await this.prisma.task.findFirst({
-        where: { 
+        where: {
           id: data.parentId,
-          userId: data.userId // Ensure user owns the parent task
+          userId: userId // Ensure user owns the parent task
         }
       });
 
@@ -48,7 +71,7 @@ export class TaskCreator {
       const userTags = await this.prisma.tag.findMany({
         where: {
           id: { in: data.tagIds },
-          userId: data.userId
+          userId: userId
         }
       });
 
@@ -67,12 +90,15 @@ export class TaskCreator {
 
     const task = await this.prisma.task.create({
       data: {
-        ...taskData,
+        name: taskData.name,
+        link: taskData.link,
+        note: taskData.note,
         importance,
         complexity,
         points,
+        plannedDate: taskData.plannedDate,
         dueDate: taskData.dueDate,
-        userId: taskData.userId,
+        userId: userId,
         parentId: taskData.parentId,
         tags: tagIds ? {
           create: tagIds.map((tagId) => ({
@@ -112,6 +138,7 @@ export class TaskCreator {
       importance: task.importance,
       complexity: task.complexity,
       points: task.points,
+      plannedDate: task.plannedDate,
       dueDate: task.dueDate,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
