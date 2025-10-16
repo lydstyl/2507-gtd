@@ -312,4 +312,28 @@ Run this in browser console (F12) for a full diagnostic:
 
 ---
 
+## ✅ RESOLVED ISSUE: ChatController userId Bug
+
+**Issue**: "User not authenticated" error even with valid token
+
+**Root Cause**: ChatController was using `(req as any).userId` instead of `(req as any).user?.userId`
+
+**Fix Applied**: Updated [ChatController.ts:11](backend/src/presentation/controllers/ChatController.ts#L11) to match the pattern used in all other controllers.
+
+**Before**:
+```typescript
+const userId = (req as any).userId  // ❌ Incorrect - always undefined
+```
+
+**After**:
+```typescript
+const userId = (req as any).user?.userId  // ✅ Correct - matches authMiddleware
+```
+
+**Status**: Fixed in commit [current]. Backend rebuilt successfully.
+
+**Testing**: Restart backend (`cd backend && npm run dev`) and try the chatbot again.
+
+---
+
 **Last Updated**: October 16, 2025

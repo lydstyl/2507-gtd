@@ -8,7 +8,7 @@ export class ChatController {
   chat = async (req: Request, res: Response): Promise<void> => {
     try {
       const { messages }: { messages: UIMessage[] } = req.body
-      const userId = (req as any).userId
+      const userId = (req as any).user?.userId
 
       if (!messages || !Array.isArray(messages)) {
         res.status(400).json({

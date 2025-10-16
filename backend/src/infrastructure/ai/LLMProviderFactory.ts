@@ -1,6 +1,6 @@
 import { LanguageModel } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
-import { openai } from '@ai-sdk/openai'
+import { openai, createOpenAI } from '@ai-sdk/openai'
 
 export type LLMProviderType = 'anthropic' | 'openai' | 'openrouter'
 
@@ -29,9 +29,16 @@ export class LLMProviderFactory {
 
       case 'openrouter': {
         const modelName = model || 'anthropic/claude-3.5-sonnet'
-        // OpenRouter uses OPENAI_API_KEY environment variable
-        // Set baseURL to OpenRouter's endpoint
-        return openai(modelName)
+        // OpenRouter requires custom baseURL and API key configuration
+        const openrouter = createOpenAI({
+          baseURL: 'https://openrouter.ai/api/v1',
+          apiKey: process.env.OPENROUTER_API_KEY,
+          headers: {
+            'HTTP-Referer': 'http://localhost:3000', // Optional: for OpenRouter analytics
+            'X-Title': 'GTD Task Manager' // Optional: for OpenRouter analytics
+          }
+        })
+        return openrouter(modelName)
       }
 
       default:
@@ -59,8 +66,6 @@ export class LLMProviderFactory {
         if (!process.env.OPENROUTER_API_KEY) {
           throw new Error('OPENROUTER_API_KEY environment variable is required for OpenRouter provider')
         }
-        // For OpenRouter, we need to set OPENAI_API_KEY to OPENROUTER_API_KEY
-        process.env.OPENAI_API_KEY = process.env.OPENROUTER_API_KEY
         break
     }
 
