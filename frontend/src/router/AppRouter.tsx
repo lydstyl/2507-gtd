@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { LoginPage, RegisterPage, DashboardPage, TaskListPage } from '../pages'
+import { LoginPage, RegisterPage, DashboardPage, TaskListPage, ChatPage } from '../pages'
 import { useCurrentUser } from '../hooks/useAuth'
 import { Suspense } from 'react'
 
@@ -76,6 +76,14 @@ export function AppRouter() {
             element={
               <ProtectedRoute>
                 <TaskListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
               </ProtectedRoute>
             }
           />

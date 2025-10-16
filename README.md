@@ -236,6 +236,34 @@ curl -X POST http://localhost:3000/api/tasks \
   }'
 ```
 
+## 🆘 Troubleshooting
+
+### Port Already in Use?
+
+```bash
+# Quick fix:
+./scripts/cleanup-ports.sh
+npm run dev
+```
+
+**See**: [QUICK_FIX.md](./QUICK_FIX.md) for immediate solution
+
+### Other Issues?
+
+- **Full troubleshooting guide**: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+- **Chatbot issues**: [CHATBOT.md](./CHATBOT.md)
+- **API key setup**: [API_KEYS_GUIDE.md](./API_KEYS_GUIDE.md)
+
+### Common Problems
+
+| Problem | Solution |
+|---------|----------|
+| Port 3000/5173 in use | `./scripts/cleanup-ports.sh` |
+| Backend won't start | Check `backend/.env` exists |
+| Frontend can't connect | Ensure backend is on port 3000 |
+| Build fails | `npm run install:all` |
+| Chat not working | Check LLM API key in `.env` |
+
 ## 🤝 Contribution
 
 1. Fork le projet

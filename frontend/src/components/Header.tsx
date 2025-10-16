@@ -14,7 +14,8 @@ export function Header({ user, onLogout }: HeaderProps) {
 
   const navLinks = [
     { to: '/tasks', label: 'Tâches', icon: '📋' },
-    { to: '/dashboard', label: 'Dashboard', icon: '📊' }
+    { to: '/dashboard', label: 'Dashboard', icon: '📊' },
+    { to: '/chat', label: 'Chat', icon: '💬' }
   ]
 
   const toggleMobileMenu = () => {

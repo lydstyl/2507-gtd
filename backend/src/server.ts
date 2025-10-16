@@ -1,3 +1,7 @@
+import { config } from 'dotenv'
+// Load environment variables first
+config()
+
 import app from './app'
 import * as cron from 'node-cron'
 import { Container } from './infrastructure/container'

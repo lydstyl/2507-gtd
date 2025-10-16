@@ -21,6 +21,9 @@ import { UpdateTagUseCase } from '../usecases/tags/UpdateTagUseCase'
 import { UpdateTagPositionsUseCase } from '../usecases/tags/UpdateTagPositionsUseCase'
 import { TaskController } from '../presentation/controllers/TaskController'
 import { TagController } from '../presentation/controllers/TagController'
+import { ChatController } from '../presentation/controllers/ChatController'
+import { ChatUseCase } from '../usecases/chat/ChatUseCase'
+import { LLMProviderFactory } from './ai/LLMProviderFactory'
 import { LoggerService } from '@gtd/shared'
 import { FileLogger } from './logging/FileLogger'
 
@@ -98,6 +101,15 @@ export class Container {
       updateTagUseCase,
       updateTagPositionsUseCase
     )
+  }
+
+  getChatController(): ChatController {
+    const model = LLMProviderFactory.createFromEnv()
+    const createTaskUseCase = new CreateTaskUseCase(this.taskRepository)
+    const getAllTasksUseCase = new GetAllTasksUseCase(this.taskRepository)
+    const chatUseCase = new ChatUseCase(model, createTaskUseCase, getAllTasksUseCase)
+
+    return new ChatController(chatUseCase)
   }
 
   async disconnect(): Promise<void> {
