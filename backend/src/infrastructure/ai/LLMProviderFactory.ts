@@ -29,16 +29,18 @@ export class LLMProviderFactory {
 
       case 'openrouter': {
         const modelName = model || 'anthropic/claude-3.5-sonnet'
-        // OpenRouter requires custom baseURL and API key configuration
+        // OpenRouter uses OpenAI-compatible chat completions API
+        // Use .chat() to force chat completions endpoint instead of responses
         const openrouter = createOpenAI({
           baseURL: 'https://openrouter.ai/api/v1',
           apiKey: process.env.OPENROUTER_API_KEY,
           headers: {
-            'HTTP-Referer': 'http://localhost:3000', // Optional: for OpenRouter analytics
-            'X-Title': 'GTD Task Manager' // Optional: for OpenRouter analytics
+            'HTTP-Referer': 'http://localhost:3000',
+            'X-Title': 'GTD Task Manager'
           }
         })
-        return openrouter(modelName)
+        // Use .chat() to explicitly use chat completions endpoint
+        return openrouter.chat(modelName)
       }
 
       default:

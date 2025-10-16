@@ -52,32 +52,44 @@ Be concise, helpful, and action-oriented.`,
             note: z.string().optional().describe('Additional notes or details about the task'),
           }),
           execute: async ({ name, importance, complexity, plannedDate, dueDate, note }) => {
-            const result = await this.createTaskUseCase.execute({
-              name,
-              userId,
-              importance: importance ?? 0,
-              complexity: complexity ?? 3,
-              plannedDate: plannedDate ? new Date(plannedDate) : undefined,
-              dueDate: dueDate ? new Date(dueDate) : undefined,
-              note
-            })
+            try {
+              console.log('[ChatUseCase] createTask tool called with:', { name, importance, complexity, plannedDate, dueDate, userId })
 
-            if (result.success) {
-              return {
-                success: true,
-                task: {
-                  id: result.data!.id,
-                  name: result.data!.name,
-                  importance: result.data!.importance,
-                  complexity: result.data!.complexity,
-                  plannedDate: result.data!.plannedDate?.toISOString().split('T')[0],
-                  dueDate: result.data!.dueDate?.toISOString().split('T')[0],
+              const result = await this.createTaskUseCase.execute({
+                name,
+                userId,
+                importance: importance ?? 0,
+                complexity: complexity ?? 3,
+                plannedDate: plannedDate ? new Date(plannedDate) : undefined,
+                dueDate: dueDate ? new Date(dueDate) : undefined,
+                note
+              })
+
+              if (result.success) {
+                console.log('[ChatUseCase] Task created successfully:', result.data!.id)
+                return {
+                  success: true,
+                  task: {
+                    id: result.data!.id,
+                    name: result.data!.name,
+                    importance: result.data!.importance,
+                    complexity: result.data!.complexity,
+                    plannedDate: result.data!.plannedDate?.toISOString().split('T')[0],
+                    dueDate: result.data!.dueDate?.toISOString().split('T')[0],
+                  }
+                }
+              } else {
+                console.error('[ChatUseCase] Failed to create task:', result.error)
+                return {
+                  success: false,
+                  error: result.error
                 }
               }
-            } else {
+            } catch (error) {
+              console.error('[ChatUseCase] Error in createTask tool:', error)
               return {
                 success: false,
-                error: result.error
+                error: error instanceof Error ? error.message : 'Failed to create task'
               }
             }
           }
@@ -92,34 +104,51 @@ Be concise, helpful, and action-oriented.`,
             limit: z.number().optional().describe('Maximum number of tasks to return, default is 20'),
           }),
           execute: async ({ importance, complexity, search, limit = 20 }) => {
-            // Build filters object only with defined values
-            const filters: Partial<TaskFilters> = {}
-            if (importance !== undefined) filters.importance = importance
-            if (complexity !== undefined) filters.complexity = complexity
-            if (search !== undefined) filters.search = search
+            try {
+              console.log('[ChatUseCase] listTasks tool called with:', { importance, complexity, search, limit, userId })
 
-            const tasks = await this.getAllTasksUseCase.executeRootTasks(
-              userId,
-              Object.keys(filters).length > 0 ? filters as TaskFilters : undefined
-            )
+              // Build filters object only with defined values
+              const filters: Partial<TaskFilters> = {}
+              if (importance !== undefined) filters.importance = importance
+              if (complexity !== undefined) filters.complexity = complexity
+              if (search !== undefined) filters.search = search
 
-            // Limit results
-            const limitedTasks = tasks.slice(0, limit)
+              console.log('[ChatUseCase] Fetching tasks with filters:', filters)
 
-            return {
-              success: true,
-              count: limitedTasks.length,
-              total: tasks.length,
-              tasks: limitedTasks.map(task => ({
-                id: task.id,
-                name: task.name,
-                importance: task.importance,
-                complexity: task.complexity,
-                isCompleted: task.isCompleted,
-                plannedDate: task.plannedDate?.toISOString().split('T')[0],
-                dueDate: task.dueDate?.toISOString().split('T')[0],
-                subtaskCount: task.subtasks?.length || 0,
-              }))
+              const tasks = await this.getAllTasksUseCase.executeRootTasks(
+                userId,
+                Object.keys(filters).length > 0 ? filters as TaskFilters : undefined
+              )
+
+              console.log('[ChatUseCase] Tasks fetched:', tasks.length)
+
+              // Limit results
+              const limitedTasks = tasks.slice(0, limit)
+
+              const result = {
+                success: true,
+                count: limitedTasks.length,
+                total: tasks.length,
+                tasks: limitedTasks.map(task => ({
+                  id: task.id,
+                  name: task.name,
+                  importance: task.importance,
+                  complexity: task.complexity,
+                  isCompleted: task.isCompleted,
+                  plannedDate: task.plannedDate?.toISOString().split('T')[0],
+                  dueDate: task.dueDate?.toISOString().split('T')[0],
+                  subtaskCount: task.subtasks?.length || 0,
+                }))
+              }
+
+              console.log('[ChatUseCase] Returning result:', JSON.stringify(result, null, 2))
+              return result
+            } catch (error) {
+              console.error('[ChatUseCase] Error in listTasks tool:', error)
+              return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to list tasks'
+              }
             }
           }
         })
