@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { CreateTaskUseCase } from '../tasks/CreateTaskUseCase'
 import { GetAllTasksUseCase } from '../tasks/GetAllTasksUseCase'
 import { TaskFilters } from '../../domain/entities/Task'
+import { chatLogger } from '../../infrastructure/logger/Logger'
 
 export interface ChatRequest {
   messages: Array<{
@@ -21,6 +22,12 @@ export class ChatUseCase {
 
   async execute(request: ChatRequest) {
     const { messages, userId } = request
+
+    chatLogger.info('ChatUseCase.execute called', {
+      userId,
+      messageCount: messages.length,
+      lastMessage: messages[messages.length - 1]?.content?.substring(0, 100)
+    })
 
     const result = streamText({
       model: this.model,
@@ -53,7 +60,9 @@ Be concise, helpful, and action-oriented.`,
           }),
           execute: async ({ name, importance, complexity, plannedDate, dueDate, note }) => {
             try {
-              console.log('[ChatUseCase] createTask tool called with:', { name, importance, complexity, plannedDate, dueDate, userId })
+              chatLogger.info('createTask tool called', {
+                name, importance, complexity, plannedDate, dueDate, userId
+              })
 
               const result = await this.createTaskUseCase.execute({
                 name,
@@ -66,8 +75,11 @@ Be concise, helpful, and action-oriented.`,
               })
 
               if (result.success) {
-                console.log('[ChatUseCase] Task created successfully:', result.data!.id)
-                return {
+                chatLogger.info('createTask tool succeeded', {
+                  taskId: result.data!.id,
+                  taskName: result.data!.name
+                })
+                const toolResult = {
                   success: true,
                   task: {
                     id: result.data!.id,
@@ -78,15 +90,17 @@ Be concise, helpful, and action-oriented.`,
                     dueDate: result.data!.dueDate?.toISOString().split('T')[0],
                   }
                 }
+                chatLogger.debug('createTask tool result', toolResult)
+                return toolResult
               } else {
-                console.error('[ChatUseCase] Failed to create task:', result.error)
+                chatLogger.error('createTask tool failed', result.error)
                 return {
                   success: false,
                   error: result.error
                 }
               }
             } catch (error) {
-              console.error('[ChatUseCase] Error in createTask tool:', error)
+              chatLogger.error('createTask tool exception', error)
               return {
                 success: false,
                 error: error instanceof Error ? error.message : 'Failed to create task'
@@ -105,7 +119,9 @@ Be concise, helpful, and action-oriented.`,
           }),
           execute: async ({ importance, complexity, search, limit = 20 }) => {
             try {
-              console.log('[ChatUseCase] listTasks tool called with:', { importance, complexity, search, limit, userId })
+              chatLogger.info('listTasks tool called', {
+                importance, complexity, search, limit, userId
+              })
 
               // Build filters object only with defined values
               const filters: Partial<TaskFilters> = {}
@@ -113,19 +129,22 @@ Be concise, helpful, and action-oriented.`,
               if (complexity !== undefined) filters.complexity = complexity
               if (search !== undefined) filters.search = search
 
-              console.log('[ChatUseCase] Fetching tasks with filters:', filters)
+              chatLogger.debug('listTasks fetching with filters', filters)
 
               const tasks = await this.getAllTasksUseCase.executeRootTasks(
                 userId,
                 Object.keys(filters).length > 0 ? filters as TaskFilters : undefined
               )
 
-              console.log('[ChatUseCase] Tasks fetched:', tasks.length)
+              chatLogger.info('listTasks fetched tasks', {
+                totalTasks: tasks.length,
+                willReturnCount: Math.min(tasks.length, limit)
+              })
 
               // Limit results
               const limitedTasks = tasks.slice(0, limit)
 
-              const result = {
+              const toolResult = {
                 success: true,
                 count: limitedTasks.length,
                 total: tasks.length,
@@ -141,10 +160,17 @@ Be concise, helpful, and action-oriented.`,
                 }))
               }
 
-              console.log('[ChatUseCase] Returning result:', JSON.stringify(result, null, 2))
-              return result
+              chatLogger.debug('listTasks tool result', {
+                success: true,
+                count: toolResult.count,
+                total: toolResult.total,
+                sampleTask: toolResult.tasks[0]
+              })
+
+              chatLogger.info('listTasks tool completed successfully')
+              return toolResult
             } catch (error) {
-              console.error('[ChatUseCase] Error in listTasks tool:', error)
+              chatLogger.error('listTasks tool exception', error)
               return {
                 success: false,
                 error: error instanceof Error ? error.message : 'Failed to list tasks'
