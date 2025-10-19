@@ -279,14 +279,40 @@ export class PrismaTaskRepository implements TaskRepository {
     const { subtasks, tags, ...cleanTaskData } = taskData as any
 
     const task = await this.prisma.$transaction(async (tx: any) => {
-      // Get current task to check if importance/complexity changed
+      // Get current task to check if importance/complexity changed and completion status
       const currentTask = await tx.task.findUnique({
         where: { id },
-        select: { importance: true, complexity: true }
+        select: { importance: true, complexity: true, isCompleted: true, userId: true }
       })
 
       if (!currentTask) {
         throw new Error(`Task with id ${id} not found`)
+      }
+
+      // Check if task is being marked as completed
+      const isBeingCompleted = cleanTaskData.isCompleted === true && !currentTask.isCompleted
+
+      if (isBeingCompleted) {
+        // Get all descendant task IDs to mark them as completed too
+        const descendantIds = await this.getAllDescendantIdsInTransaction(tx, id, currentTask.userId)
+        const allIdsToComplete = [id, ...descendantIds]
+
+        // Mark all tasks (parent + all descendants) as completed
+        const completedAt = cleanTaskData.completedAt || new Date()
+        await Promise.all(
+          allIdsToComplete.map(taskId =>
+            tx.task.updateMany({
+              where: {
+                id: taskId,
+                userId: currentTask.userId
+              },
+              data: {
+                isCompleted: true,
+                completedAt
+              }
+            })
+          )
+        )
       }
 
       // Prepare update data
@@ -420,15 +446,30 @@ export class PrismaTaskRepository implements TaskRepository {
   }
 
   async markAsCompleted(id: string, userId: string): Promise<TaskWithSubtasks> {
-    const task = await this.prisma.task.update({
-      where: {
-        id,
-        userId // Security: ensure user owns the task
-      },
-      data: {
-        isCompleted: true,
-        completedAt: new Date()
-      },
+    // Get all descendant task IDs to mark them as completed too
+    const descendantIds = await this.getAllDescendantIds(id, userId)
+    const allIdsToComplete = [id, ...descendantIds]
+
+    // Mark all tasks (parent + all descendants) as completed in a transaction
+    const completedAt = new Date()
+    await this.prisma.$transaction(
+      allIdsToComplete.map(taskId =>
+        this.prisma.task.updateMany({
+          where: {
+            id: taskId,
+            userId // Security: ensure user owns the task
+          },
+          data: {
+            isCompleted: true,
+            completedAt
+          }
+        })
+      )
+    )
+
+    // Fetch and return the updated task with all its subtasks
+    const task = await this.prisma.task.findUnique({
+      where: { id },
       include: {
         tags: {
           include: {
@@ -449,7 +490,63 @@ export class PrismaTaskRepository implements TaskRepository {
       }
     })
 
+    if (!task) {
+      throw new Error('Task not found after completion')
+    }
+
     return this.formatTaskWithSubtasks(task)
+  }
+
+  /**
+   * Recursively get all descendant task IDs (children, grandchildren, etc.)
+   */
+  private async getAllDescendantIds(parentId: string, userId: string): Promise<string[]> {
+    const children = await this.prisma.task.findMany({
+      where: {
+        parentId,
+        userId
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (children.length === 0) {
+      return []
+    }
+
+    const childIds = children.map(c => c.id)
+    const grandchildIds = await Promise.all(
+      childIds.map(childId => this.getAllDescendantIds(childId, userId))
+    )
+
+    return [...childIds, ...grandchildIds.flat()]
+  }
+
+  /**
+   * Recursively get all descendant task IDs within a transaction
+   */
+  private async getAllDescendantIdsInTransaction(tx: any, parentId: string, userId: string): Promise<string[]> {
+    const children = await tx.task.findMany({
+      where: {
+        parentId,
+        userId
+      },
+      select: {
+        id: true
+      }
+    })
+
+    if (children.length === 0) {
+      return []
+    }
+
+    const childIds = children.map((c: { id: string }) => c.id)
+    const grandchildIds = await Promise.all(
+      childIds.map((childId: string) => this.getAllDescendantIdsInTransaction(tx, childId, userId))
+    )
+
+    return [...childIds, ...grandchildIds.flat()]
   }
 
   async getCompletionStats(userId: string): Promise<CompletionStats> {
