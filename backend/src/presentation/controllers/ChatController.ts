@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { ChatUseCase } from '../../usecases/chat/ChatUseCase'
-import { convertToModelMessages, UIMessage } from 'ai'
 import { chatLogger } from '../../infrastructure/logger/Logger'
 
 export class ChatController {
@@ -16,7 +15,7 @@ export class ChatController {
         hasAuth: !!req.headers.authorization
       })
 
-      const { messages }: { messages: UIMessage[] } = req.body
+      const { messages } = req.body
       const userId = (req as any).user?.userId
 
       chatLogger.debug(`[${requestId}] Request details`, {
@@ -43,17 +42,10 @@ export class ChatController {
         return
       }
 
-      chatLogger.info(`[${requestId}] Converting messages to model format`)
-      // Convert UI messages to model messages format
-      const modelMessages = convertToModelMessages(messages)
-
       chatLogger.info(`[${requestId}] Executing ChatUseCase`)
       // Execute chat use case with streaming
       const result = await this.chatUseCase.execute({
-        messages: modelMessages as Array<{
-          role: 'user' | 'assistant'
-          content: string
-        }>,
+        messages,
         userId
       })
 
@@ -95,10 +87,16 @@ export class ChatController {
         res.end()
       }
     } catch (error) {
-      chatLogger.error(`[${requestId}] Chat error`, error)
+      chatLogger.error(`[${requestId}] Chat error`, {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        errorType: error?.constructor?.name,
+        errorDetails: error
+      })
       if (!res.headersSent) {
         res.status(500).json({
-          error: 'An error occurred while processing your request'
+          error: 'An error occurred while processing your request',
+          details: error instanceof Error ? error.message : 'Unknown error'
         })
       }
     }

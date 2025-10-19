@@ -20,6 +20,14 @@ export class ChatUseCase {
     private getAllTasksUseCase: GetAllTasksUseCase
   ) {}
 
+  // Helper to safely convert date to ISO string
+  private toIsoDate(date: Date | string | undefined | null): string | undefined {
+    if (!date) return undefined
+    if (date instanceof Date) return date.toISOString().split('T')[0]
+    if (typeof date === 'string') return date.split('T')[0]
+    return undefined
+  }
+
   async execute(request: ChatRequest) {
     const { messages, userId } = request
 
@@ -79,6 +87,7 @@ Be concise, helpful, and action-oriented.`,
                   taskId: result.data!.id,
                   taskName: result.data!.name
                 })
+
                 const toolResult = {
                   success: true,
                   task: {
@@ -86,8 +95,8 @@ Be concise, helpful, and action-oriented.`,
                     name: result.data!.name,
                     importance: result.data!.importance,
                     complexity: result.data!.complexity,
-                    plannedDate: result.data!.plannedDate?.toISOString().split('T')[0],
-                    dueDate: result.data!.dueDate?.toISOString().split('T')[0],
+                    plannedDate: this.toIsoDate(result.data!.plannedDate),
+                    dueDate: this.toIsoDate(result.data!.dueDate),
                   }
                 }
                 chatLogger.debug('createTask tool result', toolResult)
@@ -100,7 +109,10 @@ Be concise, helpful, and action-oriented.`,
                 }
               }
             } catch (error) {
-              chatLogger.error('createTask tool exception', error)
+              chatLogger.error('createTask tool exception', {
+                message: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+              })
               return {
                 success: false,
                 error: error instanceof Error ? error.message : 'Failed to create task'
@@ -154,8 +166,8 @@ Be concise, helpful, and action-oriented.`,
                   importance: task.importance,
                   complexity: task.complexity,
                   isCompleted: task.isCompleted,
-                  plannedDate: task.plannedDate?.toISOString().split('T')[0],
-                  dueDate: task.dueDate?.toISOString().split('T')[0],
+                  plannedDate: this.toIsoDate(task.plannedDate),
+                  dueDate: this.toIsoDate(task.dueDate),
                   subtaskCount: task.subtasks?.length || 0,
                 }))
               }
