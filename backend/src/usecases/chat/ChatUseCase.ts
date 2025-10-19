@@ -57,12 +57,32 @@ export class ChatUseCase {
 You can help users manage tasks and tags with full CRUD operations.
 
 TASK MANAGEMENT:
-- Create tasks with name, importance (0-5), complexity (1-9), dates, links, notes, and tags
+- Create tasks with name, importance (0-50), complexity (1-9), dates, links, notes, and tags
 - List and filter tasks by various criteria
 - Update any task property
 - Mark tasks as completed
 - Delete tasks
 - Default importance is 0 for collected tasks that need categorization
+
+IMPORTANCE SCALE (0-50):
+- 0 = Uncategorized/collected (needs review)
+- 1-10 = Low importance
+- 11-25 = Medium importance
+- 26-40 = High importance
+- 41-50 = Maximum/Critical importance
+- When user says "maximum importance" or "highest priority", use 50
+- When user says "high importance", use 35-40
+- When user says "medium importance", use 20-25
+- When user says "low importance", use 5-10
+
+COMPLEXITY SCALE (1-9):
+- 1-3 = Simple/Easy tasks
+- 4-6 = Medium complexity
+- 7-9 = Complex/Difficult tasks
+- When user says "maximum complexity" or "very complex", use 9
+- When user says "high complexity", use 7-8
+- When user says "medium complexity", use 5-6
+- When user says "low complexity" or "simple", use 2-3
 
 TAG MANAGEMENT:
 - Create tags with name and color
@@ -87,8 +107,8 @@ Be concise, helpful, and action-oriented.`,
           description: 'Create a new task in the GTD system. Use this when the user wants to add a task, create a todo, or remember something. Can include links, notes, tags, and dates.',
           inputSchema: z.object({
             name: z.string().describe('The task name or description'),
-            importance: z.number().min(0).max(5).optional().describe('Task importance (0-5), where 0 means uncategorized/collected, default is 0'),
-            complexity: z.number().min(1).max(9).optional().describe('Task complexity (1-9), default is 3'),
+            importance: z.number().min(0).max(50).optional().describe('Task importance (0-50), where 0 means uncategorized/collected, 1-10 is low, 11-25 is medium, 26-40 is high, 41-50 is maximum/critical. Default is 0'),
+            complexity: z.number().min(1).max(9).optional().describe('Task complexity (1-9), where 1-3 is simple, 4-6 is medium, 7-9 is complex/difficult. Default is 3'),
             plannedDate: z.string().optional().describe('When to do the task (ISO date string: YYYY-MM-DD)'),
             dueDate: z.string().optional().describe('Task deadline (ISO date string: YYYY-MM-DD)'),
             link: z.string().optional().describe('A URL link related to the task'),
@@ -156,7 +176,7 @@ Be concise, helpful, and action-oriented.`,
         listTasks: tool({
           description: 'List and filter tasks from the GTD system. Use this when the user wants to see their tasks, check what needs to be done, or query their task list. Only shows active (not completed) tasks by default.',
           inputSchema: z.object({
-            importance: z.number().min(0).max(5).optional().describe('Filter by importance (0-5)'),
+            importance: z.number().min(0).max(50).optional().describe('Filter by importance (0-50)'),
             complexity: z.number().min(1).max(9).optional().describe('Filter by complexity (1-9)'),
             search: z.string().optional().describe('Search tasks by name'),
             limit: z.number().optional().describe('Maximum number of tasks to return, default is 20'),
@@ -220,7 +240,7 @@ Be concise, helpful, and action-oriented.`,
           inputSchema: z.object({
             taskId: z.string().describe('The ID of the task to update'),
             name: z.string().optional().describe('New task name'),
-            importance: z.number().min(0).max(5).optional().describe('New importance (0-5)'),
+            importance: z.number().min(0).max(50).optional().describe('New importance (0-50)'),
             complexity: z.number().min(1).max(9).optional().describe('New complexity (1-9)'),
             plannedDate: z.string().optional().nullable().describe('New planned date (ISO: YYYY-MM-DD) or null to remove'),
             dueDate: z.string().optional().nullable().describe('New due date (ISO: YYYY-MM-DD) or null to remove'),

@@ -81,7 +81,8 @@ describe('Chat API - /api/chat', () => {
       const task = tasks[0]
       expect(task.name).toBe('Buy milk')
       expect(task.importance).toBe(0) // Default for collected tasks
-      expect(task.complexity).toBe(3) // Default complexity
+      expect(task.complexity).toBeGreaterThanOrEqual(1) // AI chooses complexity based on task
+      expect(task.complexity).toBeLessThanOrEqual(9) // Valid complexity range
     })
 
     it('should create a task with specific importance and complexity via chat', async () => {
