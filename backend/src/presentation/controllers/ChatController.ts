@@ -5,6 +5,35 @@ import { chatLogger } from '../../infrastructure/logger/Logger'
 export class ChatController {
   constructor(private chatUseCase: ChatUseCase) {}
 
+  // Helper to convert UIMessage format to simple format
+  private convertUIMessagesToSimple(messages: any[]): Array<{ role: 'user' | 'assistant', content: string }> {
+    return messages.map(msg => {
+      // If message already has role and content (simple format), use it as-is
+      if (msg.role && msg.content && typeof msg.content === 'string') {
+        return { role: msg.role, content: msg.content }
+      }
+
+      // If message has parts (UIMessage format), extract text from parts
+      if (msg.parts && Array.isArray(msg.parts)) {
+        const textParts = msg.parts
+          .filter((part: any) => part.type === 'text')
+          .map((part: any) => part.text)
+          .join('\n')
+
+        return {
+          role: msg.role || 'user',
+          content: textParts || ''
+        }
+      }
+
+      // Fallback: treat the whole message as content
+      return {
+        role: msg.role || 'user',
+        content: String(msg.content || msg.text || '')
+      }
+    })
+  }
+
   chat = async (req: Request, res: Response): Promise<void> => {
     const requestId = Math.random().toString(36).substring(7)
 
@@ -20,7 +49,8 @@ export class ChatController {
 
       chatLogger.debug(`[${requestId}] Request details`, {
         messagesCount: messages?.length,
-        userId: userId || 'MISSING'
+        userId: userId || 'MISSING',
+        firstMessage: messages?.[0]
       })
 
       if (!messages || !Array.isArray(messages)) {
@@ -42,10 +72,19 @@ export class ChatController {
         return
       }
 
+      // Convert UIMessage format to simple format
+      const simpleMessages = this.convertUIMessagesToSimple(messages)
+
+      chatLogger.debug(`[${requestId}] Converted messages`, {
+        original: messages.length,
+        converted: simpleMessages.length,
+        sample: simpleMessages[0]
+      })
+
       chatLogger.info(`[${requestId}] Executing ChatUseCase`)
       // Execute chat use case with streaming
       const result = await this.chatUseCase.execute({
-        messages,
+        messages: simpleMessages,
         userId
       })
 
