@@ -4,14 +4,15 @@ import { useEffect, useRef } from 'react'
 import { ChatMessage } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+// Use relative URL in production, localhost in development
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const { messages, sendMessage, isLoading } = useChat({
     transport: new DefaultChatTransport({
-      api: `${API_BASE_URL}/api/chat`,
+      api: API_BASE_URL ? `${API_BASE_URL}/api/chat` : '/api/chat',
       headers: async () => {
         const token = localStorage.getItem('token')
         if (!token) {

@@ -6,25 +6,31 @@ import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
 import { createChatRoutes } from './presentation/routes/chatRoutes'
 import authRoutes from './presentation/routes/authRoutes'
+import { loadEnvironment } from './config/env'
 
 const app: Application = express()
-const PORT = process.env.PORT || 3000
+const env = loadEnvironment()
+const PORT = env.PORT
 
-// Configuration CORS
+// Configuration CORS - use environment variable or default to localhost
+const corsOrigins = env.CORS_ORIGINS.length > 0 ? env.CORS_ORIGINS : [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5176',
+  'http://localhost:5177',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+  'http://127.0.0.1:5175',
+  'http://127.0.0.1:5176',
+  'http://127.0.0.1:5177'
+]
+
+console.log('CORS origins configured:', corsOrigins)
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175',
-      'http://localhost:5176',
-      'http://localhost:5177',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:5174',
-      'http://127.0.0.1:5175',
-      'http://127.0.0.1:5176',
-      'http://127.0.0.1:5177'
-    ],
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
