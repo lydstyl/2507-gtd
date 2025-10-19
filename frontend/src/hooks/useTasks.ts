@@ -135,8 +135,8 @@ export function useDeleteAllTasks() {
   return useMutation({
     mutationFn: tasksApi.deleteAllTasks,
     onSuccess: () => {
-      // Clear all task-related cache
-      queryClient.removeQueries({ queryKey: TASKS_QUERY_KEYS.all })
+      // Invalidate all task-related queries to trigger refetch
+      queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEYS.all })
     },
   })
 }

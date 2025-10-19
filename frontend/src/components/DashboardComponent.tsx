@@ -3,7 +3,7 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { Dashboard } from './Dashboard'
 import { useCurrentUser, useLogout } from '../hooks/useAuth'
-import { useAllTasks } from '../hooks/useTasks'
+import { useAllTasks, useDeleteAllTasks } from '../hooks/useTasks'
 import { api } from '../utils/api'
 
 export function DashboardComponent() {
@@ -11,6 +11,7 @@ export function DashboardComponent() {
   const { data: user } = useCurrentUser()
   const { data: tasks = [] } = useAllTasks()
   const logout = useLogout()
+  const deleteAllTasks = useDeleteAllTasks()
 
   const handleLogout = () => {
     logout()
@@ -76,7 +77,7 @@ export function DashboardComponent() {
           })
         }}
         onMarkCompleted={handleMarkCompleted}
-        onRefreshTasks={() => {}}
+        onDeleteAllTasks={() => deleteAllTasks.mutate()}
       />
       <Footer />
     </div>

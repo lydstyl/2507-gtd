@@ -5,7 +5,6 @@ import { QuickActions } from './QuickActions'
 import { RecentTasks } from './RecentTasks'
 import { CSVImportExport } from './CSVImportExport'
 import { CompletionStats } from './CompletionStats'
-import { useState } from 'react'
 import { api } from '../utils/api'
 import { useTags } from '../hooks/useTags'
 
@@ -21,7 +20,7 @@ interface DashboardProps {
   onAssignParent?: (task: Task) => void
   onEditNote?: (task: Task) => void
   onMarkCompleted?: (taskId: string) => void
-  onRefreshTasks?: () => void
+  onDeleteAllTasks?: () => void
 }
 
 export function Dashboard({
@@ -36,29 +35,20 @@ export function Dashboard({
   onAssignParent,
   onEditNote,
   onMarkCompleted,
-  onRefreshTasks
+  onDeleteAllTasks
 }: DashboardProps) {
   const completedTasks = tasks.filter((task) => task.isCompleted)
   const activeTasks = tasks.filter((task) => !task.isCompleted)
-  const [deleting, setDeleting] = useState(false)
   const { data: tags = [] } = useTags()
 
-  const handleDeleteAllTasks = async () => {
+  const handleDeleteAllTasks = () => {
     if (
       !window.confirm(
         'Voulez-vous vraiment supprimer TOUTES vos tâches ? Cette action est irréversible.'
       )
     )
       return
-    setDeleting(true)
-    try {
-      await api.deleteAllTasks()
-      if (onRefreshTasks) onRefreshTasks()
-     } catch {
-       alert('Erreur lors de la suppression des tâches.')
-     } finally {
-      setDeleting(false)
-    }
+    if (onDeleteAllTasks) onDeleteAllTasks()
   }
 
   const handleToggleCompleted = async (taskId: string, isCompleted: boolean) => {
@@ -113,15 +103,12 @@ export function Dashboard({
           </div>
 
           <div className='mt-8 flex flex-col gap-4'>
-            <CSVImportExport onImportSuccess={onRefreshTasks || (() => {})} />
+            <CSVImportExport onImportSuccess={() => {}} />
             <button
-              className='bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow disabled:opacity-60'
+              className='bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow'
               onClick={handleDeleteAllTasks}
-              disabled={deleting}
             >
-              {deleting
-                ? 'Suppression en cours...'
-                : 'Supprimer toutes mes tâches'}
+              Supprimer toutes mes tâches
             </button>
           </div>
         </div>
