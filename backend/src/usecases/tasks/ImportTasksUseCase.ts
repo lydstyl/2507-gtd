@@ -112,13 +112,12 @@ export class ImportTasksUseCase {
                 importErrors.push(
                   `Erreur interne: la tâche parente "${taskData.parentName}" existe mais n'a pas été importée pour "${taskData.name}"`
                 )
-                continue
               } else {
-                // Parent task doesn't exist in CSV (likely because it was completed and excluded from export)
-                // Import the task as a root task instead of failing
-                console.log(`⚠️ Tâche parente "${taskData.parentName}" introuvable pour "${taskData.name}". La tâche sera importée comme tâche racine.`)
-                parentId = undefined
+                importErrors.push(
+                  `Impossible de trouver la tâche parente "${taskData.parentName}" pour "${taskData.name}". Vérifiez que le nom correspond exactement à une tâche dans le CSV.`
+                )
               }
+              continue
             }
           }
         }

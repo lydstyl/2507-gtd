@@ -561,22 +561,16 @@ describe('CSV Import Tests', () => {
       console.log('Erreurs:', importRes.body.errors)
     }
 
-    // Both tasks should be imported (orphaned task becomes a root task)
-    expect(importRes.body.importedCount).toBe(2)
-    expect(importRes.body.errors).toHaveLength(0)
+    // Only valid task should be imported (child task with missing parent is rejected)
+    expect(importRes.body.importedCount).toBe(1)
+    expect(importRes.body.errors).toHaveLength(1)
+    expect(importRes.body.errors[0]).toMatch(/NonExistent Parent/)
 
     const tasks = await prisma.task.findMany({ where: { userId } })
-    expect(tasks).toHaveLength(2)
+    expect(tasks).toHaveLength(1)
+    expect(tasks[0].name).toBe('Valid Task')
 
-    // Both tasks should be root tasks (no parent)
-    const validTask = tasks.find(t => t.name === 'Valid Task')
-    const childTask = tasks.find(t => t.name === 'Child Task')
-    expect(validTask).toBeDefined()
-    expect(validTask?.parentId).toBeNull()
-    expect(childTask).toBeDefined()
-    expect(childTask?.parentId).toBeNull()
-
-    console.log('✅ Missing parent handled correctly (orphaned task imported as root task)!')
+    console.log('✅ Missing parent handled correctly (task with missing parent rejected)!')
   })
 
   test('should handle case-insensitive parent name matching', async () => {
