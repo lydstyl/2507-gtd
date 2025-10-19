@@ -16,10 +16,21 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
   const [editingTag, setEditingTag] = useState<Tag | null>(null)
   const [draggedTag, setDraggedTag] = useState<Tag | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       loadTags()
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden'
+    } else {
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = 'unset'
+    }
+
+    // Cleanup function to restore scroll on unmount
+    return () => {
+      document.body.style.overflow = 'unset'
     }
   }, [isOpen])
 
@@ -107,10 +118,73 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
     setDragOverIndex(null)
   }
 
+  // Touch event handlers for mobile support
+  const handleTouchStart = (_e: React.TouchEvent<HTMLLIElement>, tag: Tag) => {
+    setDraggedTag(tag)
+    setIsDragging(true)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLUListElement>) => {
+    if (!draggedTag || !isDragging) return
+
+    // Prevent page scrolling while dragging
+    e.preventDefault()
+
+    const touch = e.touches[0]
+    const element = document.elementFromPoint(touch.clientX, touch.clientY)
+
+    if (element) {
+      const tagElement = element.closest('[data-tag-index]')
+      if (tagElement) {
+        const index = parseInt(tagElement.getAttribute('data-tag-index') || '0')
+        setDragOverIndex(index)
+      }
+    }
+  }
+
+  const handleTouchEnd = async () => {
+    if (!draggedTag || dragOverIndex === null) {
+      setDraggedTag(null)
+      setDragOverIndex(null)
+      setIsDragging(false)
+      return
+    }
+
+    const dragIndex = tags.findIndex(tag => tag.id === draggedTag.id)
+    if (dragIndex === dragOverIndex) {
+      setDraggedTag(null)
+      setDragOverIndex(null)
+      setIsDragging(false)
+      return
+    }
+
+    // Create new array with reordered tags
+    const newTags = [...tags]
+    const [movedTag] = newTags.splice(dragIndex, 1)
+    newTags.splice(dragOverIndex, 0, movedTag)
+
+    // Update positions
+    const tagPositions = newTags.map((tag, index) => ({
+      id: tag.id,
+      position: index
+    }))
+
+    try {
+      await api.updateTagPositions(tagPositions)
+      setTags(newTags.map((tag, index) => ({ ...tag, position: index })))
+     } catch {
+       setError("Erreur lors de la mise à jour des positions des tags")
+     }
+
+    setDraggedTag(null)
+    setDragOverIndex(null)
+    setIsDragging(false)
+  }
+
   if (!isOpen) return null
 
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-hidden'>
       <div className='bg-white rounded-lg shadow-xl max-w-md w-full mx-4'>
         <div className='px-6 py-4 border-b border-gray-200 flex items-center justify-between'>
           <h3 className='text-lg font-semibold text-gray-900'>Gérer les tags</h3>
@@ -131,17 +205,23 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
           ) : tags.length === 0 ? (
             <div className='text-center text-gray-500'>Aucun tag</div>
           ) : (
-            <ul className='divide-y divide-gray-200'>
+            <ul
+              className='divide-y divide-gray-200'
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               {tags.map((tag, index) => (
                 <li
                   key={tag.id}
+                  data-tag-index={index}
                   draggable
                   onDragStart={(e) => handleDragStart(e, tag)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
-                  className={`flex items-center justify-between py-2 cursor-move transition-all duration-200 ${
+                  onTouchStart={(e) => handleTouchStart(e, tag)}
+                  className={`flex items-center justify-between py-2 cursor-move transition-all duration-200 touch-none select-none ${
                     draggedTag?.id === tag.id ? 'opacity-50' : ''
                   } ${
                     dragOverIndex === index ? 'bg-blue-50 border-blue-200' : ''
