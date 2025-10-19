@@ -82,8 +82,8 @@ export class ChatController {
       })
 
       chatLogger.info(`[${requestId}] Executing ChatUseCase`)
-      // Execute chat use case with streaming
-      const result = await this.chatUseCase.execute({
+      // Execute chat use case with streaming (streamText returns synchronously)
+      const result = this.chatUseCase.execute({
         messages: simpleMessages,
         userId
       })

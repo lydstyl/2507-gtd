@@ -105,9 +105,32 @@ export class Container {
 
   getChatController(): ChatController {
     const model = LLMProviderFactory.createFromEnv()
+
+    // Task use cases
     const createTaskUseCase = new CreateTaskUseCase(this.taskRepository)
     const getAllTasksUseCase = new GetAllTasksUseCase(this.taskRepository)
-    const chatUseCase = new ChatUseCase(model, createTaskUseCase, getAllTasksUseCase)
+    const updateTaskUseCase = new UpdateTaskUseCase(this.taskRepository)
+    const deleteTaskUseCase = new DeleteTaskUseCase(this.taskRepository)
+    const markTaskAsCompletedUseCase = new MarkTaskAsCompletedUseCase(this.taskRepository)
+
+    // Tag use cases
+    const createTagUseCase = new CreateTagUseCase(this.tagRepository)
+    const getAllTagsUseCase = new GetAllTagsUseCase(this.tagRepository)
+    const updateTagUseCase = new UpdateTagUseCase(this.tagRepository)
+    const deleteTagUseCase = new DeleteTagUseCase(this.tagRepository)
+
+    const chatUseCase = new ChatUseCase(
+      model,
+      createTaskUseCase,
+      getAllTasksUseCase,
+      updateTaskUseCase,
+      deleteTaskUseCase,
+      markTaskAsCompletedUseCase,
+      createTagUseCase,
+      getAllTagsUseCase,
+      updateTagUseCase,
+      deleteTagUseCase
+    )
 
     return new ChatController(chatUseCase)
   }
