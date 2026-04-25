@@ -46,9 +46,9 @@ cd gtd-app
 
 npm run install:all
 
-# Configurer l'environnement backend
-cp backend/.env.example backend/.env
-# Éditer backend/.env : DATABASE_URL, JWT_SECRET, LLM_PROVIDER, clé API...
+# Copier et remplir les variables d'environnement (un seul fichier à la racine)
+cp .env.example .env
+# Éditer .env : DATABASE_URL, JWT_SECRET, LLM_PROVIDER, clé API...
 
 cd backend
 npm run db:migrate   # Appliquer les migrations
@@ -67,16 +67,18 @@ La façon la plus simple de développer avec PostgreSQL sans l'installer localem
 
 ```bash
 # Démarrer seulement postgres (le port 5432 est exposé grâce au docker-compose.override.yml)
-DB_PASSWORD=monpass JWT_SECRET=unused docker compose up postgres -d
+docker compose up postgres -d
 
-# Configurer backend/.env pour pointer vers ce postgres
-# DATABASE_URL=postgresql://gtd_user:monpass@localhost:5432/gtd_production
-
+# Appliquer les migrations puis lancer le dev
 cd backend && npm run db:migrate && cd ..
 npm run dev   # Développement normal avec hot-reload
 ```
 
-Pour arrêter : `DB_PASSWORD=monpass JWT_SECRET=unused docker compose down`
+Quand tu as fini de travailler :
+
+```bash
+docker compose down   # Arrête postgres (les données sont conservées)
+```
 
 ### Dev vs Prod — quelle base de données ?
 
@@ -86,7 +88,7 @@ Pour arrêter : `DB_PASSWORD=monpass JWT_SECRET=unused docker compose down`
 | **Backend** | `npm run dev` (nodemon, hot-reload) | Container Docker |
 | **Frontend** | `npm run dev` (Vite HMR, :5173) | Container Docker (nginx, :80) |
 | **Migrations** | `npm run db:migrate` manuellement | Automatique au démarrage du container |
-| **Variables** | `backend/.env` | `.env` à la racine (chargé par docker compose) |
+| **Variables** | `.env` à la racine | `.env` à la racine (chargé par docker compose) |
 
 > Les données de dev et de prod ne se partagent jamais — volumes Docker distincts, mots de passe distincts.
 
@@ -135,27 +137,27 @@ Pour arrêter : `DB_PASSWORD=monpass JWT_SECRET=unused docker compose down`
 
 ## Variables d'environnement
 
-### Pour Docker (`/.env`)
-
-Copier `.env.example` :
+Un seul fichier `.env` à la racine — copier [`.env.example`](.env.example) :
 
 ```env
+# Base de données (Docker)
 DB_PASSWORD=mot_de_passe_securise
-JWT_SECRET=chaine_aleatoire_longue
-CORS_ORIGINS=https://ton-domaine.com
-LLM_PROVIDER=openrouter          # anthropic | openai | openrouter
+
+# Base de données (développement local — même mot de passe)
+DATABASE_URL=postgresql://gtd_user:mot_de_passe_securise@localhost:5432/gtd_production
+
+# Application
+JWT_SECRET=chaine_aleatoire_longue_32_chars_min
+PORT=3000
+NODE_ENV=development
+CORS_ORIGINS=http://localhost:5173       # production : https://ton-domaine.com
+
+# Chatbot LLM
+LLM_PROVIDER=openrouter                  # anthropic | openai | openrouter
 OPENROUTER_API_KEY=sk-or-...
 ```
 
-### Pour le développement classique (`/backend/.env`)
-
-```env
-DATABASE_URL=postgresql://gtd_user:monpass@localhost:5432/gtd_production
-JWT_SECRET=dev_secret
-CORS_ORIGINS=http://localhost:5173
-LLM_PROVIDER=openrouter
-OPENROUTER_API_KEY=sk-or-...
-```
+Le backend charge ce fichier automatiquement (dev et Docker). En production Docker, `CORS_ORIGINS` doit pointer vers ton domaine.
 
 ## Architecture
 

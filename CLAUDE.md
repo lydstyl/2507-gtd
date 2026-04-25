@@ -97,12 +97,14 @@ JWT stored in localStorage. All API routes under `/api` (except `/api/auth`) req
 
 ## Environment Setup
 
-Copy `backend/.env.example` to `backend/.env`. Key variables:
+Copy `.env.example` to `.env` at the project root — single file used by both local dev and Docker. Key variables:
 
-- `DATABASE_URL` — SQLite path for dev, PostgreSQL URL for prod
+- `DB_PASSWORD` — PostgreSQL password for Docker; `DATABASE_URL` uses the same password for local dev
 - `JWT_SECRET` — change from default in production
 - `CORS_ORIGINS` — comma-separated allowed origins
 - `LLM_PROVIDER` / `ANTHROPIC_API_KEY` — for chatbot feature
+
+Backend loads this file via `config({ path: '../.env' })` (CWD = `backend/` in dev). Docker injects env vars directly from docker-compose, dotenv is a no-op.
 
 ## Port Configuration
 

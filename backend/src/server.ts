@@ -1,6 +1,6 @@
 import { config } from 'dotenv'
-// Load environment variables first
-config()
+// Load from root .env (dev: CWD=backend/, ../  = project root; Docker: env vars injected by compose)
+config({ path: '../.env' })
 
 import app from './app'
 import * as cron from 'node-cron'

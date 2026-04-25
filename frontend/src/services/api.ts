@@ -130,7 +130,7 @@ async function apiCallBlob(
 // Auth API
 export const authApi = {
   register: (credentials: RegisterCredentials) =>
-    apiCall<User>('/auth/register', {
+    apiCall<{ token: string; user: User }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(credentials)
     }),
