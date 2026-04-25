@@ -80,37 +80,37 @@ describe('Shared Domain Business Logic Integration', () => {
 
     it('should categorize overdue tasks', () => {
       const overdueTask = makeTask({
-        status: 'brouillon',
+        status: 'pret',
         plannedDate: '2025-01-14T10:00:00.000Z' // Yesterday
       })
-      expect(TaskPriorityService.getTaskCategory(overdueTask, dateContext)).toBe('overdue')
+      expect(TaskPriorityService.getTaskCategory(overdueTask, dateContext)).toBe('pret-overdue')
       expect(TaskPriorityService.isOverdueTask(overdueTask, dateContext)).toBe(true)
     })
 
     it('should categorize today tasks', () => {
       const todayTask = makeTask({
-        status: 'brouillon',
+        status: 'pret',
         plannedDate: '2025-01-15T15:00:00.000Z' // Today
       })
-      expect(TaskPriorityService.getTaskCategory(todayTask, dateContext)).toBe('today')
+      expect(TaskPriorityService.getTaskCategory(todayTask, dateContext)).toBe('pret-today')
       expect(TaskPriorityService.isTodayTask(todayTask, dateContext)).toBe(true)
     })
 
     it('should categorize tomorrow tasks', () => {
       const tomorrowTask = makeTask({
-        status: 'brouillon',
+        status: 'pret',
         plannedDate: '2025-01-16T10:00:00.000Z' // Tomorrow
       })
-      expect(TaskPriorityService.getTaskCategory(tomorrowTask, dateContext)).toBe('tomorrow')
+      expect(TaskPriorityService.getTaskCategory(tomorrowTask, dateContext)).toBe('pret-tomorrow')
       expect(TaskPriorityService.isTomorrowTask(tomorrowTask, dateContext)).toBe(true)
     })
 
     it('should categorize future tasks', () => {
       const futureTask = makeTask({
-        status: 'brouillon',
+        status: 'pret',
         plannedDate: '2025-01-18T10:00:00.000Z' // Future
       })
-      expect(TaskPriorityService.getTaskCategory(futureTask, dateContext)).toBe('future')
+      expect(TaskPriorityService.getTaskCategory(futureTask, dateContext)).toBe('pret-future')
       expect(TaskPriorityService.isFutureTask(futureTask, dateContext)).toBe(true)
     })
 
@@ -119,13 +119,13 @@ describe('Shared Domain Business Logic Integration', () => {
       expect(TaskPriorityService.getTaskCategory(somedayTask, dateContext)).toBe('un-jour')
     })
 
-    it('should prioritize urgent due dates over planned dates', () => {
+    it('should prioritize urgent due dates over planned dates for pret tasks', () => {
       const task = makeTask({
-        status: 'brouillon',
+        status: 'pret',
         plannedDate: '2025-01-20T10:00:00.000Z', // Future planned date
         dueDate: '2025-01-15T15:00:00.000Z' // Today urgent due date
       })
-      expect(TaskPriorityService.getTaskCategory(task, dateContext)).toBe('today')
+      expect(TaskPriorityService.getTaskCategory(task, dateContext)).toBe('pret-today')
       expect(TaskPriorityService.isTodayTask(task, dateContext)).toBe(true)
     })
   })
@@ -134,7 +134,7 @@ describe('Shared Domain Business Logic Integration', () => {
     const taskA = makeTask({
       id: 'task-a',
       name: 'Task A',
-      status: 'brouillon',
+      status: 'pret',
       importance: 30,
       complexity: 3,
       points: 100,
@@ -144,7 +144,7 @@ describe('Shared Domain Business Logic Integration', () => {
     const taskB = makeTask({
       id: 'task-b',
       name: 'Task B',
-      status: 'brouillon',
+      status: 'pret',
       importance: 20,
       complexity: 5,
       points: 40,
@@ -153,7 +153,7 @@ describe('Shared Domain Business Logic Integration', () => {
 
     it('should compare tasks by category priority', () => {
       const comparison = TaskPriorityService.compareByCategory(taskA, taskB, dateContext)
-      // Task A is 'today' (priority 5), Task B is 'tomorrow' (priority 6)
+      // Task A is 'pret-today' (priority 5), Task B is 'pret-tomorrow' (priority 6)
       expect(comparison).toBeLessThan(0)
     })
 
@@ -183,8 +183,8 @@ describe('Shared Domain Business Logic Integration', () => {
       expect(TaskPriorityService.getCategoryPriority('collected')).toBe(3)
     })
 
-    it('should have future as second-to-last priority', () => {
-      expect(TaskPriorityService.getCategoryPriority('future')).toBe(8)
+    it('should have pret-future as second-to-last priority', () => {
+      expect(TaskPriorityService.getCategoryPriority('pret-future')).toBe(8)
     })
 
     it('should maintain correct category priority ordering', () => {
@@ -192,11 +192,11 @@ describe('Shared Domain Business Logic Integration', () => {
         ['brouillon', 1],
         ['pour-ia', 2],
         ['collected', 3],
-        ['overdue', 4],
-        ['today', 5],
-        ['tomorrow', 6],
-        ['no-date', 7],
-        ['future', 8],
+        ['pret-overdue', 4],
+        ['pret-today', 5],
+        ['pret-tomorrow', 6],
+        ['pret-no-date', 7],
+        ['pret-future', 8],
         ['un-jour', 9]
       ]
       expected.forEach(([category, priority]) => {
@@ -248,7 +248,7 @@ describe('Shared Domain Business Logic Integration', () => {
 
     it('should handle urgent due dates that override planned dates', () => {
       const urgentDueTask = makeTask({
-        status: 'brouillon',
+        status: 'pret',
         importance: 30,
         complexity: 2,
         points: 150,
@@ -256,13 +256,13 @@ describe('Shared Domain Business Logic Integration', () => {
         dueDate: '2025-01-16T10:00:00.000Z' // Tomorrow (urgent)
       })
       expect(TaskPriorityService.isDateUrgent(urgentDueTask.dueDate!, dateContext)).toBe(true)
-      expect(TaskPriorityService.getTaskCategory(urgentDueTask, dateContext)).toBe('tomorrow')
+      expect(TaskPriorityService.getTaskCategory(urgentDueTask, dateContext)).toBe('pret-tomorrow')
       expect(TaskPriorityService.isTomorrowTask(urgentDueTask, dateContext)).toBe(true)
     })
 
     it('should handle tasks with both dates where due date is not urgent', () => {
       const nonUrgentDueTask = makeTask({
-        status: 'brouillon',
+        status: 'pret',
         importance: 25,
         complexity: 4,
         points: 62,
@@ -270,7 +270,7 @@ describe('Shared Domain Business Logic Integration', () => {
         dueDate: '2025-01-20T10:00:00.000Z' // Non-urgent due date
       })
       expect(TaskPriorityService.isDateUrgent(nonUrgentDueTask.dueDate!, dateContext)).toBe(false)
-      expect(TaskPriorityService.getTaskCategory(nonUrgentDueTask, dateContext)).toBe('future')
+      expect(TaskPriorityService.getTaskCategory(nonUrgentDueTask, dateContext)).toBe('pret-future')
       expect(TaskPriorityService.isFutureTask(nonUrgentDueTask, dateContext)).toBe(true)
     })
   })
@@ -295,11 +295,11 @@ describe('Shared Domain Business Logic Integration', () => {
       dueDate
     })
 
-    it('should sort brouillon tasks first, then collected, then overdue', () => {
+    it('should sort brouillon tasks first, then collected, then pret-overdue', () => {
       const brouillonTask = createTestTask('brouillon', 'Brouillon', 0, 3, 'brouillon')
       const collectedTask = createTestTask('collected', 'Collected', 0, 3, 'collecte')
-      const overdueTask = createTestTask('overdue', 'Overdue', 25, 5, 'brouillon', '2025-01-14T10:00:00.000Z')
-      const todayTask = createTestTask('today', 'Today', 25, 5, 'brouillon', '2025-01-15T10:00:00.000Z')
+      const overdueTask = createTestTask('overdue', 'Overdue', 25, 5, 'pret', '2025-01-14T10:00:00.000Z')
+      const todayTask = createTestTask('today', 'Today', 25, 5, 'pret', '2025-01-15T10:00:00.000Z')
 
       const tasks = [todayTask, collectedTask, overdueTask, brouillonTask]
       const sorted = [...tasks].sort((a, b) => TaskPriorityService.compareTasksPriority(a, b, dateContext))
@@ -311,8 +311,8 @@ describe('Shared Domain Business Logic Integration', () => {
     })
 
     it('should sort by importance within same category', () => {
-      const highImportanceToday = createTestTask('high-today', 'High Importance Today', 40, 2, 'brouillon', '2025-01-15T10:00:00.000Z')
-      const lowImportanceToday = createTestTask('low-today', 'Low Importance Today', 20, 5, 'brouillon', '2025-01-15T10:00:00.000Z')
+      const highImportanceToday = createTestTask('high-today', 'High Importance Today', 40, 2, 'pret', '2025-01-15T10:00:00.000Z')
+      const lowImportanceToday = createTestTask('low-today', 'Low Importance Today', 20, 5, 'pret', '2025-01-15T10:00:00.000Z')
 
       const tasks = [lowImportanceToday, highImportanceToday]
       const sorted = [...tasks].sort((a, b) => TaskPriorityService.compareTasksPriority(a, b, dateContext))
@@ -321,9 +321,9 @@ describe('Shared Domain Business Logic Integration', () => {
       expect(sorted[1].id).toBe('low-today')
     })
 
-    it('should sort overdue tasks by date then importance', () => {
-      const veryOverdue = createTestTask('very-overdue', 'Very Overdue', 30, 3, 'brouillon', '2025-01-13T10:00:00.000Z')
-      const lessOverdue = createTestTask('less-overdue', 'Less Overdue', 40, 2, 'brouillon', '2025-01-14T10:00:00.000Z')
+    it('should sort pret-overdue tasks by date then importance', () => {
+      const veryOverdue = createTestTask('very-overdue', 'Very Overdue', 30, 3, 'pret', '2025-01-13T10:00:00.000Z')
+      const lessOverdue = createTestTask('less-overdue', 'Less Overdue', 40, 2, 'pret', '2025-01-14T10:00:00.000Z')
 
       const tasks = [lessOverdue, veryOverdue]
       const sorted = [...tasks].sort((a, b) => TaskPriorityService.compareTasksPriority(a, b, dateContext))

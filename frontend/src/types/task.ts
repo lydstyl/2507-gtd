@@ -1,9 +1,10 @@
-export type TaskStatus = 'brouillon' | 'pour_ia' | 'collecte' | 'un_jour_peut_etre'
+export type TaskStatus = 'brouillon' | 'pour_ia' | 'collecte' | 'pret' | 'un_jour_peut_etre'
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   brouillon: 'Brouillon',
   pour_ia: 'Pour IA',
   collecte: 'Collecté',
+  pret: 'Prêt',
   un_jour_peut_etre: 'Un jour peut-être'
 }
 

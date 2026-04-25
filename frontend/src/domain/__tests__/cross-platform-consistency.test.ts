@@ -44,6 +44,7 @@ describe('Frontend Domain Consistency', () => {
       const collectedTask = new TaskEntity({
         id: 'collected-1',
         name: 'Collected Task',
+        status: 'collecte',
         importance: 50,
         complexity: 1,
         points: 500,
@@ -59,8 +60,8 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(collectedTask.getCategory()).toBe('no-date')
-      expect(TaskPriorityService.isCollectedTask(collectedTask.rawTask, dateContext)).toBe(false)
+      expect(collectedTask.getCategory()).toBe('collected')
+      expect(TaskPriorityService.isCollectedTask(collectedTask.rawTask, dateContext)).toBe(true)
     })
 
     it('should correctly categorize overdue tasks', () => {
@@ -82,7 +83,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(overdueTask.getCategory()).toBe('overdue')
+      expect(overdueTask.getCategory()).toBe('pret-overdue')
       expect(TaskPriorityService.isOverdueTask(overdueTask.rawTask, dateContext)).toBe(true)
     })
 
@@ -105,7 +106,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(todayTask.getCategory()).toBe('today')
+      expect(todayTask.getCategory()).toBe('pret-today')
       expect(TaskPriorityService.isTodayTask(todayTask.rawTask, dateContext)).toBe(true)
     })
 
@@ -128,7 +129,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(tomorrowTask.getCategory()).toBe('tomorrow')
+      expect(tomorrowTask.getCategory()).toBe('pret-tomorrow')
       expect(TaskPriorityService.isTomorrowTask(tomorrowTask.rawTask, dateContext)).toBe(true)
     })
 
@@ -151,7 +152,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(futureTask.getCategory()).toBe('future')
+      expect(futureTask.getCategory()).toBe('pret-future')
       expect(TaskPriorityService.isFutureTask(futureTask.rawTask, dateContext)).toBe(true)
     })
 
@@ -174,7 +175,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(noDateTask.getCategory()).toBe('no-date')
+      expect(noDateTask.getCategory()).toBe('pret-no-date')
       expect(TaskPriorityService.isCollectedTask(noDateTask.rawTask, dateContext)).toBe(false)
     })
 
@@ -197,7 +198,7 @@ describe('Frontend Domain Consistency', () => {
         tags: []
       })
 
-      expect(taskWithBothDates.getCategory()).toBe('today')
+      expect(taskWithBothDates.getCategory()).toBe('pret-today')
       expect(TaskPriorityService.isTodayTask(taskWithBothDates.rawTask, dateContext)).toBe(true)
     })
   })
@@ -206,6 +207,7 @@ describe('Frontend Domain Consistency', () => {
     const taskA = new TaskEntity({
       id: 'task-a',
       name: 'Task A',
+      status: 'pret',
       importance: 30,
       complexity: 3,
       points: 100,
@@ -224,6 +226,7 @@ describe('Frontend Domain Consistency', () => {
     const taskB = new TaskEntity({
       id: 'task-b',
       name: 'Task B',
+      status: 'pret',
       importance: 20,
       complexity: 5,
       points: 40,
@@ -241,9 +244,9 @@ describe('Frontend Domain Consistency', () => {
 
     it('should compare tasks by category priority', () => {
       const comparison = TaskPriorityService.compareByCategory(taskA.rawTask, taskB.rawTask, dateContext)
-      // Task A is 'today' (priority 3), Task B is 'tomorrow' (priority 4)
+      // Task A is 'pret-today' (priority 5), Task B is 'pret-tomorrow' (priority 6)
       // Lower priority number comes first
-      expect(comparison).toBeLessThan(0) // today < tomorrow
+      expect(comparison).toBeLessThan(0) // pret-today < pret-tomorrow
     })
 
     it('should compare tasks by points', () => {
@@ -255,14 +258,14 @@ describe('Frontend Domain Consistency', () => {
 
     it('should perform complete task priority comparison', () => {
       const comparison = TaskPriorityService.compareTasksPriority(taskA.rawTask, taskB.rawTask, dateContext)
-      // Task A (today) should come before Task B (tomorrow)
+      // Task A (pret-today) should come before Task B (pret-tomorrow)
       expect(comparison).toBeLessThan(0)
     })
   })
 
   describe('Category Priority Ordering', () => {
     it('should maintain correct category priority ordering', () => {
-      const categories = ['collected', 'overdue', 'today', 'tomorrow', 'no-date', 'future'] as const
+      const categories = ['brouillon', 'pour-ia', 'collected', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour'] as const
 
       categories.forEach((category, index) => {
         const priority = TaskPriorityService.getCategoryPriority(category)
@@ -270,12 +273,12 @@ describe('Frontend Domain Consistency', () => {
       })
     })
 
-    it('should have collected as highest priority', () => {
-      expect(TaskPriorityService.getCategoryPriority('collected')).toBe(1)
+    it('should have brouillon as highest priority', () => {
+      expect(TaskPriorityService.getCategoryPriority('brouillon')).toBe(1)
     })
 
-    it('should have future as lowest priority', () => {
-      expect(TaskPriorityService.getCategoryPriority('future')).toBe(6)
+    it('should have un-jour as lowest priority', () => {
+      expect(TaskPriorityService.getCategoryPriority('un-jour')).toBe(9)
     })
   })
 

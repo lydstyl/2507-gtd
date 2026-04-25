@@ -112,10 +112,11 @@ export class TaskPriorityService {
    * Get the category of a task based on business rules.
    *
    * Status rules:
-   * - pour_ia / collecte / un_jour_peut_etre → always their own category, dates ignored
-   * - brouillon + NO effective date → 'brouillon' category
-   * - brouillon + HAS effective date → date-based category (overdue/today/etc.)
-   * - undefined status → date-based fallback (legacy data)
+   * - brouillon → always 'brouillon' (dates ignored)
+   * - pour_ia → always 'pour-ia' (dates ignored)
+   * - collecte → always 'collected' (dates ignored)
+   * - pret → categorized by date into 'pret-*' categories
+   * - un_jour_peut_etre → always 'un-jour' (dates ignored)
    */
   static getTaskCategory<TDate extends string | Date>(
     task: GenericTaskWithSubtasks<TDate>,
@@ -123,22 +124,27 @@ export class TaskPriorityService {
   ): TaskCategory {
     const status = (task as any).status as TaskStatus | undefined
 
+    if (status === 'brouillon') return 'brouillon'
     if (status === 'pour_ia') return 'pour-ia'
     if (status === 'collecte') return 'collected'
     if (status === 'un_jour_peut_etre') return 'un-jour'
 
-    if (status === 'brouillon') {
-      const effectiveDate = this.getEffectiveDate(task, context)
-      if (!effectiveDate) return 'brouillon'
-      // Dated brouillon tasks fall through to date-based categorization
+    // 'pret' status tasks are categorized by date
+    if (status === 'pret') {
+      if (this.isOverdueTask(task, context)) return 'pret-overdue'
+      if (this.isTodayTask(task, context)) return 'pret-today'
+      if (this.isTomorrowTask(task, context)) return 'pret-tomorrow'
+      if (this.isFutureTask(task, context)) return 'pret-future'
+      return 'pret-no-date'
     }
 
-    if (this.isOverdueTask(task, context)) return 'overdue'
-    if (this.isTodayTask(task, context)) return 'today'
-    if (this.isTomorrowTask(task, context)) return 'tomorrow'
-    if (this.isFutureTask(task, context)) return 'future'
+    // Fallback for undefined/legacy status: treat as 'pret' (date-based categorization)
+    if (this.isOverdueTask(task, context)) return 'pret-overdue'
+    if (this.isTodayTask(task, context)) return 'pret-today'
+    if (this.isTomorrowTask(task, context)) return 'pret-tomorrow'
+    if (this.isFutureTask(task, context)) return 'pret-future'
 
-    return 'no-date'
+    return 'pret-no-date'
   }
 
   /**
@@ -149,11 +155,11 @@ export class TaskPriorityService {
       brouillon: 1,
       'pour-ia': 2,
       collected: 3,
-      overdue: 4,
-      today: 5,
-      tomorrow: 6,
-      'no-date': 7,
-      future: 8,
+      'pret-overdue': 4,
+      'pret-today': 5,
+      'pret-tomorrow': 6,
+      'pret-no-date': 7,
+      'pret-future': 8,
       'un-jour': 9
     }
     return priorities[category]
@@ -246,23 +252,27 @@ export class TaskPriorityService {
       case 'brouillon':
       case 'pour-ia':
       case 'collected':
-      case 'today':
-      case 'tomorrow':
-      case 'no-date':
+      case 'pret-no-date':
       case 'un-jour':
+        // Sort by importance only
         return this.compareByImportance(a, b)
 
-      case 'overdue': {
-        const dateComparison = this.compareByEffectiveDate(a, b, context)
-        if (dateComparison !== 0) return dateComparison
+      case 'pret-overdue':
+        // Sort by date ASC (oldest first), then importance
+        const overdueDateComparison = this.compareByEffectiveDate(a, b, context)
+        if (overdueDateComparison !== 0) return overdueDateComparison
         return this.compareByImportance(a, b)
-      }
 
-      case 'future': {
+      case 'pret-today':
+      case 'pret-tomorrow':
+        // Sort by importance only
+        return this.compareByImportance(a, b)
+
+      case 'pret-future':
+        // Sort by date ASC, then importance
         const futureDateComparison = this.compareByEffectiveDate(a, b, context)
         if (futureDateComparison !== 0) return futureDateComparison
         return this.compareByImportance(a, b)
-      }
 
       default:
         return this.compareByImportance(a, b)

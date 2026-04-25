@@ -278,7 +278,7 @@ describe('Comprehensive Task Sorting Tests', () => {
       const tomorrow = new Date(today)
       tomorrow.setDate(tomorrow.getDate() + 1)
 
-      // Create test tasks (status='collecte' so they are sorted by date, not as brouillon)
+      // Create test tasks (status='pret' so they are sorted by date, not as brouillon)
       const testTasks = [
         { name: 'Future task', importance: 30, complexity: 3, dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) },
         { name: 'High priority no date', importance: 50, complexity: 1, dueDate: null },
@@ -294,7 +294,7 @@ describe('Comprehensive Task Sorting Tests', () => {
           name: taskData.name,
           importance: taskData.importance,
           complexity: taskData.complexity,
-          status: 'collecte',
+          status: 'pret',
           plannedDate: taskData.dueDate || undefined,
           userId
         })
@@ -321,12 +321,12 @@ describe('Comprehensive Task Sorting Tests', () => {
     })
 
     test('should maintain correct sorting when task date is updated', async () => {
-      // Create a high-importance task without date (status='collecte' so it's in no-date, not brouillon)
+      // Create a high-importance task without date (status='pret' so it's in no-date, not brouillon)
       const task = await taskRepository.create({
         name: 'Test task 500 points',
         importance: 50,
         complexity: 1,
-        status: 'collecte',
+        status: 'pret',
         userId
       })
 
@@ -335,7 +335,7 @@ describe('Comprehensive Task Sorting Tests', () => {
         name: 'Today existing',
         importance: 30,
         complexity: 2,
-        status: 'collecte',
+        status: 'pret',
         dueDate: new Date(),
         userId
       })

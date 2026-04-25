@@ -18,6 +18,7 @@ export function createMockTask(overrides: Partial<Task> = {}): Task {
     importance: 25,
     complexity: 5,
     points: 50, // 10 * 25 / 5 = 50
+    status: 'brouillon',
     plannedDate: undefined,
     dueDate: undefined,
     parentId: undefined,
@@ -122,6 +123,7 @@ export function createTestTasksByCategory(dates = createTestDates()) {
   return {
     collected: createMockTaskEntity({
       name: 'Collected Task',
+      status: 'collecte',
       importance: 0,
       complexity: 3,
       points: 0
@@ -129,6 +131,7 @@ export function createTestTasksByCategory(dates = createTestDates()) {
 
     highPriorityNoDate: createMockTaskEntity({
       name: 'High Priority No Date Task',
+      status: 'pret',
       importance: 50,
       complexity: 1,
       points: 500
@@ -136,6 +139,7 @@ export function createTestTasksByCategory(dates = createTestDates()) {
 
     overdue: createMockTaskEntity({
       name: 'Overdue Task',
+      status: 'pret',
       importance: 30,
       complexity: 5,
       points: 60,
@@ -144,6 +148,7 @@ export function createTestTasksByCategory(dates = createTestDates()) {
 
     today: createMockTaskEntity({
       name: 'Today Task',
+      status: 'pret',
       importance: 40,
       complexity: 4,
       points: 100,
@@ -152,6 +157,7 @@ export function createTestTasksByCategory(dates = createTestDates()) {
 
     tomorrow: createMockTaskEntity({
       name: 'Tomorrow Task',
+      status: 'pret',
       importance: 20,
       complexity: 2,
       points: 100,
@@ -160,6 +166,7 @@ export function createTestTasksByCategory(dates = createTestDates()) {
 
     future: createMockTaskEntity({
       name: 'Future Task',
+      status: 'pret',
       importance: 15,
       complexity: 3,
       points: 50,
@@ -168,6 +175,7 @@ export function createTestTasksByCategory(dates = createTestDates()) {
 
     noDate: createMockTaskEntity({
       name: 'No Date Task',
+      status: 'pret',
       importance: 25,
       complexity: 5,
       points: 50
@@ -298,7 +306,7 @@ export class TestError extends Error {
  */
 export function assertTaskCategory(
   task: TaskEntity,
-  expectedCategory: 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
+  expectedCategory: 'brouillon' | 'pour-ia' | 'collected' | 'pret-overdue' | 'pret-today' | 'pret-tomorrow' | 'pret-no-date' | 'pret-future' | 'un-jour'
 ): void {
   const actualCategory = task.getCategory()
 
@@ -338,12 +346,15 @@ export function validateTaskOrder(higherPriorityTask: TaskEntity, lowerPriorityT
   const lowerCategory = lowerPriorityTask.getCategory()
 
   const categoryPriorities = {
-    collected: 1,
-    overdue: 2,
-    today: 3,
-    tomorrow: 4,
-    'no-date': 5,
-    future: 6
+    brouillon: 1,
+    'pour-ia': 2,
+    collected: 3,
+    'pret-overdue': 4,
+    'pret-today': 5,
+    'pret-tomorrow': 6,
+    'pret-no-date': 7,
+    'pret-future': 8,
+    'un-jour': 9
   }
 
   const higherPriority = categoryPriorities[higherCategory]

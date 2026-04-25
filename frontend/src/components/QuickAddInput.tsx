@@ -33,12 +33,14 @@ export function QuickAddInput({
 
   // Focus input when visible
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>
     if (isVisible && inputRef.current) {
       haptic.modalOpen() // Haptic feedback when quick add opens
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         inputRef.current?.focus()
       }, 100)
     }
+    return () => clearTimeout(timeoutId)
   }, [isVisible, haptic])
 
   // Reset form when visibility changes

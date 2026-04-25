@@ -11,6 +11,7 @@ enum TaskStatus {
   brouillon
   pour_ia
   collecte
+  pret
   un_jour_peut_etre
 }
 

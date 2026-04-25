@@ -31,13 +31,16 @@ const createTestTask = (
   points: number,
   plannedDate?: string,
   importance: number = 30,
-  complexity: number = 3
+  complexity: number = 3,
+  status: Task['status'] = 'brouillon'
 ): Task => ({
   id: `task-${name.replace(/\s+/g, '-').toLowerCase()}`,
   name,
   points,
   importance,
   complexity,
+  status,
+  position: 0,
   plannedDate,
   isCompleted: false,
   createdAt: new Date().toISOString(),
@@ -45,7 +48,6 @@ const createTestTask = (
   userId: 'test-user',
   subtasks: [],
   tags: [],
-  parentId: null,
 })
 
 // Helper function to render TaskListPage with router context
@@ -145,7 +147,7 @@ describe('TaskListPage Sorting Display', () => {
     yesterday.setDate(yesterday.getDate() - 1)
 
     const tasks: Task[] = [
-      createTestTask('Overdue task 1', 300, yesterday.toISOString()),
+      createTestTask('Overdue task 1', 300, yesterday.toISOString(), 30, 3, 'pret'),
       createTestTask('Normal task', 250),
     ]
 

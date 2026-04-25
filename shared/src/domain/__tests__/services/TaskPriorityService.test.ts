@@ -345,23 +345,23 @@ describe('Shared TaskPriorityService', () => {
           expected: 'un-jour'
         },
         {
-          task: createTestTask({ plannedDate: yesterday.toISOString() }),
-          expected: 'overdue'
+          task: createTestTask({ status: 'pret' as any, plannedDate: yesterday.toISOString() }),
+          expected: 'pret-overdue'
         },
         {
-          task: createTestTask({ plannedDate: today.toISOString() }),
-          expected: 'today'
+          task: createTestTask({ status: 'pret' as any, plannedDate: today.toISOString() }),
+          expected: 'pret-today'
         },
         {
-          task: createTestTask({ plannedDate: tomorrow.toISOString() }),
-          expected: 'tomorrow'
+          task: createTestTask({ status: 'pret' as any, plannedDate: tomorrow.toISOString() }),
+          expected: 'pret-tomorrow'
         },
         {
-          task: createTestTask({ plannedDate: dayAfterTomorrow.toISOString() }),
-          expected: 'future'
+          task: createTestTask({ status: 'pret' as any, plannedDate: dayAfterTomorrow.toISOString() }),
+          expected: 'pret-future'
         },
         {
-          task: createTestTask({ importance: 25, complexity: 5, points: 50 }),
+          task: createTestTask({ status: 'brouillon' as any, importance: 25, complexity: 5, points: 50 }),
           expected: 'brouillon' // brouillon with no date → brouillon category
         }
       ]
@@ -371,14 +371,14 @@ describe('Shared TaskPriorityService', () => {
       })
     })
 
-    it('should apply date-based categorization for brouillon tasks with dates', () => {
-      const overdueTask = createTestTask({ plannedDate: yesterday.toISOString() })
-      expect(TaskPriorityService.getTaskCategory(overdueTask, dateContext)).toBe('overdue')
+    it('should apply date-based categorization for pret tasks with dates', () => {
+      const overdueTask = createTestTask({ status: 'pret' as any, plannedDate: yesterday.toISOString() })
+      expect(TaskPriorityService.getTaskCategory(overdueTask, dateContext)).toBe('pret-overdue')
     })
 
     it('should work with Date objects', () => {
-      const task = createTestTask({ plannedDate: today })
-      expect(TaskPriorityService.getTaskCategory(task, dateContext)).toBe('today')
+      const task = createTestTask({ status: 'pret' as any, plannedDate: today })
+      expect(TaskPriorityService.getTaskCategory(task, dateContext)).toBe('pret-today')
     })
   })
 
@@ -387,11 +387,11 @@ describe('Shared TaskPriorityService', () => {
       expect(TaskPriorityService.getCategoryPriority('brouillon')).toBe(1)
       expect(TaskPriorityService.getCategoryPriority('pour-ia')).toBe(2)
       expect(TaskPriorityService.getCategoryPriority('collected')).toBe(3)
-      expect(TaskPriorityService.getCategoryPriority('overdue')).toBe(4)
-      expect(TaskPriorityService.getCategoryPriority('today')).toBe(5)
-      expect(TaskPriorityService.getCategoryPriority('tomorrow')).toBe(6)
-      expect(TaskPriorityService.getCategoryPriority('no-date')).toBe(7)
-      expect(TaskPriorityService.getCategoryPriority('future')).toBe(8)
+      expect(TaskPriorityService.getCategoryPriority('pret-overdue')).toBe(4)
+      expect(TaskPriorityService.getCategoryPriority('pret-today')).toBe(5)
+      expect(TaskPriorityService.getCategoryPriority('pret-tomorrow')).toBe(6)
+      expect(TaskPriorityService.getCategoryPriority('pret-no-date')).toBe(7)
+      expect(TaskPriorityService.getCategoryPriority('pret-future')).toBe(8)
       expect(TaskPriorityService.getCategoryPriority('un-jour')).toBe(9)
     })
 
@@ -419,10 +419,10 @@ describe('Shared TaskPriorityService', () => {
       }
 
       const collectedTask = createTestTask({ status: 'collecte' as any })
-      const todayTask = createTestTask({ plannedDate: today.toISOString() })
+      const todayTask = createTestTask({ status: 'pret' as any, plannedDate: today.toISOString() })
 
       const comparison = TaskPriorityService.compareByCategory(collectedTask, todayTask, dateContext)
-      expect(comparison).toBeLessThan(0) // Collected (priority 3) should come before today (priority 5)
+      expect(comparison).toBeLessThan(0) // Collected (priority 3) should come before pret-today (priority 5)
     })
   })
 
@@ -528,12 +528,12 @@ describe('Shared TaskPriorityService', () => {
 
     it('should implement complete sorting algorithm', () => {
       const tasks = [
-        createTestTask({ plannedDate: dayAfterTomorrow.toISOString() }), // future (brouillon + date)
+        createTestTask({ status: 'pret' as any, plannedDate: dayAfterTomorrow.toISOString() }), // pret-future
         createTestTask({ status: 'collecte' as any }), // collected
-        createTestTask({ plannedDate: today.toISOString() }), // today (brouillon + date)
-        createTestTask({ plannedDate: yesterday.toISOString() }), // overdue (brouillon + date)
-        createTestTask({ plannedDate: tomorrow.toISOString() }), // tomorrow (brouillon + date)
-        createTestTask({ }) // brouillon (no date)
+        createTestTask({ status: 'pret' as any, plannedDate: today.toISOString() }), // pret-today
+        createTestTask({ status: 'pret' as any, plannedDate: yesterday.toISOString() }), // pret-overdue
+        createTestTask({ status: 'pret' as any, plannedDate: tomorrow.toISOString() }), // pret-tomorrow
+        createTestTask({ status: 'brouillon' as any }) // brouillon (no date)
       ]
 
       const sorted = [...tasks].sort((a, b) =>
@@ -542,20 +542,22 @@ describe('Shared TaskPriorityService', () => {
 
       expect(TaskPriorityService.getTaskCategory(sorted[0], dateContext)).toBe('brouillon')
       expect(TaskPriorityService.getTaskCategory(sorted[1], dateContext)).toBe('collected')
-      expect(TaskPriorityService.getTaskCategory(sorted[2], dateContext)).toBe('overdue')
-      expect(TaskPriorityService.getTaskCategory(sorted[3], dateContext)).toBe('today')
-      expect(TaskPriorityService.getTaskCategory(sorted[4], dateContext)).toBe('tomorrow')
-      expect(TaskPriorityService.getTaskCategory(sorted[5], dateContext)).toBe('future')
+      expect(TaskPriorityService.getTaskCategory(sorted[2], dateContext)).toBe('pret-overdue')
+      expect(TaskPriorityService.getTaskCategory(sorted[3], dateContext)).toBe('pret-today')
+      expect(TaskPriorityService.getTaskCategory(sorted[4], dateContext)).toBe('pret-tomorrow')
+      expect(TaskPriorityService.getTaskCategory(sorted[5], dateContext)).toBe('pret-future')
     })
 
     it('should sort within categories correctly', () => {
-      // Test overdue tasks (should sort by date ASC, then importance DESC)
+      // Test pret-overdue tasks (should sort by date ASC, then importance DESC)
       const veryOverdue = createTestTask({
+        status: 'pret' as any,
         plannedDate: new Date(Date.UTC(2023, 5, 13)).toISOString(),
         importance: 100
       })
 
       const recentlyOverdue = createTestTask({
+        status: 'pret' as any,
         plannedDate: yesterday.toISOString(),
         importance: 200
       })
@@ -565,8 +567,8 @@ describe('Shared TaskPriorityService', () => {
     })
 
     it('should handle edge cases gracefully', () => {
-      const taskWithNullDate = createTestTask({ plannedDate: undefined })
-      const taskWithValidDate = createTestTask({ plannedDate: today.toISOString() })
+      const taskWithNullDate = createTestTask({ status: 'pret' as any, plannedDate: undefined })
+      const taskWithValidDate = createTestTask({ status: 'pret' as any, plannedDate: today.toISOString() })
 
       expect(() => {
         TaskPriorityService.compareTasksPriority(taskWithNullDate, taskWithValidDate, dateContext)
@@ -599,20 +601,22 @@ describe('Shared TaskPriorityService', () => {
 
     it('should work with string dates (frontend)', () => {
       const stringTask = createTestTask({
+        status: 'pret' as any,
         plannedDate: '2023-06-15T12:00:00Z',
         createdAt: '2023-06-15T10:00:00Z'
       })
 
-      expect(TaskPriorityService.getTaskCategory(stringTask, dateContext)).toBe('today')
+      expect(TaskPriorityService.getTaskCategory(stringTask, dateContext)).toBe('pret-today')
     })
 
     it('should work with Date objects (backend)', () => {
       const dateTask = createTestTask({
+        status: 'pret' as any,
         plannedDate: today,
         createdAt: today
       })
 
-      expect(TaskPriorityService.getTaskCategory(dateTask, dateContext)).toBe('today')
+      expect(TaskPriorityService.getTaskCategory(dateTask, dateContext)).toBe('pret-today')
     })
 
     it('should produce consistent results regardless of date type', () => {
