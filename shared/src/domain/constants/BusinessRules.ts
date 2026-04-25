@@ -30,7 +30,7 @@ export interface TagBusinessRules {
 export const TASK_CONSTANTS: TaskBusinessRules = {
   maxImportance: 500,
   maxComplexity: 9,
-  maxPoints: 500,
+  maxPoints: 5000,
   collectedThreshold: 500,
   overdueGracePeriod: 0, // No grace period
   maxSubtaskDepth: 10,

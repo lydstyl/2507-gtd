@@ -6,8 +6,8 @@ export const CreateTaskSchema = z.object({
   userId: z.string().optional(),
   userEmail: z.string().email().optional(),
   name: z.string().min(1, 'Task name is required'),
-  importance: z.number().min(1).max(100).optional().default(50),
-  complexity: z.number().min(1).max(5).optional().default(1),
+  importance: z.number().min(0).max(500).optional().default(50),
+  complexity: z.number().min(1).max(9).optional().default(1),
   link: z.string().optional(),
   note: z.string().optional(),
   plannedDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
@@ -86,7 +86,7 @@ export class TaskCreator {
     // Calculate points based on importance and complexity
     const importance = taskData.importance || 50;
     const complexity = taskData.complexity || 1;
-    const points = importance * complexity * 10;
+    const points = complexity === 0 ? 0 : Math.round(10 * importance / complexity);
 
     const task = await this.prisma.task.create({
       data: {

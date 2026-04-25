@@ -144,7 +144,7 @@ export default function TaskListPage() {
 
     switch (action) {
       case 'importance-up':
-        update.importance = Math.min(50, task.importance + 10)
+        update.importance = Math.min(500, task.importance + 10)
         break
       case 'importance-down':
         update.importance = Math.max(0, task.importance - 10)

@@ -666,8 +666,8 @@ describe('Keyboard Shortcuts', () => {
     })
   })
 
-  test('should not increase importance above 50', async () => {
-    const task = createTestTask('Test Task', 45, 3) // Near maximum importance
+  test('should not increase importance above 500', async () => {
+    const task = createTestTask('Test Task', 495, 3) // Near maximum importance
     const tasks: Task[] = [task]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
@@ -687,12 +687,12 @@ describe('Keyboard Shortcuts', () => {
     // Press I to try to increase importance
     await pressKey(user, 'i')
 
-    // Verify importance doesn't go above 50
+    // Verify importance doesn't go above 500
     await waitFor(() => {
       expect(vi.mocked(api.updateTask)).toHaveBeenCalledWith(
         task.id,
         expect.objectContaining({
-          importance: 50 // Math.min(50, 45 + 10)
+          importance: 500 // Math.min(500, 495 + 10)
         })
       )
     })

@@ -4,9 +4,9 @@ export interface Task {
   name: string;
   link?: string;
   note?: string;
-  importance: number; // 1-100, default 50
-  complexity: number; // 1-5, default 1
-  points: number; // calculated: importance * complexity * 10
+  importance: number; // 0-500, default 50
+  complexity: number; // 1-9, default 1
+  points: number; // calculated: Math.round(10 * importance / complexity)
   parentId?: string;
   plannedDate?: Date;
   dueDate?: Date;

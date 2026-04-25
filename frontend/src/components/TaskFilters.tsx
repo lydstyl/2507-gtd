@@ -162,11 +162,11 @@ export function TaskFilters({
                   className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
                 >
                   <option value=''>Toutes</option>
-                  <option value='50'>Très élevée (50)</option>
-                  <option value='40'>Élevée (40)</option>
-                  <option value='30'>Moyenne (30)</option>
-                  <option value='20'>Basse (20)</option>
-                  <option value='10'>Très basse (10)</option>
+                  <option value='500'>Critique (500)</option>
+                  <option value='350'>Très élevée (350)</option>
+                  <option value='250'>Élevée (250)</option>
+                  <option value='150'>Moyenne (150)</option>
+                  <option value='50'>Basse (50)</option>
                   <option value='0'>Nulle (0)</option>
                 </select>
               </div>

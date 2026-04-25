@@ -173,7 +173,10 @@ export class CsvService {
 
     const importance = this.parseNumber(importanceStr, 'importance', 0, TASK_CONSTANTS.maxImportance)
     const complexity = this.parseNumber(complexityStr, 'complexity', 1, TASK_CONSTANTS.maxComplexity)
-    const points = this.parseNumber(pointsStr, 'points', 0, TASK_CONSTANTS.maxPoints)
+    // Recalculate points from importance/complexity, ignoring CSV points column
+    const points = complexity === 0
+      ? 0
+      : Math.min(Math.round(10 * importance / complexity), TASK_CONSTANTS.maxPoints)
 
     let plannedDate: TDate | undefined
     if (plannedDateStr && plannedDateStr.trim() !== '') {
