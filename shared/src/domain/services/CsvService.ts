@@ -82,10 +82,10 @@ export class CsvService {
       task.dueDate ? this.formatDate(task.dueDate) : '',
       this.formatDate(task.createdAt),
       this.formatDate(task.updatedAt),
-       task.parentId || '',
-       task.parentName || '',
-       task.tags.map((t) => t.tag.name).join(';'),
-       task.tags.map((t) => t.tag.color || '').join(';')
+      task.parentId ? this.escapeCsvField(task.parentId) : '',
+      task.parentName ? this.escapeCsvField(task.parentName) : '',
+      this.escapeCsvField(task.tags.map((t) => t.tag.name).join(';')),
+      this.escapeCsvField(task.tags.map((t) => t.tag.color || '').join(';'))
     ])
 
     const csvContent = [
@@ -97,7 +97,7 @@ export class CsvService {
   }
 
   /**
-   * Import tasks from CSV string
+   * Import tasks from CSV string — handles multi-line quoted fields
    */
   static importTasksFromCSV<TDate = Date | string>(
     csvContent: string,
@@ -107,22 +107,21 @@ export class CsvService {
       throw new Error('CSV content cannot be empty')
     }
 
-    const lines = csvContent.split('\n').filter((line) => line.trim())
-    if (lines.length < 2) {
+    const rows = this.parseCSVRows(csvContent)
+    if (rows.length < 2) {
       throw new Error('CSV must contain at least a header and one data row')
     }
 
     const errors: string[] = []
     const tasks: CsvTaskData<TDate>[] = []
 
-    // Skip header
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i]
-      const columns = this.parseCSVLine(line)
+    // Skip header row (index 0)
+    for (let i = 1; i < rows.length; i++) {
+      const columns = rows[i]
 
       if (columns.length < 15) {
         errors.push(
-          `Line ${i + 1}: Insufficient columns (${columns.length} instead of 15)`
+          `Row ${i + 1}: Insufficient columns (${columns.length} instead of 15)`
         )
         continue
       }
@@ -134,7 +133,7 @@ export class CsvService {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
-        errors.push(`Line ${i + 1}: ${message}`)
+        errors.push(`Row ${i + 1}: ${message}`)
       }
     }
 
@@ -231,45 +230,58 @@ export class CsvService {
   }
 
   /**
-   * Escape CSV field with quotes if necessary
+   * Escape CSV field with quotes (always quoted to handle commas, newlines, quotes)
    */
   private static escapeCsvField(field: string): string {
     return `"${field.replace(/"/g, '""')}"`
   }
 
   /**
-   * Parse CSV line handling quoted fields
+   * Parse entire CSV content into rows and columns.
+   * Correctly handles quoted fields that contain commas or newlines.
    */
-  private static parseCSVLine(line: string): string[] {
-    const columns: string[] = []
-    let current = ''
+  private static parseCSVRows(content: string): string[][] {
+    const rows: string[][] = []
+    let currentRow: string[] = []
+    let currentField = ''
     let inQuotes = false
 
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i]
+    for (let i = 0; i < content.length; i++) {
+      const char = content[i]
+      const next = content[i + 1]
 
       if (char === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          // Escaped quote
-          current += '"'
-          i++ // Skip next quote
+        if (inQuotes && next === '"') {
+          currentField += '"'
+          i++
         } else {
-          // Start or end of quotes
           inQuotes = !inQuotes
         }
       } else if (char === ',' && !inQuotes) {
-        // End of column
-        columns.push(current)
-        current = ''
+        currentRow.push(currentField)
+        currentField = ''
+      } else if (!inQuotes && (char === '\n' || char === '\r')) {
+        if (char === '\r' && next === '\n') i++
+        currentRow.push(currentField)
+        currentField = ''
+        if (currentRow.length > 1 || currentRow[0] !== '') {
+          rows.push(currentRow)
+        }
+        currentRow = []
       } else {
-        current += char
+        currentField += char
       }
     }
 
-    // Add the last column
-    columns.push(current)
+    // Flush last row
+    if (currentRow.length > 0 || currentField !== '') {
+      currentRow.push(currentField)
+      if (currentRow.length > 1 || currentRow[0] !== '') {
+        rows.push(currentRow)
+      }
+    }
 
-    return columns
+    return rows
   }
 
   /**

@@ -37,8 +37,8 @@ app.use(
   })
 )
 
-// Middleware pour parser le JSON
-app.use(express.json())
+// Middleware pour parser le JSON (limite 10mb pour l'import CSV)
+app.use(express.json({ limit: '10mb' }))
 
 // Middleware pour les logs
 app.use((req, res, next) => {

@@ -1,10 +1,8 @@
-- import via csv
-- import des données depuis sqlite ?
 - nouvelles catégories
   - brouillon
-  - brouillon validé pour IA
+  - pour Hermes
   - collecte
-  - planifié pour aujourd'hui ou demain
+  - pour bientot (aujourd'hui ou demain)
   - sans date
   - pour plus tard
   - un jour peu être
