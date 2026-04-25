@@ -27,21 +27,25 @@ describe('TaskSorting - Due Date Priority', () => {
       createTask({
         name: 'Task with future planned date',
         plannedDate: futureDate,
+        importance: 10,
         points: 100
       }),
       createTask({
         name: 'Task due today',
         dueDate: today,
+        importance: 5,
         points: 50
       }),
       createTask({
         name: 'Task due tomorrow',
         dueDate: tomorrow,
+        importance: 8,
         points: 75
       }),
       createTask({
         name: 'Task planned for tomorrow',
         plannedDate: tomorrow,
+        importance: 20,
         points: 200
       })
     ]
@@ -52,7 +56,7 @@ describe('TaskSorting - Due Date Priority', () => {
     expect(sorted[0].name).toBe('Task due today')
 
     // Tasks due/planned for tomorrow should be grouped together
-    expect(sorted[1].name).toBe('Task planned for tomorrow') // Higher points
+    expect(sorted[1].name).toBe('Task planned for tomorrow') // Higher importance
     expect(sorted[2].name).toBe('Task due tomorrow')
 
     // Future planned date comes last
@@ -93,37 +97,39 @@ describe('TaskSorting - Due Date Priority', () => {
     const tasks: TaskWithSubtasks[] = [
       createTask({
         name: 'Regular task without dates',
+        importance: 10,
         points: 100
       }),
       createTask({
         name: 'Task due in 3 days (non-urgent)',
         dueDate: threeDaysFromNow,
-        points: 200  // Higher points but due date is not urgent
+        importance: 20,  // Higher importance, due date is not urgent
+        points: 200
       })
     ]
 
     const sorted = TaskSorting.sortTasksByPriority(tasks)
 
     // Non-urgent due date should not take priority, both should be in no-date category
-    // Higher points should win
+    // Higher importance should win
     expect(sorted[0].name).toBe('Task due in 3 days (non-urgent)')
     expect(sorted[1].name).toBe('Regular task without dates')
   })
 
-  it('should not consider collected tasks if they have urgent due dates', () => {
+  it('should sort collected tasks (status=collecte) before date-based tasks', () => {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
 
     const tasks: TaskWithSubtasks[] = [
       createTask({
-        name: 'High priority task with urgent due date',
-        importance: 0,
-        complexity: 3,
-        points: 500,
-        dueDate: tomorrow
+        name: 'Task planned for tomorrow',
+        plannedDate: tomorrow,
+        importance: 25,
+        points: 250
       }),
       createTask({
-        name: 'Regular collected task',
+        name: 'Collected task',
+        status: 'collecte' as any,
         importance: 0,
         complexity: 3,
         points: 0
@@ -132,9 +138,9 @@ describe('TaskSorting - Due Date Priority', () => {
 
     const sorted = TaskSorting.sortTasksByPriority(tasks)
 
-    // The task with urgent due date should be in tomorrow category, not collected
-    expect(sorted[0].name).toBe('Regular collected task')
-    expect(sorted[1].name).toBe('High priority task with urgent due date')
+    // Collected task (explicit status) should come before date-based tasks
+    expect(sorted[0].name).toBe('Collected task')
+    expect(sorted[1].name).toBe('Task planned for tomorrow')
   })
 
   it('should handle tasks with both planned and due dates correctly', () => {

@@ -2,7 +2,9 @@
  * Shared types and enums for the GTD domain
  */
 
-export type TaskCategory = 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future'
+export type TaskStatus = 'brouillon' | 'pour_ia' | 'collecte' | 'un_jour_peut_etre'
+
+export type TaskCategory = 'brouillon' | 'pour-ia' | 'collected' | 'overdue' | 'today' | 'tomorrow' | 'no-date' | 'future' | 'un-jour'
 
 export interface DateContext {
   today: Date
@@ -22,6 +24,7 @@ export interface TaskBase<TDate = Date | string> {
   complexity: number
   points: number
   position: number
+  status: TaskStatus
   plannedDate?: TDate
   dueDate?: TDate
   parentId?: string
@@ -94,6 +97,7 @@ export interface CreateTaskData {
   note?: string
   importance?: number
   complexity?: number
+  status?: TaskStatus
   parentId?: string
   tagIds?: string[]
   userId: string
@@ -111,6 +115,7 @@ export interface UpdateTaskData {
   note?: string
   importance?: number
   complexity?: number
+  status?: TaskStatus
   position?: number
   parentId?: string
   tagIds?: string[]

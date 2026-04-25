@@ -4,11 +4,12 @@ export type {
    BackendTask as Task,
    BackendTaskWithSubtasks as TaskWithSubtasks,
    BackendTag as Tag,
-   BackendUser as User
+   BackendUser as User,
+   TaskStatus
 } from '@gtd/shared'
 
 // Import types for use in legacy interfaces
-import type { BackendTask, BackendTag } from '@gtd/shared'
+import type { BackendTask, BackendTag, TaskStatus } from '@gtd/shared'
 
 // Legacy interfaces for backward compatibility
 export interface TaskTag {
@@ -25,6 +26,7 @@ export interface CreateTaskData {
    note?: string
    importance?: number
    complexity?: number
+   status?: TaskStatus
    parentId?: string
    tagIds?: string[]
    userId: string
@@ -39,6 +41,7 @@ export interface UpdateTaskData {
    note?: string
    importance?: number
    complexity?: number
+   status?: TaskStatus
    parentId?: string
    tagIds?: string[]
    userId?: string
@@ -49,11 +52,11 @@ export interface UpdateTaskData {
 }
 
 export interface TaskFilters {
-  userId: string // Obligatoire pour la sécurité
+  userId: string
   parentId?: string
   tagIds?: string[]
-  importance?: number // 0-50
-  complexity?: number // 1-9
-  points?: number // 0-500
+  importance?: number
+  complexity?: number
+  points?: number
   search?: string
 }

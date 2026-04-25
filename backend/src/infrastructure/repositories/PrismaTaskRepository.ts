@@ -678,6 +678,7 @@ export class PrismaTaskRepository implements TaskRepository {
       complexity: task.complexity,
       points: task.points,
       position: task.position || 0,
+      status: task.status ?? 'brouillon',
       plannedDate: task.plannedDate ? task.plannedDate.toISOString() : undefined,
       dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
       isCompleted: task.isCompleted,

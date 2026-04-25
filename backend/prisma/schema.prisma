@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TaskStatus {
+  brouillon
+  pour_ia
+  collecte
+  un_jour_peut_etre
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -30,7 +37,8 @@ model Task {
   position    Int       @default(0)
   plannedDate DateTime?
   dueDate     DateTime?
-  isCompleted Boolean   @default(false)
+  status      TaskStatus @default(brouillon)
+  isCompleted Boolean    @default(false)
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

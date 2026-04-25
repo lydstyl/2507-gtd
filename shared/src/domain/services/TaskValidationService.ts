@@ -4,10 +4,10 @@
  */
 export class TaskValidationService {
   /**
-   * Validate importance value (0-50, integer)
+   * Validate importance value (0-500, integer)
    */
   static validateImportance(importance: number): boolean {
-    return Number.isInteger(importance) && importance >= 0 && importance <= 50
+    return Number.isInteger(importance) && importance >= 0 && importance <= 500
   }
 
   /**
@@ -29,25 +29,27 @@ export class TaskValidationService {
    */
   static getDefaultTaskValues() {
     return {
-      importance: 50, // Maximum importance for high priority
-      complexity: 1,  // Minimum complexity for maximum points
-      points: 500,    // 10 * 50 / 1 = 500 (maximum points)
+      importance: 500,
+      complexity: 1,
+      points: 500,
     }
   }
 
   /**
-   * Get new default task values (collected tasks)
+   * Get new default task values (brouillon status)
    */
   static getNewDefaultTaskValues() {
     return {
-      importance: 0, // No importance assigned yet
-      complexity: 3, // Medium complexity
-      points: 0,     // No points until categorized
+      importance: 0,
+      complexity: 3,
+      points: 0,
+      status: 'brouillon' as const,
     }
   }
 
   /**
-   * Check if task is a new default task (collected)
+   * Check if task is a new default task (uses status field)
+   * @deprecated Use task.status instead
    */
   static isNewDefaultTask(importance: number, complexity: number): boolean {
     return importance === 0 && complexity === 3

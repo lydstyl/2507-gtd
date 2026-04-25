@@ -58,16 +58,16 @@ describe('Task Sorting API Integration Tests', () => {
     const nextWeek = new Date(today)
     nextWeek.setDate(nextWeek.getDate() + 7)
 
-    // Create tasks through API
+    // Create tasks through API (status='collecte' so they are categorized by date, not as brouillon)
     const tasksToCreate = [
-      { name: 'Future task', importance: 30, complexity: 3, plannedDate: nextWeek.toISOString() },
-      { name: 'High priority no date', importance: 50, complexity: 1 }, // 500 points, no date
-      { name: 'Overdue task', importance: 25, complexity: 2, plannedDate: yesterday.toISOString() },
-      { name: 'Today task high', importance: 40, complexity: 2, plannedDate: today.toISOString() },
-      { name: 'Today task low', importance: 20, complexity: 3, plannedDate: today.toISOString() },
-      { name: 'Tomorrow task', importance: 35, complexity: 3, plannedDate: tomorrow.toISOString() },
-      { name: 'No date medium', importance: 30, complexity: 4 },
-      { name: 'No date low', importance: 20, complexity: 5 },
+      { name: 'Future task', importance: 30, complexity: 3, status: 'collecte', plannedDate: nextWeek.toISOString() },
+      { name: 'High priority no date', importance: 50, complexity: 1, status: 'collecte' },
+      { name: 'Overdue task', importance: 25, complexity: 2, status: 'collecte', plannedDate: yesterday.toISOString() },
+      { name: 'Today task high', importance: 40, complexity: 2, status: 'collecte', plannedDate: today.toISOString() },
+      { name: 'Today task low', importance: 20, complexity: 3, status: 'collecte', plannedDate: today.toISOString() },
+      { name: 'Tomorrow task', importance: 35, complexity: 3, status: 'collecte', plannedDate: tomorrow.toISOString() },
+      { name: 'No date medium', importance: 30, complexity: 4, status: 'collecte' },
+      { name: 'No date low', importance: 20, complexity: 5, status: 'collecte' },
     ]
 
     // Create all tasks
@@ -114,14 +114,15 @@ describe('Task Sorting API Integration Tests', () => {
   })
 
   test('Should maintain sorting when task is updated via API', async () => {
-    // Create initial tasks
+    // Create initial tasks (status='collecte' so they're categorized by date)
     const highPriorityTask = await request(app)
       .post('/api/tasks')
       .set(authHeader)
       .send({
         name: 'Test 500 point task',
         importance: 50,
-        complexity: 1 // 500 points
+        complexity: 1,
+        status: 'collecte'
       })
       .expect(201)
 
@@ -132,6 +133,7 @@ describe('Task Sorting API Integration Tests', () => {
         name: 'Today existing task',
         importance: 30,
         complexity: 2,
+        status: 'collecte',
         plannedDate: new Date().toISOString()
       })
       .expect(201)
@@ -186,14 +188,15 @@ describe('Task Sorting API Integration Tests', () => {
     const twoDaysAgo = new Date(today)
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
 
-    // Create tasks with different overdue dates
+    // Create tasks with different overdue dates (status='collecte' so they're sorted by date)
     await request(app)
       .post('/api/tasks')
       .set(authHeader)
       .send({
         name: 'High priority no date',
         importance: 50,
-        complexity: 1
+        complexity: 1,
+        status: 'collecte'
       })
       .expect(201)
 
@@ -204,6 +207,7 @@ describe('Task Sorting API Integration Tests', () => {
         name: 'Overdue yesterday high points',
         importance: 40,
         complexity: 2,
+        status: 'collecte',
         plannedDate: yesterday.toISOString()
       })
       .expect(201)
@@ -215,6 +219,7 @@ describe('Task Sorting API Integration Tests', () => {
         name: 'Overdue yesterday low points',
         importance: 20,
         complexity: 3,
+        status: 'collecte',
         plannedDate: yesterday.toISOString()
       })
       .expect(201)
@@ -226,6 +231,7 @@ describe('Task Sorting API Integration Tests', () => {
         name: 'Overdue two days ago',
         importance: 30,
         complexity: 3,
+        status: 'collecte',
         plannedDate: twoDaysAgo.toISOString()
       })
       .expect(201)
@@ -261,17 +267,17 @@ describe('Task Sorting API Integration Tests', () => {
     const nextWeek = new Date(today)
     nextWeek.setDate(nextWeek.getDate() + 7)
 
-    // Create a complex mix of tasks
+    // Create a complex mix of tasks (status='collecte' so they're categorized by date)
     const taskData = [
       // Mix up the creation order to test sorting independence
-      { name: 'Z Future low priority', importance: 20, complexity: 5, plannedDate: nextWeek.toISOString() },
-      { name: 'A High priority no date 1', importance: 50, complexity: 1 },
-      { name: 'M Today medium', importance: 30, complexity: 3, plannedDate: today.toISOString() },
-      { name: 'B Overdue critical', importance: 45, complexity: 2, plannedDate: yesterday.toISOString() },
-      { name: 'Y Tomorrow low', importance: 25, complexity: 4, plannedDate: tomorrow.toISOString() },
-      { name: 'A High priority no date 2', importance: 50, complexity: 1 },
-      { name: 'N No date very low', importance: 10, complexity: 8 },
-      { name: 'L Today high', importance: 40, complexity: 2, plannedDate: today.toISOString() },
+      { name: 'Z Future low priority', importance: 20, complexity: 5, status: 'collecte', plannedDate: nextWeek.toISOString() },
+      { name: 'A High priority no date 1', importance: 50, complexity: 1, status: 'collecte' },
+      { name: 'M Today medium', importance: 30, complexity: 3, status: 'collecte', plannedDate: today.toISOString() },
+      { name: 'B Overdue critical', importance: 45, complexity: 2, status: 'collecte', plannedDate: yesterday.toISOString() },
+      { name: 'Y Tomorrow low', importance: 25, complexity: 4, status: 'collecte', plannedDate: tomorrow.toISOString() },
+      { name: 'A High priority no date 2', importance: 50, complexity: 1, status: 'collecte' },
+      { name: 'N No date very low', importance: 10, complexity: 8, status: 'collecte' },
+      { name: 'L Today high', importance: 40, complexity: 2, status: 'collecte', plannedDate: today.toISOString() },
     ]
 
     // Create tasks in mixed order

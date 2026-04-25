@@ -37,7 +37,7 @@ export default function TaskListPage() {
   const loadTasks = async () => {
     try {
       const tasksData = await api.getRootTasks()
-      setTasks(tasksData)
+      setTasks(tasksData.filter((t: Task) => t.status !== 'un_jour_peut_etre'))
      } catch (err: unknown) {
        setError(err instanceof Error ? err.message : 'An error occurred')
      }

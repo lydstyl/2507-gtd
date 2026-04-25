@@ -88,17 +88,15 @@ describe('TaskPriorityService', () => {
   })
 
   describe('isCollectedTask', () => {
-    it('should identify new default tasks as collected', () => {
+    it('should identify tasks with status collecte as collected', () => {
       const task: BackendTaskWithSubtasks = createTestTask({
-        importance: 0,
-        complexity: 3,
-        points: 0
+        status: 'collecte' as any
       })
 
       expect(TaskPriorityService.isCollectedTask(task, dateContext)).toBe(true)
     })
 
-    it('should not identify high priority tasks as collected', () => {
+    it('should not identify brouillon tasks as collected', () => {
       const task: BackendTaskWithSubtasks = createTestTask({
         importance: 9,
         complexity: 1,
@@ -108,7 +106,7 @@ describe('TaskPriorityService', () => {
       expect(TaskPriorityService.isCollectedTask(task, dateContext)).toBe(false)
     })
 
-    it('should not identify tasks with effective dates as collected', () => {
+    it('should not identify tasks with no status as collected', () => {
       const task: BackendTaskWithSubtasks = createTestTask({
         importance: 0,
         complexity: 3,
@@ -123,9 +121,7 @@ describe('TaskPriorityService', () => {
   describe('getTaskCategory', () => {
     it('should categorize collected tasks', () => {
       const task: BackendTaskWithSubtasks = createTestTask({
-        importance: 0,
-        complexity: 3,
-        points: 0
+        status: 'collecte' as any
       })
 
       expect(TaskPriorityService.getTaskCategory(task, dateContext)).toBe('collected')
@@ -177,6 +173,7 @@ describe('TaskPriorityService', () => {
   describe('compareTasksPriority', () => {
     it('should sort collected tasks before others', () => {
       const collectedTask: BackendTaskWithSubtasks = createTestTask({
+        status: 'collecte' as any,
         importance: 0,
         complexity: 3,
         points: 0
@@ -205,18 +202,20 @@ describe('TaskPriorityService', () => {
       expect(result).toBeLessThan(0) // overdue task comes first
     })
 
-    it('should sort by points within same category', () => {
-      const highPointsTask: BackendTaskWithSubtasks = createTestTask({
+    it('should sort by importance within same category', () => {
+      const highImportanceTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: today.toISOString(),
+        importance: 30,
         points: 100
       })
-      const lowPointsTask: BackendTaskWithSubtasks = createTestTask({
+      const lowImportanceTask: BackendTaskWithSubtasks = createTestTask({
         plannedDate: today.toISOString(),
+        importance: 5,
         points: 10
       })
 
-      const result = TaskPriorityService.compareTasksPriority(highPointsTask, lowPointsTask, dateContext)
-      expect(result).toBeLessThan(0) // high points task comes first
+      const result = TaskPriorityService.compareTasksPriority(highImportanceTask, lowImportanceTask, dateContext)
+      expect(result).toBeLessThan(0) // high importance task comes first
     })
 
     it('should sort overdue tasks by date (oldest first)', () => {
@@ -236,12 +235,15 @@ describe('TaskPriorityService', () => {
 
   describe('getCategoryPriority', () => {
     it('should return correct priority order', () => {
-      expect(TaskPriorityService.getCategoryPriority('collected')).toBe(1)
-      expect(TaskPriorityService.getCategoryPriority('overdue')).toBe(2)
-      expect(TaskPriorityService.getCategoryPriority('today')).toBe(3)
-      expect(TaskPriorityService.getCategoryPriority('tomorrow')).toBe(4)
-      expect(TaskPriorityService.getCategoryPriority('no-date')).toBe(5)
-      expect(TaskPriorityService.getCategoryPriority('future')).toBe(6)
+      expect(TaskPriorityService.getCategoryPriority('brouillon')).toBe(1)
+      expect(TaskPriorityService.getCategoryPriority('pour-ia')).toBe(2)
+      expect(TaskPriorityService.getCategoryPriority('collected')).toBe(3)
+      expect(TaskPriorityService.getCategoryPriority('overdue')).toBe(4)
+      expect(TaskPriorityService.getCategoryPriority('today')).toBe(5)
+      expect(TaskPriorityService.getCategoryPriority('tomorrow')).toBe(6)
+      expect(TaskPriorityService.getCategoryPriority('no-date')).toBe(7)
+      expect(TaskPriorityService.getCategoryPriority('future')).toBe(8)
+      expect(TaskPriorityService.getCategoryPriority('un-jour')).toBe(9)
     })
   })
 })

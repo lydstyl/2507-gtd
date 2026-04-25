@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { LoginPage, RegisterPage, DashboardPage, TaskListPage, ChatPage } from '../pages'
+import { LoginPage, RegisterPage, DashboardPage, TaskListPage, ChatPage, SomedayMaybePage } from '../pages'
 import { useCurrentUser } from '../hooks/useAuth'
 import { Suspense } from 'react'
 
@@ -84,6 +84,14 @@ export function AppRouter() {
             element={
               <ProtectedRoute>
                 <ChatPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/someday"
+            element={
+              <ProtectedRoute>
+                <SomedayMaybePage />
               </ProtectedRoute>
             }
           />

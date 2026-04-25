@@ -14,6 +14,7 @@ export function Header({ user, onLogout }: HeaderProps) {
 
   const navLinks = [
     { to: '/tasks', label: 'Tâches', icon: '📋' },
+    { to: '/someday', label: 'Un jour', icon: '🌙' },
     { to: '/dashboard', label: 'Dashboard', icon: '📊' },
     { to: '/chat', label: 'Chat', icon: '💬' }
   ]

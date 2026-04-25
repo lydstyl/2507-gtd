@@ -11,12 +11,33 @@ export class TaskCategoryService {
     */
    static getCategoryDisplayInfo(category: TaskCategory) {
      const displayInfo = {
+       brouillon: {
+         label: 'Brouillon',
+         borderColor: 'border-l-gray-400',
+         backgroundColor: 'bg-gray-50',
+         textColor: 'text-gray-600',
+         icon: '✏️'
+       },
+       'pour-ia': {
+         label: 'Pour IA',
+         borderColor: 'border-l-violet-500',
+         backgroundColor: 'bg-violet-50',
+         textColor: 'text-violet-700',
+         icon: '🤖'
+       },
        collected: {
          label: 'Collecté',
          borderColor: 'border-l-purple-500',
          backgroundColor: 'bg-white',
          textColor: 'text-purple-700',
          icon: '📝'
+       },
+       'un-jour': {
+         label: 'Un jour peut-être',
+         borderColor: 'border-l-sky-400',
+         backgroundColor: 'bg-sky-50',
+         textColor: 'text-sky-700',
+         icon: '🌙'
        },
        overdue: {
          label: 'En retard',
@@ -75,16 +96,7 @@ export class TaskCategoryService {
    * Get priority order for categories (lower number = higher priority)
    */
   static getCategoryPriority(category: TaskCategory): number {
-    const priorities = {
-      collected: 1,
-      overdue: 2,
-      today: 3,
-      tomorrow: 4,
-      'no-date': 5,
-      future: 6
-    }
-
-    return priorities[category]
+    return TaskPriorityService.getCategoryPriority(category)
   }
 
   /**
@@ -94,12 +106,15 @@ export class TaskCategoryService {
     tasks: GenericTaskWithSubtasks<TDate>[]
   ): Record<TaskCategory, GenericTaskWithSubtasks<TDate>[]> {
     const groups: Record<TaskCategory, GenericTaskWithSubtasks<TDate>[]> = {
+      brouillon: [],
+      'pour-ia': [],
       collected: [],
       overdue: [],
       today: [],
       tomorrow: [],
       'no-date': [],
-      future: []
+      future: [],
+      'un-jour': []
     }
 
     // Use TaskPriorityService for categorization
@@ -121,12 +136,15 @@ export class TaskCategoryService {
   ): Record<TaskCategory, number> {
     const groups = this.groupTasksByCategory(tasks)
     return {
+      brouillon: groups.brouillon.length,
+      'pour-ia': groups['pour-ia'].length,
       collected: groups.collected.length,
       overdue: groups.overdue.length,
       today: groups.today.length,
       tomorrow: groups.tomorrow.length,
       'no-date': groups['no-date'].length,
-      future: groups.future.length
+      future: groups.future.length,
+      'un-jour': groups['un-jour'].length
     }
   }
 

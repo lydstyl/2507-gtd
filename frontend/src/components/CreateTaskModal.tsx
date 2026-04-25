@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api, ApiError } from '../utils/api'
-import type { CreateTaskData, Tag } from '../types/task'
+import type { CreateTaskData, Tag, TaskStatus } from '../types/task'
+import { TASK_STATUS_LABELS } from '../types/task'
 import { useDuplicateWordDetection } from '../hooks/useDuplicateWordDetection'
 import { DuplicateTaskAlert } from './DuplicateTaskAlert'
 
@@ -20,11 +21,11 @@ export function CreateTaskModal({
   const [formData, setFormData] = useState<CreateTaskData>({
     name: '',
     link: '',
-    // Don't set default values - let backend decide if it's a collection task
+    status: 'brouillon',
     plannedDate: '',
     dueDate: '',
     tagIds: [],
-    parentId: parentId // Initialiser avec le parentId si fourni
+    parentId: parentId
   })
   const [tags, setTags] = useState<Tag[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -75,15 +76,14 @@ export function CreateTaskModal({
       await api.createTask(formattedData)
       onTaskCreated()
       onClose()
-      // Reset form
       setFormData({
         name: '',
         link: '',
-        // Don't set default values - let backend decide if it's a collection task
+        status: 'brouillon',
         plannedDate: '',
         dueDate: '',
         tagIds: [],
-        parentId: parentId // Reset parentId
+        parentId: parentId
       })
     } catch (err) {
       if (err instanceof ApiError) {
@@ -107,7 +107,9 @@ export function CreateTaskModal({
           ? value === ''
             ? undefined
             : parseInt(value)
-          : value
+          : name === 'status'
+            ? value as TaskStatus
+            : value
     }))
   }
 
@@ -198,27 +200,47 @@ export function CreateTaskModal({
             />
           </div>
 
+          <div>
+            <label
+              htmlFor='status'
+              className='block text-sm font-medium text-gray-700 mb-1'
+            >
+              Statut
+            </label>
+            <select
+              id='status'
+              name='status'
+              value={formData.status ?? 'brouillon'}
+              onChange={handleChange}
+              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+            >
+              {(Object.entries(TASK_STATUS_LABELS) as [TaskStatus, string][]).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
           <div className='grid grid-cols-2 gap-4'>
             <div>
               <label
                 htmlFor='importance'
                 className='block text-sm font-medium text-gray-700 mb-1'
               >
-                Importance: {formData.importance || '50 (défaut collection)'}
+                Importance: {formData.importance ?? 0}
               </label>
               <input
                 type='range'
                 id='importance'
                 name='importance'
                 min='0'
-                max='50'
-                value={formData.importance || ''}
+                max='500'
+                value={formData.importance ?? 0}
                 onChange={handleChange}
                 className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
               />
               <div className='flex justify-between text-xs text-gray-500 mt-1'>
-                <span>0 (Faible)</span>
-                <span>50 (Max)</span>
+                <span>0</span>
+                <span>500 (Max)</span>
               </div>
             </div>
 
@@ -227,7 +249,7 @@ export function CreateTaskModal({
                 htmlFor='complexity'
                 className='block text-sm font-medium text-gray-700 mb-1'
               >
-                Complexité: {formData.complexity || '1 (défaut collection)'}
+                Complexité: {formData.complexity ?? 3}
               </label>
               <input
                 type='range'
@@ -235,7 +257,7 @@ export function CreateTaskModal({
                 name='complexity'
                 min='1'
                 max='9'
-                value={formData.complexity || ''}
+                value={formData.complexity ?? 3}
                 onChange={handleChange}
                 className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
               />

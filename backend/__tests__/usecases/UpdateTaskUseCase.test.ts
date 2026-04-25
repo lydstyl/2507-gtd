@@ -253,7 +253,7 @@ describe('UpdateTaskUseCase', () => {
 
       mockTaskRepository.setItems([existingTask])
 
-      const invalidImportanceValues = [-1, 51, 100]
+      const invalidImportanceValues = [-1, 501, 1000]
 
       for (const importance of invalidImportanceValues) {
         const updateData: UpdateTaskData = {
@@ -264,7 +264,7 @@ describe('UpdateTaskUseCase', () => {
         const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
         expect(result.success).toBe(false)
-        expect(result.error?.message).toContain('Importance must be between 0 and 50')
+        expect(result.error?.message).toContain('Importance must be between 0 and 500')
       }
     })
 
