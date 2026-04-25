@@ -74,6 +74,13 @@ cd backend && npm run db:migrate && cd ..
 npm run dev   # Développement normal avec hot-reload
 ```
 
+Si les containers backend et frontend Docker tournent déjà (après un `docker compose up -d`), stoppe-les avant de lancer `npm run dev` — sinon le port 3000 est déjà occupé :
+
+```bash
+docker compose stop backend frontend
+npm run dev
+```
+
 Quand tu as fini de travailler :
 
 ```bash
@@ -212,6 +219,37 @@ Toute la logique métier vit dans `shared/` pour éviter la duplication.
 | Chat ne fonctionne pas | Vérifier la clé API LLM dans `.env` |
 | Build Docker échoue | `docker compose build --no-cache` |
 | Erreur de migration | `docker compose exec backend node_modules/.bin/prisma migrate status` |
+
+## Changer le mot de passe de la base de données
+
+PostgreSQL stocke le mot de passe lors de la **première initialisation du volume**. Changer `DB_PASSWORD` dans `.env` seul ne suffit pas — il faut aussi le changer à l'intérieur de PostgreSQL.
+
+### Option A — Conserver les données
+
+```bash
+# Se connecter au container postgres
+docker compose exec postgres psql -U gtd_user -d gtd_production
+
+# Changer le mot de passe dans PostgreSQL
+ALTER USER gtd_user WITH PASSWORD 'nouveau_mot_de_passe';
+\q
+
+# Mettre à jour .env
+# DB_PASSWORD=nouveau_mot_de_passe
+# DATABASE_URL=postgresql://gtd_user:nouveau_mot_de_passe@localhost:5432/gtd_production
+
+# Redémarrer
+docker compose restart
+```
+
+### Option B — Repartir de zéro (données perdues)
+
+```bash
+docker compose down -v   # Supprime les containers ET le volume
+
+# Mettre à jour .env, puis relancer
+docker compose up -d
+```
 
 ## Licence
 
