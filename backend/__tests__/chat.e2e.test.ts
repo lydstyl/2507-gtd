@@ -7,7 +7,9 @@ const prisma = new PrismaClient()
 const TEST_USER = createTestUser('chat')
 const authHeader = getTestAuthHeader(TEST_USER)
 
-describe('Chat API - /api/chat', () => {
+const describeFn = process.env.SKIP_LLM_TESTS ? describe.skip : describe
+
+describeFn('Chat API - /api/chat', () => {
   let server: any
 
   beforeAll(async () => {
