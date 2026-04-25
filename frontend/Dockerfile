@@ -1,32 +1,25 @@
-# Dockerfile pour le frontend React
-FROM node:18-alpine as builder
-
-# Créer le répertoire de l'application
+FROM node:24-slim AS builder
 WORKDIR /app
 
-# Copier les fichiers de dépendances
-COPY package*.json ./
-
-# Installer les dépendances
+# Install all workspace dependencies using root lockfile
+COPY package.json package-lock.json ./
+COPY shared/package.json ./shared/
+COPY frontend/package.json ./frontend/
 RUN npm ci
 
-# Copier le code source
-COPY . .
+# Build @gtd/shared first — frontend depends on it at compile time
+COPY shared/ ./shared/
+RUN npm run build:shared
 
-# Build de l'application
-RUN npm run build
+# Build frontend (Vite outputs to frontend/dist)
+COPY frontend/ ./frontend/
+RUN npm run build:frontend
 
-# Stage de production avec Nginx
+# ---
+
 FROM nginx:alpine
-
-# Copier les fichiers buildés
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copier la configuration Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Exposer le port
+COPY --from=builder /app/frontend/dist /usr/share/nginx/html
+# Path is relative to root build context (set in docker-compose)
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-
-# Commande de démarrage
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]
