@@ -1,8 +1,8 @@
 import { config } from 'dotenv'
 import { PrismaClient } from '@prisma/client'
 
-// Load environment variables from .env file
-config()
+// Load environment variables from root .env (CWD = backend/ when running tests)
+config({ path: '../.env' })
 
 const prisma = new PrismaClient()
 

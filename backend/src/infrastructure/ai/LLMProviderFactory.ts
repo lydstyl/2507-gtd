@@ -28,7 +28,7 @@ export class LLMProviderFactory {
       }
 
       case 'openrouter': {
-        const modelName = model || 'anthropic/claude-3.5-sonnet'
+        const modelName = model || 'anthropic/claude-3.5-haiku'
         // OpenRouter uses OpenAI-compatible chat completions API
         // Use .chat() to force chat completions endpoint instead of responses
         const openrouter = createOpenAI({
