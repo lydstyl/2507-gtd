@@ -32,9 +32,11 @@ docker compose build
 docker compose up -d
 ```
 
-L'application est disponible sur **http://localhost** (frontend) et **http://localhost:3000** (API).
+L'application est disponible sur **http://localhost** (frontend + API).
 
 Les migrations de base de données s'appliquent automatiquement au premier démarrage du backend.
+
+> **Architecture réseau Docker** : le container `frontend` embarque son propre **nginx interne** qui sert les fichiers statiques ET proxy les requêtes `/api` vers le container `backend`. Le container `backend` n'a donc pas besoin d'être exposé publiquement — tout passe par le frontend sur le port 80 (ou le port mappé, ex: 3080). Si vous utilisez un nginx externe en reverse proxy, il suffit de proxy **uniquement** vers le port du container frontend ; ne pas ajouter de bloc `location /api` redondant.
 
 ### Option B — Sans Docker (développement classique)
 

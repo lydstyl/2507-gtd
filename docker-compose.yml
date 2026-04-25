@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: gtd-postgres
+    container_name: gtd-docker-postgres
     environment:
       POSTGRES_DB: gtd_production
       POSTGRES_USER: gtd_user
@@ -22,7 +22,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: gtd-backend
+    container_name: gtd-docker-backend
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -35,7 +35,7 @@ services:
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -49,9 +49,9 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    container_name: gtd-frontend
+    container_name: gtd-docker-frontend
     ports:
-      - "80:80"
+      - "3080:80"
     depends_on:
       - backend
     networks:
