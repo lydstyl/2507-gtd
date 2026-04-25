@@ -1,0 +1,14 @@
+- import via csv
+- import des données depuis sqlite ?
+- nouvelles catégories
+  - brouillon
+  - brouillon validé pour IA
+  - collecte
+  - planifié pour aujourd'hui ou demain
+  - sans date
+  - pour plus tard
+  - un jour peu être
+- trie uniquement par importance mais on garde complexité pour info
+- api pour IA externe genre openclaw ou hermes agent + chatbot api key openrouter
+- mise en prod serveur (préparer doc avant)
+- test avec hermes
