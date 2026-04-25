@@ -1,11 +1,13 @@
-- vérifier l'export import csv
+# En cours
 
-Peux tu maintenant vérifier que l'export / import csv fonctionne puis npm run test et npm run build il faut que tout fonctionne bien.
+- Cette application dans le futur sera un SaaS payant avec peut être 300 utilisateurs. Je souhaite pouvoir la connecter facilement à des outils comme OpenClaw, OpenCode, Claude Code, Hermes Agent. Comment la connecter facilement à ces outils afin que des LLM puisse créer, modifier, supprimer des taches et faire plein d'autres choses ? Via API ? Via MCP serveur ? Autrement ? Que proposes tu pour faire cela bien ? Est ce qu'une solution a déjà été commencé à etre développée ? N'hésites pas à me poser des questions si besoin.
 
-- api pour IA externe genre openclaw ou hermes agent + chatbot api key openrouter
-
-J'utilise OpenClaw et Hermes agent sur le serveur sur lequel nous allons mettre ne production cette application.
-Peux tu me faire un plan car j'aimerais que OpenClaw ou Hermes puisse create, remove et modifier des taches facilement. Comment leur donner accès à cela de la meilleure façon ? En vrai je pense qu'ils peuvent utiliser l'api existante mais je me demande s'il n'est pas mieux de faire autrement, peut être via un mcp serveur ? Je ne sais pas trop mais idéalement il faut que ce soit futurproof c'est dire que si plus tarde cette application devient un saas, il faudra que les utilisateurs puissent facilement se connecter dessus avec leur OpenClaw, Hermes ou autre agent IA. Cela pourrait d'ailleurs aussi être claude code peut etre ? Que me conseilles tu ? Fais un plan.
+# Au plus vite
 
 - mise en prod serveur (préparer doc avant)
+
 - test avec hermes
+
+# Pour plus tard
+
+- Ajouter une auth par clé API à la REST API existante — plus simple, accessible à n'importe quel outil HTTP
