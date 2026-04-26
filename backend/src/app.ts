@@ -5,6 +5,7 @@ import { Container } from './infrastructure/container'
 import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
 import { createChatRoutes } from './presentation/routes/chatRoutes'
+import { createApiKeyRouter } from './presentation/routes/apiKeyRoutes'
 import authRoutes from './presentation/routes/authRoutes'
 import { loadEnvironment } from './config/env'
 
@@ -53,6 +54,7 @@ const container = Container.getInstance()
 app.use('/api/tasks', createTaskRoutes(container.getTaskController()))
 app.use('/api/tags', createTagRoutes(container.getTagController()))
 app.use('/api/chat', createChatRoutes(container.getChatController()))
+app.use('/api/auth/keys', createApiKeyRouter(container.getApiKeyController()))
 app.use('/api/auth', authRoutes)
 
 // Route de santé

@@ -1,276 +1,145 @@
 #!/usr/bin/env node
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { 
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
-import { DatabaseConfig } from './config/database.js';
-import { TaskCreator, CreateTaskSchema } from './tools/createTask.js';
-import { TaskLister, ListTasksSchema } from './tools/listTasks.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
+import express, { Request, Response } from 'express'
+import cors from 'cors'
+import { randomUUID } from 'crypto'
+import { ApiClient } from './client/ApiClient.js'
+import { registerTaskTools } from './tools/tasks.js'
+import { registerTagTools } from './tools/tags.js'
 
-const prisma = DatabaseConfig.getInstance();
-const taskCreator = new TaskCreator(prisma);
-const taskLister = new TaskLister(prisma);
+const TRANSPORT = process.env['TRANSPORT'] ?? 'stdio'
+const MCP_HTTP_PORT = parseInt(process.env['MCP_HTTP_PORT'] ?? '3001', 10)
+const GTD_API_URL = process.env['GTD_API_URL'] ?? 'http://localhost:3000'
 
-const server = new Server(
-  {
+function createMcpServer(getClient: () => ApiClient): McpServer {
+  const server = new McpServer({
     name: 'gtd-task-manager',
-    version: '1.0.0'
-  },
-  {
-    capabilities: {
-      tools: {}
-    }
-  }
-);
-
-// Set up tool handlers
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
-      {
-        name: 'create-task-for-user',
-        description: 'Create a new task for a specific user in the GTD system. You can use either userId or userEmail.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The ID of the user (either userId or userEmail must be provided)'
-            },
-            userEmail: {
-              type: 'string',
-              description: 'The email of the user (either userId or userEmail must be provided)'
-            },
-            name: {
-              type: 'string',
-              description: 'The name/title of the task'
-            },
-            importance: {
-              type: 'number',
-              minimum: 1,
-              maximum: 100,
-              description: 'Importance level (1-100, default: 50, higher = more important)',
-              default: 50
-            },
-            complexity: {
-              type: 'number',
-              minimum: 1,
-              maximum: 5,
-              description: 'Complexity level (1-5, default: 1, higher = more complex)',
-              default: 1
-            },
-            link: {
-              type: 'string',
-              description: 'Optional link associated with the task'
-            },
-            note: {
-              type: 'string',
-              description: 'Optional rich text note for the task'
-            },
-            plannedDate: {
-              type: 'string',
-              description: 'Optional planned date in ISO format (YYYY-MM-DD)'
-            },
-            dueDate: {
-              type: 'string',
-              description: 'Optional due date in ISO format (YYYY-MM-DD)'
-            },
-            parentId: {
-              type: 'string',
-              description: 'Optional ID of parent task (for creating subtasks)'
-            },
-            tagIds: {
-              type: 'array',
-              items: {
-                type: 'string'
-              },
-              description: 'Optional array of tag IDs to associate with the task'
-            }
-          },
-          required: ['name']
-        }
-      },
-      {
-        name: 'list-tasks-for-user',
-        description: 'List tasks for a specific user. You can filter by completion status, planned date, or due date. You can use either userId or userEmail.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The ID of the user (either userId or userEmail must be provided)'
-            },
-            userEmail: {
-              type: 'string',
-              description: 'The email of the user (either userId or userEmail must be provided)'
-            },
-            isCompleted: {
-              type: 'boolean',
-              description: 'Filter by completion status (true = completed, false = not completed)'
-            },
-            plannedDate: {
-              type: 'string',
-              description: 'Filter by planned date in ISO format (YYYY-MM-DD)'
-            },
-            dueDate: {
-              type: 'string',
-              description: 'Filter by due date in ISO format (YYYY-MM-DD)'
-            },
-            limit: {
-              type: 'number',
-              minimum: 1,
-              maximum: 100,
-              description: 'Maximum number of tasks to return (default: 50)',
-              default: 50
-            }
-          },
-          required: []
-        }
-      }
-    ]
-  };
-});
-
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
-  
-  if (name === 'create-task-for-user') {
-    try {
-      // Validate input using Zod schema
-      const validatedInput = CreateTaskSchema.parse(args);
-      
-      // Create the task
-      const task = await taskCreator.createTask(validatedInput);
-      
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `✅ Task created successfully!\n\n**Task Details:**\n- ID: ${task.id}\n- Name: ${task.name}\n- Importance: ${task.importance}\n- Complexity: ${task.complexity}\n- Points: ${task.points}\n- Created: ${task.createdAt.toISOString()}\n- User ID: ${task.userId}${task.parentId ? `\n- Parent Task ID: ${task.parentId}` : ''}${task.dueDate ? `\n- Due Date: ${task.dueDate}` : ''}${task.link ? `\n- Link: ${task.link}` : ''}${task.tags.length > 0 ? `\n- Tags: ${task.tags.map(tag => tag.name).join(', ')}` : ''}`
-          }
-        ]
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Error creating task: ${errorMessage}`
-          }
-        ],
-        isError: true
-      };
-    }
-  }
-
-  if (name === 'list-tasks-for-user') {
-    try {
-      // Validate input using Zod schema
-      const validatedInput = ListTasksSchema.parse(args);
-
-      // List the tasks
-      const tasks = await taskLister.listTasks(validatedInput);
-
-      if (tasks.length === 0) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: '📋 No tasks found matching the criteria.'
-            }
-          ]
-        };
-      }
-
-      const tasksList = tasks.map((task, index) => {
-        const taskInfo = [
-          `${index + 1}. **${task.name}**`,
-          `   - ID: ${task.id}`,
-          `   - Importance: ${task.importance} | Complexity: ${task.complexity} | Points: ${task.points}`
-        ];
-
-        if (task.plannedDate) {
-          taskInfo.push(`   - Planned: ${new Date(task.plannedDate).toISOString().split('T')[0]}`);
-        }
-
-        if (task.dueDate) {
-          taskInfo.push(`   - Due: ${new Date(task.dueDate).toISOString().split('T')[0]}`);
-        }
-
-        if (task.link) {
-          taskInfo.push(`   - Link: ${task.link}`);
-        }
-
-        if (task.tags && task.tags.length > 0) {
-          taskInfo.push(`   - Tags: ${task.tags.map(tag => tag.name).join(', ')}`);
-        }
-
-        if (task.subtasks && task.subtasks.length > 0) {
-          taskInfo.push(`   - Subtasks: ${task.subtasks.length}`);
-        }
-
-        return taskInfo.join('\n');
-      }).join('\n\n');
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `✅ Found ${tasks.length} task(s):\n\n${tasksList}`
-          }
-        ]
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Error listing tasks: ${errorMessage}`
-          }
-        ],
-        isError: true
-      };
-    }
-  }
-
-  throw new Error(`Unknown tool: ${name}`);
-});
-
-// Handle graceful shutdown
-process.on('SIGINT', async () => {
-  console.error('Received SIGINT, shutting down gracefully...');
-  await DatabaseConfig.disconnect();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.error('Received SIGTERM, shutting down gracefully...');
-  await DatabaseConfig.disconnect();
-  process.exit(0);
-});
-
-// Start the server
-async function main() {
-  try {
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
-    console.error('GTD MCP Server is running...');
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    await DatabaseConfig.disconnect();
-    process.exit(1);
-  }
+    version: '2.0.0',
+  })
+  registerTaskTools(server, getClient)
+  registerTagTools(server, getClient)
+  return server
 }
 
-main().catch(async (error) => {
-  console.error('Unhandled error:', error);
-  await DatabaseConfig.disconnect();
-  process.exit(1);
-});
+async function startStdio(): Promise<void> {
+  const token = process.env['GTD_API_TOKEN']
+  if (!token) {
+    console.error(
+      'Error: GTD_API_TOKEN environment variable is required.\n' +
+      'Set it to your JWT or API key from the GTD app.\n' +
+      'Example: GTD_API_TOKEN=gtd_abc123... node build/index.js'
+    )
+    process.exit(1)
+  }
+
+  const client = new ApiClient(token, GTD_API_URL)
+  const server = createMcpServer(() => client)
+  const transport = new StdioServerTransport()
+  await server.connect(transport)
+  console.error('GTD MCP Server running (stdio)')
+}
+
+async function startHttp(): Promise<void> {
+  const app = express()
+  app.use(cors())
+  app.use(express.json())
+
+  // Track Streamable HTTP sessions: sessionId → transport
+  const sessions = new Map<string, StreamableHTTPServerTransport>()
+
+  function extractToken(req: Request): string | null {
+    const auth = req.headers.authorization
+    if (auth && auth.startsWith('Bearer ')) return auth.substring(7)
+    return null
+  }
+
+  // ── Streamable HTTP (MCP spec 2025-11-25) ──────────────────────────────────
+  app.post('/mcp', async (req: Request, res: Response) => {
+    const sessionId = req.headers['mcp-session-id'] as string | undefined
+
+    if (sessionId && sessions.has(sessionId)) {
+      const transport = sessions.get(sessionId)!
+      await transport.handleRequest(req, res, req.body)
+      return
+    }
+
+    const token = extractToken(req)
+    if (!token) {
+      res.status(401).json({ error: 'Authorization: Bearer <token> required' })
+      return
+    }
+
+    const newSessionId = randomUUID()
+    const client = new ApiClient(token, GTD_API_URL)
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => newSessionId,
+    })
+    sessions.set(newSessionId, transport)
+
+    transport.onclose = () => sessions.delete(newSessionId)
+
+    const server = createMcpServer(() => client)
+    await server.connect(transport)
+    await transport.handleRequest(req, res, req.body)
+  })
+
+  app.delete('/mcp', async (req: Request, res: Response) => {
+    const sessionId = req.headers['mcp-session-id'] as string | undefined
+    if (sessionId && sessions.has(sessionId)) {
+      const transport = sessions.get(sessionId)!
+      await transport.handleRequest(req, res, req.body)
+      sessions.delete(sessionId)
+    } else {
+      res.status(404).json({ error: 'Session not found' })
+    }
+  })
+
+  // ── SSE (legacy MCP spec 2024-11-05, for Hermes and older clients) ─────────
+  app.get('/sse', async (req: Request, res: Response) => {
+    const token = extractToken(req)
+    if (!token) {
+      res.status(401).json({ error: 'Authorization: Bearer <token> required' })
+      return
+    }
+
+    const client = new ApiClient(token, GTD_API_URL)
+    const transport = new SSEServerTransport('/messages', res)
+    const server = createMcpServer(() => client)
+    await server.connect(transport)
+  })
+
+  app.post('/messages', async (req: Request, res: Response) => {
+    // SSEServerTransport handles session routing internally via query param
+    // This endpoint is hit by the SSE client to send messages
+    res.status(400).json({ error: 'Use the SSE connection from GET /sse' })
+  })
+
+  app.get('/health', (_req: Request, res: Response) => {
+    res.json({ status: 'ok', transport: 'http', port: MCP_HTTP_PORT })
+  })
+
+  app.listen(MCP_HTTP_PORT, () => {
+    console.error(`GTD MCP Server running (HTTP) on port ${MCP_HTTP_PORT}`)
+    console.error(`  Streamable HTTP: POST http://localhost:${MCP_HTTP_PORT}/mcp`)
+    console.error(`  SSE (legacy):    GET  http://localhost:${MCP_HTTP_PORT}/sse`)
+  })
+}
+
+process.on('SIGINT', () => process.exit(0))
+process.on('SIGTERM', () => process.exit(0))
+
+if (TRANSPORT === 'http') {
+  startHttp().catch((err) => {
+    console.error('Failed to start HTTP server:', err)
+    process.exit(1)
+  })
+} else {
+  startStdio().catch((err) => {
+    console.error('Failed to start stdio server:', err)
+    process.exit(1)
+  })
+}
