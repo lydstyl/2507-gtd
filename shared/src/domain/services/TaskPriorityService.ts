@@ -1,4 +1,4 @@
-import { GenericTaskWithSubtasks, TaskCategory, DateContext } from '../entities/TaskTypes'
+import { GenericTaskWithSubtasks, TaskCategory, DateContext, TaskStatus } from '../entities/TaskTypes'
 import { normalizeDate, createDateContext } from '../utils/DateUtils'
 
 /**
@@ -55,20 +55,13 @@ export class TaskPriorityService {
   }
 
   /**
-   * Check if a task is a collected task (business rule)
-   * Collected tasks are only new default tasks: importance=0, complexity=3, no effective date
+   * Check if a task is a collected task (based on status field)
    */
   static isCollectedTask<TDate extends string | Date>(
     task: GenericTaskWithSubtasks<TDate>,
-    context: DateContext
+    _context: DateContext
   ): boolean {
-    const effectiveDate = this.getEffectiveDate(task, context)
-
-    // Only consider as collected if no effective date (no planned date and no urgent due date)
-    if (effectiveDate) return false
-
-    // Only new default tasks: importance=0, complexity=3
-    return task.importance === 0 && task.complexity === 3
+    return (task as any).status === 'collecte'
   }
 
   /**
@@ -116,52 +109,58 @@ export class TaskPriorityService {
   }
 
   /**
-   * Get the category of a task based on business rules
+   * Get the category of a task based on business rules.
+   *
+   * Status rules:
+   * - brouillon → always 'brouillon' (dates ignored)
+   * - pour_ia → always 'pour-ia' (dates ignored)
+   * - collecte → always 'collected' (dates ignored)
+   * - pret → categorized by date into 'pret-*' categories
+   * - un_jour_peut_etre → always 'un-jour' (dates ignored)
    */
   static getTaskCategory<TDate extends string | Date>(
     task: GenericTaskWithSubtasks<TDate>,
     context: DateContext
   ): TaskCategory {
-    // 1. Collected tasks (new default tasks that need user categorization, only if no effective date)
-    if (this.isCollectedTask(task, context)) {
-      return 'collected'
+    const status = (task as any).status as TaskStatus | undefined
+
+    if (status === 'brouillon') return 'brouillon'
+    if (status === 'pour_ia') return 'pour-ia'
+    if (status === 'collecte') return 'collected'
+    if (status === 'un_jour_peut_etre') return 'un-jour'
+
+    // 'pret' status tasks are categorized by date
+    if (status === 'pret') {
+      if (this.isOverdueTask(task, context)) return 'pret-overdue'
+      if (this.isTodayTask(task, context)) return 'pret-today'
+      if (this.isTomorrowTask(task, context)) return 'pret-tomorrow'
+      if (this.isFutureTask(task, context)) return 'pret-future'
+      return 'pret-no-date'
     }
 
-    // 2. Overdue tasks
-    if (this.isOverdueTask(task, context)) {
-      return 'overdue'
-    }
+    // Fallback for undefined/legacy status: treat as 'pret' (date-based categorization)
+    if (this.isOverdueTask(task, context)) return 'pret-overdue'
+    if (this.isTodayTask(task, context)) return 'pret-today'
+    if (this.isTomorrowTask(task, context)) return 'pret-tomorrow'
+    if (this.isFutureTask(task, context)) return 'pret-future'
 
-    // 3. Today tasks
-    if (this.isTodayTask(task, context)) {
-      return 'today'
-    }
-
-    // 4. Tomorrow tasks
-    if (this.isTomorrowTask(task, context)) {
-      return 'tomorrow'
-    }
-
-    // 5. Future tasks (day+2 or more)
-    if (this.isFutureTask(task, context)) {
-      return 'future'
-    }
-
-    // 6. Tasks without effective date (excluding collected tasks already handled)
-    return 'no-date'
+    return 'pret-no-date'
   }
 
   /**
    * Get priority order for categories (lower number = higher priority)
    */
   static getCategoryPriority(category: TaskCategory): number {
-    const priorities = {
-      collected: 1,
-      overdue: 2,
-      today: 3,
-      tomorrow: 4,
-      'no-date': 5,
-      future: 6
+    const priorities: Record<TaskCategory, number> = {
+      brouillon: 1,
+      'pour-ia': 2,
+      collected: 3,
+      'pret-overdue': 4,
+      'pret-today': 5,
+      'pret-tomorrow': 6,
+      'pret-no-date': 7,
+      'pret-future': 8,
+      'un-jour': 9
     }
     return priorities[category]
   }
@@ -184,24 +183,34 @@ export class TaskPriorityService {
   }
 
   /**
-   * Compare two tasks by points (higher points = higher priority)
+   * Compare two tasks by importance DESC (higher importance = higher priority)
    */
-  static compareByPoints<TDate extends string | Date>(
+  static compareByImportance<TDate extends string | Date>(
     a: GenericTaskWithSubtasks<TDate>,
     b: GenericTaskWithSubtasks<TDate>
   ): number {
-    if (a.points !== b.points) {
-      return b.points - a.points
+    if (a.importance !== b.importance) {
+      return b.importance - a.importance
     }
-    // If points equal, sort by creation date DESC (newer first)
+    // Tiebreaker: creation date DESC (newer first)
     try {
       const dateA = new Date(a.createdAt as string | number | Date)
       const dateB = new Date(b.createdAt as string | number | Date)
       return dateB.getTime() - dateA.getTime()
     } catch {
-      // If date parsing fails, consider them equal
       return 0
     }
+  }
+
+  /**
+   * Compare two tasks by points (higher points = higher priority)
+   * @deprecated Use compareByImportance instead
+   */
+  static compareByPoints<TDate extends string | Date>(
+    a: GenericTaskWithSubtasks<TDate>,
+    b: GenericTaskWithSubtasks<TDate>
+  ): number {
+    return this.compareByImportance(a, b)
   }
 
   /**
@@ -240,34 +249,33 @@ export class TaskPriorityService {
 
     // Within same category, apply specific sorting rules
     switch (categoryA) {
+      case 'brouillon':
+      case 'pour-ia':
       case 'collected':
-        // Both are collected tasks, sort by points DESC, then creation date DESC
-        return this.compareByPoints(a, b)
+      case 'pret-no-date':
+      case 'un-jour':
+        // Sort by importance only
+        return this.compareByImportance(a, b)
 
-      case 'overdue':
-        // Both overdue, sort by date ASC (oldest overdue first), then points DESC
-        const dateComparison = this.compareByEffectiveDate(a, b, context)
-        if (dateComparison !== 0) return dateComparison
-        return this.compareByPoints(a, b)
+      case 'pret-overdue':
+        // Sort by date ASC (oldest first), then importance
+        const overdueDateComparison = this.compareByEffectiveDate(a, b, context)
+        if (overdueDateComparison !== 0) return overdueDateComparison
+        return this.compareByImportance(a, b)
 
-      case 'today':
-      case 'tomorrow':
-        // Both due same day, sort by points DESC
-        return this.compareByPoints(a, b)
+      case 'pret-today':
+      case 'pret-tomorrow':
+        // Sort by importance only
+        return this.compareByImportance(a, b)
 
-      case 'no-date':
-        // Both have no date, sort by points DESC
-        return this.compareByPoints(a, b)
-
-      case 'future':
-        // Both are future tasks, sort by date ASC, then points DESC
+      case 'pret-future':
+        // Sort by date ASC, then importance
         const futureDateComparison = this.compareByEffectiveDate(a, b, context)
         if (futureDateComparison !== 0) return futureDateComparison
-        return this.compareByPoints(a, b)
+        return this.compareByImportance(a, b)
 
       default:
-        // Fallback: sort by points DESC
-        return this.compareByPoints(a, b)
+        return this.compareByImportance(a, b)
     }
   }
 }

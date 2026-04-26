@@ -1,0 +1,27 @@
+node_modules
+*/node_modules
+
+# Built outputs (rebuilt during Docker build)
+*/dist
+shared/dist
+
+# Development databases
+backend/prisma/dev.db
+backend/prisma/*.db
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+
+# Git
+.git
+.gitignore
+
+# Test artifacts
+coverage
+*/coverage

@@ -10,6 +10,7 @@ describe('ParentDateSyncService', () => {
     complexity: 3,
     points: 150,
     position: 0,
+    status: 'brouillon',
     userId: 'user-1',
     isCompleted: false,
     createdAt: '2025-01-01T00:00:00.000Z',

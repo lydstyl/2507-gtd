@@ -44,8 +44,8 @@ describe('Subtask Import/Export Fixed Tests', () => {
     })
 
     // Créer les utilisateurs de test
-    const userA = await authService.register(userAEmail, testPassword)
-    const userB = await authService.register(userBEmail, testPassword)
+    const { user: userA } = await authService.register(userAEmail, testPassword)
+    const { user: userB } = await authService.register(userBEmail, testPassword)
     userAId = userA.id
     userBId = userB.id
 

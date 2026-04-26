@@ -67,16 +67,6 @@ const renderTaskListPage = () => {
   )
 }
 
-// Helper to simulate keyboard events
-const pressKey = async (key: string, options: { shiftKey?: boolean } = {}) => {
-  const user = userEvent.setup()
-  if (options.shiftKey) {
-    await user.keyboard(`{Shift>}${key}{/Shift}`)
-  } else {
-    await user.keyboard(`{${key}}`)
-  }
-}
-
 describe('Keyboard Shortcuts', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -90,6 +80,15 @@ describe('Keyboard Shortcuts', () => {
     vi.unstubAllGlobals()
   })
 
+  // Helper to simulate keyboard events
+  const pressKey = async (user: ReturnType<typeof userEvent.setup>, key: string, options: { shiftKey?: boolean } = {}) => {
+    if (options.shiftKey) {
+      await user.keyboard(`{Shift>}${key}{/Shift}`)
+    } else {
+      await user.keyboard(`{${key}}`)
+    }
+  }
+
   test('should select first task when pressing ArrowDown with no selection', async () => {
     const tasks: Task[] = [
       createTestTask('Task 1'),
@@ -99,6 +98,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
     vi.mocked(api.getTags).mockResolvedValue([])
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     // Wait for tasks to load
@@ -107,7 +107,7 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Press ArrowDown to select first task
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Check if first task is selected (this would require checking for selection styles)
     // For now, we can verify the task is in the document
@@ -124,6 +124,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
     vi.mocked(api.getTags).mockResolvedValue([])
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -131,9 +132,9 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Navigate with arrow keys
-    await pressKey('ArrowDown') // Select Task 1
-    await pressKey('ArrowDown') // Move to Task 2
-    await pressKey('ArrowUp')   // Move back to Task 1
+    await pressKey(user, 'ArrowDown') // Select Task 1
+    await pressKey(user, 'ArrowDown') // Move to Task 2
+    await pressKey(user, 'ArrowUp')   // Move back to Task 1
 
     // Verify all tasks are still visible
     expect(screen.getByText('Task 1')).toBeInTheDocument()
@@ -149,6 +150,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -156,10 +158,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press I to increase importance
-    await pressKey('i')
+    await pressKey(user, 'i')
 
     // Verify updateTask was called with increased importance
     await waitFor(() => {
@@ -180,6 +182,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -187,10 +190,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press Shift+I to decrease importance
-    await pressKey('I', { shiftKey: true })
+    await pressKey(user, 'I', { shiftKey: true })
 
     // Verify updateTask was called with decreased importance
     await waitFor(() => {
@@ -211,6 +214,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -218,10 +222,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press Shift+I to decrease importance
-    await pressKey('I', { shiftKey: true })
+    await pressKey(user, 'I', { shiftKey: true })
 
     // Verify importance doesn't go below 0
     await waitFor(() => {
@@ -242,6 +246,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -249,10 +254,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press C to increase complexity
-    await pressKey('c')
+    await pressKey(user, 'c')
 
     // Verify updateTask was called with increased complexity
     await waitFor(() => {
@@ -273,6 +278,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -280,10 +286,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press D to set planned date to tomorrow
-    await pressKey('d')
+    await pressKey(user, 'd')
 
     // Calculate expected date (tomorrow)
     const tomorrow = new Date()
@@ -311,6 +317,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -318,10 +325,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press T to set planned date to today
-    await pressKey('t')
+    await pressKey(user, 't')
 
     // Calculate expected date (today)
     const today = new Date()
@@ -349,6 +356,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -356,10 +364,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press E to remove planned date
-    await pressKey('e')
+    await pressKey(user, 'e')
 
     // Verify updateTask was called with null planned date
     await waitFor(() => {
@@ -382,6 +390,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([tag1, tag2])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -389,10 +398,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press 1 to toggle first tag
-    await pressKey('1')
+    await pressKey(user, '1')
 
     // Verify updateTask was called with first tag added
     await waitFor(() => {
@@ -413,6 +422,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.markTaskCompleted).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -420,10 +430,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press Space to mark task as completed
-    await pressKey(' ')
+    await pressKey(user, ' ')
 
     // Verify markTaskCompleted was called
     await waitFor(() => {
@@ -439,6 +449,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -450,7 +461,7 @@ describe('Keyboard Shortcuts', () => {
     searchInput.focus()
 
     // Type 'i' in the search input - should not trigger importance shortcut
-    await userEvent.type(searchInput, 'i')
+    await user.type(searchInput, 'i')
 
     // Verify updateTask was NOT called
     expect(vi.mocked(api.updateTask)).not.toHaveBeenCalled()
@@ -466,6 +477,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
     vi.mocked(api.getTags).mockResolvedValue([])
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -473,10 +485,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press Delete key
-    await pressKey('Delete')
+    await pressKey(user, 'Delete')
 
     // Verify confirm was called
     expect(window.confirm).toHaveBeenCalledWith(
@@ -494,6 +506,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
     vi.mocked(api.getTags).mockResolvedValue([])
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -501,10 +514,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press Delete key
-    await pressKey('Delete')
+    await pressKey(user, 'Delete')
 
     // Verify confirm was called but task wasn't deleted
     expect(window.confirm).toHaveBeenCalled()
@@ -519,6 +532,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -526,10 +540,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press W to set planned date to next week
-    await pressKey('w')
+    await pressKey(user, 'w')
 
     // Calculate expected date (next week)
     const nextWeek = new Date()
@@ -557,6 +571,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -564,10 +579,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press M to set planned date to next month
-    await pressKey('m')
+    await pressKey(user, 'm')
 
     // Calculate expected date (next month)
     const nextMonth = new Date()
@@ -595,6 +610,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -602,10 +618,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press Shift+C to decrease complexity
-    await pressKey('c', { shiftKey: true })
+    await pressKey(user, 'c', { shiftKey: true })
 
     // Verify updateTask was called with decreased complexity
     await waitFor(() => {
@@ -626,6 +642,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -633,10 +650,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press Shift+C to try to decrease complexity
-    await pressKey('c', { shiftKey: true })
+    await pressKey(user, 'c', { shiftKey: true })
 
     // Verify complexity doesn't go below 1
     await waitFor(() => {
@@ -649,14 +666,15 @@ describe('Keyboard Shortcuts', () => {
     })
   })
 
-  test('should not increase importance above 50', async () => {
-    const task = createTestTask('Test Task', 45, 3) // Near maximum importance
+  test('should not increase importance above 500', async () => {
+    const task = createTestTask('Test Task', 495, 3) // Near maximum importance
     const tasks: Task[] = [task]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -664,17 +682,17 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press I to try to increase importance
-    await pressKey('i')
+    await pressKey(user, 'i')
 
-    // Verify importance doesn't go above 50
+    // Verify importance doesn't go above 500
     await waitFor(() => {
       expect(vi.mocked(api.updateTask)).toHaveBeenCalledWith(
         task.id,
         expect.objectContaining({
-          importance: 50 // Math.min(50, 45 + 10)
+          importance: 500 // Math.min(500, 495 + 10)
         })
       )
     })
@@ -688,6 +706,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -695,10 +714,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press C to try to increase complexity
-    await pressKey('c')
+    await pressKey(user, 'c')
 
     // Verify complexity doesn't go above 9
     await waitFor(() => {
@@ -722,6 +741,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([tag1])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -729,10 +749,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press 1 to toggle first tag (should remove it since it's already assigned)
-    await pressKey('1')
+    await pressKey(user, '1')
 
     // Verify updateTask was called with tag removed
     await waitFor(() => {
@@ -756,6 +776,7 @@ describe('Keyboard Shortcuts', () => {
     vi.mocked(api.getTags).mockResolvedValue([])
     vi.mocked(api.updateTask).mockResolvedValue(undefined)
 
+    const user = userEvent.setup()
     renderTaskListPage()
 
     await waitFor(() => {
@@ -763,10 +784,10 @@ describe('Keyboard Shortcuts', () => {
     })
 
     // Select the task first
-    await pressKey('ArrowDown')
+    await pressKey(user, 'ArrowDown')
 
     // Press D to add 1 day to existing planned date
-    await pressKey('d')
+    await pressKey(user, 'd')
 
     // Calculate expected date (existing date + 1 day)
     const expectedDate = new Date(existingDate)

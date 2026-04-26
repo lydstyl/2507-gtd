@@ -1,3 +1,13 @@
+export type TaskStatus = 'brouillon' | 'pour_ia' | 'collecte' | 'pret' | 'un_jour_peut_etre'
+
+export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  brouillon: 'Brouillon',
+  pour_ia: 'Pour IA',
+  collecte: 'Collecté',
+  pret: 'Prêt',
+  un_jour_peut_etre: 'Un jour peut-être'
+}
+
 export interface Task {
   id: string
   name: string
@@ -7,6 +17,7 @@ export interface Task {
   complexity: number
   points: number
   position: number
+  status: TaskStatus
   plannedDate?: string
   dueDate?: string
   parentId?: string
@@ -24,10 +35,11 @@ export interface CreateTaskData {
   link?: string
   note?: string
   importance?: number
-   complexity?: number
-   plannedDate?: string
-   dueDate?: string
-   parentId?: string
+  complexity?: number
+  status?: TaskStatus
+  plannedDate?: string
+  dueDate?: string
+  parentId?: string
   tagIds?: string[]
   isCompleted?: boolean
 }
@@ -38,6 +50,7 @@ export interface UpdateTaskData {
   note?: string
   importance?: number
   complexity?: number
+  status?: TaskStatus
   position?: number
   plannedDate?: string | null
   dueDate?: string | null

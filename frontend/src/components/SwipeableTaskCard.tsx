@@ -41,6 +41,7 @@ export function SwipeableTaskCard(props: SwipeableTaskCardProps) {
   const [showSwipeIndicator, setShowSwipeIndicator] = useState<'complete' | 'delete' | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const haptic = useHapticFeedback()
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -113,12 +114,14 @@ export function SwipeableTaskCard(props: SwipeableTaskCardProps) {
       if (deltaX > 0) {
         // Swipe right - complete task
         haptic.taskCompleted() // Haptic feedback for task completion
-        setTimeout(() => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        timeoutRef.current = setTimeout(() => {
           props.onMarkCompleted?.(props.task.id)
         }, 150) // Delay to show animation
       } else {
         // Swipe left - delete task (with confirmation for non-completed tasks)
-        setTimeout(() => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        timeoutRef.current = setTimeout(() => {
           if (props.task.isCompleted) {
             haptic.taskDeleted() // Haptic feedback for task deletion
             props.onDelete?.(props.task.id)
@@ -155,7 +158,13 @@ export function SwipeableTaskCard(props: SwipeableTaskCardProps) {
     const cardElement = cardRef.current
     if (cardElement) {
       cardElement.addEventListener('touchcancel', handleTouchCancel)
-      return () => cardElement.removeEventListener('touchcancel', handleTouchCancel)
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current)
+          timeoutRef.current = null
+        }
+        cardElement.removeEventListener('touchcancel', handleTouchCancel)
+      }
     }
   }, [])
 

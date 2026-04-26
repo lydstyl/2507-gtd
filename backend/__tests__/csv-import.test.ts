@@ -26,7 +26,7 @@ describe('CSV Import Tests', () => {
     await prisma.user.deleteMany({ where: { email: testEmail } })
 
     // Créer l'utilisateur de test
-    const user = await authService.register(testEmail, testPassword)
+    const { user } = await authService.register(testEmail, testPassword)
     userId = user.id
     const authResult = await authService.login(testEmail, testPassword)
     authToken = authResult.token

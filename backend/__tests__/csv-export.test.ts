@@ -21,7 +21,7 @@ describe('CSV Export Tests', () => {
 
   beforeAll(async () => {
     // Créer un utilisateur de test
-    const user = await authService.register(testEmail, testPassword)
+    const { user } = await authService.register(testEmail, testPassword)
     userId = user.id
 
     // Authentifier l'utilisateur pour obtenir le token
@@ -158,10 +158,7 @@ describe('CSV Export Tests', () => {
     const emptyUserEmail = `test-empty-user-${Date.now()}@example.com`
     const emptyUserPassword = 'test-password-456'
 
-    const emptyUser = await authService.register(
-      emptyUserEmail,
-      emptyUserPassword
-    )
+    await authService.register(emptyUserEmail, emptyUserPassword)
     const emptyUserAuth = await authService.login(
       emptyUserEmail,
       emptyUserPassword

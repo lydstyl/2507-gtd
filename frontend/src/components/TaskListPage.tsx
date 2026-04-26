@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { SwipeableTaskCard } from './SwipeableTaskCard'
 import { CreateTaskModal } from './CreateTaskModal'
 import { EditTaskModal } from './EditTaskModal'
@@ -29,6 +29,7 @@ export default function TaskListPage() {
   const [showQuickAdd, setShowQuickAdd] = useState(false)
 
   const pinnedRef = useRef<HTMLDivElement>(null)
+  const taskCreatedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Custom hooks
   const filterHook = useTaskFilters(tasks)
@@ -37,10 +38,10 @@ export default function TaskListPage() {
   const loadTasks = async () => {
     try {
       const tasksData = await api.getRootTasks()
-      setTasks(tasksData)
+      setTasks(tasksData.filter((t: Task) => t.status !== 'un_jour_peut_etre'))
      } catch (err: unknown) {
-       setError(err instanceof Error ? err.message : 'An error occurred')
-     }
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      }
   }
 
   const loadTags = async () => {
@@ -48,8 +49,8 @@ export default function TaskListPage() {
       const tagsData = await api.getTags()
       setTags(tagsData)
      } catch (err: unknown) {
-       console.error('Erreur lors du chargement des tags:', err)
-     }
+        console.error('Erreur lors du chargement des tags:', err)
+      }
   }
 
   useEffect(() => {
@@ -57,10 +58,22 @@ export default function TaskListPage() {
     Promise.all([loadTasks(), loadTags()]).finally(() => setLoading(false))
   }, [])
 
-  const handleTaskCreated = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    loadTasks()
-  }
+  useEffect(() => {
+    return () => {
+      if (taskCreatedTimeoutRef.current) {
+        clearTimeout(taskCreatedTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const handleTaskCreated = useCallback(async () => {
+    if (taskCreatedTimeoutRef.current) {
+      clearTimeout(taskCreatedTimeoutRef.current)
+    }
+    taskCreatedTimeoutRef.current = setTimeout(() => {
+      loadTasks()
+    }, 500)
+  }, [])
 
   const handleTaskUpdated = () => {
     loadTasks()
@@ -131,7 +144,7 @@ export default function TaskListPage() {
 
     switch (action) {
       case 'importance-up':
-        update.importance = Math.min(50, task.importance + 10)
+        update.importance = Math.min(500, task.importance + 10)
         break
       case 'importance-down':
         update.importance = Math.max(0, task.importance - 10)

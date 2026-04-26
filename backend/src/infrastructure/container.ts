@@ -1,8 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 import { TaskRepository } from '../interfaces/repositories/TaskRepository'
 import { TagRepository } from '../interfaces/repositories/TagRepository'
+import { IApiKeyRepository } from '../interfaces/repositories/ApiKeyRepository'
 import { PrismaTaskRepository } from './repositories/PrismaTaskRepository'
 import { PrismaTagRepository } from './repositories/PrismaTagRepository'
+import { PrismaApiKeyRepository } from './repositories/PrismaApiKeyRepository'
 import { CreateTaskUseCase } from '../usecases/tasks/CreateTaskUseCase'
 import { GetTaskUseCase } from '../usecases/tasks/GetTaskUseCase'
 import { GetAllTasksUseCase } from '../usecases/tasks/GetAllTasksUseCase'
@@ -22,7 +24,11 @@ import { UpdateTagPositionsUseCase } from '../usecases/tags/UpdateTagPositionsUs
 import { TaskController } from '../presentation/controllers/TaskController'
 import { TagController } from '../presentation/controllers/TagController'
 import { ChatController } from '../presentation/controllers/ChatController'
+import { ApiKeyController } from '../presentation/controllers/ApiKeyController'
 import { ChatUseCase } from '../usecases/chat/ChatUseCase'
+import { CreateApiKeyUseCase } from '../usecases/apikeys/CreateApiKeyUseCase'
+import { ListApiKeysUseCase } from '../usecases/apikeys/ListApiKeysUseCase'
+import { RevokeApiKeyUseCase } from '../usecases/apikeys/RevokeApiKeyUseCase'
 import { LLMProviderFactory } from './ai/LLMProviderFactory'
 import { LoggerService } from '@gtd/shared'
 import { FileLogger } from './logging/FileLogger'
@@ -32,6 +38,7 @@ export class Container {
   private prisma: PrismaClient
   private taskRepository: TaskRepository
   private tagRepository: TagRepository
+  private apiKeyRepository: IApiKeyRepository
   private logger: LoggerService
 
   private constructor() {
@@ -39,6 +46,7 @@ export class Container {
     this.logger = new LoggerService(new FileLogger())
     this.taskRepository = new PrismaTaskRepository(this.prisma)
     this.tagRepository = new PrismaTagRepository(this.prisma)
+    this.apiKeyRepository = new PrismaApiKeyRepository(this.prisma)
   }
 
   static getInstance(): Container {
@@ -133,6 +141,18 @@ export class Container {
     )
 
     return new ChatController(chatUseCase)
+  }
+
+  getApiKeyRepository(): IApiKeyRepository {
+    return this.apiKeyRepository
+  }
+
+  getApiKeyController(): ApiKeyController {
+    return new ApiKeyController(
+      new CreateApiKeyUseCase(this.apiKeyRepository),
+      new ListApiKeysUseCase(this.apiKeyRepository),
+      new RevokeApiKeyUseCase(this.apiKeyRepository)
+    )
   }
 
   async disconnect(): Promise<void> {

@@ -9,11 +9,13 @@ const JWT_EXPIRES_IN = '7d'
 export class AuthService {
   constructor(private userRepository: UserRepository) {}
 
-  async register(email: string, password: string): Promise<User> {
+  async register(email: string, password: string): Promise<{ user: User; token: string }> {
     const existing = await this.userRepository.findByEmail(email)
     if (existing) throw new Error('Email already in use')
     const hashed = await this.hashPassword(password)
-    return await this.userRepository.create({ email, password: hashed })
+    const user = await this.userRepository.create({ email, password: hashed })
+    const token = this.generateToken(user)
+    return { user, token }
   }
 
   async login(

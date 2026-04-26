@@ -1,0 +1,6 @@
+# Development overrides — exposes postgres port for local prisma commands
+# This file is auto-loaded by docker compose alongside docker-compose.yml
+services:
+  postgres:
+    ports:
+      - "5435:5432"

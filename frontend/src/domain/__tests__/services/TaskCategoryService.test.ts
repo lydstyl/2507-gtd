@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { TaskCategoryService } from '../../services/TaskCategoryService'
-import { TaskCategory } from '../../entities/Task'
+import { TaskCategory, TaskEntity } from '../../entities/Task'
 import { createTestTasksByCategory, createMockTaskEntity, createTestDates } from '../../../__tests__/utils/test-helpers'
 
 describe('TaskCategoryService', () => {
@@ -27,8 +27,8 @@ describe('TaskCategoryService', () => {
       expect(style.textColor).toBe('text-purple-700')
     })
 
-    it('should return correct styles for overdue category', () => {
-      const style = TaskCategoryService.getCategoryStyle('overdue')
+    it('should return correct styles for pret-overdue category', () => {
+      const style = TaskCategoryService.getCategoryStyle('pret-overdue')
 
       expect(style.borderColor).toBe('border-l-red-500')
       expect(style.backgroundColor).toBe('bg-red-50')
@@ -36,8 +36,8 @@ describe('TaskCategoryService', () => {
       expect(style.textColor).toBe('text-red-700')
     })
 
-    it('should return correct styles for today category', () => {
-      const style = TaskCategoryService.getCategoryStyle('today')
+    it('should return correct styles for pret-today category', () => {
+      const style = TaskCategoryService.getCategoryStyle('pret-today')
 
       expect(style.borderColor).toBe('border-l-blue-500')
       expect(style.backgroundColor).toBe('bg-blue-50')
@@ -45,8 +45,8 @@ describe('TaskCategoryService', () => {
       expect(style.textColor).toBe('text-blue-700')
     })
 
-    it('should return correct styles for tomorrow category', () => {
-      const style = TaskCategoryService.getCategoryStyle('tomorrow')
+    it('should return correct styles for pret-tomorrow category', () => {
+      const style = TaskCategoryService.getCategoryStyle('pret-tomorrow')
 
       expect(style.borderColor).toBe('border-l-green-500')
       expect(style.backgroundColor).toBe('bg-green-50')
@@ -54,8 +54,8 @@ describe('TaskCategoryService', () => {
       expect(style.textColor).toBe('text-green-700')
     })
 
-    it('should return correct styles for no-date category', () => {
-      const style = TaskCategoryService.getCategoryStyle('no-date')
+    it('should return correct styles for pret-no-date category', () => {
+      const style = TaskCategoryService.getCategoryStyle('pret-no-date')
 
       expect(style.borderColor).toBe('border-l-gray-400')
       expect(style.backgroundColor).toBe('bg-white')
@@ -63,8 +63,8 @@ describe('TaskCategoryService', () => {
       expect(style.textColor).toBe('text-gray-600')
     })
 
-    it('should return correct styles for future category', () => {
-      const style = TaskCategoryService.getCategoryStyle('future')
+    it('should return correct styles for pret-future category', () => {
+      const style = TaskCategoryService.getCategoryStyle('pret-future')
 
       expect(style.borderColor).toBe('border-l-amber-500')
       expect(style.backgroundColor).toBe('bg-amber-50')
@@ -73,7 +73,7 @@ describe('TaskCategoryService', () => {
     })
 
     it('should return consistent style objects for all categories', () => {
-      const categories: TaskCategory[] = ['collected', 'overdue', 'today', 'tomorrow', 'no-date', 'future']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
 
       categories.forEach(category => {
         const style = TaskCategoryService.getCategoryStyle(category)
@@ -97,16 +97,19 @@ describe('TaskCategoryService', () => {
 
   describe('getCategoryPriority', () => {
     it('should return correct priority order', () => {
-      expect(TaskCategoryService.getCategoryPriority('collected')).toBe(1)
-      expect(TaskCategoryService.getCategoryPriority('overdue')).toBe(2)
-      expect(TaskCategoryService.getCategoryPriority('today')).toBe(3)
-      expect(TaskCategoryService.getCategoryPriority('tomorrow')).toBe(4)
-      expect(TaskCategoryService.getCategoryPriority('no-date')).toBe(5)
-      expect(TaskCategoryService.getCategoryPriority('future')).toBe(6)
+      expect(TaskCategoryService.getCategoryPriority('brouillon')).toBe(1)
+      expect(TaskCategoryService.getCategoryPriority('pour-ia')).toBe(2)
+      expect(TaskCategoryService.getCategoryPriority('collected')).toBe(3)
+      expect(TaskCategoryService.getCategoryPriority('pret-overdue')).toBe(4)
+      expect(TaskCategoryService.getCategoryPriority('pret-today')).toBe(5)
+      expect(TaskCategoryService.getCategoryPriority('pret-tomorrow')).toBe(6)
+      expect(TaskCategoryService.getCategoryPriority('pret-no-date')).toBe(7)
+      expect(TaskCategoryService.getCategoryPriority('pret-future')).toBe(8)
+      expect(TaskCategoryService.getCategoryPriority('un-jour')).toBe(9)
     })
 
     it('should maintain consistent priority ordering', () => {
-      const categories: TaskCategory[] = ['collected', 'overdue', 'today', 'tomorrow', 'no-date', 'future']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
       const priorities = categories.map(cat => TaskCategoryService.getCategoryPriority(cat))
 
       // Check that priorities are in ascending order
@@ -116,7 +119,7 @@ describe('TaskCategoryService', () => {
     })
 
     it('should return unique priorities for each category', () => {
-      const categories: TaskCategory[] = ['collected', 'overdue', 'today', 'tomorrow', 'no-date', 'future']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
       const priorities = categories.map(cat => TaskCategoryService.getCategoryPriority(cat))
       const uniquePriorities = new Set(priorities)
 
@@ -124,7 +127,7 @@ describe('TaskCategoryService', () => {
     })
 
     it('should return positive integers for all categories', () => {
-      const categories: TaskCategory[] = ['collected', 'overdue', 'today', 'tomorrow', 'no-date', 'future']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
 
       categories.forEach(category => {
         const priority = TaskCategoryService.getCategoryPriority(category)
@@ -137,28 +140,28 @@ describe('TaskCategoryService', () => {
   describe('groupTasksByCategory', () => {
     it('should group tasks correctly by their categories', () => {
       const testTasks = createTestTasksByCategory()
-      const allTasks = Object.values(testTasks)
+      const allTasks = Object.values(testTasks).map(t => t.rawTask)
 
       const groups = TaskCategoryService.groupTasksByCategory(allTasks)
 
-      expect(groups.collected).toContain(testTasks.collected)
-      expect(groups['no-date']).toContain(testTasks.highPriorityNoDate)
-      expect(groups.overdue).toContain(testTasks.overdue)
-      expect(groups.today).toContain(testTasks.today)
-      expect(groups.tomorrow).toContain(testTasks.tomorrow)
-      expect(groups.future).toContain(testTasks.future)
-      expect(groups['no-date']).toContain(testTasks.noDate)
+      expect(groups.collected).toContain(testTasks.collected.rawTask)
+      expect(groups['pret-no-date']).toContain(testTasks.highPriorityNoDate.rawTask)
+      expect(groups['pret-overdue']).toContain(testTasks.overdue.rawTask)
+      expect(groups['pret-today']).toContain(testTasks.today.rawTask)
+      expect(groups['pret-tomorrow']).toContain(testTasks.tomorrow.rawTask)
+      expect(groups['pret-future']).toContain(testTasks.future.rawTask)
+      expect(groups['pret-no-date']).toContain(testTasks.noDate.rawTask)
     })
 
     it('should handle empty task list', () => {
       const groups = TaskCategoryService.groupTasksByCategory([])
 
       expect(groups.collected).toEqual([])
-      expect(groups.overdue).toEqual([])
-      expect(groups.today).toEqual([])
-      expect(groups.tomorrow).toEqual([])
-      expect(groups['no-date']).toEqual([])
-      expect(groups.future).toEqual([])
+      expect(groups['pret-overdue']).toEqual([])
+      expect(groups['pret-today']).toEqual([])
+      expect(groups['pret-tomorrow']).toEqual([])
+      expect(groups['pret-no-date']).toEqual([])
+      expect(groups['pret-future']).toEqual([])
     })
 
     it('should not lose any tasks during grouping', () => {
@@ -173,15 +176,15 @@ describe('TaskCategoryService', () => {
 
     it('should handle multiple tasks in the same category', () => {
       const todayTasks = [
-        createMockTaskEntity({ name: 'Today Task 1', plannedDate: '2023-06-15T00:00:00Z' }),
-        createMockTaskEntity({ name: 'Today Task 2', plannedDate: '2023-06-15T12:00:00Z' }),
-        createMockTaskEntity({ name: 'Today Task 3', plannedDate: '2023-06-15T23:59:59Z' })
+        createMockTaskEntity({ name: 'Today Task 1', status: 'pret', plannedDate: '2023-06-15T00:00:00Z' }),
+        createMockTaskEntity({ name: 'Today Task 2', status: 'pret', plannedDate: '2023-06-15T12:00:00Z' }),
+        createMockTaskEntity({ name: 'Today Task 3', status: 'pret', plannedDate: '2023-06-15T23:59:59Z' })
       ]
 
       const groups = TaskCategoryService.groupTasksByCategory(todayTasks)
 
-      expect(groups.today).toHaveLength(3)
-      expect(groups.today).toEqual(expect.arrayContaining(todayTasks))
+      expect(groups['pret-today']).toHaveLength(3)
+      expect(groups['pret-today']).toEqual(expect.arrayContaining(todayTasks))
     })
 
     it('should not modify the original task array', () => {
@@ -196,12 +199,12 @@ describe('TaskCategoryService', () => {
 
     it('should maintain task references in groups', () => {
       const testTasks = createTestTasksByCategory()
-      const allTasks = Object.values(testTasks)
+      const allTasks = Object.values(testTasks).map(t => t.rawTask)
 
       const groups = TaskCategoryService.groupTasksByCategory(allTasks)
 
       allTasks.forEach(task => {
-        const category = task.getCategory()
+        const category = new TaskEntity(task).getCategory()
         expect(groups[category]).toContain(task)
       })
     })
@@ -210,42 +213,42 @@ describe('TaskCategoryService', () => {
   describe('getCategoryStats', () => {
     it('should count tasks correctly in each category', () => {
       const testTasks = createTestTasksByCategory()
-      const allTasks = Object.values(testTasks)
+      const allTasks = Object.values(testTasks).map(t => t.rawTask)
 
       const stats = TaskCategoryService.getCategoryStats(allTasks)
 
       expect(stats.collected).toBe(1) // only collected (default task)
-      expect(stats.overdue).toBe(1)
-      expect(stats.today).toBe(1)
-      expect(stats.tomorrow).toBe(1)
-      expect(stats['no-date']).toBe(2) // noDate + highPriorityNoDate
-      expect(stats.future).toBe(1)
+      expect(stats['pret-overdue']).toBe(1)
+      expect(stats['pret-today']).toBe(1)
+      expect(stats['pret-tomorrow']).toBe(1)
+      expect(stats['pret-no-date']).toBe(2) // noDate + highPriorityNoDate
+      expect(stats['pret-future']).toBe(1)
     })
 
     it('should handle empty task list', () => {
       const stats = TaskCategoryService.getCategoryStats([])
 
       expect(stats.collected).toBe(0)
-      expect(stats.overdue).toBe(0)
-      expect(stats.today).toBe(0)
-      expect(stats.tomorrow).toBe(0)
-      expect(stats['no-date']).toBe(0)
-      expect(stats.future).toBe(0)
+      expect(stats['pret-overdue']).toBe(0)
+      expect(stats['pret-today']).toBe(0)
+      expect(stats['pret-tomorrow']).toBe(0)
+      expect(stats['pret-no-date']).toBe(0)
+      expect(stats['pret-future']).toBe(0)
     })
 
     it('should return zero for categories with no tasks', () => {
       const onlyTodayTasks = [
-        createMockTaskEntity({ plannedDate: '2023-06-15T12:00:00Z' })
+        createMockTaskEntity({ status: 'pret', plannedDate: '2023-06-15T12:00:00Z' })
       ]
 
       const stats = TaskCategoryService.getCategoryStats(onlyTodayTasks)
 
-      expect(stats.today).toBe(1)
+      expect(stats['pret-today']).toBe(1)
       expect(stats.collected).toBe(0)
-      expect(stats.overdue).toBe(0)
-      expect(stats.tomorrow).toBe(0)
-      expect(stats['no-date']).toBe(0)
-      expect(stats.future).toBe(0)
+      expect(stats['pret-overdue']).toBe(0)
+      expect(stats['pret-tomorrow']).toBe(0)
+      expect(stats['pret-no-date']).toBe(0)
+      expect(stats['pret-future']).toBe(0)
     })
 
     it('should sum to total task count', () => {
@@ -262,6 +265,7 @@ describe('TaskCategoryService', () => {
       const manyTasks = Array.from({ length: 100 }, (_, i) =>
         createMockTaskEntity({
           name: `Task ${i}`,
+          status: 'pret',
           plannedDate: i % 2 === 0 ? '2023-06-15T12:00:00Z' : undefined
         })
       )
@@ -270,8 +274,8 @@ describe('TaskCategoryService', () => {
       const totalCount = Object.values(stats).reduce((sum, count) => sum + count, 0)
 
       expect(totalCount).toBe(100)
-      expect(stats.today).toBeGreaterThan(0)
-      expect(stats['no-date']).toBeGreaterThan(0)
+      expect(stats['pret-today']).toBeGreaterThan(0)
+      expect(stats['pret-no-date']).toBeGreaterThan(0)
     })
   })
 
@@ -280,7 +284,7 @@ describe('TaskCategoryService', () => {
       const testTasks = createTestTasksByCategory()
       const allTasks = Object.values(testTasks)
 
-      const todayTasks = TaskCategoryService.filterTasksByCategory(allTasks, 'today')
+      const todayTasks = TaskCategoryService.filterTasksByCategory(allTasks, 'pret-today')
 
       expect(todayTasks).toHaveLength(1)
       expect(todayTasks[0]).toBe(testTasks.today)
@@ -288,10 +292,10 @@ describe('TaskCategoryService', () => {
 
     it('should return empty array for category with no tasks', () => {
       const testTasks = [
-        createMockTaskEntity({ plannedDate: '2023-06-15T12:00:00Z' }) // today
+        createMockTaskEntity({ status: 'pret', plannedDate: '2023-06-15T12:00:00Z' }) // pret-today
       ]
 
-      const overdueTasks = TaskCategoryService.filterTasksByCategory(testTasks, 'overdue')
+      const overdueTasks = TaskCategoryService.filterTasksByCategory(testTasks, 'pret-overdue')
 
       expect(overdueTasks).toEqual([])
     })
@@ -301,28 +305,28 @@ describe('TaskCategoryService', () => {
       const allTasks = Object.values(testTasks)
       const originalLength = allTasks.length
 
-      TaskCategoryService.filterTasksByCategory(allTasks, 'today')
+      TaskCategoryService.filterTasksByCategory(allTasks, 'pret-today')
 
       expect(allTasks.length).toBe(originalLength)
     })
 
     it('should filter all categories correctly', () => {
       const testTasks = createTestTasksByCategory()
-      const allTasks = Object.values(testTasks)
-      const categories: TaskCategory[] = ['collected', 'overdue', 'today', 'tomorrow', 'no-date', 'future']
+      const allTasks = Object.values(testTasks).map(t => t.rawTask)
+      const categories: TaskCategory[] = ['collected', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future']
 
       categories.forEach(category => {
         const filtered = TaskCategoryService.filterTasksByCategory(allTasks, category)
         filtered.forEach(task => {
-          expect(task.getCategory()).toBe(category)
+          expect(new TaskEntity(task).getCategory()).toBe(category)
         })
       })
     })
 
     it('should handle multiple tasks in same category', () => {
       const collectedTasks = [
-        createMockTaskEntity({ importance: 0, complexity: 3, points: 0 }),
-        createMockTaskEntity({ importance: 0, complexity: 3, points: 0, name: 'Another collected' })
+        createMockTaskEntity({ status: 'collecte', importance: 0, complexity: 3, points: 0 }).rawTask,
+        createMockTaskEntity({ status: 'collecte', importance: 0, complexity: 3, points: 0, name: 'Another collected' }).rawTask
       ]
 
       const filtered = TaskCategoryService.filterTasksByCategory(collectedTasks, 'collected')
@@ -335,31 +339,31 @@ describe('TaskCategoryService', () => {
   describe('getActiveCategories', () => {
     it('should return categories that have tasks', () => {
       const testTasks = createTestTasksByCategory()
-      const allTasks = Object.values(testTasks)
+      const allTasks = Object.values(testTasks).map(t => t.rawTask)
 
       const activeCategories = TaskCategoryService.getActiveCategories(allTasks)
 
       expect(activeCategories).toContain('collected')
-      expect(activeCategories).toContain('overdue')
-      expect(activeCategories).toContain('today')
-      expect(activeCategories).toContain('tomorrow')
-      expect(activeCategories).toContain('no-date')
-      expect(activeCategories).toContain('future')
+      expect(activeCategories).toContain('pret-overdue')
+      expect(activeCategories).toContain('pret-today')
+      expect(activeCategories).toContain('pret-tomorrow')
+      expect(activeCategories).toContain('pret-no-date')
+      expect(activeCategories).toContain('pret-future')
     })
 
     it('should not return categories without tasks', () => {
       const onlyTodayTasks = [
-        createMockTaskEntity({ plannedDate: '2023-06-15T12:00:00Z' })
+        createMockTaskEntity({ status: 'pret', plannedDate: '2023-06-15T12:00:00Z' })
       ]
 
       const activeCategories = TaskCategoryService.getActiveCategories(onlyTodayTasks)
 
-      expect(activeCategories).toContain('today')
+      expect(activeCategories).toContain('pret-today')
       expect(activeCategories).not.toContain('collected')
-      expect(activeCategories).not.toContain('overdue')
-      expect(activeCategories).not.toContain('tomorrow')
-      expect(activeCategories).not.toContain('no-date')
-      expect(activeCategories).not.toContain('future')
+      expect(activeCategories).not.toContain('pret-overdue')
+      expect(activeCategories).not.toContain('pret-tomorrow')
+      expect(activeCategories).not.toContain('pret-no-date')
+      expect(activeCategories).not.toContain('pret-future')
     })
 
     it('should return empty array for empty task list', () => {
@@ -370,14 +374,14 @@ describe('TaskCategoryService', () => {
 
     it('should return unique categories only', () => {
       const duplicateTodayTasks = [
-        createMockTaskEntity({ plannedDate: '2023-06-15T12:00:00Z' }),
-        createMockTaskEntity({ plannedDate: '2023-06-15T15:00:00Z' }),
-        createMockTaskEntity({ plannedDate: '2023-06-15T18:00:00Z' })
+        createMockTaskEntity({ status: 'pret', plannedDate: '2023-06-15T12:00:00Z' }),
+        createMockTaskEntity({ status: 'pret', plannedDate: '2023-06-15T15:00:00Z' }),
+        createMockTaskEntity({ status: 'pret', plannedDate: '2023-06-15T18:00:00Z' })
       ]
 
       const activeCategories = TaskCategoryService.getActiveCategories(duplicateTodayTasks)
 
-      expect(activeCategories).toEqual(['today'])
+      expect(activeCategories).toEqual(['pret-today'])
       expect(activeCategories).toHaveLength(1)
     })
 
@@ -388,11 +392,11 @@ describe('TaskCategoryService', () => {
       const activeCategories = TaskCategoryService.getActiveCategories(allTasks)
 
       // Should be ordered by priority (collected first, future last)
-      expect(activeCategories.indexOf('collected')).toBeLessThan(activeCategories.indexOf('overdue'))
-      expect(activeCategories.indexOf('overdue')).toBeLessThan(activeCategories.indexOf('today'))
-      expect(activeCategories.indexOf('today')).toBeLessThan(activeCategories.indexOf('tomorrow'))
-      expect(activeCategories.indexOf('tomorrow')).toBeLessThan(activeCategories.indexOf('no-date'))
-      expect(activeCategories.indexOf('no-date')).toBeLessThan(activeCategories.indexOf('future'))
+      expect(activeCategories.indexOf('collected')).toBeLessThan(activeCategories.indexOf('pret-overdue'))
+      expect(activeCategories.indexOf('pret-overdue')).toBeLessThan(activeCategories.indexOf('pret-today'))
+      expect(activeCategories.indexOf('pret-today')).toBeLessThan(activeCategories.indexOf('pret-tomorrow'))
+      expect(activeCategories.indexOf('pret-tomorrow')).toBeLessThan(activeCategories.indexOf('pret-no-date'))
+      expect(activeCategories.indexOf('pret-no-date')).toBeLessThan(activeCategories.indexOf('pret-future'))
     })
   })
 
@@ -406,12 +410,12 @@ describe('TaskCategoryService', () => {
         // Map test task names to expected categories
         const categoryMap: Record<string, TaskCategory> = {
           collected: 'collected',
-          highPriorityNoDate: 'no-date',
-          overdue: 'overdue',
-          today: 'today',
-          tomorrow: 'tomorrow',
-          future: 'future',
-          noDate: 'no-date'
+          highPriorityNoDate: 'pret-no-date',
+          overdue: 'pret-overdue',
+          today: 'pret-today',
+          tomorrow: 'pret-tomorrow',
+          future: 'pret-future',
+          noDate: 'pret-no-date'
         }
 
         expect(actualCategory).toBe(categoryMap[expectedCategory])
@@ -436,41 +440,45 @@ describe('TaskCategoryService', () => {
       const realWorldTasks = [
         createMockTaskEntity({
           name: 'Buy groceries',
+          status: 'pret',
           importance: 20,
           complexity: 2,
           plannedDate: '2023-06-15T10:00:00Z'
-        }),
+        }).rawTask,
         createMockTaskEntity({
           name: 'Finish quarterly report',
+          status: 'pret',
           importance: 40,
           complexity: 8,
           plannedDate: '2023-06-14T17:00:00Z' // Overdue
-        }),
+        }).rawTask,
         createMockTaskEntity({
           name: 'Review team performance',
+          status: 'pret',
           importance: 35,
           complexity: 6,
           plannedDate: '2023-06-16T09:00:00Z' // Tomorrow
-        }),
+        }).rawTask,
         createMockTaskEntity({
           name: 'Random idea for app',
+          status: 'collecte',
           importance: 0,
           complexity: 3,
           points: 0
-        })
+        }).rawTask
       ]
 
       const groups = TaskCategoryService.groupTasksByCategory(realWorldTasks)
       const stats = TaskCategoryService.getCategoryStats(realWorldTasks)
 
-      expect(groups.today).toHaveLength(1)
-      expect(groups.overdue).toHaveLength(1)
-      expect(groups.tomorrow).toHaveLength(1)
+      expect(groups['pret-today']).toHaveLength(1)
+      expect(groups['pret-overdue']).toHaveLength(1)
+      expect(groups['pret-tomorrow']).toHaveLength(1)
       expect(groups.collected).toHaveLength(1)
 
-      expect(stats.today).toBe(1)
-      expect(stats.overdue).toBe(1)
-      expect(stats.tomorrow).toBe(1)
+      expect(stats['pret-today']).toBe(1)
+      expect(stats['pret-overdue']).toBe(1)
+      expect(stats['pret-tomorrow']).toBe(1)
       expect(stats.collected).toBe(1)
     })
   })

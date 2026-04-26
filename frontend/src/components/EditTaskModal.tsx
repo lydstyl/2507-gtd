@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api, ApiError } from '../utils/api'
-import type { Task, UpdateTaskData, Tag } from '../types/task'
+import type { Task, UpdateTaskData, Tag, TaskStatus } from '../types/task'
+import { TASK_STATUS_LABELS } from '../types/task'
 
 interface EditTaskModalProps {
   isOpen: boolean
@@ -18,8 +19,9 @@ export function EditTaskModal({
   const [formData, setFormData] = useState<UpdateTaskData>({
     name: '',
     link: '',
-    importance: 50, // Updated to match new collection defaults
-    complexity: 1,  // Updated to match new collection defaults
+    importance: 0,
+    complexity: 3,
+    status: 'brouillon',
     plannedDate: '',
     dueDate: '',
     tagIds: []
@@ -55,6 +57,7 @@ export function EditTaskModal({
           link: task.link || '',
           importance: task.importance,
           complexity: task.complexity,
+          status: task.status ?? 'brouillon',
           plannedDate: task.plannedDate ? formatDateForInput(task.plannedDate) : '',
           dueDate: task.dueDate ? formatDateForInput(task.dueDate) : '',
           tagIds: task.tags?.map((tag) => tag.id) || []
@@ -109,7 +112,9 @@ export function EditTaskModal({
       [name]:
         name === 'importance' || name === 'complexity'
           ? parseInt(value)
-          : value
+          : name === 'status'
+            ? value as TaskStatus
+            : value
     }))
   }
 
@@ -221,27 +226,47 @@ export function EditTaskModal({
             />
           </div>
 
+          <div>
+            <label
+              htmlFor='status'
+              className='block text-sm font-medium text-gray-700 mb-1'
+            >
+              Statut
+            </label>
+            <select
+              id='status'
+              name='status'
+              value={formData.status ?? 'brouillon'}
+              onChange={handleChange}
+              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+            >
+              {(Object.entries(TASK_STATUS_LABELS) as [TaskStatus, string][]).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
           <div className='grid grid-cols-2 gap-4'>
             <div>
               <label
                 htmlFor='importance'
                 className='block text-sm font-medium text-gray-700 mb-1'
               >
-                Importance: {formData.importance}
+                Importance: {formData.importance ?? 0}
               </label>
               <input
                 type='range'
                 id='importance'
                 name='importance'
                 min='0'
-                max='50'
-                value={formData.importance}
+                max='500'
+                value={formData.importance ?? 0}
                 onChange={handleChange}
                 className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
               />
               <div className='flex justify-between text-xs text-gray-500 mt-1'>
-                <span>0 (Faible)</span>
-                <span>50 (Max)</span>
+                <span>0</span>
+                <span>500 (Max)</span>
               </div>
             </div>
 
@@ -250,7 +275,7 @@ export function EditTaskModal({
                 htmlFor='complexity'
                 className='block text-sm font-medium text-gray-700 mb-1'
               >
-                Complexité: {formData.complexity}
+                Complexité: {formData.complexity ?? 3}
               </label>
               <input
                 type='range'
@@ -258,7 +283,7 @@ export function EditTaskModal({
                 name='complexity'
                 min='1'
                 max='9'
-                value={formData.complexity}
+                value={formData.complexity ?? 3}
                 onChange={handleChange}
                 className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
               />
@@ -267,7 +292,6 @@ export function EditTaskModal({
                 <span>9 (Complexe)</span>
               </div>
             </div>
-
           </div>
 
           <div>

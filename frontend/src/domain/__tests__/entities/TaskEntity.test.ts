@@ -240,8 +240,9 @@ describe('TaskEntity', () => {
   })
 
   describe('isCollected', () => {
-    it('should identify new default tasks as collected', () => {
+    it('should identify tasks with status collecte as collected', () => {
       const collectedTask = createMockTaskEntity({
+        status: 'collecte',
         importance: 0,
         complexity: 3,
         points: 0,
@@ -290,27 +291,29 @@ describe('TaskEntity', () => {
       const tasks = createTestTasksByCategory(dates)
 
       assertTaskCategory(tasks.collected, 'collected')
-      assertTaskCategory(tasks.highPriorityNoDate, 'no-date')
-      assertTaskCategory(tasks.overdue, 'overdue')
-      assertTaskCategory(tasks.today, 'today')
-      assertTaskCategory(tasks.tomorrow, 'tomorrow')
-      assertTaskCategory(tasks.future, 'future')
-      assertTaskCategory(tasks.noDate, 'no-date')
+      assertTaskCategory(tasks.highPriorityNoDate, 'pret-no-date')
+      assertTaskCategory(tasks.overdue, 'pret-overdue')
+      assertTaskCategory(tasks.today, 'pret-today')
+      assertTaskCategory(tasks.tomorrow, 'pret-tomorrow')
+      assertTaskCategory(tasks.future, 'pret-future')
+      assertTaskCategory(tasks.noDate, 'pret-no-date')
     })
 
     it('should prioritize overdue over other categories', () => {
       const overdueHighPriority = createMockTaskEntity({
+        status: 'pret',
         importance: 50,
         complexity: 1,
         points: 500,
         plannedDate: dates.yesterday
       })
 
-      expect(overdueHighPriority.getCategory()).toBe('overdue')
+      expect(overdueHighPriority.getCategory()).toBe('pret-overdue')
     })
 
     it('should handle due date urgency over planned date', () => {
       const urgentDueTask = createMockTaskEntity({
+        status: 'pret',
         plannedDate: dates.dayAfterTomorrow,
         dueDate: dates.today,
         importance: 25,
@@ -319,7 +322,7 @@ describe('TaskEntity', () => {
       })
 
       // Should be categorized based on urgent due date, not planned date
-      expect(urgentDueTask.getCategory()).toBe('today')
+      expect(urgentDueTask.getCategory()).toBe('pret-today')
     })
   })
 
@@ -496,9 +499,9 @@ describe('TaskEntity', () => {
       ]
 
       edgeCases.forEach(date => {
-        const task = createMockTaskEntity({ plannedDate: date })
+        const task = createMockTaskEntity({ status: 'pret', plannedDate: date })
         const category = task.getCategory()
-        expect(['overdue', 'today', 'tomorrow'].includes(category)).toBe(true)
+        expect(['pret-overdue', 'pret-today', 'pret-tomorrow'].includes(category)).toBe(true)
       })
     })
   })
@@ -540,12 +543,13 @@ describe('TaskEntity', () => {
 
     it('should handle tasks with both due date and planned date', () => {
       const taskWithBothDates = createMockTaskEntity({
+        status: 'pret',
         plannedDate: dates.dayAfterTomorrow,
         dueDate: dates.today
       })
 
       // Should be categorized by urgent due date
-      expect(taskWithBothDates.getCategory()).toBe('today')
+      expect(taskWithBothDates.getCategory()).toBe('pret-today')
     })
 
     it('should handle empty strings as dates', () => {
@@ -556,19 +560,21 @@ describe('TaskEntity', () => {
 
       expect(taskWithEmptyDates.isDueToday()).toBe(false)
       expect(taskWithEmptyDates.isOverdue()).toBe(false)
-      expect(taskWithEmptyDates.getCategory()).toBe('no-date')
+      expect(taskWithEmptyDates.getCategory()).toBe('brouillon')
     })
   })
 
   describe('integration with domain services', () => {
     it('should work correctly with TaskSortingPriorityService', () => {
       const collectedTask = createMockTaskEntity({
+        status: 'collecte',
         importance: 0,
         complexity: 3,
         points: 0
       })
 
       const todayTask = createMockTaskEntity({
+        status: 'pret',
         importance: 25,
         complexity: 5,
         points: 50,
@@ -577,12 +583,13 @@ describe('TaskEntity', () => {
 
       expect(collectedTask.isCollected()).toBe(true)
       expect(collectedTask.getCategory()).toBe('collected')
-      expect(todayTask.getCategory()).toBe('today')
+      expect(todayTask.getCategory()).toBe('pret-today')
     })
 
     it('should maintain consistency with backend logic', () => {
       // Test that frontend TaskEntity produces same results as backend
       const testTask = createMockTaskEntity({
+        status: 'pret',
         importance: 30,
         complexity: 6,
         points: 50,
@@ -591,7 +598,7 @@ describe('TaskEntity', () => {
 
       expect(testTask.calculatePoints()).toBe(50)
       expect(testTask.isDueToday()).toBe(true)
-      expect(testTask.getCategory()).toBe('today')
+      expect(testTask.getCategory()).toBe('pret-today')
     })
   })
 })

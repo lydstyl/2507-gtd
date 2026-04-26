@@ -11,6 +11,20 @@ export class TaskCategoryService {
     */
    static getCategoryDisplayInfo(category: TaskCategory) {
      const displayInfo = {
+       brouillon: {
+         label: 'Brouillon',
+         borderColor: 'border-l-gray-400',
+         backgroundColor: 'bg-gray-50',
+         textColor: 'text-gray-600',
+         icon: '✏️'
+       },
+       'pour-ia': {
+         label: 'Pour IA',
+         borderColor: 'border-l-violet-500',
+         backgroundColor: 'bg-violet-50',
+         textColor: 'text-violet-700',
+         icon: '🤖'
+       },
        collected: {
          label: 'Collecté',
          borderColor: 'border-l-purple-500',
@@ -18,40 +32,47 @@ export class TaskCategoryService {
          textColor: 'text-purple-700',
          icon: '📝'
        },
-       overdue: {
-         label: 'En retard',
-         borderColor: 'border-l-red-500',
-         backgroundColor: 'bg-red-50',
-         textColor: 'text-red-700',
-         icon: '⚠️'
-       },
-       today: {
-         label: "Aujourd'hui",
-         borderColor: 'border-l-blue-500',
-         backgroundColor: 'bg-blue-50',
-         textColor: 'text-blue-700',
-         icon: '📅'
-       },
-       tomorrow: {
-         label: 'Demain',
-         borderColor: 'border-l-green-500',
-         backgroundColor: 'bg-green-50',
-         textColor: 'text-green-700',
-         icon: '🌅'
-       },
-       'no-date': {
-         label: 'Sans date',
-         borderColor: 'border-l-gray-400',
-         backgroundColor: 'bg-white',
-         textColor: 'text-gray-600',
-         icon: '📋'
-       },
-       future: {
-         label: 'Futur',
-         borderColor: 'border-l-amber-500',
-         backgroundColor: 'bg-amber-50',
-         textColor: 'text-amber-700',
-         icon: '🔮'
+        'pret-overdue': {
+          label: 'En retard',
+          borderColor: 'border-l-red-500',
+          backgroundColor: 'bg-red-50',
+          textColor: 'text-red-700',
+          icon: '⚠️'
+        },
+        'pret-today': {
+          label: "Aujourd'hui",
+          borderColor: 'border-l-blue-500',
+          backgroundColor: 'bg-blue-50',
+          textColor: 'text-blue-700',
+          icon: '📅'
+        },
+        'pret-tomorrow': {
+          label: 'Demain',
+          borderColor: 'border-l-green-500',
+          backgroundColor: 'bg-green-50',
+          textColor: 'text-green-700',
+          icon: '🌅'
+        },
+        'pret-no-date': {
+          label: 'Sans date',
+          borderColor: 'border-l-gray-400',
+          backgroundColor: 'bg-white',
+          textColor: 'text-gray-600',
+          icon: '📋'
+        },
+        'pret-future': {
+          label: 'Futur',
+          borderColor: 'border-l-amber-500',
+          backgroundColor: 'bg-amber-50',
+          textColor: 'text-amber-700',
+          icon: '🔮'
+        },
+       'un-jour': {
+         label: 'Un jour peut-être',
+         borderColor: 'border-l-sky-400',
+         backgroundColor: 'bg-sky-50',
+         textColor: 'text-sky-700',
+         icon: '🌙'
        }
      }
 
@@ -75,16 +96,7 @@ export class TaskCategoryService {
    * Get priority order for categories (lower number = higher priority)
    */
   static getCategoryPriority(category: TaskCategory): number {
-    const priorities = {
-      collected: 1,
-      overdue: 2,
-      today: 3,
-      tomorrow: 4,
-      'no-date': 5,
-      future: 6
-    }
-
-    return priorities[category]
+    return TaskPriorityService.getCategoryPriority(category)
   }
 
   /**
@@ -94,12 +106,15 @@ export class TaskCategoryService {
     tasks: GenericTaskWithSubtasks<TDate>[]
   ): Record<TaskCategory, GenericTaskWithSubtasks<TDate>[]> {
     const groups: Record<TaskCategory, GenericTaskWithSubtasks<TDate>[]> = {
+      brouillon: [],
+      'pour-ia': [],
       collected: [],
-      overdue: [],
-      today: [],
-      tomorrow: [],
-      'no-date': [],
-      future: []
+      'pret-overdue': [],
+      'pret-today': [],
+      'pret-tomorrow': [],
+      'pret-no-date': [],
+      'pret-future': [],
+      'un-jour': []
     }
 
     // Use TaskPriorityService for categorization
@@ -121,12 +136,15 @@ export class TaskCategoryService {
   ): Record<TaskCategory, number> {
     const groups = this.groupTasksByCategory(tasks)
     return {
+      brouillon: groups.brouillon.length,
+      'pour-ia': groups['pour-ia'].length,
       collected: groups.collected.length,
-      overdue: groups.overdue.length,
-      today: groups.today.length,
-      tomorrow: groups.tomorrow.length,
-      'no-date': groups['no-date'].length,
-      future: groups.future.length
+      'pret-overdue': groups['pret-overdue'].length,
+      'pret-today': groups['pret-today'].length,
+      'pret-tomorrow': groups['pret-tomorrow'].length,
+      'pret-no-date': groups['pret-no-date'].length,
+      'pret-future': groups['pret-future'].length,
+      'un-jour': groups['un-jour'].length
     }
   }
 

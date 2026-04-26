@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
  import type { Task, Tag, UpdateTaskData } from '../types/task'
 import { api } from '../utils/api'
 
@@ -43,6 +43,8 @@ export function useKeyboardShortcuts({
   setFocusTaskId,
   applyFilters
 }: UseKeyboardShortcutsProps) {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
       // Disable shortcuts if modal is open
@@ -113,7 +115,7 @@ export function useKeyboardShortcuts({
         if (e.shiftKey) {
           update.importance = Math.max(0, task.importance - 10)
         } else {
-          update.importance = Math.min(50, task.importance + 10)
+          update.importance = Math.min(500, task.importance + 10)
         }
         handled = true
       }
@@ -205,7 +207,8 @@ export function useKeyboardShortcuts({
         try {
           await api.updateTask(task.id, update)
           await onTasksReload()
-          setTimeout(() => {
+          if (timeoutRef.current) clearTimeout(timeoutRef.current)
+          timeoutRef.current = setTimeout(() => {
             const stillVisible = applyFilters(tasks).some((t) => t.id === task.id)
             if (!stillVisible) {
               setFocusTaskId(task.id)
@@ -254,7 +257,13 @@ export function useKeyboardShortcuts({
     }
 
     window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+      window.removeEventListener("keydown", handleKeyDown)
+    }
   }, [
     filteredTasks,
     selectedTaskId,

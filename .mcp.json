@@ -6,7 +6,8 @@
         "/home/gab/apps/2507-gtd/mcp-server/build/index.js"
       ],
       "env": {
-        "DATABASE_URL": "file:/home/gab/apps/2507-gtd/backend/prisma/dev.db"
+        "GTD_API_TOKEN": "",
+        "GTD_API_URL": "http://localhost:3000"
       }
     }
   }

@@ -28,9 +28,9 @@ export interface TagBusinessRules {
 
 // Task business constants
 export const TASK_CONSTANTS: TaskBusinessRules = {
-  maxImportance: 50,
+  maxImportance: 500,
   maxComplexity: 9,
-  maxPoints: 500,
+  maxPoints: 5000,
   collectedThreshold: 500,
   overdueGracePeriod: 0, // No grace period
   maxSubtaskDepth: 10,
@@ -88,11 +88,11 @@ export const COMPLEXITY_LEVELS = {
 
 // Importance levels for task assessment
 export const IMPORTANCE_LEVELS = {
-  MINIMAL: { value: 1, label: 'Minimale' },
-  LOW: { value: 10, label: 'Faible' },
-  MEDIUM: { value: 25, label: 'Moyenne' },
-  HIGH: { value: 35, label: 'Élevée' },
-  CRITICAL: { value: 45, label: 'Critique' }
+  MINIMAL: { value: 10, label: 'Minimale' },
+  LOW: { value: 100, label: 'Faible' },
+  MEDIUM: { value: 250, label: 'Moyenne' },
+  HIGH: { value: 350, label: 'Élevée' },
+  CRITICAL: { value: 450, label: 'Critique' }
 } as const
 
 // Date range constants for filtering and categorization
@@ -114,12 +114,15 @@ export const SORT_DIRECTIONS = {
 
 // Task category constants for UI organization
 export const TASK_CATEGORIES = {
+  BROUILLON: 'brouillon',
+  POUR_IA: 'pour-ia',
   COLLECTED: 'collected',
   OVERDUE: 'overdue',
   TODAY: 'today',
   TOMORROW: 'tomorrow',
   NO_DATE: 'no-date',
-  FUTURE: 'future'
+  FUTURE: 'future',
+  UN_JOUR: 'un-jour'
 } as const
 
 // Workflow states for GTD methodology

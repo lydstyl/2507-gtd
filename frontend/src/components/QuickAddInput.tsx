@@ -33,12 +33,14 @@ export function QuickAddInput({
 
   // Focus input when visible
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>
     if (isVisible && inputRef.current) {
       haptic.modalOpen() // Haptic feedback when quick add opens
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         inputRef.current?.focus()
       }, 100)
     }
+    return () => clearTimeout(timeoutId)
   }, [isVisible, haptic])
 
   // Reset form when visibility changes
@@ -140,30 +142,43 @@ export function QuickAddInput({
             {/* Importance */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Importance
+                Importance (0-500)
               </label>
-              <div className="flex flex-wrap gap-1">
-                {[
-                  { value: 50, label: 'Très élevée', color: 'bg-red-500' },
-                  { value: 40, label: 'Élevée', color: 'bg-orange-500' },
-                  { value: 30, label: 'Moyenne', color: 'bg-yellow-500' },
-                  { value: 20, label: 'Basse', color: 'bg-blue-500' },
-                  { value: 10, label: 'Très basse', color: 'bg-green-500' },
-                  { value: 0, label: 'Nulle', color: 'bg-gray-500' }
-                ].map(({ value, label, color }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setImportance(value)}
-                    className={`px-2 py-1 text-xs rounded border ${
-                      importance === value
-                        ? `${color} text-white border-transparent`
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="number"
+                  min={0}
+                  max={500}
+                  value={importance}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 0
+                    setImportance(Math.max(0, Math.min(500, val)))
+                  }}
+                  className="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    { value: 500, label: 'Critique', color: 'bg-red-600' },
+                    { value: 350, label: 'Très élevée', color: 'bg-red-500' },
+                    { value: 250, label: 'Élevée', color: 'bg-orange-500' },
+                    { value: 150, label: 'Moyenne', color: 'bg-yellow-500' },
+                    { value: 50, label: 'Basse', color: 'bg-blue-500' },
+                    { value: 0, label: 'Nulle', color: 'bg-gray-500' }
+                  ].map(({ value, label, color }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setImportance(value)}
+                      className={`px-2 py-1 text-xs rounded border ${
+                        importance === value
+                          ? `${color} text-white border-transparent`
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -215,7 +230,7 @@ export function QuickAddInput({
         <div className="flex items-center justify-between pt-2">
           <div className="text-xs text-gray-500">
             {showAdvanced && (
-              <span>I: {importance} | C: {complexity} | P: {importance * complexity}</span>
+              <span>I: {importance} | C: {complexity} | P: {Math.round(10 * importance / complexity)}</span>
             )}
           </div>
           <div className="flex items-center space-x-2">

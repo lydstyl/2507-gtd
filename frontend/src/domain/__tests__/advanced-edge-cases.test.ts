@@ -35,8 +35,8 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      // Should be categorized as 'today' because due date is urgent and today
-      expect(taskWithBothDates.getCategory()).toBe('today')
+      // Should be categorized as 'pret-today' because due date is urgent and today
+      expect(taskWithBothDates.getCategory()).toBe('pret-today')
       expect(taskWithBothDates.isDueToday()).toBe(true)
     })
 
@@ -60,8 +60,8 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      // Should be categorized as 'tomorrow' because due date is used as effective date when urgent
-      expect(taskWithOnlyDueDate.getCategory()).toBe('tomorrow')
+      // Should be categorized as 'pret-tomorrow' because due date is used as effective date when urgent
+      expect(taskWithOnlyDueDate.getCategory()).toBe('pret-tomorrow')
       expect(taskWithOnlyDueDate.isDueToday()).toBe(false)
       expect(taskWithOnlyDueDate.isOverdue()).toBe(false)
     })
@@ -83,7 +83,8 @@ describe('Advanced Edge Cases', () => {
         createdAt: '2025-01-15T09:00:00.000Z',
         updatedAt: '2025-01-15T09:00:00.000Z',
         subtasks: [],
-        tags: []
+        tags: [],
+        status: 'collecte'
       })
 
       expect(newDefaultTask.getCategory()).toBe('collected')
@@ -110,7 +111,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      expect(exactly500Points.getCategory()).toBe('no-date')
+      expect(exactly500Points.getCategory()).toBe('pret-no-date')
       expect(exactly500Points.calculatePoints()).toBe(500)
     })
 
@@ -131,18 +132,19 @@ describe('Advanced Edge Cases', () => {
         createdAt: '2025-01-15T09:00:00.000Z',
         updatedAt: '2025-01-15T09:00:00.000Z',
         subtasks: [],
-        tags: []
+        tags: [],
+        status: 'pret'
       })
 
-      expect(futureTask.getCategory()).toBe('future')
+      expect(futureTask.getCategory()).toBe('pret-future')
 
-      // Remove the date - should become collected
-      const collectedTask = new TaskEntity({
+      // Remove the date - should become pret-no-date
+      const noDateTask = new TaskEntity({
         ...futureTask.rawTask,
         plannedDate: undefined
       })
 
-      expect(collectedTask.getCategory()).toBe('no-date')
+      expect(noDateTask.getCategory()).toBe('pret-no-date')
     })
   })
 
@@ -186,7 +188,7 @@ describe('Advanced Edge Cases', () => {
         })
       ]
 
-      // Both in 'no-date' category, same points, should sort by creation DESC (newer first)
+      // Both in 'pret-no-date' category, same points, should sort by creation DESC (newer first)
       const comparison1 = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
       expect(comparison1).toBeGreaterThan(0) // older > newer means older comes after newer
 
@@ -234,7 +236,7 @@ describe('Advanced Edge Cases', () => {
         })
       ]
 
-      // Both overdue, same points, should sort by date ASC (oldest first)
+      // Both pret-overdue, same points, should sort by date ASC (oldest first)
       const comparison = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
       expect(comparison).toBeLessThan(0) // very-overdue < recently-overdue means very-overdue comes first
     })
@@ -279,7 +281,7 @@ describe('Advanced Edge Cases', () => {
         })
       ]
 
-      // Both future, same points, should sort by date ASC (soonest first)
+      // Both pret-future, same points, should sort by date ASC (soonest first)
       const comparison = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
       expect(comparison).toBeLessThan(0) // soon-future < far-future means soon-future comes first
     })
@@ -322,7 +324,7 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      // Overdue should always come before today, regardless of other factors
+      // Pret-overdue should always come before pret-today, regardless of other factors
       const comparison = TaskPriorityService.compareTasksPriority(overdueTask.rawTask, todayTask.rawTask, dateContext)
       expect(comparison).toBeLessThan(0) // overdue < today means overdue comes first
     })
@@ -368,7 +370,7 @@ describe('Advanced Edge Cases', () => {
       ]
 
       const sortedTasks = TaskPriorityService.compareTasksPriority(tasks[0].rawTask, tasks[1].rawTask, dateContext)
-      // Both are 'no-date' category, so sorted by points DESC
+      // Both are 'pret-no-date' category, so sorted by importance DESC
       expect(sortedTasks).toBeLessThan(0) // completed-high (200 points) < incomplete-low (20 points) means completed-high comes first
     })
 
@@ -410,7 +412,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       const comparison = TaskPriorityService.compareTasksPriority(nearFutureTask.rawTask, farFutureTask.rawTask, dateContext)
-      // Both are 'future' category, so sorted by date ASC
+      // Both are 'pret-future' category, so sorted by date ASC
       expect(comparison).toBeLessThan(0) // near-future < far-future means near-future comes first
     })
 
@@ -452,7 +454,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       const comparison = TaskPriorityService.compareTasksPriority(highPointsTask.rawTask, lowPointsTask.rawTask, dateContext)
-      // Both are 'future' category with same date, so sorted by points DESC
+      // Both are 'pret-future' category with same date, so sorted by importance DESC
       expect(comparison).toBeLessThan(0) // high-points < low-points means high-points comes first
     })
 
@@ -494,7 +496,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       const comparison = TaskPriorityService.compareTasksPriority(newerTask.rawTask, olderTask.rawTask, dateContext)
-      // Both are 'future' category with same date and points, so sorted by creation DESC
+      // Both are 'pret-future' category with same date and points, so sorted by creation DESC
       expect(comparison).toBeLessThan(0) // newer < older means newer comes first
     })
 
@@ -566,7 +568,7 @@ describe('Advanced Edge Cases', () => {
       }
 
       const comparison = TaskPriorityService.compareTasksPriority(maxPointsTask, minPointsTask, dateContext)
-      // Both 'no-date' category, max points should come first
+      // Both 'pret-no-date' category, max importance should come first
       expect(comparison).toBeLessThan(0)
     })
   })
@@ -591,8 +593,8 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      // Should not crash and should categorize as no-date
-      expect(taskWithInvalidDate.getCategory()).toBe('no-date')
+      // Should not crash and should categorize as pret-no-date
+      expect(taskWithInvalidDate.getCategory()).toBe('pret-no-date')
       expect(taskWithInvalidDate.isOverdue()).toBe(false)
       expect(taskWithInvalidDate.isDueToday()).toBe(false)
     })
@@ -617,8 +619,8 @@ describe('Advanced Edge Cases', () => {
         tags: []
       })
 
-      // Should be categorized as tomorrow regardless of local timezone
-      expect(midnightUTCTask.getCategory()).toBe('tomorrow')
+      // Should be categorized as pret-tomorrow regardless of local timezone
+      expect(midnightUTCTask.getCategory()).toBe('pret-tomorrow')
     })
 
     it('should handle leap year dates correctly', () => {
@@ -643,7 +645,7 @@ describe('Advanced Edge Cases', () => {
 
       // Should handle leap year dates without issues
       expect(() => leapYearTask.getCategory()).not.toThrow()
-      expect(leapYearTask.getCategory()).toBe('future')
+      expect(leapYearTask.getCategory()).toBe('pret-future')
     })
   })
 
@@ -668,7 +670,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       // Should still be categorized normally despite having non-existent parent
-      expect(orphanedSubtask.getCategory()).toBe('no-date')
+      expect(orphanedSubtask.getCategory()).toBe('pret-no-date')
       expect(orphanedSubtask.isSubtask()).toBe(true)
       expect(orphanedSubtask.hasSubtasks()).toBe(false)
     })
@@ -695,7 +697,7 @@ describe('Advanced Edge Cases', () => {
 
       // Should still function normally
       expect(selfReferencingTask.isSubtask()).toBe(true)
-      expect(selfReferencingTask.getCategory()).toBe('no-date')
+      expect(selfReferencingTask.getCategory()).toBe('pret-no-date')
     })
 
     it('should handle tasks with both parentId and subtasks', () => {
@@ -802,11 +804,11 @@ describe('Advanced Edge Cases', () => {
         }))
       ]
 
-      // Verify that all overdue tasks come before all today tasks,
-      // and all today tasks come before all future tasks
-      const overdueTasks = tasks.filter(t => t.getCategory() === 'overdue')
-      const todayTasks = tasks.filter(t => t.getCategory() === 'today')
-      const futureTasks = tasks.filter(t => t.getCategory() === 'future')
+      // Verify that all pret-overdue tasks come before all pret-today tasks,
+      // and all pret-today tasks come before all pret-future tasks
+      const overdueTasks = tasks.filter(t => t.getCategory() === 'pret-overdue')
+      const todayTasks = tasks.filter(t => t.getCategory() === 'pret-today')
+      const futureTasks = tasks.filter(t => t.getCategory() === 'pret-future')
 
       expect(overdueTasks).toHaveLength(3)
       expect(todayTasks).toHaveLength(3)
@@ -817,8 +819,8 @@ describe('Advanced Edge Cases', () => {
       const highestToday = todayTasks[0] // Should be today-1 (importance 40)
       const highestFuture = futureTasks[0] // Should be future-1 (importance 40)
 
-      // Even with same priority scores, overdue should come before today,
-      // and today should come before future
+      // Even with same priority scores, pret-overdue should come before pret-today,
+      // and pret-today should come before pret-future
       const overdueVsToday = TaskPriorityService.compareTasksPriority(
         highestOverdue.rawTask, highestToday.rawTask, dateContext
       )
@@ -852,7 +854,7 @@ describe('Advanced Edge Cases', () => {
 
       // Should handle extreme values without issues
       expect(extremeTask.calculatePoints()).toBe(500)
-      expect(extremeTask.getCategory()).toBe('overdue')
+      expect(extremeTask.getCategory()).toBe('pret-overdue')
       expect(() => extremeTask.isOverdue()).not.toThrow()
       expect(() => extremeTask.isDueToday()).not.toThrow()
     })

@@ -85,11 +85,11 @@ export function PinnedTaskSection({
             </label>
             <div className='flex flex-wrap gap-1'>
               {[
-                { value: 50, label: 'Très élevée' },
-                { value: 40, label: 'Élevée' },
-                { value: 30, label: 'Moyenne' },
-                { value: 20, label: 'Basse' },
-                { value: 10, label: 'Très basse' },
+                { value: 500, label: 'Critique' },
+                { value: 350, label: 'Très élevée' },
+                { value: 250, label: 'Élevée' },
+                { value: 150, label: 'Moyenne' },
+                { value: 50, label: 'Basse' },
                 { value: 0, label: 'Nulle' }
               ].map(({ value, label }) => {
                 const isActive = pinnedTask.importance === value

@@ -24,6 +24,7 @@
     "prod:update": "git fetch && git pull && npm run build && pm2 restart gtd2"
   },
   "devDependencies": {
+    "@types/node": "^24.0.8",
     "concurrently": "^8.2.2"
   },
   "keywords": [

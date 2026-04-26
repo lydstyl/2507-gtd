@@ -2,276 +2,257 @@
 
 Une application complète de gestion de tâches (GTD - Getting Things Done) avec authentification, construite en monorepo avec React (frontend) et Node.js (backend).
 
-## 🚀 Fonctionnalités
+## Fonctionnalités
 
-### Backend (Node.js + Express + Prisma)
+- Authentification complète (inscription, connexion, JWT)
+- Gestion des tâches avec sous-tâches illimitées
+- Système de priorités : importance (0–50) × complexité (1–9) = points
+- Dates planifiées et dates d'échéance
+- Gestion des tags avec couleurs
+- Import/Export CSV
+- Chatbot IA pour gérer les tâches en langage naturel (Anthropic, OpenAI, OpenRouter)
+- Progressive Web App (PWA) — installable, mode hors-ligne
 
-- ✅ **Authentification complète** (inscription, connexion, JWT)
-- ✅ Gestion des tâches avec sous-tâches illimitées
-- ✅ Système de priorités (importance, urgence, priorité)
-- ✅ Dates d'échéance optionnelles pour les tâches
-- ✅ Gestion des tags avec couleurs
-- ✅ **Import/Export CSV** complet avec préservation des dates et couleurs de tags
-- ✅ API REST complète
-- ✅ Base de données SQLite avec Prisma
-- ✅ TypeScript pour la sécurité des types
-- ✅ Sécurité : chaque utilisateur ne voit que ses propres données
+## Installation
 
-### Frontend (React + Vite + Tailwind CSS)
+### Option A — Docker (recommandé)
 
-- ✅ **Interface moderne** avec Tailwind CSS
-- ✅ **Responsive design** pour mobile et desktop
-- ✅ **Page d'accueil** avec présentation des fonctionnalités
-- ✅ **États d'authentification** (connecté/déconnecté)
-- ✅ **TypeScript** pour la sécurité des types
-
-## 📁 Structure du projet
-
-```
-gtd-app/
-├── backend/           # API Node.js + Express + Prisma
-│   ├── src/
-│   │   ├── domain/           # Entités et logique métier
-│   │   ├── infrastructure/   # Implémentations (Prisma, etc.)
-│   │   ├── interfaces/       # Interfaces et contrats
-│   │   ├── presentation/     # Contrôleurs et routes
-│   │   ├── services/         # Services métier
-│   │   └── usecases/         # Cas d'usage
-│   ├── prisma/        # Schéma et migrations de base de données
-│   └── package.json
-├── frontend/          # Application React + Vite + Tailwind
-│   ├── src/
-│   │   ├── components/       # Composants React
-│   │   ├── pages/           # Pages de l'application
-│   │   ├── hooks/           # Hooks personnalisés
-│   │   └── utils/           # Utilitaires
-│   └── package.json
-├── package.json       # Configuration monorepo
-└── README.md
-```
-
-## 🛠️ Installation
-
-1. **Cloner le projet**
+Prérequis : Docker et Docker Compose installés.
 
 ```bash
 git clone <repository-url>
 cd gtd-app
+
+# Copier et remplir les variables d'environnement
+cp .env.example .env
+# Éditer .env avec tes secrets (DB_PASSWORD, JWT_SECRET, clé LLM...)
+
+# Builder les images et démarrer
+docker compose build
+docker compose up -d
 ```
 
-2. **Installer toutes les dépendances**
+L'application est disponible sur **http://localhost** (frontend + API).
+
+Les migrations de base de données s'appliquent automatiquement au premier démarrage du backend.
+
+> **Architecture réseau Docker** : le container `frontend` embarque son propre **nginx interne** qui sert les fichiers statiques ET proxy les requêtes `/api` vers le container `backend`. Le container `backend` n'a donc pas besoin d'être exposé publiquement — tout passe par le frontend sur le port 80 (ou le port mappé, ex: 3080). Si vous utilisez un nginx externe en reverse proxy, il suffit de proxy **uniquement** vers le port du container frontend ; ne pas ajouter de bloc `location /api` redondant.
+
+### Option B — Sans Docker (développement classique)
+
+Prérequis : Node.js 24 LTS, une instance PostgreSQL accessible.
 
 ```bash
+git clone <repository-url>
+cd gtd-app
+
 npm run install:all
-```
 
-3. **Configurer la base de données**
+# Copier et remplir les variables d'environnement (un seul fichier à la racine)
+cp .env.example .env
+# Éditer .env : DATABASE_URL, JWT_SECRET, LLM_PROVIDER, clé API...
 
-```bash
 cd backend
-npm run db:generate
-npm run db:push
+npm run db:migrate   # Appliquer les migrations
 cd ..
+
+npm run dev          # Backend :3000 + Frontend :5173
 ```
 
-4. **Configurer les variables d'environnement** (optionnel)
+## Développement avec Docker
+
+Les deux approches partagent la même image Docker mais utilisent des bases de données **complètement séparées** — elles ne se mélangent jamais.
+
+### Utiliser uniquement la base de données via Docker
+
+La façon la plus simple de développer avec PostgreSQL sans l'installer localement :
 
 ```bash
-# Créer un fichier backend/.env
-JWT_SECRET=your-secret-key-here
-JWT_EXPIRES_IN=30d
+# Démarrer seulement postgres (le port 5432 est exposé grâce au docker-compose.override.yml)
+docker compose up postgres -d
+
+# Appliquer les migrations puis lancer le dev
+cd backend && npm run db:migrate && cd ..
+npm run dev   # Développement normal avec hot-reload
 ```
 
-5. **Démarrer l'application complète**
+Si les containers backend et frontend Docker tournent déjà (après un `docker compose up -d`), stoppe-les avant de lancer `npm run dev` — sinon le port 3000 est déjà occupé :
 
 ```bash
+docker compose stop backend frontend
 npm run dev
 ```
 
-## 🎯 Scripts disponibles
+Quand tu as fini de travailler :
 
-### Monorepo (racine)
+```bash
+docker compose down   # Arrête postgres (les données sont conservées)
+```
 
-- `npm run dev` : Démarrer backend et frontend simultanément
-- `npm run dev:backend` : Démarrer uniquement le backend
-- `npm run dev:frontend` : Démarrer uniquement le frontend
-- `npm run build` : Construire backend et frontend
-- `npm run install:all` : Installer toutes les dépendances
+### Dev vs Prod — quelle base de données ?
 
-### Backend
+| | Développement | Production |
+|---|---|---|
+| **Base de données** | Postgres Docker local (port 5432 exposé) | Postgres Docker interne (pas exposé) |
+| **Backend** | `npm run dev` (nodemon, hot-reload) | Container Docker |
+| **Frontend** | `npm run dev` (Vite HMR, :5173) | Container Docker (nginx, :80) |
+| **Migrations** | `npm run db:migrate` manuellement | Automatique au démarrage du container |
+| **Variables** | `.env` à la racine | `.env` à la racine (chargé par docker compose) |
 
-- `npm run dev` : Démarrer le serveur de développement
-- `npm run build` : Compiler le projet
-- `npm start` : Démarrer le serveur en production
-- `npm run db:generate` : Générer le client Prisma
-- `npm run db:push` : Pousser le schéma vers la base de données
-- `npm run db:migrate` : Exécuter les migrations
+> Les données de dev et de prod ne se partagent jamais — volumes Docker distincts, mots de passe distincts.
 
-### Frontend
+## Scripts disponibles
 
-- `npm run dev` : Démarrer le serveur de développement Vite
-- `npm run build` : Construire pour la production
-- `npm run preview` : Prévisualiser la build de production
+### Racine (monorepo)
 
-## 🌐 Accès à l'application
+| Commande | Description |
+|---|---|
+| `npm run dev` | Backend + Frontend en simultané |
+| `npm run build` | Build shared → backend → frontend |
+| `npm run test` | Tous les tests (shared + backend + frontend) |
+| `npm run prod:update` | Pull, build et redémarrage PM2 en production |
 
-- **Frontend** : http://localhost:5173
-- **Backend API** : http://localhost:3000
-- **Documentation API** : http://localhost:3000
+### Backend (`cd backend`)
 
-## 🔐 API Endpoints
+| Commande | Description |
+|---|---|
+| `npm run dev` | Serveur de développement (nodemon) |
+| `npm run test` | Tous les tests Vitest |
+| `npm run test:domain` | Tests domaine uniquement |
+| `npm run test:usecases` | Tests use cases uniquement |
+| `npm run test:integration` | Tests d'intégration (e2e) |
+| `npm run db:migrate` | Appliquer les migrations |
+| `npm run db:studio` | Ouvrir Prisma Studio |
+
+### Frontend (`cd frontend`)
+
+| Commande | Description |
+|---|---|
+| `npm run dev` | Serveur Vite (:5173) |
+| `npm run build` | Build de production |
+| `npm run lint` | ESLint |
+| `npm run test` | Tests Vitest |
+
+### Docker
+
+| Commande | Description |
+|---|---|
+| `docker compose build` | Builder les images backend et frontend |
+| `docker compose up -d` | Démarrer tout (postgres + backend + frontend) |
+| `docker compose up postgres -d` | Démarrer seulement postgres (dev) |
+| `docker compose down` | Arrêter les containers |
+| `docker compose down -v` | Arrêter et supprimer les volumes (reset DB) |
+| `docker compose logs -f backend` | Suivre les logs backend |
+
+## Variables d'environnement
+
+Un seul fichier `.env` à la racine — copier [`.env.example`](.env.example) :
+
+```env
+# Base de données (Docker)
+DB_PASSWORD=mot_de_passe_securise
+
+# Base de données (développement local — même mot de passe)
+DATABASE_URL=postgresql://gtd_user:mot_de_passe_securise@localhost:5432/gtd_production
+
+# Application
+JWT_SECRET=chaine_aleatoire_longue_32_chars_min
+PORT=3000
+NODE_ENV=development
+CORS_ORIGINS=http://localhost:5173       # production : https://ton-domaine.com
+
+# Chatbot LLM
+LLM_PROVIDER=openrouter                  # anthropic | openai | openrouter
+OPENROUTER_API_KEY=sk-or-...
+```
+
+Le backend charge ce fichier automatiquement (dev et Docker). En production Docker, `CORS_ORIGINS` doit pointer vers ton domaine.
+
+## Architecture
+
+Monorepo npm workspaces avec 3 packages :
+
+- `shared/` — logique métier partagée (`@gtd/shared`) : entités, services, validation, constantes
+- `backend/` — API Node.js + Express + Prisma (Clean Architecture)
+- `frontend/` — React + Vite + Tailwind CSS (Clean Architecture)
+
+Toute la logique métier vit dans `shared/` pour éviter la duplication.
+
+## Technologies
+
+**Backend** : Node.js 24, Express, TypeScript, Prisma, PostgreSQL, bcrypt, JWT, Vercel AI SDK
+
+**Frontend** : React 18, Vite, TypeScript, Tailwind CSS, TanStack Query, TipTap
+
+## API Endpoints
 
 ### Authentification
 
-- `POST /api/auth/register` - Inscription
-- `POST /api/auth/login` - Connexion
+- `POST /api/auth/register` — Inscription
+- `POST /api/auth/login` — Connexion
 
-### Tâches (Authentification requise)
+### Tâches (token requis)
 
-- `GET /api/tasks` - Récupérer toutes les tâches
-- `POST /api/tasks` - Créer une tâche
-- `GET /api/tasks/:id` - Récupérer une tâche
-- `PUT /api/tasks/:id` - Modifier une tâche
-- `DELETE /api/tasks/:id` - Supprimer une tâche
+- `GET /api/tasks` — Toutes les tâches
+- `POST /api/tasks` — Créer
+- `PUT /api/tasks/:id` — Modifier
+- `DELETE /api/tasks/:id` — Supprimer
+- `POST /api/tasks/:id/complete` — Marquer complétée
+- `GET /api/tasks/export` — Export CSV
+- `POST /api/tasks/import` — Import CSV
 
-### Tags (Authentification requise)
+### Tags (token requis)
 
-- `GET /api/tags` - Récupérer tous les tags
-- `POST /api/tags` - Créer un tag
-- `GET /api/tags/:id` - Récupérer un tag
-- `PUT /api/tags/:id` - Modifier un tag
-- `DELETE /api/tags/:id` - Supprimer un tag
+- `GET /api/tags` — Tous les tags
+- `POST /api/tags` — Créer
+- `PUT /api/tags/:id` — Modifier
+- `DELETE /api/tags/:id` — Supprimer
 
-## 🎨 Technologies utilisées
+### Chatbot (token requis)
 
-### Backend
+- `POST /api/chat` — Envoyer un message (streaming SSE)
 
-- **Node.js** avec **Express**
-- **TypeScript** pour la sécurité des types
-- **Prisma** pour l'ORM et la gestion de base de données
-- **SQLite** pour la base de données
-- **bcrypt** pour le hash des mots de passe
-- **jsonwebtoken** pour l'authentification JWT
+## Dépannage
 
-### Frontend
+| Problème | Solution |
+|---|---|
+| Port 3000 ou 5173 occupé | `lsof -ti:3000 \| xargs kill` |
+| Backend ne démarre pas | Vérifier `backend/.env` et la connexion PostgreSQL |
+| Chat ne fonctionne pas | Vérifier la clé API LLM dans `.env` |
+| Build Docker échoue | `docker compose build --no-cache` |
+| Erreur de migration | `docker compose exec backend node_modules/.bin/prisma migrate status` |
 
-- **React 18** avec **TypeScript**
-- **Vite** pour le build et le développement
-- **Tailwind CSS** pour le styling
-- **React Hooks** pour la gestion d'état
+## Changer le mot de passe de la base de données
 
-## 🔒 Sécurité
+PostgreSQL stocke le mot de passe lors de la **première initialisation du volume**. Changer `DB_PASSWORD` dans `.env` seul ne suffit pas — il faut aussi le changer à l'intérieur de PostgreSQL.
 
-- **Authentification JWT** : Toutes les routes de données nécessitent un token valide
-- **Hash des mots de passe** : Utilisation de bcrypt pour sécuriser les mots de passe
-- **Isolation des données** : Chaque utilisateur ne peut accéder qu'à ses propres tâches et tags
-- **Validation des entrées** : Validation côté serveur de toutes les données
-- **Gestion d'erreurs** : Messages d'erreur appropriés sans exposition d'informations sensibles
-
-## 🚀 Développement
-
-### Structure des données
-
-#### User (Utilisateur)
-
-- `id` : Identifiant unique
-- `email` : Email unique (obligatoire)
-- `password` : Mot de passe hashé (obligatoire)
-- `createdAt` : Date de création
-- `updatedAt` : Date de modification
-
-#### Task (Tâche)
-
-- `id` : Identifiant unique
-- `name` : Nom de la tâche (obligatoire)
-- `link` : Lien optionnel
-- `importance` : Importance de 1 à 9 (1 = plus important, défaut: 5)
-- `urgency` : Urgence de 1 à 9 (défaut: 5)
-- `priority` : Priorité de 1 à 9 (défaut: 5)
-- `dueDate` : Date d'échéance optionnelle
-- `parentId` : ID de la tâche parente (optionnel)
-- `userId` : ID de l'utilisateur propriétaire
-- `createdAt` : Date de création
-- `updatedAt` : Date de modification
-- `subtasks` : Liste des sous-tâches
-- `tags` : Liste des tags associés
-
-#### Tag
-
-- `id` : Identifiant unique
-- `name` : Nom du tag (unique par utilisateur)
-- `color` : Couleur optionnelle
-- `userId` : ID de l'utilisateur propriétaire
-- `createdAt` : Date de création
-- `updatedAt` : Date de modification
-
-## 📝 Exemples d'utilisation
-
-### Inscription et connexion
+### Option A — Conserver les données
 
 ```bash
-# Inscription
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password123"}'
+# Se connecter au container postgres
+docker compose exec postgres psql -U gtd_user -d gtd_production
 
-# Connexion
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password123"}'
+# Changer le mot de passe dans PostgreSQL
+ALTER USER gtd_user WITH PASSWORD 'nouveau_mot_de_passe';
+\q
+
+# Mettre à jour .env
+# DB_PASSWORD=nouveau_mot_de_passe
+# DATABASE_URL=postgresql://gtd_user:nouveau_mot_de_passe@localhost:5432/gtd_production
+
+# Redémarrer
+docker compose restart
 ```
 
-### Création de tâche
+### Option B — Repartir de zéro (données perdues)
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <jwt-token>" \
-  -d '{
-    "name": "Ma première tâche",
-    "importance": 3,
-    "urgency": 7,
-    "priority": 5,
-    "dueDate": "2025-08-15"
-  }'
+docker compose down -v   # Supprime les containers ET le volume
+
+# Mettre à jour .env, puis relancer
+docker compose up -d
 ```
 
-## 🆘 Troubleshooting
+## Licence
 
-### Port Already in Use?
-
-```bash
-# Quick fix:
-./scripts/cleanup-ports.sh
-npm run dev
-```
-
-**See**: [QUICK_FIX.md](./QUICK_FIX.md) for immediate solution
-
-### Other Issues?
-
-- **Full troubleshooting guide**: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
-- **Chatbot issues**: [CHATBOT.md](./CHATBOT.md)
-- **API key setup**: [API_KEYS_GUIDE.md](./API_KEYS_GUIDE.md)
-
-### Common Problems
-
-| Problem | Solution |
-|---------|----------|
-| Port 3000/5173 in use | `./scripts/cleanup-ports.sh` |
-| Backend won't start | Check `backend/.env` exists |
-| Frontend can't connect | Ensure backend is on port 3000 |
-| Build fails | `npm run install:all` |
-| Chat not working | Check LLM API key in `.env` |
-
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité
-3. Commiter vos changements
-4. Pousser vers la branche
-5. Ouvrir une Pull Request
-
-## 📄 Licence
-
-MIT License
+MIT

@@ -13,8 +13,8 @@ export class AuthController {
         res.status(400).json({ error: 'Email and password are required' })
         return
       }
-      const user = await this.authService.register(email, password)
-      res.status(201).json({ id: user.id, email: user.email })
+      const { user, token } = await this.authService.register(email, password)
+      res.status(201).json({ token, user: { id: user.id, email: user.email } })
     } catch (err: any) {
       res.status(400).json({ error: err.message })
     }

@@ -3,8 +3,16 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  brouillon
+  pour_ia
+  collecte
+  pret
+  un_jour_peut_etre
 }
 
 model User {
@@ -15,8 +23,23 @@ model User {
   updatedAt DateTime @updatedAt
   tags      Tag[]
   tasks     Task[]
+  apiKeys   ApiKey[]
 
   @@map("users")
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  keyHash    String    @unique
+  prefix     String
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime?
+
+  @@map("api_keys")
 }
 
 model Task {
@@ -30,7 +53,8 @@ model Task {
   position    Int       @default(0)
   plannedDate DateTime?
   dueDate     DateTime?
-  isCompleted Boolean   @default(false)
+  status      TaskStatus @default(brouillon)
+  isCompleted Boolean    @default(false)
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

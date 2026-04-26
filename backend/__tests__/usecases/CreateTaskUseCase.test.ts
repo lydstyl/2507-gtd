@@ -148,7 +148,7 @@ describe('CreateTaskUseCase', () => {
     })
 
     it('should reject invalid importance values', async () => {
-      const invalidImportanceValues = [-1, 51, 100]
+      const invalidImportanceValues = [-1, 501, 1000]
 
       for (const importance of invalidImportanceValues) {
         const taskData = createMockCreateTaskData({
@@ -159,7 +159,7 @@ describe('CreateTaskUseCase', () => {
 
         const result = await createTaskUseCase.execute(taskData)
         expect(result.success).toBe(false)
-        expect(result.error?.message).toContain('Importance must be between 0 and 50')
+        expect(result.error?.message).toContain('Importance must be between 0 and 500')
       }
     })
 
@@ -182,7 +182,7 @@ describe('CreateTaskUseCase', () => {
     })
 
     it('should accept valid importance boundary values', async () => {
-      const validImportanceValues = [0, 25, 50]
+      const validImportanceValues = [0, 250, 500]
 
       for (const importance of validImportanceValues) {
         mockTaskRepository.reset()

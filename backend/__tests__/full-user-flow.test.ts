@@ -51,7 +51,7 @@ describe('Full User Flow Tests', () => {
     const userPassword = 'test-password-123'
 
     console.log("📝 1. Création de l'utilisateur...")
-    const user = await authService.register(userEmail, userPassword)
+    const { user } = await authService.register(userEmail, userPassword)
     console.log('✅ Utilisateur créé:', user.id)
 
     // 2. Authentifier l'utilisateur
@@ -93,7 +93,7 @@ describe('Full User Flow Tests', () => {
     const firstUserPassword = 'test-password-123'
 
     console.log('📝 Création du premier utilisateur...')
-    const firstUser = await authService.register(
+    const { user: firstUser } = await authService.register(
       firstUserEmail,
       firstUserPassword
     )
@@ -114,7 +114,7 @@ describe('Full User Flow Tests', () => {
     const secondUserPassword = 'test-password-456'
 
     console.log('📝 Création du deuxième utilisateur...')
-    const secondUser = await authService.register(
+    const { user: secondUser } = await authService.register(
       secondUserEmail,
       secondUserPassword
     )

@@ -75,9 +75,15 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: (credentials: RegisterCredentials) => authApi.register(credentials),
-    onSuccess: (user: User) => {
-      // Note: Register might not return a token, so we may need to login after
-      queryClient.setQueryData(AUTH_QUERY_KEYS.currentUser, user)
+    onSuccess: (data: AuthResponse) => {
+      localStorage.setItem('token', data.token)
+      queryClient.setQueryData(AUTH_QUERY_KEYS.currentUser, data.user)
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['tags'] })
+    },
+    onError: () => {
+      localStorage.removeItem('token')
+      queryClient.setQueryData(AUTH_QUERY_KEYS.currentUser, null)
     }
   })
 }

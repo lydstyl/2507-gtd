@@ -20,14 +20,15 @@ export const getDateIndicator = (dateString: string) => {
   return TaskCategoryService.getDateIndicator(dateString)
 }
 
-export const getTaskCategory = (task: { points: number; importance: number; complexity: number; plannedDate?: string | Date | null; dueDate?: string | Date | null }): TaskCategory => {
-  // Create a minimal task object for the shared service
+export const getTaskCategory = (task: { points: number; importance: number; complexity: number; status?: string; plannedDate?: string | Date | null; dueDate?: string | Date | null }): TaskCategory => {
   const genericTask = {
     id: 'temp',
     name: 'temp',
     importance: task.importance,
     complexity: task.complexity,
     points: task.points,
+    position: 0,
+    status: task.status ?? 'brouillon',
     plannedDate: task.plannedDate || undefined,
     dueDate: task.dueDate || undefined,
     parentId: undefined,
@@ -41,7 +42,7 @@ export const getTaskCategory = (task: { points: number; importance: number; comp
   }
 
   const dateContext = TaskPriorityService.createDateContext()
-  return TaskPriorityService.getTaskCategory(genericTask, dateContext)
+  return TaskPriorityService.getTaskCategory(genericTask as any, dateContext)
 }
 
 export const getTaskCategoryStyle = (category: TaskCategory) => {
