@@ -20,6 +20,8 @@ export interface IApiKeyRepository {
 
   findByUserId(userId: string): Promise<Omit<ApiKeyRecord, 'keyHash'>[]>
 
+  findById(id: string): Promise<ApiKeyRecord | null>
+
   findByPrefix(prefix: string): Promise<ApiKeyRecord[]>
 
   updateLastUsed(id: string): Promise<void>

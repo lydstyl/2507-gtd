@@ -29,6 +29,7 @@ import { ChatUseCase } from '../usecases/chat/ChatUseCase'
 import { CreateApiKeyUseCase } from '../usecases/apikeys/CreateApiKeyUseCase'
 import { ListApiKeysUseCase } from '../usecases/apikeys/ListApiKeysUseCase'
 import { RevokeApiKeyUseCase } from '../usecases/apikeys/RevokeApiKeyUseCase'
+import { RegenerateApiKeyUseCase } from '../usecases/apikeys/RegenerateApiKeyUseCase'
 import { LLMProviderFactory } from './ai/LLMProviderFactory'
 import { LoggerService } from '@gtd/shared'
 import { FileLogger } from './logging/FileLogger'
@@ -148,10 +149,12 @@ export class Container {
   }
 
   getApiKeyController(): ApiKeyController {
+    const revokeUseCase = new RevokeApiKeyUseCase(this.apiKeyRepository)
     return new ApiKeyController(
       new CreateApiKeyUseCase(this.apiKeyRepository),
       new ListApiKeysUseCase(this.apiKeyRepository),
-      new RevokeApiKeyUseCase(this.apiKeyRepository)
+      revokeUseCase,
+      new RegenerateApiKeyUseCase(this.apiKeyRepository, revokeUseCase)
     )
   }
 

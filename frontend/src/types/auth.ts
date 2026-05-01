@@ -30,3 +30,22 @@ export interface AuthState {
 // Legacy type aliases for backward compatibility
 export type LoginData = LoginCredentials
 export type RegisterData = RegisterCredentials
+
+export interface ApiKey {
+  id: string
+  name: string
+  prefix: string
+  userId: string
+  lastUsedAt: string | null
+  createdAt: string
+  expiresAt: string | null
+}
+
+export interface ApiKeyCreated {
+  id: string
+  name: string
+  prefix: string
+  key: string
+  createdAt: string
+  expiresAt: string | null
+}

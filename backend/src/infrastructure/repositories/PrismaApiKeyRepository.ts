@@ -30,6 +30,10 @@ export class PrismaApiKeyRepository implements IApiKeyRepository {
     })
   }
 
+  async findById(id: string): Promise<ApiKeyRecord | null> {
+    return this.prisma.apiKey.findUnique({ where: { id } })
+  }
+
   async findByPrefix(prefix: string): Promise<ApiKeyRecord[]> {
     return this.prisma.apiKey.findMany({ where: { prefix } })
   }

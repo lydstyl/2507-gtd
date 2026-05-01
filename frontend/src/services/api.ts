@@ -5,7 +5,7 @@ import type {
   Tag,
   CreateTagData
 } from '../types/task'
-import type { User, LoginCredentials, RegisterCredentials } from '../types/auth'
+import type { User, LoginCredentials, RegisterCredentials, ApiKey, ApiKeyCreated } from '../types/auth'
 import { BaseError } from '@gtd/shared'
 
 // Detect environment and API base URL
@@ -232,11 +232,33 @@ export const tagsApi = {
     }),
 }
 
+// API Keys API
+export const apiKeysApi = {
+  list: () => apiCall<ApiKey[]>('/auth/keys'),
+
+  create: (name: string, expiresAt?: string) =>
+    apiCall<ApiKeyCreated>('/auth/keys', {
+      method: 'POST',
+      body: JSON.stringify({ name, ...(expiresAt ? { expiresAt } : {}) })
+    }),
+
+  regenerate: (id: string) =>
+    apiCall<ApiKeyCreated>(`/auth/keys/${id}/regenerate`, {
+      method: 'POST'
+    }),
+
+  revoke: (id: string) =>
+    apiCall<void>(`/auth/keys/${id}`, {
+      method: 'DELETE'
+    }),
+}
+
 // Legacy API object for backward compatibility
 export const api = {
   ...authApi,
   ...tasksApi,
   ...tagsApi,
+  ...apiKeysApi,
   register: authApi.register,
   login: authApi.login,
 }
