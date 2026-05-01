@@ -279,16 +279,22 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
                 <strong>Lien</strong> : URL associée (optionnel)
               </li>
               <li>
-                <strong>Importance</strong> : 1-9 (1 = critique, 9 = faible)
+                <strong>Importance</strong> : 0-50 (0 = faible, 50 = critique)
               </li>
               <li>
-                <strong>Urgence</strong> : 1-9 (1 = critique, 9 = faible)
+                <strong>Complexité</strong> : 1-9 (1 = simple, 9 = complexe)
               </li>
               <li>
-                <strong>Priorité</strong> : 1-9 (1 = critique, 9 = faible)
+                <strong>Points</strong> : Priorité calculée
+              </li>
+              <li>
+                <strong>Statut</strong> : brouillon, pret, collecte, pour_ia, un_jour_peut_etre
               </li>
               <li>
                 <strong>Date prévue</strong> : YYYY-MM-DD (optionnel)
+              </li>
+              <li>
+                <strong>Date limite</strong> : YYYY-MM-DD (optionnel)
               </li>
               <li>
                 <strong>Tags</strong> : Séparés par des points-virgules

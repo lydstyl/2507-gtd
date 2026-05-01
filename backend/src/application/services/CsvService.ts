@@ -1,4 +1,4 @@
-import { Task, TaskTag } from '../../domain/entities/Task'
+import { Task, TaskTag, TaskStatus } from '../../domain/entities/Task'
 import { Tag } from '../../domain/entities/Tag'
 import { ValidationError } from '@gtd/shared'
 import { CsvFileAdapter } from '../../infrastructure/adapters/CsvFileAdapter'
@@ -16,6 +16,7 @@ export interface ImportTaskData {
   importance: number
   complexity: number
   points: number
+  status?: TaskStatus
   plannedDate?: Date
   dueDate?: Date
   parentName?: string
@@ -58,6 +59,7 @@ export class CsvService {
       importance: task.importance,
       complexity: task.complexity,
       points: task.points,
+      status: task.status as TaskStatus | undefined,
       plannedDate: task.plannedDate,
       dueDate: task.dueDate,
       parentName: task.parentName,

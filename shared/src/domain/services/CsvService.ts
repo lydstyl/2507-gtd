@@ -11,6 +11,7 @@ export interface CsvTaskData<TDate = Date | string> {
   importance: number
   complexity: number
   points: number
+  status?: string
   plannedDate?: TDate
   dueDate?: TDate
   parentName?: string
@@ -31,6 +32,7 @@ export interface CsvTaskWithTags<TDate = Date | string> {
   importance: number
   complexity: number
   points: number
+  status: string
   plannedDate?: TDate
   dueDate?: TDate
   createdAt: TDate
@@ -60,6 +62,7 @@ export class CsvService {
       'Importance',
       'Complexité',
       'Points',
+      'Statut',
       'Date prévue',
       'Date limite',
       'Date de création',
@@ -78,6 +81,7 @@ export class CsvService {
       task.importance,
       task.complexity,
       task.points,
+      this.escapeCsvField(task.status),
       task.plannedDate ? this.formatDate(task.plannedDate) : '',
       task.dueDate ? this.formatDate(task.dueDate) : '',
       this.formatDate(task.createdAt),
@@ -148,6 +152,8 @@ export class CsvService {
     _lineNumber: number,
     dateParser?: (dateStr: string) => TDate
   ): CsvTaskData<TDate> | null {
+    // Support both old format (15 cols, no Statut) and new format (16 cols, with Statut)
+    const hasStatus = columns.length >= 16
     const [
       _id, // Ignored during import
       name,
@@ -156,8 +162,9 @@ export class CsvService {
       importanceStr,
       complexityStr,
       pointsStr,
-      plannedDateStr,
-      dueDateStr,
+      statusOrPlannedDateStr,
+      plannedDateStrOrDueDate,
+      dueDateStrOrCreatedAt,
       _createdAtStr, // Ignored during import
       _updatedAtStr, // Ignored during import
       _parentId, // Ignored during import
@@ -165,6 +172,11 @@ export class CsvService {
       tagNamesStr,
       tagColorsStr
     ] = columns
+
+    // Adjust column positions based on format
+    const statusStr = hasStatus ? statusOrPlannedDateStr : undefined
+    const plannedDateStr = hasStatus ? plannedDateStrOrDueDate : statusOrPlannedDateStr
+    const dueDateStrRaw = hasStatus ? dueDateStrOrCreatedAt : plannedDateStrOrDueDate
 
     // Validate required fields
     if (!name || name.trim() === '') {
@@ -189,12 +201,12 @@ export class CsvService {
     }
 
     let dueDate: TDate | undefined
-    if (dueDateStr && dueDateStr.trim() !== '') {
+    if (dueDateStrRaw && dueDateStrRaw.trim() !== '') {
       if (dateParser) {
-        dueDate = dateParser(dueDateStr)
+        dueDate = dateParser(dueDateStrRaw)
       } else {
         // Default to string if no parser provided
-        dueDate = dueDateStr as TDate
+        dueDate = dueDateStrRaw as TDate
       }
     }
 
@@ -213,6 +225,7 @@ export class CsvService {
       importance,
       complexity,
       points,
+      status: statusStr && statusStr.trim() !== '' ? statusStr.trim() : undefined,
       plannedDate,
       dueDate,
       parentName: parentName && parentName.trim() !== '' ? parentName.trim() : undefined,
