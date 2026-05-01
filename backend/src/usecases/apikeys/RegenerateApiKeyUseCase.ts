@@ -30,7 +30,7 @@ export class RegenerateApiKeyUseCase {
       keyHash,
       prefix,
       userId,
-      expiresAt: existing.expiresAt,
+      expiresAt: existing.expiresAt ?? undefined,
     })
 
     return {
