@@ -1,9 +1,12 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
+# Copy dependency manifests first (for caching)
 COPY package.json package-lock.json ./
-RUN npm ci
+# --ignore-scripts prevents the "prepare" hook from running tsc before source is copied
+RUN npm ci --ignore-scripts
 
+# Now copy source and build
 COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build
@@ -17,6 +20,7 @@ RUN addgroup -g 1001 -S nodejs \
     && adduser -S nodejs -u 1001 \
     && chown -R nodejs:nodejs /app
 
+# Copy only production deps + build artifacts
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/build ./build
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
