@@ -43,10 +43,10 @@ describe('CSV Import Tests', () => {
 
   test('should import tasks from CSV and create tags', async () => {
     const csvContent = [
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
-      ',Tâche 1,,,1,2,2,,2025-07-20,,,,,Tag1,',
-      ',Tâche 2,,,5,5,25,,,,,,,Tag2,',
-      ',Tâche 3,,,3,3,9,,,,,,,,'
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Tâche 1,,,1,2,2,,,2025-07-20,,,,,Tag1,',
+      ',Tâche 2,,,5,5,25,,,,,,,,Tag2,',
+      ',Tâche 3,,,3,3,9,,,,,,,,,'
     ].join('\n')
 
     // Import via l'API
@@ -102,7 +102,7 @@ describe('CSV Import Tests', () => {
 
   test('should reject import without authentication', async () => {
     const csvContent =
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags\n,Tâche sans auth,,,5,5,25,,,,,,,,'
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,,Statut,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags\n,Tâche sans auth,,,5,5,25,,,,,,,,'
     await request(server)
       .post('/api/tasks/import')
       .send({ csvContent })
@@ -111,9 +111,9 @@ describe('CSV Import Tests', () => {
 
   test('should return errors for invalid CSV', async () => {
     const csvContent = [
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
-      ',,Lien manquant,,abc,2,10,,,2025-07-20,,,,Tag1;Tag2,#ff0000', // nom manquant, importance invalide
-      ',Tâche mauvaise importance,,,abc,2,10,,,2025-07-20,,,,Tag1;Tag2,#ff0000' // importance invalide
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',,Lien manquant,,abc,2,10,,,,2025-07-20,,,,Tag1;Tag2,#ff0000', // nom manquant, importance invalide
+      ',Tâche mauvaise importance,,,abc,2,10,,,,2025-07-20,,,,Tag1;Tag2,#ff0000' // importance invalide
     ].join('\n')
 
     const importRes = await request(server)
@@ -431,10 +431,10 @@ describe('CSV Import Tests', () => {
 
     // CSV avec subtasks AVANT leur parent (ordre inversé pour tester)
     const csvContent = [
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
-      ',Subtask 2,,,2,2,4,,,,,,"Parent Task",,', // Subtask listed FIRST
-      ',Subtask 1,,,1,1,1,,,,,,"Parent Task",,', // Subtask listed SECOND
-      ',Parent Task,,,5,5,25,,,,,,,,', // Parent listed LAST
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Subtask 2,,,2,2,4,,,,,,,"Parent Task",,', // Subtask listed FIRST
+      ',Subtask 1,,,1,1,1,,,,,,,"Parent Task",,', // Subtask listed SECOND
+      ',Parent Task,,,5,5,25,,,,,,,,,', // Parent listed LAST
     ].join('\n')
 
     console.log('📥 Import du CSV avec ordre inversé...')
@@ -488,10 +488,10 @@ describe('CSV Import Tests', () => {
 
     // CSV with 3 levels: Grandparent -> Parent -> Child (listed in reverse)
     const csvContent = [
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
-      ',Child Task,,,1,1,1,,,,,,"Parent Task",,', // Child listed FIRST
-      ',Parent Task,,,2,2,4,,,,,,"Grandparent Task",,', // Parent listed SECOND
-      ',Grandparent Task,,,3,3,9,,,,,,,,', // Grandparent listed LAST
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Child Task,,,1,1,1,,,,,,,"Parent Task",,', // Child listed FIRST
+      ',Parent Task,,,2,2,4,,,,,,,"Grandparent Task",,', // Parent listed SECOND
+      ',Grandparent Task,,,3,3,9,,,,,,,,,', // Grandparent listed LAST
     ].join('\n')
 
     console.log('📥 Import du CSV avec 3 niveaux imbriqués...')
@@ -543,9 +543,9 @@ describe('CSV Import Tests', () => {
 
     // CSV with child referencing non-existent parent
     const csvContent = [
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
-      ',Child Task,,,1,1,1,,,,,,"NonExistent Parent",,',
-      ',Valid Task,,,2,2,4,,,,,,,,',
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Child Task,,,1,1,1,,,,,,,"NonExistent Parent",,',
+      ',Valid Task,,,2,2,4,,,,,,,,,',
     ].join('\n')
 
     console.log('📥 Import du CSV avec parent manquant...')
@@ -581,10 +581,10 @@ describe('CSV Import Tests', () => {
 
     // CSV with parent names in different cases
     const csvContent = [
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
-      ',Subtask with lowercase parent,,,1,1,1,,,,,,"gtd project",,', // Parent name in lowercase
-      ',GTD Project,,,5,5,25,,,,,,,,', // Parent name with capitals
-      ',Another subtask,,,2,2,4,,,,,,"GTD PROJECT",,', // Parent name in uppercase
+      'ID,Nom,Lien,Note,Importance,Complexité,Points,,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags',
+      ',Subtask with lowercase parent,,,1,1,1,,,,,,,"gtd project",,', // Parent name in lowercase
+      ',GTD Project,,,5,5,25,,,,,,,,,', // Parent name with capitals
+      ',Another subtask,,,2,2,4,,,,,,,"GTD PROJECT",,', // Parent name in uppercase
     ].join('\n')
 
     console.log('📥 Import du CSV avec différentes casses...')

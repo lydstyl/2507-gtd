@@ -58,6 +58,25 @@ services:
       - gtd-network
     restart: unless-stopped
 
+  mcp:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    container_name: gtd-docker-mcp
+    environment:
+      NODE_ENV: production
+      TRANSPORT: http
+      MCP_HTTP_PORT: "3003"
+      GTD_API_URL: http://backend:3000
+      GTD_API_TOKEN: ${GTD_API_TOKEN:?GTD_API_TOKEN is required — add it to .env}
+    ports:
+      - "3003:3003"
+    depends_on:
+      - backend
+    networks:
+      - gtd-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
 
