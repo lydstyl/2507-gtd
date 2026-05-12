@@ -13,6 +13,7 @@ function formatTask(task: TaskDto): string {
   if (task.plannedDate) lines.push(`  Planned: ${task.plannedDate.split('T')[0]}`)
   if (task.dueDate) lines.push(`  Due: ${task.dueDate.split('T')[0]}`)
   if (task.link) lines.push(`  Link: ${task.link}`)
+  if (task.note) lines.push(`  Note: ${task.note.length > 500 ? task.note.slice(0, 500) + '…' : task.note}`)
   if (task.tags.length > 0) lines.push(`  Tags: ${task.tags.map((t) => t.name).join(', ')}`)
   if (task.subtasks && task.subtasks.length > 0) lines.push(`  Subtasks: ${task.subtasks.length}`)
   return lines.join('\n')
