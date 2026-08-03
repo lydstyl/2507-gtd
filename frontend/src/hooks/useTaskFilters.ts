@@ -11,7 +11,11 @@ export interface FilterState {
   dateFilter: string
   updatedAtFilter: string
   createdAtFilter: string
+  statusFilters: string[]
 }
+
+const ALL_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'completed']
+const DEFAULT_STATUS_FILTERS = ['brouillon', 'pour_ia', 'collecte', 'pret']
 
 export function useTaskFilters(tasks: Task[]) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -27,12 +31,20 @@ export function useTaskFilters(tasks: Task[]) {
   const [dateFilter, setDateFilter] = useState<string>('')
   const [updatedAtFilter, setUpdatedAtFilter] = useState<string>('')
   const [createdAtFilter, setCreatedAtFilter] = useState<string>('')
+  const [statusFilters, setStatusFilters] = useState<string[]>(DEFAULT_STATUS_FILTERS)
 
   const applyFilters = (tasksToFilter: Task[]) => {
     let filtered = tasksToFilter
 
-    // Filter completed tasks
-    filtered = filtered.filter((task) => !task.isCompleted)
+    // Filter by status checkboxes
+    filtered = filtered.filter((task) => {
+      // Completed tasks only visible if "completed" checkbox is ticked
+      if (task.isCompleted) {
+        return statusFilters.includes('completed')
+      }
+      // Non-completed tasks: visible if their status is checked
+      return statusFilters.includes(task.status)
+    })
 
     // Text search filter
     if (searchTerm.trim()) {
@@ -168,9 +180,18 @@ export function useTaskFilters(tasks: Task[]) {
       tagFilter,
       dateFilter,
       updatedAtFilter,
-      createdAtFilter
+      createdAtFilter,
+      statusFilters
     ]
   )
+
+  const toggleStatusFilter = (status: string) => {
+    setStatusFilters((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status]
+    )
+  }
 
   const clearAllFilters = () => {
     setSearchTerm('')
@@ -180,6 +201,7 @@ export function useTaskFilters(tasks: Task[]) {
     setDateFilter('')
     setUpdatedAtFilter('')
     setCreatedAtFilter('')
+    setStatusFilters(DEFAULT_STATUS_FILTERS)
   }
 
   const hasActiveFilters = Boolean(
@@ -189,7 +211,9 @@ export function useTaskFilters(tasks: Task[]) {
       tagFilter ||
       dateFilter ||
       updatedAtFilter ||
-      createdAtFilter
+      createdAtFilter ||
+      statusFilters.length !== DEFAULT_STATUS_FILTERS.length ||
+      !DEFAULT_STATUS_FILTERS.every((s) => statusFilters.includes(s))
   )
 
   return {
@@ -211,6 +235,8 @@ export function useTaskFilters(tasks: Task[]) {
     setUpdatedAtFilter,
     createdAtFilter,
     setCreatedAtFilter,
+    statusFilters,
+    toggleStatusFilter,
     filteredTasks,
     clearAllFilters,
     hasActiveFilters

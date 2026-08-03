@@ -1,14 +1,13 @@
 import { BaseUseCase } from '../base/UseCase'
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { TaskEntity, UpdateTaskData } from '../../domain/entities/Task'
-import { TaskPriorityService, ParentDateSyncService } from '@gtd/shared'
+import { ParentDateSyncService } from '@gtd/shared'
 import { TASK_CONSTANTS } from '../../domain/types/BusinessConstants'
 import { OperationResult } from '../../domain/types/Common'
 
 export interface UpdateTaskRequest {
   id: string
   data: UpdateTaskData
-  autoCalculatePoints?: boolean
 }
 
 export interface UpdateTaskResponse {
@@ -152,22 +151,6 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
       } else if (!processedData.isCompleted && currentTask.isCompleted) {
         // Task is being marked as incomplete
         processedData.completedAt = null
-      }
-    }
-
-    // Recalculate points if importance or complexity changed
-    if (processedData.importance !== undefined || processedData.complexity !== undefined) {
-      const newImportance = processedData.importance ?? currentTask.importance
-      const newComplexity = processedData.complexity ?? currentTask.complexity
-
-      const calculatedPoints = TaskPriorityService.calculatePoints(newImportance, newComplexity)
-
-      if (calculatedPoints > TASK_CONSTANTS.maxPoints) {
-        // Adjust complexity to stay within limits
-        const adjustedComplexity = Math.max(1, Math.ceil(10 * newImportance / TASK_CONSTANTS.maxPoints))
-        if (processedData.complexity !== undefined) {
-          processedData.complexity = adjustedComplexity
-        }
       }
     }
 

@@ -15,9 +15,8 @@ export function createMockTask(overrides: Partial<Task> = {}): Task {
     name: 'Test Task',
     link: undefined,
     note: undefined,
-    importance: 25,
+    importance: 250,
     complexity: 5,
-    points: 50, // 10 * 25 / 5 = 50
     status: 'brouillon',
     plannedDate: undefined,
     dueDate: undefined,
@@ -78,7 +77,7 @@ export function createMockCreateTaskData(overrides: Partial<CreateTaskData> = {}
     name: 'New Test Task',
     link: undefined,
     note: undefined,
-    importance: 25,
+    importance: 250,
     complexity: 5,
     plannedDate: undefined,
     dueDate: undefined,
@@ -95,7 +94,7 @@ export function createMockCreateTaskData(overrides: Partial<CreateTaskData> = {}
 export function createMockUpdateTaskData(overrides: Partial<UpdateTaskData> = {}): UpdateTaskData {
   return {
     name: 'Updated Test Task',
-    importance: 30,
+    importance: 300,
     complexity: 3,
     ...overrides
   }
@@ -124,72 +123,56 @@ export function createTestTasksByCategory(dates = createTestDates()) {
     collected: createMockTaskEntity({
       name: 'Collected Task',
       status: 'collecte',
-      importance: 0,
-      complexity: 3,
-      points: 0
+      importance: 100,
+      complexity: 3
     }),
 
     highPriorityNoDate: createMockTaskEntity({
       name: 'High Priority No Date Task',
       status: 'pret',
-      importance: 50,
-      complexity: 1,
-      points: 500
+      importance: 450,
+      complexity: 1
     }),
 
     overdue: createMockTaskEntity({
       name: 'Overdue Task',
       status: 'pret',
-      importance: 30,
+      importance: 300,
       complexity: 5,
-      points: 60,
       plannedDate: dates.yesterday
     }),
 
     today: createMockTaskEntity({
       name: 'Today Task',
       status: 'pret',
-      importance: 40,
+      importance: 400,
       complexity: 4,
-      points: 100,
       plannedDate: dates.today
     }),
 
     tomorrow: createMockTaskEntity({
       name: 'Tomorrow Task',
       status: 'pret',
-      importance: 20,
+      importance: 200,
       complexity: 2,
-      points: 100,
       plannedDate: dates.tomorrow
     }),
 
     future: createMockTaskEntity({
       name: 'Future Task',
       status: 'pret',
-      importance: 15,
+      importance: 150,
       complexity: 3,
-      points: 50,
       plannedDate: dates.dayAfterTomorrow
     }),
 
     noDate: createMockTaskEntity({
       name: 'No Date Task',
       status: 'pret',
-      importance: 25,
-      complexity: 5,
-      points: 50
+      importance: 250,
+      complexity: 5
     })
   }
-}
-
-/**
- * Validate that a task points calculation is correct
- */
-export function validateTaskPoints(task: { importance: number; complexity: number; points: number }): boolean {
-  const expectedPoints = Math.round(10 * task.importance / task.complexity)
-  const clampedPoints = Math.max(0, Math.min(500, expectedPoints))
-  return task.points === clampedPoints
 }
 
 /**
@@ -317,7 +300,6 @@ export function assertTaskCategory(
         name: task.name,
         importance: task.importance,
         complexity: task.complexity,
-        points: task.points,
         plannedDate: task.plannedDate,
         dueDate: task.dueDate
       }, null, 2)}`
@@ -364,8 +346,8 @@ export function validateTaskOrder(higherPriorityTask: TaskEntity, lowerPriorityT
     return higherPriority < lowerPriority
   }
 
-  // Same category, check points
-  return higherPriorityTask.points >= lowerPriorityTask.points
+  // Same category, check importance
+  return higherPriorityTask.importance >= lowerPriorityTask.importance
 }
 
 /**

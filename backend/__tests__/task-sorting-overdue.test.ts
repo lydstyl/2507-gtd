@@ -33,7 +33,7 @@ describe('Overdue Task Sorting Tests', () => {
     await prisma.$disconnect()
   })
 
-  test('should sort overdue tasks at the top using points system', async () => {
+  test('should sort overdue tasks at the top using importance system', async () => {
     // Créer des tâches de test avec différentes dates
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
     const today = new Date()
@@ -41,20 +41,17 @@ describe('Overdue Task Sorting Tests', () => {
 
     const testTasks = [
       // 1. Tâches en retard (hier)
-      { name: 'Tâche en retard - Importante', importance: 40, complexity: 1, plannedDate: yesterday }, // 400 points
-      { name: 'Tâche en retard - Normale', importance: 20, complexity: 2, plannedDate: yesterday }, // 100 points
-
+      { name: 'Tâche en retard - Importante', importance: 350, complexity: 1, plannedDate: yesterday },
+      { name: 'Tâche en retard - Normale', importance: 200, complexity: 2, plannedDate: yesterday },
       // 2. Tâches pour aujourd'hui
-      { name: 'Tâche aujourd\'hui - Urgente', importance: 35, complexity: 1, plannedDate: today }, // 350 points
-      { name: 'Tâche aujourd\'hui - Moyenne', importance: 25, complexity: 2, plannedDate: today }, // 125 points
-
+      { name: "Tâche aujourd'hui - Urgente", importance: 320, complexity: 1, plannedDate: today },
+      { name: "Tâche aujourd'hui - Moyenne", importance: 250, complexity: 2, plannedDate: today },
       // 3. Tâches pour demain
-      { name: 'Tâche demain - Facile', importance: 20, complexity: 1, plannedDate: tomorrow }, // 200 points
-      { name: 'Tâche demain - Complexe', importance: 30, complexity: 6, plannedDate: tomorrow }, // 50 points
-
+      { name: 'Tâche demain - Facile', importance: 200, complexity: 1, plannedDate: tomorrow },
+      { name: 'Tâche demain - Complexe', importance: 300, complexity: 6, plannedDate: tomorrow },
       // 4. Tâches sans date
-      { name: 'Tâche sans date - Haute priorité', importance: 50, complexity: 1, plannedDate: null }, // 500 points
-      { name: 'Tâche sans date - Basse priorité', importance: 15, complexity: 3, plannedDate: null }, // 50 points
+      { name: 'Tâche sans date - Haute priorité', importance: 400, complexity: 1, plannedDate: null },
+      { name: 'Tâche sans date - Basse priorité', importance: 150, complexity: 3, plannedDate: null },
     ]
 
     // Créer les tâches principales
@@ -74,23 +71,23 @@ describe('Overdue Task Sorting Tests', () => {
     const allTasks = await taskRepository.findAll({ userId })
 
     // Vérifier le tri
-    console.log('\n📋 Tâches triées (test overdue avec points):')
+    console.log('\n📋 Tâches triées (test overdue avec importance):')
     allTasks.forEach((task, index) => {
       const dateInfo = task.plannedDate ? ` (${new Date(task.plannedDate).toLocaleDateString()})` : ' (pas de date)'
       const isOverdue = task.plannedDate && new Date(task.plannedDate) < new Date()
       const overdueText = isOverdue ? ' 🔥 EN RETARD' : ''
-      console.log(`${index + 1}. ${task.name} (I:${task.importance}, C:${task.complexity}, Points:${task.points})${dateInfo}${overdueText}`)
+      console.log(`${index + 1}. ${task.name} (I:${task.importance}, C:${task.complexity})${dateInfo}${overdueText}`)
     })
 
     // Vérifications spécifiques
     expect(allTasks.length).toBeGreaterThan(0)
 
-    // Vérifier que la première tâche a des points (le tri fonctionne)
+    // Vérifier que la première tâche a une importance valide (le tri fonctionne)
     const firstTask = allTasks[0]
-    expect(firstTask.points).toBeGreaterThan(0)
+    expect(firstTask.importance).toBeGreaterThanOrEqual(100)
 
     // Vérifier que les tâches haute priorité sans date sont présentes
-    const highPriorityTasks = allTasks.filter(task => task.points === 500)
+    const highPriorityTasks = allTasks.filter(task => task.importance === 400)
     expect(highPriorityTasks.length).toBeGreaterThan(0)
 
     // Vérifier que les tâches en retard sont bien présentes
@@ -107,7 +104,7 @@ describe('Overdue Task Sorting Tests', () => {
     expect(todayTasks.length).toBeGreaterThan(0)
 
     // Note: Le tri semble grouper les tâches par date (en retard, aujourd'hui, demain, sans date, etc.)
-    // plutôt que par points globalement. Vérifions que les groupes sont cohérents.
+    // plutôt que par importance globalement. Vérifions que les groupes sont cohérents.
 
     console.log('✅ Ordre de tri avec tâches en retard vérifié !')
   })

@@ -32,7 +32,6 @@ export type TaskSortField =
   | 'name'
   | 'importance'
   | 'complexity'
-  | 'points'
 
 export interface TaskSortOptions {
   field: TaskSortField
@@ -49,7 +48,6 @@ export interface TaskStats {
   collected: number
   noDate: number
   future: number
-  averagePoints: number
   averageImportance: number
   averageComplexity: number
 }
@@ -58,7 +56,6 @@ export interface TaskCategoryStats {
   [key in TaskCategory]: {
     count: number
     percentage: number
-    averagePoints: number
   }
 }
 
@@ -70,7 +67,6 @@ export interface TaskPriorityAnalysis {
   distribution: {
     importance: Record<number, number>
     complexity: Record<number, number>
-    points: Record<number, number>
   }
 }
 
@@ -82,7 +78,6 @@ export interface TaskCompletionStats {
     tasks: Array<{
       id: string
       name: string
-      points: number
     }>
   }>
   weeklyCompletions: Array<{
@@ -103,8 +98,6 @@ export interface TaskCompletionStats {
 
 // Task performance metrics
 export interface TaskPerformanceMetrics {
-  totalPointsEarned: number
-  averageTaskPoints: number
   completionRate: number
   overdueRate: number
   onTimeCompletionRate: number

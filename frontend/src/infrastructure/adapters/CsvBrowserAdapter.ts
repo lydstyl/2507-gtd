@@ -7,7 +7,6 @@ interface CsvImportResult<TDate = Date | string> {
     note?: string
     importance: number
     complexity: number
-    points: number
     status?: string
     plannedDate?: TDate
     parentName?: string

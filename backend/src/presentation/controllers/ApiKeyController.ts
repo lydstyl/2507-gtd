@@ -57,7 +57,7 @@ export class ApiKeyController {
       return
     }
 
-    const deleted = await this.revokeUseCase.execute(req.params.id, userId)
+    const deleted = await this.revokeUseCase.execute(req.params.id as string, userId)
     if (!deleted) {
       res.status(404).json({ error: 'API key not found' })
       return
@@ -73,7 +73,7 @@ export class ApiKeyController {
       return
     }
 
-    const result = await this.regenerateUseCase.execute(req.params.id, userId)
+    const result = await this.regenerateUseCase.execute(req.params.id as string, userId)
     if (!result) {
       res.status(404).json({ error: 'API key not found' })
       return

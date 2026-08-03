@@ -15,7 +15,6 @@ export interface TaskDto {
   note: string | null
   importance: number
   complexity: number
-  points: number
   plannedDate: string | null
   dueDate: string | null
   status: string

@@ -1,5 +1,11 @@
 import React from 'react'
 import type { Tag } from '../types/task'
+import { TASK_STATUS_LABELS, type TaskStatus } from '../types/task'
+
+const STATUS_OPTIONS: { key: string; label: string }[] = [
+  ...(Object.entries(TASK_STATUS_LABELS) as [TaskStatus, string][]).map(([key, label]) => ({ key, label })),
+  { key: 'completed', label: 'Complétée' }
+]
 
 interface TaskFiltersProps {
   searchTerm: string
@@ -20,6 +26,8 @@ interface TaskFiltersProps {
   setUpdatedAtFilter: (filter: string) => void
   createdAtFilter: string
   setCreatedAtFilter: (filter: string) => void
+  statusFilters: string[]
+  toggleStatusFilter: (status: string) => void
   tags: Tag[]
   clearAllFilters: () => void
   hasActiveFilters: boolean
@@ -48,6 +56,8 @@ export function TaskFilters({
   setUpdatedAtFilter,
   createdAtFilter,
   setCreatedAtFilter,
+  statusFilters,
+  toggleStatusFilter,
   tags,
   clearAllFilters,
   hasActiveFilters,
@@ -139,7 +149,7 @@ export function TaskFilters({
             {/* Importance filter */}
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Importance (0-50)
+                Importance (100-499)
               </label>
               <div className='flex space-x-2'>
                 <select
@@ -162,12 +172,10 @@ export function TaskFilters({
                   className='w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
                 >
                   <option value=''>Toutes</option>
-                  <option value='500'>Critique (500)</option>
-                  <option value='350'>Très élevée (350)</option>
-                  <option value='250'>Élevée (250)</option>
-                  <option value='150'>Moyenne (150)</option>
-                  <option value='50'>Basse (50)</option>
-                  <option value='0'>Nulle (0)</option>
+                  <option value='400'>🔥 Importante + Urgente (400)</option>
+                  <option value='300'>📌 Importante (300)</option>
+                  <option value='200'>⚡ Urgente (200)</option>
+                  <option value='100'>🐢 Basique (100)</option>
                 </select>
               </div>
             </div>
@@ -224,6 +232,29 @@ export function TaskFilters({
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          {/* Status filter */}
+          <div className='mt-4'>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
+              Statut
+            </label>
+            <div className='flex flex-wrap gap-3'>
+              {STATUS_OPTIONS.map(({ key, label }) => (
+                <label
+                  key={key}
+                  className='flex items-center space-x-1.5 cursor-pointer select-none'
+                >
+                  <input
+                    type='checkbox'
+                    checked={statusFilters.includes(key)}
+                    onChange={() => toggleStatusFilter(key)}
+                    className='h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+                  />
+                  <span className='text-sm text-gray-700'>{label}</span>
+                </label>
+              ))}
             </div>
           </div>
 

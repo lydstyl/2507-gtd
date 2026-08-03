@@ -11,7 +11,7 @@ import {
   UpdateTaskData
 } from '../../domain/entities/Task'
 import { TaskWithTags } from '../../application/services/CsvService'
-import { TaskPriorityService, TaskValidationService } from '@gtd/shared'
+import { TaskValidationService } from '@gtd/shared'
 import { TaskSorting } from './TaskSorting'
 
 export class PrismaTaskRepository implements TaskRepository {
@@ -24,9 +24,6 @@ export class PrismaTaskRepository implements TaskRepository {
     // Use provided values or defaults
     const importance = taskData.importance ?? defaults.importance
     const complexity = taskData.complexity ?? defaults.complexity
-
-    // Compute points server-side (client values ignored)
-    const points = TaskPriorityService.calculatePoints(importance, complexity)
 
     // Calculate position for new task (place at bottom by giving lower position than existing tasks)
     // Since sorting is position descending, lower position = later in list
@@ -60,7 +57,6 @@ export class PrismaTaskRepository implements TaskRepository {
         ...taskData,
         importance,
         complexity,
-        points,
         position,
         plannedDate: taskData.plannedDate ? new Date(taskData.plannedDate) : undefined,
         dueDate: taskData.dueDate ? new Date(taskData.dueDate) : undefined,
@@ -144,10 +140,6 @@ export class PrismaTaskRepository implements TaskRepository {
       where.complexity = filters.complexity
     }
 
-    if (filters?.points !== undefined) {
-      where.points = filters.points
-    }
-
 
     if (filters?.search) {
       where.name = {
@@ -217,10 +209,6 @@ export class PrismaTaskRepository implements TaskRepository {
 
     if (filters?.complexity !== undefined) {
       where.complexity = filters.complexity
-    }
-
-    if (filters?.points !== undefined) {
-      where.points = filters.points
     }
 
 
@@ -331,14 +319,6 @@ export class PrismaTaskRepository implements TaskRepository {
               : null
             : undefined,
         userId: cleanTaskData.userId
-      }
-
-      // Recompute points if importance or complexity changed
-      const newImportance = cleanTaskData.importance ?? currentTask.importance
-      const newComplexity = cleanTaskData.complexity ?? currentTask.complexity
-
-      if (cleanTaskData.importance !== undefined || cleanTaskData.complexity !== undefined) {
-        updateData.points = TaskPriorityService.calculatePoints(newImportance, newComplexity)
       }
 
       const updatedTask = await tx.task.update({
@@ -676,7 +656,6 @@ export class PrismaTaskRepository implements TaskRepository {
       note: task.note,
       importance: task.importance,
       complexity: task.complexity,
-      points: task.points,
       position: task.position || 0,
       status: task.status ?? 'brouillon',
       plannedDate: task.plannedDate ? task.plannedDate.toISOString() : undefined,

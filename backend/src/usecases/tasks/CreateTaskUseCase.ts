@@ -28,8 +28,8 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
     // Apply business logic defaults
     const taskData = {
       ...request,
-      importance: request.importance || 0,
-      complexity: request.complexity || 3,
+      importance: request.importance ?? 100,
+      complexity: request.complexity ?? 3,
       plannedDate: request.plannedDate,
       dueDate: dueDate,
       userId: request.userId

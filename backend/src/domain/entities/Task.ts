@@ -57,6 +57,5 @@ export interface TaskFilters {
   tagIds?: string[]
   importance?: number
   complexity?: number
-  points?: number
   search?: string
 }

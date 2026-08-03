@@ -22,7 +22,6 @@ export class CsvFileAdapter {
       note: task.note,
       importance: task.importance,
       complexity: task.complexity,
-      points: task.points,
       status: task.status,
       plannedDate: task.plannedDate || undefined,
       dueDate: (task as any).dueDate || undefined,

@@ -18,7 +18,6 @@ export class TaskAdapter {
       note: task.note,
       importance: task.importance,
       complexity: task.complexity,
-      points: task.points,
       plannedDate: task.plannedDate,
       dueDate: task.dueDate,
       parentId: task.parentId,

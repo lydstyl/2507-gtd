@@ -16,7 +16,7 @@ describe('CreateTaskUseCase', () => {
     it('should create a task with valid data', async () => {
       const taskData = createMockCreateTaskData({
         name: 'Test Task',
-        importance: 30,
+        importance: 300,
         complexity: 6,
         userId: 'user-1'
       })
@@ -26,7 +26,7 @@ describe('CreateTaskUseCase', () => {
       expect(result).toBeDefined()
       expect(result.success).toBe(true)
       expect(result.data!.name).toBe('Test Task')
-      expect(result.data!.importance).toBe(30)
+      expect(result.data!.importance).toBe(300)
       expect(result.data!.complexity).toBe(6)
       expect(result.data!.userId).toBe('user-1')
       expect(result.data!.id).toBeDefined()
@@ -47,7 +47,7 @@ describe('CreateTaskUseCase', () => {
       const result = await createTaskUseCase.execute(taskData)
 
       expect(result.success).toBe(true)
-      expect(result.data!.importance).toBe(0) // Default for collected tasks
+      expect(result.data!.importance).toBe(100) // Default importance for new tasks
       expect(result.data!.complexity).toBe(3) // Default complexity
       expect(result.data!.isCompleted).toBe(false)
     })
@@ -76,9 +76,9 @@ describe('CreateTaskUseCase', () => {
 
     it('should pass importance and complexity to repository', async () => {
       const testCases = [
-        { importance: 0, complexity: 1 },
-        { importance: 25, complexity: 5 },
-        { importance: 50, complexity: 9 }
+        { importance: 100, complexity: 1 },
+        { importance: 250, complexity: 5 },
+        { importance: 400, complexity: 9 }
       ]
 
       for (const { importance, complexity } of testCases) {
@@ -92,7 +92,7 @@ describe('CreateTaskUseCase', () => {
 
         const result = await createTaskUseCase.execute(taskData)
 
-        // Use case passes data to repository, points calculation is done there
+        // Use case passes data to repository
         expect(result.success).toBe(true)
         expect(result.data!.importance).toBe(importance)
         expect(result.data!.complexity).toBe(complexity)
@@ -148,7 +148,7 @@ describe('CreateTaskUseCase', () => {
     })
 
     it('should reject invalid importance values', async () => {
-      const invalidImportanceValues = [-1, 501, 1000]
+      const invalidImportanceValues = [-1, 99, 500, 1000]
 
       for (const importance of invalidImportanceValues) {
         const taskData = createMockCreateTaskData({
@@ -159,7 +159,7 @@ describe('CreateTaskUseCase', () => {
 
         const result = await createTaskUseCase.execute(taskData)
         expect(result.success).toBe(false)
-        expect(result.error?.message).toContain('Importance must be between 0 and 500')
+        expect(result.error?.message).toContain('Importance must be between 100 and 499')
       }
     })
 
@@ -182,7 +182,7 @@ describe('CreateTaskUseCase', () => {
     })
 
     it('should accept valid importance boundary values', async () => {
-      const validImportanceValues = [0, 250, 500]
+      const validImportanceValues = [100, 250, 499]
 
       for (const importance of validImportanceValues) {
         mockTaskRepository.reset()
@@ -246,7 +246,7 @@ describe('CreateTaskUseCase', () => {
     it('should create collected tasks correctly', async () => {
       const collectedTaskData = createMockCreateTaskData({
         name: 'Collected Task',
-        importance: 0, // Collected tasks have minimal importance
+        importance: 100, // Collected tasks have minimal importance
         complexity: 3, // Default complexity
         userId: 'user-1'
       })
@@ -254,7 +254,7 @@ describe('CreateTaskUseCase', () => {
       const result = await createTaskUseCase.execute(collectedTaskData)
 
       expect(result.success).toBe(true)
-      expect(result.data!.importance).toBe(0)
+      expect(result.data!.importance).toBe(100)
       expect(result.data!.complexity).toBe(3)
       expect(result.data!.plannedDate).toBeUndefined()
       expect(result.data!.name).toBe('Collected Task')
@@ -263,7 +263,7 @@ describe('CreateTaskUseCase', () => {
     it('should create high priority tasks correctly', async () => {
       const highPriorityTaskData = createMockCreateTaskData({
         name: 'High Priority Task',
-        importance: 50,
+        importance: 400,
         complexity: 1,
         userId: 'user-1'
       })
@@ -271,7 +271,7 @@ describe('CreateTaskUseCase', () => {
       const result = await createTaskUseCase.execute(highPriorityTaskData)
 
       expect(result.success).toBe(true)
-      expect(result.data!.importance).toBe(50)
+      expect(result.data!.importance).toBe(400)
       expect(result.data!.complexity).toBe(1)
       expect(result.data!.name).toBe('High Priority Task')
     })

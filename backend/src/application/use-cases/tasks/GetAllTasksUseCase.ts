@@ -74,16 +74,12 @@ export class GetAllTasksUseCase {
   }
 
   private validateFilters(filters: TaskFilters): void {
-    if (filters.importance !== undefined && (filters.importance < 0 || filters.importance > TASK_CONSTANTS.maxImportance)) {
-      throw new ValidationError(`Importance filter must be between 0 and ${TASK_CONSTANTS.maxImportance}`)
+    if (filters.importance !== undefined && (filters.importance < 100 || filters.importance > TASK_CONSTANTS.maxImportance)) {
+      throw new ValidationError(`Importance filter must be between 100 and ${TASK_CONSTANTS.maxImportance}`)
     }
 
     if (filters.complexity !== undefined && (filters.complexity < 1 || filters.complexity > TASK_CONSTANTS.maxComplexity)) {
       throw new ValidationError(`Complexity filter must be between 1 and ${TASK_CONSTANTS.maxComplexity}`)
-    }
-
-    if (filters.points !== undefined && (filters.points < 0 || filters.points > TASK_CONSTANTS.maxPoints)) {
-      throw new ValidationError(`Points filter must be between 0 and ${TASK_CONSTANTS.maxPoints}`)
     }
 
     if (filters.search !== undefined && filters.search.length > 255) {

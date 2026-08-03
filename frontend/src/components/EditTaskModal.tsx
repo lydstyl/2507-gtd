@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { api, ApiError } from '../utils/api'
 import type { Task, UpdateTaskData, Tag, TaskStatus } from '../types/task'
 import { TASK_STATUS_LABELS } from '../types/task'
+import { ImportanceSlider } from './ImportanceSlider'
 
 interface EditTaskModalProps {
   isOpen: boolean
@@ -19,7 +20,7 @@ export function EditTaskModal({
   const [formData, setFormData] = useState<UpdateTaskData>({
     name: '',
     link: '',
-    importance: 0,
+    importance: 100,
     complexity: 3,
     status: 'brouillon',
     plannedDate: '',
@@ -208,147 +209,88 @@ export function EditTaskModal({
             />
           </div>
 
+          <div className='grid grid-cols-2 gap-4'>
+            <div>
+              <label
+                htmlFor='link'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                Lien (optionnel)
+              </label>
+              <input
+                type='url'
+                id='link'
+                name='link'
+                value={formData.link}
+                onChange={handleChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+                placeholder='https://...'
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor='status'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                Statut
+              </label>
+              <select
+                id='status'
+                name='status'
+                value={formData.status ?? 'brouillon'}
+                onChange={handleChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+              >
+                {(Object.entries(TASK_STATUS_LABELS) as [TaskStatus, string][]).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div>
-            <label
-              htmlFor='link'
-              className='block text-sm font-medium text-gray-700 mb-1'
-            >
-              Lien (optionnel)
-            </label>
-            <input
-              type='url'
-              id='link'
-              name='link'
-              value={formData.link}
-              onChange={handleChange}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-              placeholder='https://...'
+            <ImportanceSlider
+              value={formData.importance ?? 100}
+              onChange={(value) => setFormData((prev) => ({ ...prev, importance: value }))}
             />
           </div>
 
           <div>
-            <label
-              htmlFor='status'
-              className='block text-sm font-medium text-gray-700 mb-1'
-            >
-              Statut
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
+              Dates
             </label>
-            <select
-              id='status'
-              name='status'
-              value={formData.status ?? 'brouillon'}
-              onChange={handleChange}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-            >
-              {(Object.entries(TASK_STATUS_LABELS) as [TaskStatus, string][]).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className='grid grid-cols-2 gap-4'>
-            <div>
-              <label
-                htmlFor='importance'
-                className='block text-sm font-medium text-gray-700 mb-1'
-              >
-                Importance: {formData.importance ?? 0}
-              </label>
-              <input
-                type='range'
-                id='importance'
-                name='importance'
-                min='0'
-                max='500'
-                value={formData.importance ?? 0}
-                onChange={handleChange}
-                className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
-              />
-              <div className='flex justify-between text-xs text-gray-500 mt-1'>
-                <span>0</span>
-                <span>500 (Max)</span>
+            <div className='grid grid-cols-[1fr_1fr_auto] gap-2 items-end'>
+              <div>
+                <input
+                  type='date'
+                  id='plannedDate'
+                  name='plannedDate'
+                  value={formData.plannedDate || ''}
+                  onChange={handleChange}
+                  placeholder='Date prévue'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm'
+                />
               </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor='complexity'
-                className='block text-sm font-medium text-gray-700 mb-1'
-              >
-                Complexité: {formData.complexity ?? 3}
-              </label>
-              <input
-                type='range'
-                id='complexity'
-                name='complexity'
-                min='1'
-                max='9'
-                value={formData.complexity ?? 3}
-                onChange={handleChange}
-                className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
-              />
-              <div className='flex justify-between text-xs text-gray-500 mt-1'>
-                <span>1 (Simple)</span>
-                <span>9 (Complexe)</span>
+              <div>
+                <input
+                  type='date'
+                  id='dueDate'
+                  name='dueDate'
+                  value={formData.dueDate || ''}
+                  onChange={handleChange}
+                  placeholder='Date limite'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm'
+                />
               </div>
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor='plannedDate'
-              className='block text-sm font-medium text-gray-700 mb-1'
-            >
-              Date prévue (optionnel)
-            </label>
-            <div className='flex space-x-2'>
-              <input
-                type='date'
-                id='plannedDate'
-                name='plannedDate'
-                value={formData.plannedDate || ''}
-                onChange={handleChange}
-                className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-              />
-              {formData.plannedDate && (
+              {(formData.plannedDate || formData.dueDate) && (
                 <button
                   type='button'
                   onClick={() =>
-                    setFormData((prev) => ({ ...prev, plannedDate: '' }))
+                    setFormData((prev) => ({ ...prev, plannedDate: '', dueDate: '' }))
                   }
-                  className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors'
-                  title='Effacer la date'
-                >
-                  Effacer
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor='dueDate'
-              className='block text-sm font-medium text-gray-700 mb-1'
-            >
-              Date limite (optionnel)
-            </label>
-            <div className='flex space-x-2'>
-              <input
-                type='date'
-                id='dueDate'
-                name='dueDate'
-                value={formData.dueDate || ''}
-                onChange={handleChange}
-                className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
-              />
-              {formData.dueDate && (
-                <button
-                  type='button'
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, dueDate: '' }))
-                  }
-                  className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors'
-                  title='Effacer la date'
+                  className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md transition-colors whitespace-nowrap'
+                  title='Effacer les dates'
                 >
                   Effacer
                 </button>
@@ -360,7 +302,7 @@ export function EditTaskModal({
             <label className='block text-sm font-medium text-gray-700 mb-2'>
               Tags
             </label>
-            <div className='space-y-2 max-h-32 overflow-y-auto'>
+            <div className='grid grid-cols-2 gap-x-4 gap-y-2 max-h-32 overflow-y-auto'>
               {tags.map((tag) => (
                 <label key={tag.id} className='flex items-center'>
                   <input

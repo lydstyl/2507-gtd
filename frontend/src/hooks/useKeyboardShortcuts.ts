@@ -113,9 +113,9 @@ export function useKeyboardShortcuts({
       if (e.key.toLowerCase() === "i") {
         e.preventDefault()
         if (e.shiftKey) {
-          update.importance = Math.max(0, task.importance - 10)
+          update.importance = Math.max(100, task.importance - 10)
         } else {
-          update.importance = Math.min(500, task.importance + 10)
+          update.importance = Math.min(499, task.importance + 10)
         }
         handled = true
       }

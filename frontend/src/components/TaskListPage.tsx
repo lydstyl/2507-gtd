@@ -38,7 +38,7 @@ export default function TaskListPage() {
   const loadTasks = async () => {
     try {
       const tasksData = await api.getRootTasks()
-      setTasks(tasksData.filter((t: Task) => t.status !== 'un_jour_peut_etre'))
+      setTasks(tasksData)
      } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       }
@@ -144,10 +144,10 @@ export default function TaskListPage() {
 
     switch (action) {
       case 'importance-up':
-        update.importance = Math.min(500, task.importance + 10)
+        update.importance = Math.min(499, task.importance + 10)
         break
       case 'importance-down':
-        update.importance = Math.max(0, task.importance - 10)
+        update.importance = Math.max(100, task.importance - 10)
         break
       case 'complexity-up':
         update.complexity = Math.min(9, task.complexity + 2)
@@ -331,6 +331,8 @@ export default function TaskListPage() {
         createdAtFilter={filterHook.createdAtFilter}
         setCreatedAtFilter={filterHook.setCreatedAtFilter}
         tags={tags}
+        statusFilters={filterHook.statusFilters}
+        toggleStatusFilter={filterHook.toggleStatusFilter}
         clearAllFilters={filterHook.clearAllFilters}
         hasActiveFilters={filterHook.hasActiveFilters}
         filteredTasksCount={filterHook.filteredTasks.length}

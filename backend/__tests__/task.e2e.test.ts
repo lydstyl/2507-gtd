@@ -41,7 +41,7 @@ describe('Task API', () => {
       .set(authHeader)
       .send({
         name: 'Tâche test e2e',
-        importance: 30,
+        importance: 300,
         complexity: 3,
         dueDate: dueDate
       })
@@ -83,7 +83,7 @@ describe('Task API', () => {
     const frontendPayload = {
       name: 'Tâche test frontend',
       link: '',
-      importance: 40,
+      importance: 350,
       complexity: 2,
       dueDate: '2025-07-05T22:00:00.000Z',
       tagIds: []

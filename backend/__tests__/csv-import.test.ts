@@ -94,7 +94,6 @@ describe('CSV Import Tests', () => {
     expect(taskWithTags3!.tags).toEqual([])
     expect(t1.importance).toBe(1)
     expect(t1.complexity).toBe(2)
-    expect(t1.points).toBe(5) // Math.round(10 * 1 / 2) = 5
     expect(t1.dueDate).toBeTruthy()
     expect(new Date(t1.dueDate).toISOString().split('T')[0]).toBe('2025-07-20')
     expect(t2.importance).toBe(5)
@@ -144,7 +143,6 @@ describe('CSV Import Tests', () => {
         name: 'Tâche avec date prévue',
         importance: 4,
         complexity: 3,
-        points: 12,
         plannedDate: new Date('2025-08-15'),
         dueDate: new Date('2025-08-20'),
         userId: userId
@@ -156,7 +154,6 @@ describe('CSV Import Tests', () => {
         name: 'Tâche avec date limite seulement',
         importance: 3,
         complexity: 2,
-        points: 15,
         dueDate: new Date('2025-09-01'),
         userId: userId
       }
@@ -167,7 +164,6 @@ describe('CSV Import Tests', () => {
         name: 'Tâche sans dates',
         importance: 2,
         complexity: 4,
-        points: 8,
         userId: userId
       }
     })

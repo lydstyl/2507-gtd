@@ -53,7 +53,7 @@ export class TagController {
 
   async deleteTag(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = req.params.id as string
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })
@@ -76,7 +76,7 @@ export class TagController {
 
   async updateTag(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = req.params.id as string
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })

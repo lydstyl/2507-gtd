@@ -15,7 +15,6 @@ export interface ImportTaskData {
   note?: string
   importance: number
   complexity: number
-  points: number
   status?: TaskStatus
   plannedDate?: Date
   dueDate?: Date
@@ -58,7 +57,6 @@ export class CsvService {
       note: task.note,
       importance: task.importance,
       complexity: task.complexity,
-      points: task.points,
       status: task.status as TaskStatus | undefined,
       plannedDate: task.plannedDate,
       dueDate: task.dueDate,

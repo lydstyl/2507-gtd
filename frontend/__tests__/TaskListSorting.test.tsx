@@ -15,6 +15,8 @@ vi.mock('../src/utils/api', () => ({
   api: {
     getRootTasks: vi.fn(),
     getTags: vi.fn(),
+    getTasks: vi.fn(),
+    getAllTasks: vi.fn(),
     updateTask: vi.fn(),
     markTaskCompleted: vi.fn(),
     deleteTask: vi.fn(),
@@ -28,15 +30,13 @@ const { api } = await import('../src/utils/api')
 // Helper function to create test tasks
 const createTestTask = (
   name: string,
-  points: number,
   plannedDate?: string,
-  importance: number = 30,
+  importance: number = 300,
   complexity: number = 3,
   status: Task['status'] = 'brouillon'
 ): Task => ({
   id: `task-${name.replace(/\s+/g, '-').toLowerCase()}`,
   name,
-  points,
   importance,
   complexity,
   status,
@@ -64,6 +64,9 @@ describe('TaskListPage Sorting Display', () => {
     vi.clearAllMocks()
     // Mock getTags to return empty array
     vi.mocked(api.getTags).mockResolvedValue([])
+    // Default mocks for duplicate word detection hook
+    vi.mocked(api.getTasks).mockResolvedValue([])
+    vi.mocked(api.getAllTasks).mockResolvedValue([])
   })
 
   test('should display tasks in the exact order received from backend API', async () => {
@@ -75,13 +78,13 @@ describe('TaskListPage Sorting Display', () => {
 
     // Mock tasks in the expected sorted order from backend
     const sortedTasks: Task[] = [
-      createTestTask('High priority no date', 500), // 1. 500 points, no date
-      createTestTask('Overdue task', 200, yesterday.toISOString()), // 2. Overdue
-      createTestTask('Today high', 400, today.toISOString()), // 3. Today (higher points)
-      createTestTask('Today low', 200, today.toISOString()), // 3. Today (lower points)
-      createTestTask('Tomorrow task', 300, tomorrow.toISOString()), // 4. Tomorrow
-      createTestTask('No date medium', 250), // 5. No date
-      createTestTask('Future task', 150, new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()), // 6. Future
+      createTestTask('High priority no date', undefined, 450), // 1. High importance, no date
+      createTestTask('Overdue task', yesterday.toISOString(), 200), // 2. Overdue
+      createTestTask('Today high', today.toISOString(), 350), // 3. Today (higher importance)
+      createTestTask('Today low', today.toISOString(), 200), // 3. Today (lower importance)
+      createTestTask('Tomorrow task', tomorrow.toISOString(), 300), // 4. Tomorrow
+      createTestTask('No date medium', undefined, 250), // 5. No date
+      createTestTask('Future task', new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), 150), // 6. Future
     ]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(sortedTasks)
@@ -117,9 +120,9 @@ describe('TaskListPage Sorting Display', () => {
   test('should not re-sort tasks on the frontend', async () => {
     // Create tasks in deliberately wrong order to test that frontend doesn't sort
     const unsortedTasks: Task[] = [
-      createTestTask('Z Last task', 100), // Low priority
-      createTestTask('A First task', 500), // High priority
-      createTestTask('M Middle task', 300), // Medium priority
+      createTestTask('Z Last task', undefined, 100), // Low priority
+      createTestTask('A First task', undefined, 450), // High priority
+      createTestTask('M Middle task', undefined, 300), // Medium priority
     ]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(unsortedTasks)
@@ -136,7 +139,7 @@ describe('TaskListPage Sorting Display', () => {
       return nameElement?.textContent
     })
 
-    // Should display in the same order as received from API (not sorted by points)
+    // Should display in the same order as received from API (not sorted by importance)
     expect(taskNames[0]).toBe('Z Last task')
     expect(taskNames[1]).toBe('A First task')
     expect(taskNames[2]).toBe('M Middle task')
@@ -147,12 +150,11 @@ describe('TaskListPage Sorting Display', () => {
     yesterday.setDate(yesterday.getDate() - 1)
 
     const tasks: Task[] = [
-      createTestTask('Overdue task 1', 300, yesterday.toISOString(), 30, 3, 'pret'),
-      createTestTask('Normal task', 250),
+      createTestTask('Overdue task 1', yesterday.toISOString(), 300, 3, 'pret'),
+      createTestTask('Normal task', undefined, 250),
     ]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
-
     renderTaskListPage()
 
     await waitFor(() => {
@@ -167,10 +169,10 @@ describe('TaskListPage Sorting Display', () => {
     const today = new Date()
 
     const tasks: Task[] = [
-      createTestTask('High priority no date', 500, undefined, 50, 1),
-      createTestTask('Today high importance', 400, today.toISOString(), 40, 2),
-      createTestTask('Today low importance', 200, today.toISOString(), 20, 3),
-      createTestTask('No date medium', 250, undefined, 30, 4),
+      createTestTask('High priority no date', undefined, 450, 1),
+      createTestTask('Today high importance', today.toISOString(), 350, 2),
+      createTestTask('Today low importance', today.toISOString(), 200, 3),
+      createTestTask('No date medium', undefined, 300, 4),
     ]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
@@ -238,11 +240,11 @@ describe('TaskListPage Sorting Display', () => {
   })
 
   test('should preserve subtask sorting from backend', async () => {
-    const parentTask = createTestTask('Parent task', 300)
+    const parentTask = createTestTask('Parent task', undefined, 300)
     parentTask.subtasks = [
-      createTestTask('Subtask high priority', 400),
-      createTestTask('Subtask low priority', 100),
-      createTestTask('Subtask medium priority', 250),
+      createTestTask('Subtask high priority', undefined, 350),
+      createTestTask('Subtask low priority', undefined, 100),
+      createTestTask('Subtask medium priority', undefined, 250),
     ]
 
     const tasks: Task[] = [parentTask]
@@ -263,3 +265,4 @@ describe('TaskListPage Sorting Display', () => {
     expect(parentTask.subtasks[2].name).toBe('Subtask medium priority')
   })
 })
+

@@ -15,6 +15,8 @@ vi.mock('../src/utils/api', () => ({
   api: {
     getRootTasks: vi.fn(),
     getTags: vi.fn(),
+    getTasks: vi.fn(),
+    getAllTasks: vi.fn(),
     updateTask: vi.fn(),
     markTaskCompleted: vi.fn(),
     deleteTask: vi.fn(),
@@ -28,15 +30,15 @@ const { api } = await import('../src/utils/api')
 // Helper function to create test tasks
 const createTestTask = (
   name: string,
-  importance: number = 30,
+  importance: number = 300,
   complexity: number = 3,
   plannedDate?: string
 ): Task => ({
   id: `task-${name.replace(/\s+/g, '-').toLowerCase()}`,
   name,
-  points: Math.round(10 * importance / complexity),
   importance,
   complexity,
+  status: 'brouillon',
   plannedDate,
   isCompleted: false,
   createdAt: new Date().toISOString(),
@@ -74,6 +76,9 @@ describe('Keyboard Shortcuts', () => {
     vi.stubGlobal('confirm', vi.fn(() => true))
     // Mock window.alert
     vi.stubGlobal('alert', vi.fn())
+    // Default mocks for duplicate word detection hook (getTasks / getAllTasks)
+    vi.mocked(api.getTasks).mockResolvedValue([])
+    vi.mocked(api.getAllTasks).mockResolvedValue([])
   })
 
   afterEach(() => {
@@ -143,7 +148,7 @@ describe('Keyboard Shortcuts', () => {
   })
 
   test('should increase importance when pressing I key', async () => {
-    const task = createTestTask('Test Task', 20, 3)
+    const task = createTestTask('Test Task', 200, 3)
     const tasks: Task[] = [task]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
@@ -168,14 +173,14 @@ describe('Keyboard Shortcuts', () => {
       expect(vi.mocked(api.updateTask)).toHaveBeenCalledWith(
         task.id,
         expect.objectContaining({
-          importance: 30 // 20 + 10
+          importance: 210 // 200 + 10
         })
       )
     })
   })
 
   test('should decrease importance when pressing Shift+I', async () => {
-    const task = createTestTask('Test Task', 20, 3)
+    const task = createTestTask('Test Task', 200, 3)
     const tasks: Task[] = [task]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
@@ -200,14 +205,14 @@ describe('Keyboard Shortcuts', () => {
       expect(vi.mocked(api.updateTask)).toHaveBeenCalledWith(
         task.id,
         expect.objectContaining({
-          importance: 10 // 20 - 10
+          importance: 190 // 200 - 10
         })
       )
     })
   })
 
-  test('should not decrease importance below 0', async () => {
-    const task = createTestTask('Test Task', 5, 3) // Low importance
+  test('should not decrease importance below 100', async () => {
+    const task = createTestTask('Test Task', 100, 3) // Minimum importance
     const tasks: Task[] = [task]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
@@ -227,12 +232,12 @@ describe('Keyboard Shortcuts', () => {
     // Press Shift+I to decrease importance
     await pressKey(user, 'I', { shiftKey: true })
 
-    // Verify importance doesn't go below 0
+    // Verify importance doesn't go below 100
     await waitFor(() => {
       expect(vi.mocked(api.updateTask)).toHaveBeenCalledWith(
         task.id,
         expect.objectContaining({
-          importance: 0 // Math.max(0, 5 - 10)
+          importance: 100 // Math.max(100, 100 - 10)
         })
       )
     })
@@ -666,8 +671,8 @@ describe('Keyboard Shortcuts', () => {
     })
   })
 
-  test('should not increase importance above 500', async () => {
-    const task = createTestTask('Test Task', 495, 3) // Near maximum importance
+  test('should not increase importance above 499', async () => {
+    const task = createTestTask('Test Task', 490, 3) // Near maximum importance
     const tasks: Task[] = [task]
 
     vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
@@ -687,12 +692,12 @@ describe('Keyboard Shortcuts', () => {
     // Press I to try to increase importance
     await pressKey(user, 'i')
 
-    // Verify importance doesn't go above 500
+    // Verify importance doesn't go above 499
     await waitFor(() => {
       expect(vi.mocked(api.updateTask)).toHaveBeenCalledWith(
         task.id,
         expect.objectContaining({
-          importance: 500 // Math.min(500, 495 + 10)
+          importance: 499 // Math.min(499, 490 + 10)
         })
       )
     })

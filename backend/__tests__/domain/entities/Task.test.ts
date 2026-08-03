@@ -9,7 +9,6 @@ describe('Task Entity', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         userId: 'user-1'
       })
 
@@ -17,7 +16,6 @@ describe('Task Entity', () => {
       expect(task.name).toBe('Test Task')
       expect(task.importance).toBe(25)
       expect(task.complexity).toBe(5)
-      expect(task.points).toBe(50)
       expect(task.userId).toBe('user-1')
       expect(task.isCompleted).toBe(false)
       expect(task.createdAt).toBeInstanceOf(Date)
@@ -266,33 +264,6 @@ describe('Task Entity', () => {
       })
     })
 
-    it('should enforce points range (0-500)', () => {
-      const validPoints = [0, 250, 500]
-      const invalidPoints = [-1, 501, 1000]
-
-      validPoints.forEach(points => {
-        const task = createMockTask({ points })
-        expect(task.points).toBe(points)
-      })
-
-      invalidPoints.forEach(points => {
-        expect(points < 0 || points > 500).toBe(true)
-      })
-    })
-
-    it('should validate points calculation consistency', () => {
-      const testCases = [
-        { importance: 50, complexity: 1, expectedPoints: 500 },
-        { importance: 25, complexity: 5, expectedPoints: 50 },
-        { importance: 30, complexity: 3, expectedPoints: 100 },
-        { importance: 0, complexity: 5, expectedPoints: 0 }
-      ]
-
-      testCases.forEach(({ importance, complexity, expectedPoints }) => {
-        const calculatedPoints = Math.round(10 * importance / complexity)
-        expect(calculatedPoints).toBe(expectedPoints)
-      })
-    })
 
     it('should handle parent-child relationships', () => {
       const parentTask = createMockTask({

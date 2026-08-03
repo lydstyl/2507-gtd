@@ -63,7 +63,7 @@ describe('Full User Flow Tests', () => {
     console.log("📋 3. Création d'une tâche...")
     const task = await taskRepository.create({
       name: 'Tâche de test',
-      importance: 30,
+      importance: 300,
       complexity: 2,
       userId: user.id
     })
@@ -103,7 +103,7 @@ describe('Full User Flow Tests', () => {
     console.log("📋 Création d'une tâche pour le premier utilisateur...")
     const firstUserTask = await taskRepository.create({
       name: 'Tâche du premier utilisateur',
-      importance: 25,
+      importance: 250,
       complexity: 3,
       userId: firstUser.id
     })
@@ -127,7 +127,7 @@ describe('Full User Flow Tests', () => {
     console.log("📋 Création d'une tâche pour le deuxième utilisateur...")
     const secondUserTask = await taskRepository.create({
       name: 'Tâche du deuxième utilisateur',
-      importance: 35,
+      importance: 320,
       complexity: 4,
       userId: secondUser.id
     })

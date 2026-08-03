@@ -10,7 +10,6 @@ export interface CsvTaskData<TDate = Date | string> {
   note?: string
   importance: number
   complexity: number
-  points: number
   status?: string
   plannedDate?: TDate
   dueDate?: TDate
@@ -31,7 +30,6 @@ export interface CsvTaskWithTags<TDate = Date | string> {
   note?: string | null
   importance: number
   complexity: number
-  points: number
   status: string
   plannedDate?: TDate
   dueDate?: TDate
@@ -61,7 +59,6 @@ export class CsvService {
       'Note',
       'Importance',
       'Complexité',
-      'Points',
       'Statut',
       'Date prévue',
       'Date limite',
@@ -80,7 +77,6 @@ export class CsvService {
       task.note ? this.escapeCsvField(task.note) : '',
       task.importance,
       task.complexity,
-      task.points,
       this.escapeCsvField(task.status),
       task.plannedDate ? this.formatDate(task.plannedDate) : '',
       task.dueDate ? this.formatDate(task.dueDate) : '',
@@ -152,31 +148,62 @@ export class CsvService {
     _lineNumber: number,
     dateParser?: (dateStr: string) => TDate
   ): CsvTaskData<TDate> | null {
-    // Support both old format (15 cols, no Statut) and new format (16 cols, with Statut)
-    const hasStatus = columns.length >= 16
-    const [
-      _id, // Ignored during import
-      name,
-      link,
-      note,
-      importanceStr,
-      complexityStr,
-      pointsStr,
-      statusOrPlannedDateStr,
-      plannedDateStrOrDueDate,
-      dueDateStrOrCreatedAt,
-      _createdAtStr, // Ignored during import
-      _updatedAtStr, // Ignored during import
-      _parentId, // Ignored during import
-      parentName,
-      tagNamesStr,
-      tagColorsStr
-    ] = columns
+    // Support 3 formats:
+    //  - 16 cols (legacy): ... Importance, Complexité, Points, Statut, Date prévue, ...
+    //  - 15 cols (new):     ... Importance, Complexité, Statut, Date prévue, ...  (no Points)
+    //  - 15 cols (legacy):  ... Importance, Complexité, Points, Date prévue, ...  (no Statut)
+    const KNOWN_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'completed']
+    const col6 = columns[6] ? columns[6].trim() : ''
 
-    // Adjust column positions based on format
-    const statusStr = hasStatus ? statusOrPlannedDateStr : undefined
-    const plannedDateStr = hasStatus ? plannedDateStrOrDueDate : statusOrPlannedDateStr
-    const dueDateStrRaw = hasStatus ? dueDateStrOrCreatedAt : plannedDateStrOrDueDate
+    // Detect format: if column 7 (index 6) is a known status → new 15-col format (Statut without Points)
+    const hasStatusAtCol6 = KNOWN_STATUSES.includes(col6)
+    // If 16 columns → legacy format with both Points AND Statut
+    const hasPointsAndStatus = columns.length >= 16
+
+    // Extract columns positionally
+    let importanceStr: string
+    let complexityStr: string
+    let statusStr: string | undefined
+    let plannedDateStr: string | undefined
+    let dueDateStrRaw: string | undefined
+    let parentName: string | undefined
+    let tagNamesStr: string | undefined
+    let tagColorsStr: string | undefined
+
+    const name = columns[1]?.trim()
+    const link = columns[2]?.trim()
+    const note = columns[3]?.trim()
+
+    if (hasPointsAndStatus) {
+      // Legacy 16-col: Importance(4), Complexité(5), Points(6), Statut(7), Date prévue(8), Date limite(9), ..., Parent(13), Nom parent(14), Tags(15), Couleurs(16)
+      importanceStr = columns[4]
+      complexityStr = columns[5]
+      statusStr = columns[7]?.trim() || undefined
+      plannedDateStr = columns[8]?.trim() || undefined
+      dueDateStrRaw = columns[9]?.trim() || undefined
+      parentName = columns[13]?.trim() || undefined
+      tagNamesStr = columns[14]?.trim() || undefined
+      tagColorsStr = columns[15]?.trim() || undefined
+    } else if (hasStatusAtCol6) {
+      // New 15-col: Importance(4), Complexité(5), Statut(6), Date prévue(7), Date limite(8), ..., Parent(12), Nom parent(13), Tags(14), Couleurs(15)
+      importanceStr = columns[4]
+      complexityStr = columns[5]
+      statusStr = col6 || undefined
+      plannedDateStr = columns[7]?.trim() || undefined
+      dueDateStrRaw = columns[8]?.trim() || undefined
+      parentName = columns[12]?.trim() || undefined
+      tagNamesStr = columns[13]?.trim() || undefined
+      tagColorsStr = columns[14]?.trim() || undefined
+    } else {
+      // Legacy 15-col (no Statut): Importance(4), Complexité(5), Points(6), Date prévue(7), Date limite(8), ..., Parent(12), Nom parent(13), Tags(14), Couleurs(15)
+      importanceStr = columns[4]
+      complexityStr = columns[5]
+      plannedDateStr = columns[7]?.trim() || undefined
+      dueDateStrRaw = columns[8]?.trim() || undefined
+      parentName = columns[12]?.trim() || undefined
+      tagNamesStr = columns[13]?.trim() || undefined
+      tagColorsStr = columns[14]?.trim() || undefined
+    }
 
     // Validate required fields
     if (!name || name.trim() === '') {
@@ -185,10 +212,6 @@ export class CsvService {
 
     const importance = this.parseNumber(importanceStr, 'importance', 0, TASK_CONSTANTS.maxImportance)
     const complexity = this.parseNumber(complexityStr, 'complexity', 1, TASK_CONSTANTS.maxComplexity)
-    // Recalculate points from importance/complexity, ignoring CSV points column
-    const points = complexity === 0
-      ? 0
-      : Math.min(Math.round(10 * importance / complexity), TASK_CONSTANTS.maxPoints)
 
     let plannedDate: TDate | undefined
     if (plannedDateStr && plannedDateStr.trim() !== '') {
@@ -224,7 +247,6 @@ export class CsvService {
       note: note && note.trim() !== '' ? note.trim() : undefined,
       importance,
       complexity,
-      points,
       status: statusStr && statusStr.trim() !== '' ? statusStr.trim() : undefined,
       plannedDate,
       dueDate,

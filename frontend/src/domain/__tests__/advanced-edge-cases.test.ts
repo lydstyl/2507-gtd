@@ -20,9 +20,8 @@ describe('Advanced Edge Cases', () => {
       const taskWithBothDates = new TaskEntity({
         id: '1',
         name: 'Task with both dates',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-20T10:00:00.000Z', // Future planned date
         dueDate: '2025-01-15T15:00:00.000Z', // Today urgent due date
         parentId: undefined,
@@ -45,9 +44,8 @@ describe('Advanced Edge Cases', () => {
       const taskWithOnlyDueDate = new TaskEntity({
         id: '1',
         name: 'Task with only due date',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: undefined,
         dueDate: '2025-01-16T10:00:00.000Z', // Tomorrow
         parentId: undefined,
@@ -71,9 +69,8 @@ describe('Advanced Edge Cases', () => {
       const newDefaultTask = new TaskEntity({
         id: '1',
         name: 'New default task',
-        importance: 0,
+        importance: 100,
         complexity: 3,
-        points: 0,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -88,7 +85,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       expect(newDefaultTask.getCategory()).toBe('collected')
-      expect(newDefaultTask.calculatePoints()).toBe(0)
+      expect(newDefaultTask.importance).toBe(100) // min importance in new scale
     })
 
     it('should handle boundary case: exactly 500 points for collected status', () => {
@@ -96,9 +93,8 @@ describe('Advanced Edge Cases', () => {
       const exactly500Points = new TaskEntity({
         id: '1',
         name: 'Exactly 500 points',
-        importance: 50,
+        importance: 450,
         complexity: 1,
-        points: 500,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -112,7 +108,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       expect(exactly500Points.getCategory()).toBe('pret-no-date')
-      expect(exactly500Points.calculatePoints()).toBe(500)
+      expect(exactly500Points.importance).toBe(450) // max importance in new scale
     })
 
     it('should handle tasks that become collected after date changes', () => {
@@ -120,9 +116,8 @@ describe('Advanced Edge Cases', () => {
       const futureTask = new TaskEntity({
         id: '1',
         name: 'Future task',
-        importance: 50,
+        importance: 450,
         complexity: 1,
-        points: 500,
         plannedDate: '2025-01-20T10:00:00.000Z',
         dueDate: undefined,
         parentId: undefined,
@@ -155,9 +150,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'older',
           name: 'Older task',
-          importance: 25,
+          importance: 250,
           complexity: 5,
-          points: 50,
           plannedDate: undefined,
           dueDate: undefined,
           parentId: undefined,
@@ -172,9 +166,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'newer',
           name: 'Newer task',
-          importance: 25,
+          importance: 250,
           complexity: 5,
-          points: 50,
           plannedDate: undefined,
           dueDate: undefined,
           parentId: undefined,
@@ -202,9 +195,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'very-overdue',
           name: 'Very overdue',
-          importance: 25,
+          importance: 250,
           complexity: 5,
-          points: 50,
           plannedDate: '2025-01-01T10:00:00.000Z', // 14 days ago
           dueDate: undefined,
           parentId: undefined,
@@ -220,9 +212,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'recently-overdue',
           name: 'Recently overdue',
-          importance: 25,
+          importance: 250,
           complexity: 5,
-          points: 50,
           plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
           dueDate: undefined,
           parentId: undefined,
@@ -247,9 +238,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'soon-future',
           name: 'Soon future',
-          importance: 25,
+          importance: 250,
           complexity: 5,
-          points: 50,
           plannedDate: '2025-01-17T10:00:00.000Z', // Day after tomorrow
           dueDate: undefined,
           parentId: undefined,
@@ -265,9 +255,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'far-future',
           name: 'Far future',
-          importance: 25,
+          importance: 250,
           complexity: 5,
-          points: 50,
           plannedDate: '2025-02-15T10:00:00.000Z', // Far future
           dueDate: undefined,
           parentId: undefined,
@@ -291,9 +280,8 @@ describe('Advanced Edge Cases', () => {
       const overdueTask = new TaskEntity({
         id: 'overdue',
         name: 'Overdue task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
         dueDate: undefined,
         parentId: undefined,
@@ -309,9 +297,8 @@ describe('Advanced Edge Cases', () => {
       const todayTask = new TaskEntity({
         id: 'today',
         name: 'Today task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-15T15:00:00.000Z', // Today
         dueDate: undefined,
         parentId: undefined,
@@ -336,9 +323,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'completed-high',
           name: 'Completed high priority',
-          importance: 40,
+          importance: 400,
           complexity: 2,
-          points: 200,
           plannedDate: undefined,
           dueDate: undefined,
           parentId: undefined,
@@ -353,9 +339,8 @@ describe('Advanced Edge Cases', () => {
         new TaskEntity({
           id: 'incomplete-low',
           name: 'Incomplete low priority',
-          importance: 10,
+          importance: 100,
           complexity: 5,
-          points: 20,
           plannedDate: undefined,
           dueDate: undefined,
           parentId: undefined,
@@ -378,9 +363,8 @@ describe('Advanced Edge Cases', () => {
       const farFutureTask = new TaskEntity({
         id: 'far-future',
         name: 'Far future task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2026-12-31T10:00:00.000Z', // Very far future
         dueDate: undefined,
         parentId: undefined,
@@ -396,9 +380,8 @@ describe('Advanced Edge Cases', () => {
       const nearFutureTask = new TaskEntity({
         id: 'near-future',
         name: 'Near future task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-17T10:00:00.000Z', // Day after tomorrow
         dueDate: undefined,
         parentId: undefined,
@@ -420,9 +403,8 @@ describe('Advanced Edge Cases', () => {
       const lowPointsTask = new TaskEntity({
         id: 'same-date-low-points',
         name: 'Same date low points',
-        importance: 10,
+        importance: 100,
         complexity: 5,
-        points: 20,
         plannedDate: '2025-01-20T10:00:00.000Z', // Same date
         dueDate: undefined,
         parentId: undefined,
@@ -438,9 +420,8 @@ describe('Advanced Edge Cases', () => {
       const highPointsTask = new TaskEntity({
         id: 'same-date-high-points',
         name: 'Same date high points',
-        importance: 30,
+        importance: 300,
         complexity: 3,
-        points: 100,
         plannedDate: '2025-01-20T10:00:00.000Z', // Same date
         dueDate: undefined,
         parentId: undefined,
@@ -462,9 +443,8 @@ describe('Advanced Edge Cases', () => {
       const newerTask = new TaskEntity({
         id: 'same-all-newer',
         name: 'Same all newer',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-20T10:00:00.000Z', // Same date
         dueDate: undefined,
         parentId: undefined,
@@ -480,9 +460,8 @@ describe('Advanced Edge Cases', () => {
       const olderTask = new TaskEntity({
         id: 'same-all-older',
         name: 'Same all older',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-20T10:00:00.000Z', // Same date
         dueDate: undefined,
         parentId: undefined,
@@ -511,9 +490,8 @@ describe('Advanced Edge Cases', () => {
       const task = {
         id: 'test',
         name: 'Test',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -534,9 +512,8 @@ describe('Advanced Edge Cases', () => {
       const minPointsTask = {
         id: 'min',
         name: 'Min points',
-        importance: 1,
+        importance: 100,
         complexity: 9,
-        points: 1,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -552,9 +529,8 @@ describe('Advanced Edge Cases', () => {
       const maxPointsTask = {
         id: 'max',
         name: 'Max points',
-        importance: 50,
+        importance: 450,
         complexity: 1,
-        points: 500,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -578,9 +554,8 @@ describe('Advanced Edge Cases', () => {
       const taskWithInvalidDate = new TaskEntity({
         id: '1',
         name: 'Invalid date task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: 'invalid-date-string',
         dueDate: undefined,
         parentId: undefined,
@@ -604,9 +579,8 @@ describe('Advanced Edge Cases', () => {
       const midnightUTCTask = new TaskEntity({
         id: '1',
         name: 'Midnight UTC task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-16T00:00:00.000Z', // Midnight UTC tomorrow
         dueDate: undefined,
         parentId: undefined,
@@ -628,9 +602,8 @@ describe('Advanced Edge Cases', () => {
       const leapYearTask = new TaskEntity({
         id: '1',
         name: 'Leap year task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: '2028-02-29T10:00:00.000Z', // Future leap year date
         dueDate: undefined,
         parentId: undefined,
@@ -654,9 +627,8 @@ describe('Advanced Edge Cases', () => {
       const orphanedSubtask = new TaskEntity({
         id: 'orphan',
         name: 'Orphaned subtask',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: 'non-existent-parent',
@@ -680,9 +652,8 @@ describe('Advanced Edge Cases', () => {
       const selfReferencingTask = new TaskEntity({
         id: 'self-ref',
         name: 'Self referencing task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: 'self-ref', // Points to itself
@@ -705,9 +676,8 @@ describe('Advanced Edge Cases', () => {
       const complexHierarchyTask = new TaskEntity({
         id: 'complex',
         name: 'Complex hierarchy task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
-        points: 50,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: 'parent-id',
@@ -720,9 +690,8 @@ describe('Advanced Edge Cases', () => {
           {
             id: 'child1',
             name: 'Child 1',
-            importance: 20,
+            importance: 200,
             complexity: 3,
-            points: 67,
             plannedDate: undefined,
             dueDate: undefined,
             parentId: 'complex',
@@ -754,7 +723,6 @@ describe('Advanced Edge Cases', () => {
           name: `Overdue ${i}`,
           importance: 40 - i * 10, // 40, 30, 20
           complexity: 2,
-          points: Math.round(10 * (40 - i * 10) / 2),
           plannedDate: '2025-01-14T10:00:00.000Z',
           dueDate: undefined,
           parentId: undefined,
@@ -772,7 +740,6 @@ describe('Advanced Edge Cases', () => {
           name: `Today ${i}`,
           importance: 40 - i * 10,
           complexity: 2,
-          points: Math.round(10 * (40 - i * 10) / 2),
           plannedDate: '2025-01-15T15:00:00.000Z',
           dueDate: undefined,
           parentId: undefined,
@@ -790,7 +757,6 @@ describe('Advanced Edge Cases', () => {
           name: `Future ${i}`,
           importance: 40 - i * 10,
           complexity: 2,
-          points: Math.round(10 * (40 - i * 10) / 2),
           plannedDate: `2025-01-${17 + i}T10:00:00.000Z`, // 17, 18, 19
           dueDate: undefined,
           parentId: undefined,
@@ -837,9 +803,8 @@ describe('Advanced Edge Cases', () => {
       const extremeTask = new TaskEntity({
         id: 'extreme',
         name: 'Extreme task',
-        importance: 50, // Maximum
+        importance: 450, // Maximum
         complexity: 1, // Minimum
-        points: 500, // Maximum
         plannedDate: '2025-01-14T10:00:00.000Z', // Overdue
         dueDate: undefined,
         parentId: undefined,
@@ -853,7 +818,7 @@ describe('Advanced Edge Cases', () => {
       })
 
       // Should handle extreme values without issues
-      expect(extremeTask.calculatePoints()).toBe(500)
+      expect(extremeTask.importance).toBe(450)
       expect(extremeTask.getCategory()).toBe('pret-overdue')
       expect(() => extremeTask.isOverdue()).not.toThrow()
       expect(() => extremeTask.isDueToday()).not.toThrow()

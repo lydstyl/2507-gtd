@@ -285,9 +285,6 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
                 <strong>Complexité</strong> : 1-9 (1 = simple, 9 = complexe)
               </li>
               <li>
-                <strong>Points</strong> : Priorité calculée
-              </li>
-              <li>
                 <strong>Statut</strong> : brouillon, pret, collecte, pour_ia, un_jour_peut_etre
               </li>
               <li>

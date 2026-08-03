@@ -8,7 +8,6 @@ describe('TaskSorting - Due Date Priority', () => {
     name: 'Test Task',
     importance: 25,
     complexity: 1,
-    points: 250,
     isCompleted: false,
     createdAt: new Date(),
     updatedAt: new Date(),

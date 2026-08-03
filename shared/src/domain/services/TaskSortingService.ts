@@ -181,11 +181,7 @@ export class TaskSortingService {
     tasks: GenericTaskWithSubtasks<TDate>[]
   ): GenericTaskWithSubtasks<TDate>[] {
     return [...tasks].sort((a, b) => {
-      if (b.importance !== a.importance) {
-        return b.importance - a.importance
-      }
-      // Secondary sort by points
-      return b.points - a.points
+      return b.importance - a.importance
     })
   }
 
@@ -196,11 +192,7 @@ export class TaskSortingService {
     tasks: GenericTaskWithSubtasks<TDate>[]
   ): GenericTaskWithSubtasks<TDate>[] {
     return [...tasks].sort((a, b) => {
-      if (a.complexity !== b.complexity) {
-        return a.complexity - b.complexity
-      }
-      // Secondary sort by points (highest first)
-      return b.points - a.points
+      return a.complexity - b.complexity
     })
   }
 

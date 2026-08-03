@@ -110,7 +110,6 @@ describe('TaskPriorityService', () => {
       const task: BackendTaskWithSubtasks = createTestTask({
         importance: 0,
         complexity: 3,
-        points: 0,
         plannedDate: today.toISOString()
       })
 
@@ -266,7 +265,6 @@ function createTestTask(overrides: Partial<BackendTaskWithSubtasks> = {}): Backe
     name: 'Test Task',
     importance: 5,
     complexity: 5,
-    points: 10,
     plannedDate: undefined,
     dueDate: undefined,
     parentId: undefined,

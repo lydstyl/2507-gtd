@@ -75,31 +75,28 @@ describe('TaskSortingService', () => {
         createMockTaskEntity({
           name: 'Low Points Collected',
           status: 'collecte',
-          importance: 10,
+          importance: 100,
           complexity: 3,
-          points: 0
         }),
         createMockTaskEntity({
           name: 'High Points Collected',
           status: 'collecte',
-          importance: 30,
+          importance: 300,
           complexity: 3,
-          points: 100
         }),
         createMockTaskEntity({
           name: 'Medium Points Collected',
           status: 'collecte',
-          importance: 20,
+          importance: 200,
           complexity: 3,
-          points: 50
         })
       ]
 
       const sorted = TaskSortingService.sortTasksByPriority(collectedTasks)
 
-      expect(sorted[0].importance).toBe(30)
-      expect(sorted[1].importance).toBe(20)
-      expect(sorted[2].importance).toBe(10)
+      expect(sorted[0].importance).toBe(300)
+      expect(sorted[1].importance).toBe(200)
+      expect(sorted[2].importance).toBe(100)
     })
 
     it('should sort pret-overdue tasks by date (oldest first), then importance', () => {
@@ -108,22 +105,19 @@ describe('TaskSortingService', () => {
           name: 'Recent Overdue Low Points',
           status: 'pret',
           plannedDate: dates.yesterday,
-          importance: 10,
-          points: 50
+          importance: 100,
         }),
         createMockTaskEntity({
           name: 'Old Overdue High Points',
           status: 'pret',
           plannedDate: '2023-06-13T12:00:00Z', // 2 days ago
-          importance: 40,
-          points: 100
+          importance: 400,
         }),
         createMockTaskEntity({
           name: 'Recent Overdue High Points',
           status: 'pret',
           plannedDate: dates.yesterday,
-          importance: 30,
-          points: 100
+          importance: 300,
         })
       ]
 
@@ -140,44 +134,39 @@ describe('TaskSortingService', () => {
           name: 'Today Low',
           status: 'pret',
           plannedDate: dates.today,
-          importance: 10,
-          points: 50
+          importance: 100,
         }),
         createMockTaskEntity({
           name: 'Today High',
           status: 'pret',
           plannedDate: dates.today,
-          importance: 30,
-          points: 200
+          importance: 300,
         }),
         createMockTaskEntity({
           name: 'Today Medium',
           status: 'pret',
           plannedDate: dates.today,
-          importance: 20,
-          points: 100
+          importance: 200,
         })
       ]
 
       const sorted = TaskSortingService.sortTasksByPriority(todayTasks)
 
-      expect(sorted[0].importance).toBe(30)
-      expect(sorted[1].importance).toBe(20)
-      expect(sorted[2].importance).toBe(10)
+      expect(sorted[0].importance).toBe(300)
+      expect(sorted[1].importance).toBe(200)
+      expect(sorted[2].importance).toBe(100)
     })
 
     it('should handle subtasks recursively', () => {
       const parentWithSubtasks = createMockTaskEntity({
         name: 'Parent Task',
         plannedDate: dates.today,
-        points: 100,
         subtasks: [
           {
             id: 'sub-1',
             name: 'Subtask High',
-            importance: 30,
+            importance: 300,
             complexity: 3,
-            points: 100,
             isCompleted: false,
             createdAt: dates.today,
             updatedAt: dates.today,
@@ -188,9 +177,8 @@ describe('TaskSortingService', () => {
           {
             id: 'sub-2',
             name: 'Subtask Low',
-            importance: 10,
+            importance: 100,
             complexity: 5,
-            points: 20,
             isCompleted: false,
             createdAt: dates.today,
             updatedAt: dates.today,
@@ -204,8 +192,8 @@ describe('TaskSortingService', () => {
       const sorted = TaskSortingService.sortTasksByPriority([parentWithSubtasks])
       const sortedSubtasks = sorted[0].subtasks
 
-      expect(sortedSubtasks[0].points).toBe(100) // Higher points first
-      expect(sortedSubtasks[1].points).toBe(20)
+      expect(sortedSubtasks[0].importance).toBe(300) // Higher importance first
+      expect(sortedSubtasks[1].importance).toBe(100)
     })
 
     it('should not modify original array', () => {
@@ -222,40 +210,38 @@ describe('TaskSortingService', () => {
   describe('sortSubtasksByPriority', () => {
     it('should sort subtasks by importance (highest first)', () => {
       const subtasks = [
-        createMockTaskEntity({ name: 'Low Points', importance: 10, points: 20 }),
-        createMockTaskEntity({ name: 'High Points', importance: 30, points: 100 }),
-        createMockTaskEntity({ name: 'Medium Points', importance: 20, points: 50 })
+        createMockTaskEntity({ name: 'Low Points', importance: 100 }),
+        createMockTaskEntity({ name: 'High Points', importance: 300 }),
+        createMockTaskEntity({ name: 'Medium Points', importance: 200 })
       ]
 
       const sorted = TaskSortingService.sortSubtasksByPriority(subtasks)
 
-      expect(sorted[0].importance).toBe(30)
-      expect(sorted[1].importance).toBe(20)
-      expect(sorted[2].importance).toBe(10)
+      expect(sorted[0].importance).toBe(300)
+      expect(sorted[1].importance).toBe(200)
+      expect(sorted[2].importance).toBe(100)
     })
 
     it('should handle nested subtasks recursively', () => {
       const deepSubtask = createMockTaskEntity({
         name: 'Deep Subtask',
-        points: 150
       })
 
       const parentSubtask = createMockTaskEntity({
         name: 'Parent Subtask',
-        points: 100,
         subtasks: [deepSubtask.rawTask]
       })
 
       const sorted = TaskSortingService.sortSubtasksByPriority([parentSubtask])
 
-      expect(sorted[0].subtasks[0].points).toBe(150)
+      expect(sorted[0].subtasks[0].importance).toBe(250)
     })
   })
 
   describe('compareByPoints', () => {
     it('should compare tasks by importance (higher first)', () => {
-      const lowImportanceTask = createMockTaskEntity({ importance: 10, points: 50 })
-      const highImportanceTask = createMockTaskEntity({ importance: 30, points: 200 })
+      const lowImportanceTask = createMockTaskEntity({ importance: 100 })
+      const highImportanceTask = createMockTaskEntity({ importance: 300 })
 
       const result = TaskSortingService.compareByPoints(highImportanceTask, lowImportanceTask)
 
@@ -263,8 +249,8 @@ describe('TaskSortingService', () => {
     })
 
     it('should handle equal points', () => {
-      const task1 = createMockTaskEntity({ points: 100 })
-      const task2 = createMockTaskEntity({ points: 100 })
+      const task1 = createMockTaskEntity({ })
+      const task2 = createMockTaskEntity({ })
 
       const result = TaskSortingService.compareByPoints(task1, task2)
 
@@ -426,39 +412,41 @@ describe('TaskSortingService', () => {
   describe('sortByImportance', () => {
     it('should sort by importance (highest first)', () => {
       const tasks = [
-        createMockTaskEntity({ importance: 10, points: 50 }),
-        createMockTaskEntity({ importance: 30, points: 100 }),
-        createMockTaskEntity({ importance: 20, points: 75 })
+        createMockTaskEntity({ importance: 100 }),
+        createMockTaskEntity({ importance: 300 }),
+        createMockTaskEntity({ importance: 200 })
       ]
 
       const sorted = TaskSortingService.sortByImportance(tasks)
 
-      expect(sorted[0].importance).toBe(30)
-      expect(sorted[1].importance).toBe(20)
-      expect(sorted[2].importance).toBe(10)
+      expect(sorted[0].importance).toBe(300)
+      expect(sorted[1].importance).toBe(200)
+      expect(sorted[2].importance).toBe(100)
     })
 
-    it('should use points as secondary sort when importance is equal', () => {
+    it('should keep stable order when importance is equal', () => {
       const tasks = [
-        createMockTaskEntity({ importance: 20, points: 50 }),
-        createMockTaskEntity({ importance: 20, points: 100 }),
-        createMockTaskEntity({ importance: 20, points: 75 })
+        createMockTaskEntity({ name: 'First', importance: 200 }),
+        createMockTaskEntity({ name: 'Second', importance: 200 }),
+        createMockTaskEntity({ name: 'Third', importance: 200 })
       ]
 
       const sorted = TaskSortingService.sortByImportance(tasks)
 
-      expect(sorted[0].points).toBe(100)
-      expect(sorted[1].points).toBe(75)
-      expect(sorted[2].points).toBe(50)
+      expect(sorted[0].name).toBe('First')
+      expect(sorted[1].name).toBe('Second')
+      expect(sorted[2].name).toBe('Third')
+      // All importances are equal -> stable sort preserves input order
+      expect(sorted.every(t => t.importance === 200)).toBe(true)
     })
   })
 
   describe('sortByComplexity', () => {
     it('should sort by complexity (simplest first)', () => {
       const tasks = [
-        createMockTaskEntity({ complexity: 8, points: 50 }),
-        createMockTaskEntity({ complexity: 2, points: 100 }),
-        createMockTaskEntity({ complexity: 5, points: 75 })
+        createMockTaskEntity({ complexity: 8 }),
+        createMockTaskEntity({ complexity: 2 }),
+        createMockTaskEntity({ complexity: 5 })
       ]
 
       const sorted = TaskSortingService.sortByComplexity(tasks)
@@ -468,18 +456,20 @@ describe('TaskSortingService', () => {
       expect(sorted[2].complexity).toBe(8)
     })
 
-    it('should use points as secondary sort when complexity is equal', () => {
+    it('should keep stable order when complexity is equal', () => {
       const tasks = [
-        createMockTaskEntity({ complexity: 5, points: 50 }),
-        createMockTaskEntity({ complexity: 5, points: 100 }),
-        createMockTaskEntity({ complexity: 5, points: 75 })
+        createMockTaskEntity({ name: 'First', complexity: 5 }),
+        createMockTaskEntity({ name: 'Second', complexity: 5 }),
+        createMockTaskEntity({ name: 'Third', complexity: 5 })
       ]
 
       const sorted = TaskSortingService.sortByComplexity(tasks)
 
-      expect(sorted[0].points).toBe(100) // Highest points first for same complexity
-      expect(sorted[1].points).toBe(75)
-      expect(sorted[2].points).toBe(50)
+      expect(sorted[0].name).toBe('First')
+      expect(sorted[1].name).toBe('Second')
+      expect(sorted[2].name).toBe('Third')
+      // All complexities are equal -> stable sort preserves input order
+      expect(sorted.every(t => t.complexity === 5)).toBe(true)
     })
   })
 
@@ -636,19 +626,16 @@ describe('TaskSortingService', () => {
           status: 'collecte',
           importance: 0,
           complexity: 3,
-          points: 0
         }).rawTask,
         createMockTaskEntity({
           name: 'Collected High Priority',
-          importance: 50,
+          importance: 450,
           complexity: 1,
-          points: 500
         }).rawTask,
         createMockTaskEntity({
           name: 'Regular Task',
-          importance: 25,
+          importance: 250,
           complexity: 5,
-          points: 50
         }).rawTask
       ]
 
@@ -664,7 +651,6 @@ describe('TaskSortingService', () => {
           name: 'Scheduled Default Task',
           importance: 0,
           complexity: 3,
-          points: 0,
           plannedDate: dates.today
         })
       ]
@@ -681,25 +667,22 @@ describe('TaskSortingService', () => {
         createMockTaskEntity({
           name: 'Email client about project',
           status: 'pret',
-          importance: 35,
+          importance: 350,
           complexity: 2,
-          points: 175,
           plannedDate: dates.today
         }),
         createMockTaskEntity({
           name: 'Review quarterly budget',
           status: 'pret',
-          importance: 40,
+          importance: 400,
           complexity: 7,
-          points: 57,
           plannedDate: dates.yesterday // Overdue
         }),
         createMockTaskEntity({
           name: 'Plan weekend trip',
           status: 'pret',
-          importance: 15,
+          importance: 150,
           complexity: 4,
-          points: 38,
           plannedDate: dates.dayAfterTomorrow
         }),
         createMockTaskEntity({
@@ -707,7 +690,6 @@ describe('TaskSortingService', () => {
           status: 'collecte',
           importance: 0,
           complexity: 3,
-          points: 0
         })
       ]
 
@@ -725,7 +707,6 @@ describe('TaskSortingService', () => {
           name: `Task ${i}`,
           importance: Math.floor(Math.random() * 50),
           complexity: Math.floor(Math.random() * 9) + 1,
-          points: Math.floor(Math.random() * 500),
           plannedDate: Math.random() > 0.5 ? dates.today : undefined
         })
       )
@@ -745,15 +726,13 @@ describe('TaskSortingService', () => {
         // Tasks with extreme values
         [
           createMockTaskEntity({
-            importance: 50,
+            importance: 450,
             complexity: 1,
-            points: 500,
             plannedDate: '1900-01-01T00:00:00Z' // Very old date
           }),
           createMockTaskEntity({
             importance: 0,
             complexity: 9,
-            points: 0,
             plannedDate: '2100-01-01T00:00:00Z' // Very future date
           })
         ]

@@ -15,6 +15,8 @@ vi.mock('../src/utils/api', () => ({
   api: {
     getRootTasks: vi.fn(),
     getTags: vi.fn(),
+    getTasks: vi.fn(),
+    getAllTasks: vi.fn(),
     updateTask: vi.fn(),
     markTaskCompleted: vi.fn(),
     deleteTask: vi.fn(),
@@ -34,8 +36,9 @@ const createTestTask = (
   name,
   notes: '',
   isCompleted: false,
-  importance: 5,
+  importance: 100,
   complexity: 5,
+  status: 'brouillon',
   plannedDate: null,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -47,6 +50,8 @@ const createTestTask = (
 const renderTaskList = (tasks: Task[] = []) => {
   vi.mocked(api.getRootTasks).mockResolvedValue(tasks)
   vi.mocked(api.getTags).mockResolvedValue([])
+  vi.mocked(api.getTasks).mockResolvedValue([])
+  vi.mocked(api.getAllTasks).mockResolvedValue([])
 
   return render(
     <BrowserRouter>

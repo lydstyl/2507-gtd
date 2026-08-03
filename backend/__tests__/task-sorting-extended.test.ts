@@ -41,29 +41,25 @@ describe('Extended Task Sorting Tests', () => {
     await prisma.$disconnect()
   })
 
-  test('should sort tasks with distant dates using points system', async () => {
+  test('should sort tasks with distant dates using importance system', async () => {
     // Créer des tâches de test avec différentes caractéristiques
     const testTasks = [
       // 1. Tâches haute priorité sans date
-      { name: 'Tâche haute priorité 1', importance: 50, complexity: 1, dueDate: null }, // 500 points
-      { name: 'Tâche haute priorité 2', importance: 40, complexity: 1, dueDate: null }, // 400 points
-
+      { name: 'Tâche haute priorité 1', importance: 400, complexity: 1, dueDate: null },
+      { name: 'Tâche haute priorité 2', importance: 350, complexity: 1, dueDate: null },
       // 2. Tâches pour aujourd'hui
-      { name: 'Tâche aujourd\'hui - Simple', importance: 30, complexity: 1, dueDate: new Date() }, // 300 points
-      { name: 'Tâche aujourd\'hui - Moyenne', importance: 25, complexity: 2, dueDate: new Date() }, // 125 points
-
+      { name: "Tâche aujourd'hui - Simple", importance: 300, complexity: 1, dueDate: new Date() },
+      { name: "Tâche aujourd'hui - Moyenne", importance: 250, complexity: 2, dueDate: new Date() },
       // 3. Tâches pour demain
-      { name: 'Tâche demain - Important', importance: 35, complexity: 2, dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000) }, // 175 points
-      { name: 'Tâche demain - Simple', importance: 20, complexity: 1, dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000) }, // 200 points
-
+      { name: 'Tâche demain - Important', importance: 320, complexity: 2, dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000) },
+      { name: 'Tâche demain - Simple', importance: 200, complexity: 1, dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000) },
       // 4. Tâches avec priorités modérées sans date
-      { name: 'Tâche importante - sans date', importance: 30, complexity: 3, }, // 100 points
-      { name: 'Tâche simple - sans date', importance: 25, complexity: 5 }, // 50 points
-
+      { name: 'Tâche importante - sans date', importance: 300, complexity: 3 },
+      { name: 'Tâche simple - sans date', importance: 250, complexity: 5 },
       // 5. Tâches avec dates éloignées
-      { name: 'Tâche - dans 5 jours', importance: 20, complexity: 1, dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000) }, // 200 points
-      { name: 'Tâche - dans 6 jours', importance: 15, complexity: 3, dueDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000) }, // 50 points
-      { name: 'Tâche - dans 3 jours', importance: 40, complexity: 2, dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) }, // 200 points
+      { name: 'Tâche - dans 5 jours', importance: 200, complexity: 1, dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000) },
+      { name: 'Tâche - dans 6 jours', importance: 150, complexity: 3, dueDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000) },
+      { name: 'Tâche - dans 3 jours', importance: 350, complexity: 2, dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) },
     ]
 
     // Créer les tâches principales
@@ -84,21 +80,21 @@ describe('Extended Task Sorting Tests', () => {
     const allTasks = await taskRepository.findAll(filters)
 
     // Vérifier le tri
-    console.log('\n📋 Tâches triées (test étendu avec points):')
+    console.log('\n📋 Tâches triées (test étendu avec importance):')
     allTasks.forEach((task, index) => {
       const dateInfo = task.dueDate ? ` (${new Date(task.dueDate).toLocaleDateString()})` : ''
-      console.log(`${index + 1}. ${task.name} (I:${task.importance}, C:${task.complexity}, Points:${task.points})${dateInfo}`)
+      console.log(`${index + 1}. ${task.name} (I:${task.importance}, C:${task.complexity})${dateInfo}`)
     })
 
     // Vérifications spécifiques
     expect(allTasks.length).toBeGreaterThan(0)
 
-    // 1. Vérifier que la première tâche a des points (le tri fonctionne)
+    // 1. Vérifier que la première tâche a une importance valide (le tri fonctionne)
     const firstTask = allTasks[0]
-    expect(firstTask.points).toBeGreaterThan(0)
+    expect(firstTask.importance).toBeGreaterThanOrEqual(100)
 
     // Vérifier que les tâches haute priorité sans date sont présentes
-    const highPriorityTasks = allTasks.filter(task => task.points === 500)
+    const highPriorityTasks = allTasks.filter(task => task.importance === 400)
     expect(highPriorityTasks.length).toBeGreaterThan(0)
 
     // 2. Vérifier que les tâches d'aujourd'hui sont groupées
@@ -123,8 +119,8 @@ describe('Extended Task Sorting Tests', () => {
     expect(distantTasks.length).toBeGreaterThan(0)
 
     // Note: Le tri semble grouper les tâches par date (aujourd'hui, demain, sans date, etc.)
-    // plutôt que par points globalement. Vérifions que les groupes sont cohérents.
+    // plutôt que par importance globalement. Vérifions que les groupes sont cohérents.
 
-    console.log('✅ Ordre de tri par points vérifié !')
+    console.log('✅ Ordre de tri par importance vérifié !')
   })
 })

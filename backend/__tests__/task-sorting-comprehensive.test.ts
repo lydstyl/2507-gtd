@@ -46,7 +46,6 @@ describe('Comprehensive Task Sorting Tests', () => {
     const createTestTask = (name: string, importance: number, plannedDate?: string, createdAt?: Date): TaskWithSubtasks => ({
       id: `test-${name.replace(/\s+/g, '-').toLowerCase()}`,
       name,
-      points: importance,
       importance,
       complexity: 1,
       plannedDate: plannedDate ? new Date(plannedDate) : undefined,
@@ -59,36 +58,36 @@ describe('Comprehensive Task Sorting Tests', () => {
       parentId: undefined
     })
 
-    test('should sort 500-point tasks without dates in no-date category by points descending', () => {
+    test('should sort 450-importance tasks without dates in no-date category by importance descending', () => {
       const today = new Date().toISOString()
 
       const tasks = [
         createTestTask('Normal task', 200),
-        createTestTask('High priority no date', 500), // Should be in no-date category, sorted by points
+        createTestTask('High priority no date', 450), // Should be in no-date category, sorted by importance
         createTestTask('Today task', 300, today), // Today tasks come first
-        createTestTask('Another high priority no date', 400), // Lower points than first 500-point task
+        createTestTask('Another high priority no date', 400), // Lower importance than first 450-importance task
       ]
 
       const sorted = TaskSorting.sortTasksByPriority(tasks)
 
       // Today task should come first
       expect(sorted[0].name).toBe('Today task')
-      expect(sorted[0].points).toBe(300)
+      expect(sorted[0].importance).toBe(300)
 
-      // Then no-date tasks sorted by points descending
+      // Then no-date tasks sorted by importance descending
       expect(sorted[1].name).toBe('High priority no date')
       expect(sorted[2].name).toBe('Another high priority no date')
-      expect(sorted[1].points).toBe(500)
-      expect(sorted[2].points).toBe(400)
+      expect(sorted[1].importance).toBe(450)
+      expect(sorted[2].importance).toBe(400)
       expect(sorted[1].plannedDate).toBeUndefined()
       expect(sorted[2].plannedDate).toBeUndefined()
 
       // Normal task comes last in no-date category
       expect(sorted[3].name).toBe('Normal task')
-      expect(sorted[3].points).toBe(200)
+      expect(sorted[3].importance).toBe(200)
     })
 
-    test('should put 500-point tasks with dates in appropriate date categories', () => {
+    test('should put 450-importance tasks with dates in appropriate date categories', () => {
       const today = new Date()
       const tomorrow = new Date(today)
       tomorrow.setDate(tomorrow.getDate() + 1)
@@ -96,20 +95,20 @@ describe('Comprehensive Task Sorting Tests', () => {
       overdue.setDate(overdue.getDate() - 1)
 
       const tasks = [
-        createTestTask('High priority no date', 500), // Should be in no-date category
-        createTestTask('High priority today', 500, today.toISOString()), // Should be in today section
-        createTestTask('High priority tomorrow', 500, tomorrow.toISOString()), // Should be in tomorrow section
-        createTestTask('High priority overdue', 500, overdue.toISOString()), // Should be in overdue section
+        createTestTask('High priority no date', 450), // Should be in no-date category
+        createTestTask('High priority today', 450, today.toISOString()), // Should be in today section
+        createTestTask('High priority tomorrow', 450, tomorrow.toISOString()), // Should be in tomorrow section
+        createTestTask('High priority overdue', 450, overdue.toISOString()), // Should be in overdue section
         createTestTask('Normal today', 200, today.toISOString()),
       ]
 
       const sorted = TaskSorting.sortTasksByPriority(tasks)
 
-      // First should be overdue 500-point task (overdue comes first)
+      // First should be overdue 450-importance task (overdue comes first)
       expect(sorted[0].name).toBe('High priority overdue')
       expect(new Date(sorted[0].plannedDate!)).toEqual(overdue)
 
-      // Today tasks should come next (including 500-point today task)
+      // Today tasks should come next (including 450-importance today task)
       const todayTasks = sorted.filter(task => {
         if (!task.plannedDate) return false
         const taskDate = new Date(task.plannedDate)
@@ -128,7 +127,7 @@ describe('Comprehensive Task Sorting Tests', () => {
       expect(tomorrowTasks.length).toBe(1)
       expect(tomorrowTasks[0].name).toBe('High priority tomorrow')
 
-      // No-date 500-point task should come last in no-date category
+      // No-date 450-importance task should come last in no-date category
       const noDateTasks = sorted.filter(task => !task.plannedDate)
       expect(noDateTasks.length).toBe(1)
       expect(noDateTasks[0].name).toBe('High priority no date')
@@ -145,7 +144,7 @@ describe('Comprehensive Task Sorting Tests', () => {
         createTestTask('Normal task', 200),
         createTestTask('Overdue yesterday', 100, yesterday.toISOString()),
         createTestTask('Overdue two days', 300, twoDaysAgo.toISOString()),
-        createTestTask('High priority no date', 500),
+        createTestTask('High priority no date', 450),
       ]
 
       const sorted = TaskSorting.sortTasksByPriority(tasks)
@@ -175,9 +174,9 @@ describe('Comprehensive Task Sorting Tests', () => {
       expect(sorted[0].name).toBe('Today high priority')
       expect(sorted[1].name).toBe('Today medium priority')
       expect(sorted[2].name).toBe('Today low priority')
-      expect(sorted[0].points).toBe(400)
-      expect(sorted[1].points).toBe(250)
-      expect(sorted[2].points).toBe(100)
+      expect(sorted[0].importance).toBe(400)
+      expect(sorted[1].importance).toBe(250)
+      expect(sorted[2].importance).toBe(100)
     })
 
     test('should sort tomorrow tasks by points descending', () => {
@@ -196,25 +195,25 @@ describe('Comprehensive Task Sorting Tests', () => {
       expect(sorted[0].name).toBe('Tomorrow high priority')
       expect(sorted[1].name).toBe('Tomorrow medium priority')
       expect(sorted[2].name).toBe('Tomorrow low priority')
-      expect(sorted[0].points).toBe(350)
-      expect(sorted[1].points).toBe(200)
-      expect(sorted[2].points).toBe(150)
+      expect(sorted[0].importance).toBe(350)
+      expect(sorted[1].importance).toBe(200)
+      expect(sorted[2].importance).toBe(150)
     })
 
-    test('should sort tasks without dates by points descending (excluding 500+ already handled)', () => {
+    test('should sort tasks without dates by importance descending (excluding 450+ already handled)', () => {
       const tasks = [
         createTestTask('No date low', 100),
-        createTestTask('No date high priority', 500), // Should be first
+        createTestTask('No date high priority', 450), // Should be first
         createTestTask('No date medium', 250),
         createTestTask('No date higher', 400),
       ]
 
       const sorted = TaskSorting.sortTasksByPriority(tasks)
 
-      expect(sorted[0].name).toBe('No date high priority') // 500-point task first
-      expect(sorted[1].name).toBe('No date higher') // 400 points
-      expect(sorted[2].name).toBe('No date medium') // 250 points
-      expect(sorted[3].name).toBe('No date low') // 100 points
+      expect(sorted[0].name).toBe('No date high priority') // 450-importance task first
+      expect(sorted[1].name).toBe('No date higher') // 400 importance
+      expect(sorted[2].name).toBe('No date medium') // 250 importance
+      expect(sorted[3].name).toBe('No date low') // 100 importance
     })
 
     test('should sort future tasks by date ascending', () => {
@@ -254,8 +253,8 @@ describe('Comprehensive Task Sorting Tests', () => {
         createTestTask('Tomorrow task', 300, tomorrow.toISOString()), // 4th priority
         createTestTask('Today task', 250, today.toISOString()), // 3rd priority
         createTestTask('Overdue task', 200, yesterday.toISOString()), // 2nd priority
-        createTestTask('High priority no date', 500), // 5th priority (no-date category, highest points)
-        createTestTask('No date high', 400), // 5th priority (no-date category, lower points)
+        createTestTask('High priority no date', 450), // 5th priority (no-date category, highest importance)
+        createTestTask('No date high', 400), // 5th priority (no-date category, lower importance)
       ]
 
       const sorted = TaskSorting.sortTasksByPriority(tasks)
@@ -263,9 +262,9 @@ describe('Comprehensive Task Sorting Tests', () => {
       expect(sorted[0].name).toBe('Overdue task') // 1. Overdue tasks first
       expect(sorted[1].name).toBe('Today task') // 2. Today tasks second
       expect(sorted[2].name).toBe('Tomorrow task') // 3. Tomorrow tasks third
-      expect(sorted[3].name).toBe('High priority no date') // 4. No-date tasks by points (500)
-      expect(sorted[4].name).toBe('No date high') // 5. No-date tasks by points (400)
-      expect(sorted[5].name).toBe('No date low') // 6. No-date tasks by points (100)
+      expect(sorted[3].name).toBe('High priority no date') // 4. No-date tasks by importance (450)
+      expect(sorted[4].name).toBe('No date high') // 5. No-date tasks by importance (400)
+      expect(sorted[5].name).toBe('No date low') // 6. No-date tasks by importance (100)
       expect(sorted[6].name).toBe('Future task') // 7. Future tasks last
     })
   })
@@ -280,12 +279,12 @@ describe('Comprehensive Task Sorting Tests', () => {
 
       // Create test tasks (status='pret' so they are sorted by date, not as brouillon)
       const testTasks = [
-        { name: 'Future task', importance: 30, complexity: 3, dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) },
-        { name: 'High priority no date', importance: 50, complexity: 1, dueDate: null },
-        { name: 'Overdue task', importance: 25, complexity: 2, dueDate: yesterday },
-        { name: 'Today task', importance: 30, complexity: 2, dueDate: today },
-        { name: 'Tomorrow task', importance: 35, complexity: 3, dueDate: tomorrow },
-        { name: 'No date medium', importance: 20, complexity: 4, dueDate: null },
+        { name: 'Future task', importance: 300, complexity: 3, dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) },
+        { name: 'High priority no date', importance: 400, complexity: 1, dueDate: null },
+        { name: 'Overdue task', importance: 250, complexity: 2, dueDate: yesterday },
+        { name: 'Today task', importance: 300, complexity: 2, dueDate: today },
+        { name: 'Tomorrow task', importance: 320, complexity: 3, dueDate: tomorrow },
+        { name: 'No date medium', importance: 200, complexity: 4, dueDate: null },
       ]
 
       // Create tasks in database
@@ -306,15 +305,15 @@ describe('Comprehensive Task Sorting Tests', () => {
       console.log('\n📋 Database Integration - Sorted Tasks:')
       sortedTasks.forEach((task, index) => {
         const dateStr = task.plannedDate ? new Date(task.plannedDate).toLocaleDateString() : 'No date'
-        console.log(`${index + 1}. ${task.name} (Points: ${task.points}, Planned: ${dateStr})`)
+        console.log(`${index + 1}. ${task.name} (Importance: ${task.importance}, Planned: ${dateStr})`)
       })
 
-      // Verify sorting order - overdue, today, tomorrow, then no-date tasks by points
+      // Verify sorting order - overdue, today, tomorrow, then no-date tasks by importance
       expect(sortedTasks[0].name).toBe('Overdue task') // Overdue first
       expect(sortedTasks[1].name).toBe('Today task') // Today second
       expect(sortedTasks[2].name).toBe('Tomorrow task') // Tomorrow third
-      expect(sortedTasks[3].name).toBe('High priority no date') // No-date tasks by points (500)
-      expect(sortedTasks[4].name).toBe('No date medium') // No-date tasks by points (80)
+      expect(sortedTasks[3].name).toBe('High priority no date') // No-date tasks by importance (400)
+      expect(sortedTasks[4].name).toBe('No date medium') // No-date tasks by importance (200)
       expect(sortedTasks[5].name).toBe('Future task') // Future date last
 
       expect(sortedTasks.length).toBe(6)
@@ -323,8 +322,8 @@ describe('Comprehensive Task Sorting Tests', () => {
     test('should maintain correct sorting when task date is updated', async () => {
       // Create a high-importance task without date (status='pret' so it's in no-date, not brouillon)
       const task = await taskRepository.create({
-        name: 'Test task 500 points',
-        importance: 50,
+        name: 'Test task 400 importance',
+        importance: 400,
         complexity: 1,
         status: 'pret',
         userId
@@ -333,20 +332,20 @@ describe('Comprehensive Task Sorting Tests', () => {
       // Create other tasks for comparison
       await taskRepository.create({
         name: 'Today existing',
-        importance: 30,
+        importance: 300,
         complexity: 2,
         status: 'pret',
         dueDate: new Date(),
         userId
       })
 
-      // Verify initial sorting - 500-point task should be in no-date category (after today task)
+      // Verify initial sorting - 400-importance task should be in no-date category (after today task)
       let sortedTasks = await taskRepository.findAllRootTasks({ userId })
       expect(sortedTasks[0].name).toBe('Today existing') // Today task comes first
-      expect(sortedTasks[1].name).toBe('Test task 500 points') // 500-point task in no-date category
+      expect(sortedTasks[1].name).toBe('Test task 400 importance') // 400-importance task in no-date category
       expect(sortedTasks[1].dueDate).toBeUndefined()
 
-      // Update the 500-point task to have today's date
+      // Update the 400-importance task to have today's date
       await taskRepository.update(task.id, {
         dueDate: new Date(),
         userId
@@ -355,7 +354,7 @@ describe('Comprehensive Task Sorting Tests', () => {
       // Fetch again and verify it moved to today section
       sortedTasks = await taskRepository.findAllRootTasks({ userId })
 
-      // Both tasks should be in today section, 500-point task should be first within today tasks
+      // Both tasks should be in today section, 400-importance task should be first within today tasks
       const todayTasks = sortedTasks.filter(t => {
         if (!t.dueDate) return false
         const taskDate = new Date(t.dueDate)
@@ -364,8 +363,8 @@ describe('Comprehensive Task Sorting Tests', () => {
       })
 
       expect(todayTasks.length).toBe(2)
-      expect(todayTasks[0].name).toBe('Test task 500 points') // Higher points
-      expect(todayTasks[0].points).toBe(500)
+      expect(todayTasks[0].name).toBe('Test task 400 importance') // Higher importance
+      expect(todayTasks[0].importance).toBe(400)
       expect(todayTasks[1].name).toBe('Today existing')
 
       console.log('\n✅ Task successfully moved from high-priority-no-date to today category!')

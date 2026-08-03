@@ -8,23 +8,15 @@ import { normalizeDate, createDateContext } from '../utils/DateUtils'
  */
 export class TaskPriorityService {
   /**
-    * Create normalized date context for consistent comparisons
-    */
-   static createDateContext(): DateContext {
-     return createDateContext()
-   }
-
-   /**
-    * Calculate points based on importance and complexity
-    */
-   static calculatePoints(importance: number, complexity: number): number {
-     if (complexity === 0) return 0
-     return Math.round(10 * importance / complexity)
-   }
+   * Create normalized date context for consistent comparisons
+   */
+  static createDateContext(): DateContext {
+    return createDateContext()
+  }
 
   /**
-   * Normalize a date to UTC midnight for consistent comparisons
-   */
+  * Normalize a date to UTC midnight for consistent comparisons
+  */
   static normalizeDate(dateInput: string | Date): Date {
     return normalizeDate(dateInput)
   }

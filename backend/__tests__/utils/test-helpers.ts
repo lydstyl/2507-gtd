@@ -14,9 +14,8 @@ export function createMockTask(overrides: Partial<Task> = {}): Task {
     name: 'Test Task',
     link: undefined,
     note: undefined,
-    importance: 25,
+    importance: 300,
     complexity: 5,
-    points: 50, // 10 * 25 / 5 = 50
     parentId: undefined,
     plannedDate: undefined,
     dueDate: undefined,
@@ -93,7 +92,7 @@ export function createMockCreateTaskData(overrides: Partial<CreateTaskData> = {}
     name: 'New Test Task',
     link: undefined,
     note: undefined,
-    importance: 25,
+    importance: 300,
     complexity: 5,
     parentId: undefined,
     tagIds: [],
@@ -111,7 +110,7 @@ export function createMockCreateTaskData(overrides: Partial<CreateTaskData> = {}
 export function createMockUpdateTaskData(overrides: Partial<UpdateTaskData> = {}): UpdateTaskData {
   return {
     name: 'Updated Test Task',
-    importance: 30,
+    importance: 300,
     complexity: 3,
     ...overrides
   }
@@ -135,7 +134,6 @@ export function assertTaskCategory(
         name: task.name,
         importance: task.importance,
         complexity: task.complexity,
-        points: task.points,
         plannedDate: task.plannedDate,
         dueDate: task.dueDate
       }, null, 2)}`
@@ -153,22 +151,19 @@ export function createTestTasksByCategory(dateContext: DateContext) {
     collected: createMockTaskWithSubtasks({
       name: 'Collected Task',
       importance: 0,
-      complexity: 3,
-      points: 0
+      complexity: 3
     }),
 
     collectedHighPriority: createMockTaskWithSubtasks({
       name: 'High Priority Collected Task',
       importance: 50,
-      complexity: 1,
-      points: 500
+      complexity: 1
     }),
 
     overdue: createMockTaskWithSubtasks({
       name: 'Overdue Task',
       importance: 30,
       complexity: 5,
-      points: 60,
       plannedDate: yesterday
     }),
 
@@ -176,7 +171,6 @@ export function createTestTasksByCategory(dateContext: DateContext) {
       name: 'Today Task',
       importance: 40,
       complexity: 4,
-      points: 100,
       plannedDate: dateContext.today
     }),
 
@@ -184,7 +178,6 @@ export function createTestTasksByCategory(dateContext: DateContext) {
       name: 'Tomorrow Task',
       importance: 20,
       complexity: 2,
-      points: 100,
       plannedDate: dateContext.tomorrow
     }),
 
@@ -192,27 +185,18 @@ export function createTestTasksByCategory(dateContext: DateContext) {
       name: 'Future Task',
       importance: 15,
       complexity: 3,
-      points: 50,
       plannedDate: dateContext.dayAfterTomorrow
     }),
 
     noDate: createMockTaskWithSubtasks({
       name: 'No Date Task',
       importance: 25,
-      complexity: 5,
-      points: 50
+      complexity: 5
     })
   }
 }
 
-/**
- * Validate that a task points calculation is correct
- */
-export function validateTaskPoints(task: { importance: number; complexity: number; points: number }): boolean {
-  const expectedPoints = Math.round(10 * task.importance / task.complexity)
-  const clampedPoints = Math.max(0, Math.min(500, expectedPoints))
-  return task.points === clampedPoints
-}
+
 
 /**
  * Create a range of test dates relative to a base date

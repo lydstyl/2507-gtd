@@ -60,14 +60,14 @@ describe('Task Sorting API Integration Tests', () => {
 
     // Create tasks through API (status='pret' so they are categorized by date)
     const tasksToCreate = [
-      { name: 'Future task', importance: 30, complexity: 3, status: 'pret', plannedDate: nextWeek.toISOString() },
-      { name: 'High priority no date', importance: 50, complexity: 1, status: 'pret' },
-      { name: 'Overdue task', importance: 25, complexity: 2, status: 'pret', plannedDate: yesterday.toISOString() },
-      { name: 'Today task high', importance: 40, complexity: 2, status: 'pret', plannedDate: today.toISOString() },
-      { name: 'Today task low', importance: 20, complexity: 3, status: 'pret', plannedDate: today.toISOString() },
-      { name: 'Tomorrow task', importance: 35, complexity: 3, status: 'pret', plannedDate: tomorrow.toISOString() },
-      { name: 'No date medium', importance: 30, complexity: 4, status: 'pret' },
-      { name: 'No date low', importance: 20, complexity: 5, status: 'pret' },
+      { name: 'Future task', importance: 300, complexity: 3, status: 'pret', plannedDate: nextWeek.toISOString() },
+      { name: 'High priority no date', importance: 400, complexity: 1, status: 'pret' },
+      { name: 'Overdue task', importance: 250, complexity: 2, status: 'pret', plannedDate: yesterday.toISOString() },
+      { name: 'Today task high', importance: 350, complexity: 2, status: 'pret', plannedDate: today.toISOString() },
+      { name: 'Today task low', importance: 200, complexity: 3, status: 'pret', plannedDate: today.toISOString() },
+      { name: 'Tomorrow task', importance: 320, complexity: 3, status: 'pret', plannedDate: tomorrow.toISOString() },
+      { name: 'No date medium', importance: 300, complexity: 4, status: 'pret' },
+      { name: 'No date low', importance: 200, complexity: 5, status: 'pret' },
     ]
 
     // Create all tasks
@@ -96,20 +96,20 @@ describe('Task Sorting API Integration Tests', () => {
 
     expect(testTasks.length).toBe(8)
 
-    // Verify exact sorting order of our test tasks - overdue, today, tomorrow, then no-date by points
+    // Verify exact sorting order of our test tasks - overdue, today, tomorrow, then no-date by importance
     expect(testTasks[0].name).toBe('Overdue task') // 1. Overdue
-    expect(testTasks[1].name).toBe('Today task high') // 2. Today (higher points)
-    expect(testTasks[2].name).toBe('Today task low') // 2. Today (lower points)
+    expect(testTasks[1].name).toBe('Today task high') // 2. Today (higher importance)
+    expect(testTasks[2].name).toBe('Today task low') // 2. Today (lower importance)
     expect(testTasks[3].name).toBe('Tomorrow task') // 3. Tomorrow
-    expect(testTasks[4].name).toBe('High priority no date') // 4. No date (500 points)
-    expect(testTasks[5].name).toBe('No date medium') // 4. No date (higher points)
-    expect(testTasks[6].name).toBe('No date low') // 4. No date (lower points)
+    expect(testTasks[4].name).toBe('High priority no date') // 4. No date (400 importance)
+    expect(testTasks[5].name).toBe('No date medium') // 4. No date (higher importance)
+    expect(testTasks[6].name).toBe('No date low') // 4. No date (lower importance)
     expect(testTasks[7].name).toBe('Future task') // 5. Future
 
     console.log('\n📋 API Sorting Order:')
     tasks.forEach((task: any, index: number) => {
       const dateStr = task.plannedDate ? new Date(task.plannedDate).toLocaleDateString() : 'No date'
-      console.log(`${index + 1}. ${task.name} (Points: ${task.points}, Planned: ${dateStr})`)
+      console.log(`${index + 1}. ${task.name} (Importance: ${task.importance}, Planned: ${dateStr})`)
     })
   })
 
@@ -119,8 +119,8 @@ describe('Task Sorting API Integration Tests', () => {
       .post('/api/tasks')
       .set(authHeader)
       .send({
-        name: 'Test 500 point task',
-        importance: 50,
+        name: 'Test 400 importance task',
+        importance: 400,
         complexity: 1,
         status: 'pret'
       })
@@ -131,7 +131,7 @@ describe('Task Sorting API Integration Tests', () => {
       .set(authHeader)
       .send({
         name: 'Today existing task',
-        importance: 30,
+        importance: 300,
         complexity: 2,
         status: 'pret',
         plannedDate: new Date().toISOString()
@@ -145,10 +145,10 @@ describe('Task Sorting API Integration Tests', () => {
       .expect(200)
 
     expect(response.body[0].name).toBe('Today existing task') // Today task comes first
-    expect(response.body[1].name).toBe('Test 500 point task') // 500-point task in no-date category
+    expect(response.body[1].name).toBe('Test 400 importance task') // High-importance task in no-date category
     expect(response.body[1].plannedDate).toBeFalsy() // Can be null or undefined
 
-    // Update the 500-point task to have today's date
+    // Update the high-importance task to have today's date
     await request(app)
       .put(`/api/tasks/${highPriorityTask.body.id}`)
       .set(authHeader)
@@ -174,8 +174,8 @@ describe('Task Sorting API Integration Tests', () => {
     })
 
     expect(todayTasks.length).toBe(2)
-    expect(todayTasks[0].name).toBe('Test 500 point task') // Should be first in today section due to higher points
-    expect(todayTasks[0].points).toBe(500)
+    expect(todayTasks[0].name).toBe('Test 400 importance task') // Should be first in today section due to higher importance
+    expect(todayTasks[0].importance).toBe(400)
     expect(todayTasks[1].name).toBe('Today existing task')
 
     console.log('\n✅ API: Task successfully moved from high-priority category to today category!')
@@ -194,7 +194,7 @@ describe('Task Sorting API Integration Tests', () => {
       .set(authHeader)
       .send({
         name: 'High priority no date',
-        importance: 50,
+        importance: 400,
         complexity: 1,
         status: 'pret'
       })
@@ -204,8 +204,8 @@ describe('Task Sorting API Integration Tests', () => {
       .post('/api/tasks')
       .set(authHeader)
       .send({
-        name: 'Overdue yesterday high points',
-        importance: 40,
+        name: 'Overdue yesterday high importance',
+        importance: 350,
         complexity: 2,
         status: 'pret',
         plannedDate: yesterday.toISOString()
@@ -216,8 +216,8 @@ describe('Task Sorting API Integration Tests', () => {
       .post('/api/tasks')
       .set(authHeader)
       .send({
-        name: 'Overdue yesterday low points',
-        importance: 20,
+        name: 'Overdue yesterday low importance',
+        importance: 200,
         complexity: 3,
         status: 'pret',
         plannedDate: yesterday.toISOString()
@@ -229,7 +229,7 @@ describe('Task Sorting API Integration Tests', () => {
       .set(authHeader)
       .send({
         name: 'Overdue two days ago',
-        importance: 30,
+        importance: 300,
         complexity: 3,
         status: 'pret',
         plannedDate: twoDaysAgo.toISOString()
@@ -246,15 +246,15 @@ describe('Task Sorting API Integration Tests', () => {
 
     // Verify order - overdue tasks come first, then no-date tasks
     expect(tasks[0].name).toBe('Overdue two days ago') // 1. Oldest overdue first
-    expect(tasks[1].name).toBe('Overdue yesterday high points') // 2. Same date, higher points
-    expect(tasks[2].name).toBe('Overdue yesterday low points') // 2. Same date, lower points
-    expect(tasks[3].name).toBe('High priority no date') // 3. No-date tasks by points
+    expect(tasks[1].name).toBe('Overdue yesterday high importance') // 2. Same date, higher importance
+    expect(tasks[2].name).toBe('Overdue yesterday low importance') // 2. Same date, lower importance
+    expect(tasks[3].name).toBe('High priority no date') // 3. No-date tasks by importance
 
     console.log('\n📅 Overdue Tasks Sorting:')
     tasks.forEach((task: any, index: number) => {
       const dateStr = task.plannedDate ? new Date(task.plannedDate).toLocaleDateString() : 'No date'
       const status = task.plannedDate && new Date(task.plannedDate) < today ? 'OVERDUE' : 'NORMAL'
-      console.log(`${index + 1}. ${task.name} (${status}, Points: ${task.points}, Planned: ${dateStr})`)
+      console.log(`${index + 1}. ${task.name} (${status}, Importance: ${task.importance}, Planned: ${dateStr})`)
     })
   })
 
@@ -270,14 +270,14 @@ describe('Task Sorting API Integration Tests', () => {
     // Create a complex mix of tasks (status='pret' so they're categorized by date)
     const taskData = [
       // Mix up the creation order to test sorting independence
-      { name: 'Z Future low priority', importance: 20, complexity: 5, status: 'pret', plannedDate: nextWeek.toISOString() },
-      { name: 'A High priority no date 1', importance: 50, complexity: 1, status: 'pret' },
-      { name: 'M Today medium', importance: 30, complexity: 3, status: 'pret', plannedDate: today.toISOString() },
-      { name: 'B Overdue critical', importance: 45, complexity: 2, status: 'pret', plannedDate: yesterday.toISOString() },
-      { name: 'Y Tomorrow low', importance: 25, complexity: 4, status: 'pret', plannedDate: tomorrow.toISOString() },
-      { name: 'A High priority no date 2', importance: 50, complexity: 1, status: 'pret' },
-      { name: 'N No date very low', importance: 10, complexity: 8, status: 'pret' },
-      { name: 'L Today high', importance: 40, complexity: 2, status: 'pret', plannedDate: today.toISOString() },
+      { name: 'Z Future low priority', importance: 200, complexity: 5, status: 'pret', plannedDate: nextWeek.toISOString() },
+      { name: 'A High priority no date 1', importance: 400, complexity: 1, status: 'pret' },
+      { name: 'M Today medium', importance: 300, complexity: 3, status: 'pret', plannedDate: today.toISOString() },
+      { name: 'B Overdue critical', importance: 380, complexity: 2, status: 'pret', plannedDate: yesterday.toISOString() },
+      { name: 'Y Tomorrow low', importance: 250, complexity: 4, status: 'pret', plannedDate: tomorrow.toISOString() },
+      { name: 'A High priority no date 2', importance: 400, complexity: 1, status: 'pret' },
+      { name: 'N No date very low', importance: 100, complexity: 8, status: 'pret' },
+      { name: 'L Today high', importance: 350, complexity: 2, status: 'pret', plannedDate: today.toISOString() },
     ]
 
     // Create tasks in mixed order
@@ -313,22 +313,22 @@ describe('Task Sorting API Integration Tests', () => {
       return taskDate.toDateString() === today.toDateString()
     })).toBe(true)
 
-    // High priority no date tasks should be in the no-date section (after tomorrow tasks)
+    // High importance no date tasks should be in the no-date section (after tomorrow tasks)
     const noDateTasks = tasks.filter((task: any) => !task.plannedDate)
-    const highPriorityNoDateTasks = noDateTasks.filter((task: any) => task.points === 500)
-    expect(highPriorityNoDateTasks.length).toBe(2) // Should have 2 high priority no date tasks
-    expect(highPriorityNoDateTasks.every((task: any) => task.points === 500 && !task.plannedDate)).toBe(true)
+    const highImportanceNoDateTasks = noDateTasks.filter((task: any) => task.importance === 400)
+    expect(highImportanceNoDateTasks.length).toBe(2) // Should have 2 high importance no date tasks
+    expect(highImportanceNoDateTasks.every((task: any) => task.importance === 400 && !task.plannedDate)).toBe(true)
 
-    // No-date tasks should follow tomorrow tasks, sorted by points descending
-    // High priority no date tasks come first due to high points
-    expect(tasks[5].name.includes('High priority no date')).toBe(true) // 500 points
-    expect(tasks[6].name).toBe('N No date very low') // Lower points no date task
+    // No-date tasks should follow tomorrow tasks, sorted by importance descending
+    // High importance no date tasks come first due to high importance
+    expect(tasks[5].name.includes('High priority no date')).toBe(true)
+    expect(tasks[6].name).toBe('N No date very low') // Lower importance no date task
     expect(tasks[7].name).toBe('Z Future low priority') // Future task last
 
     console.log('\n🎯 Complex Mixed Scenario - Final Order:')
     tasks.forEach((task: any, index: number) => {
       const dateStr = task.plannedDate ? new Date(task.plannedDate).toLocaleDateString() : 'No date'
-      console.log(`${index + 1}. ${task.name} (Points: ${task.points}, Planned: ${dateStr})`)
+      console.log(`${index + 1}. ${task.name} (Importance: ${task.importance}, Planned: ${dateStr})`)
     })
   })
 })

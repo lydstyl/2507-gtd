@@ -3,9 +3,8 @@ export interface TaskDto {
   name: string
   link?: string
   note?: string
-  importance: number // 0-50
+  importance: number // 100-499
   complexity: number // 1-9
-  points: number // 0-500, computed server-side
   isCollection: boolean
    parentId?: string
    plannedDate?: string
@@ -30,8 +29,8 @@ export interface CreateTaskDto {
   name: string
   link?: string
   note?: string
-  importance?: number // 0-50, defaults to 20
-  complexity?: number // 1-9, defaults to 5
+  importance?: number // 100-499
+  complexity?: number // 1-9
   isCollection?: boolean // Defaults to false
   parentId?: string
    tagIds?: string[]
@@ -43,7 +42,7 @@ export interface UpdateTaskDto {
   name?: string
   link?: string
   note?: string
-  importance?: number // 0-50
+  importance?: number // 100-499
   complexity?: number // 1-9
   isCollection?: boolean
   parentId?: string
@@ -65,9 +64,8 @@ export interface UpdateTagDto {
 export interface TaskFiltersDto {
   parentId?: string
   tagIds?: string[]
-  importance?: number // 0-50
+  importance?: number // 100-499
   complexity?: number // 1-9
-  points?: number // 0-500
   isCollection?: boolean
   search?: string
   includeSubtasks?: boolean

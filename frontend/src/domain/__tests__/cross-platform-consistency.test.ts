@@ -47,7 +47,6 @@ describe('Frontend Domain Consistency', () => {
         status: 'collecte',
         importance: 50,
         complexity: 1,
-        points: 500,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -70,7 +69,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Overdue Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
         dueDate: undefined,
         parentId: undefined,
@@ -93,7 +91,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Today Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-15T15:00:00.000Z', // Today
         dueDate: undefined,
         parentId: undefined,
@@ -116,7 +113,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Tomorrow Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-16T10:00:00.000Z', // Tomorrow
         dueDate: undefined,
         parentId: undefined,
@@ -139,7 +135,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Future Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-18T10:00:00.000Z', // Future
         dueDate: undefined,
         parentId: undefined,
@@ -162,7 +157,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'No Date Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -185,7 +179,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Urgent Due Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-20T10:00:00.000Z', // Future planned date
         dueDate: '2025-01-15T15:00:00.000Z', // Today urgent due date
         parentId: undefined,
@@ -210,7 +203,6 @@ describe('Frontend Domain Consistency', () => {
       status: 'pret',
       importance: 30,
       complexity: 3,
-      points: 100,
       plannedDate: '2025-01-15T15:00:00.000Z', // Today
       dueDate: undefined,
       parentId: undefined,
@@ -229,7 +221,6 @@ describe('Frontend Domain Consistency', () => {
       status: 'pret',
       importance: 20,
       complexity: 5,
-      points: 40,
       plannedDate: '2025-01-16T10:00:00.000Z', // Tomorrow
       dueDate: undefined,
       parentId: undefined,
@@ -304,7 +295,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-16T10:00:00.000Z', // Tomorrow
         dueDate: undefined,
         parentId: undefined,
@@ -327,7 +317,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: '2025-01-20T10:00:00.000Z', // Future planned date
         dueDate: '2025-01-15T15:00:00.000Z', // Today urgent due date
         parentId: undefined,
@@ -351,7 +340,6 @@ describe('Frontend Domain Consistency', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: undefined,
         dueDate: '2025-01-20T10:00:00.000Z', // Non-urgent due date
         parentId: undefined,

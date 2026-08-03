@@ -47,8 +47,8 @@ export class TaskSorting {
         // If only one has custom position, it goes first
         if (a.position !== 0) return -1
         if (b.position !== 0) return 1
-        // Otherwise sort by points
-        return TaskPriorityService.compareByPoints(a, b)
+        // Otherwise sort by importance
+        return TaskPriorityService.compareByImportance(a, b)
       })
       .map(subtask => TaskAdapter.fromSharedDomain(subtask))
       .map((subtask) => ({
@@ -58,12 +58,12 @@ export class TaskSorting {
   }
 
   /**
-   * Compare two tasks by points (higher points = higher priority)
+   * Compare two tasks by importance (higher importance = higher priority)
    * Delegates to shared domain service
    */
   static compareByPoints(a: TaskWithSubtasks, b: TaskWithSubtasks): number {
     const sharedA = TaskAdapter.toSharedDomain(a)
     const sharedB = TaskAdapter.toSharedDomain(b)
-    return TaskPriorityService.compareByPoints(sharedA, sharedB)
+    return TaskPriorityService.compareByImportance(sharedA, sharedB)
   }
 }

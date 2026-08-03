@@ -8,7 +8,6 @@ describe('ParentDateSyncService', () => {
     name: 'Test Task',
     importance: 5,
     complexity: 3,
-    points: 150,
     position: 0,
     status: 'brouillon',
     userId: 'user-1',

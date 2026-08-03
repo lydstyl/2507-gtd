@@ -107,7 +107,6 @@ describe('Shared TaskPriorityService', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         status: 'brouillon' as any,
         plannedDate: undefined,
         dueDate: undefined,
@@ -168,7 +167,6 @@ describe('Shared TaskPriorityService', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         status: 'brouillon' as any,
         plannedDate: undefined,
         dueDate: undefined,
@@ -207,7 +205,6 @@ describe('Shared TaskPriorityService', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         status: 'brouillon' as any,
         plannedDate: undefined,
         dueDate: undefined,
@@ -314,7 +311,6 @@ describe('Shared TaskPriorityService', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         status: 'brouillon' as any,
         plannedDate: undefined,
         dueDate: undefined,
@@ -361,7 +357,7 @@ describe('Shared TaskPriorityService', () => {
           expected: 'pret-future'
         },
         {
-          task: createTestTask({ status: 'brouillon' as any, importance: 25, complexity: 5, points: 50 }),
+          task: createTestTask({ status: 'brouillon' as any, importance: 25, complexity: 5 }),
           expected: 'brouillon' // brouillon with no date → brouillon category
         }
       ]
@@ -402,7 +398,6 @@ describe('Shared TaskPriorityService', () => {
           name: 'Test Task',
           importance: 25,
           complexity: 5,
-          points: 50,
           status: 'brouillon' as any,
           plannedDate: undefined,
           dueDate: undefined,
@@ -433,7 +428,6 @@ describe('Shared TaskPriorityService', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         status: 'brouillon' as any,
         plannedDate: undefined,
         dueDate: undefined,
@@ -476,8 +470,8 @@ describe('Shared TaskPriorityService', () => {
 
     describe('compareByPoints (legacy → delegates to compareByImportance)', () => {
       it('should compare by importance (higher first)', () => {
-        const highTask = createTestTask({ importance: 100, points: 100 })
-        const lowTask = createTestTask({ importance: 50, points: 50 })
+        const highTask = createTestTask({ importance: 100 })
+        const lowTask = createTestTask({ importance: 50 })
 
         const result = TaskPriorityService.compareByPoints(highTask, lowTask)
         expect(result).toBeLessThan(0)
@@ -510,7 +504,6 @@ describe('Shared TaskPriorityService', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         status: 'brouillon' as any,
         plannedDate: undefined,
         dueDate: undefined,
@@ -583,7 +576,6 @@ describe('Shared TaskPriorityService', () => {
         name: 'Test Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         status: 'brouillon' as any,
         plannedDate: undefined,
         dueDate: undefined,

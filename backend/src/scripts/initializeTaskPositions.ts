@@ -15,7 +15,7 @@ async function initializeTaskPositions() {
     const tasks = await prisma.task.findMany({
       orderBy: [
         { parentId: 'asc' },
-        { points: 'desc' }
+        { importance: 'desc' }
       ]
     })
 

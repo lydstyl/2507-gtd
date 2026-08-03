@@ -15,7 +15,6 @@ export interface Task {
   note?: string
   importance: number
   complexity: number
-  points: number
   position: number
   status: TaskStatus
   plannedDate?: string

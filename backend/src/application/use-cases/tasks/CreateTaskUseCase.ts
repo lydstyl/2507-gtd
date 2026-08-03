@@ -47,8 +47,8 @@ export class CreateTaskUseCase {
       throw new ValidationError('Task name must be 255 characters or less')
     }
 
-    if (data.importance !== undefined && (data.importance < 0 || data.importance > 500)) {
-      throw new ValidationError(`Importance must be between 0 and 500`)
+    if (data.importance !== undefined && (data.importance < 100 || data.importance > 499)) {
+      throw new ValidationError(`Importance must be between 100 and 499`)
     }
 
     if (data.complexity !== undefined && (data.complexity < 1 || data.complexity > TASK_CONSTANTS.maxComplexity)) {
@@ -80,7 +80,7 @@ export class CreateTaskUseCase {
     return {
       ...data,
       name: data.name.trim(),
-      importance: data.importance ?? 0,
+      importance: data.importance ?? 100,
       complexity: data.complexity ?? 3,
       status: data.status ?? 'brouillon',
       link: data.link?.trim() || undefined,

@@ -17,9 +17,8 @@ describe('UpdateTaskUseCase', () => {
       // Create an existing task
       const existingTask = createMockTaskWithSubtasks({
         name: 'Original Task',
-        importance: 20,
+        importance: 200,
         complexity: 4,
-        points: 50,
         userId: 'user-1'
       })
 
@@ -27,7 +26,7 @@ describe('UpdateTaskUseCase', () => {
 
       const updateData: UpdateTaskData = {
         name: 'Updated Task',
-        importance: 35,
+        importance: 350,
         complexity: 7,
         userId: 'user-1'
       }
@@ -37,7 +36,7 @@ describe('UpdateTaskUseCase', () => {
       expect(result).toBeDefined()
       expect(result.success).toBe(true)
       expect(result.data!.name).toBe('Updated Task')
-      expect(result.data!.importance).toBe(35)
+      expect(result.data!.importance).toBe(350)
       expect(result.data!.complexity).toBe(7)
       expect(result.data!.updatedAt).toBeInstanceOf(Date)
     })
@@ -45,7 +44,7 @@ describe('UpdateTaskUseCase', () => {
     it('should perform partial updates correctly', async () => {
       const existingTask = createMockTaskWithSubtasks({
         name: 'Original Task',
-        importance: 20,
+        importance: 200,
         complexity: 4,
         link: 'https://original.com',
         note: 'Original note',
@@ -57,7 +56,7 @@ describe('UpdateTaskUseCase', () => {
       // Only update name and importance
       const updateData: UpdateTaskData = {
         name: 'Partially Updated Task',
-        importance: 40,
+        importance: 400,
         userId: 'user-1'
       }
 
@@ -65,7 +64,7 @@ describe('UpdateTaskUseCase', () => {
 
       expect(result.success).toBe(true)
       expect(result.data!.name).toBe('Partially Updated Task')
-      expect(result.data!.importance).toBe(40)
+      expect(result.data!.importance).toBe(400)
       expect(result.data!.complexity).toBe(4) // Should remain unchanged
       expect(result.data!.link).toBe('https://original.com') // Should remain unchanged
       expect(result.data!.note).toBe('Original note') // Should remain unchanged
@@ -253,7 +252,7 @@ describe('UpdateTaskUseCase', () => {
 
       mockTaskRepository.setItems([existingTask])
 
-      const invalidImportanceValues = [-1, 501, 1000]
+      const invalidImportanceValues = [-1, 99, 500, 1000]
 
       for (const importance of invalidImportanceValues) {
         const updateData: UpdateTaskData = {
@@ -264,7 +263,7 @@ describe('UpdateTaskUseCase', () => {
         const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
         expect(result.success).toBe(false)
-        expect(result.error?.message).toContain('Importance must be between 0 and 500')
+        expect(result.error?.message).toContain('Importance must be between 100 and 499')
       }
     })
 
@@ -295,7 +294,7 @@ describe('UpdateTaskUseCase', () => {
     it('should accept valid boundary values', async () => {
       const existingTask = createMockTaskWithSubtasks({
         name: 'Original Task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
         userId: 'user-1'
       })
@@ -303,9 +302,9 @@ describe('UpdateTaskUseCase', () => {
       mockTaskRepository.setItems([existingTask])
 
       const validUpdates = [
-        { importance: 0, complexity: 1 },
-        { importance: 50, complexity: 9 },
-        { importance: 25, complexity: 5 }
+        { importance: 100, complexity: 1 },
+        { importance: 400, complexity: 9 },
+        { importance: 250, complexity: 5 }
       ]
 
       for (const update of validUpdates) {
@@ -344,19 +343,18 @@ describe('UpdateTaskUseCase', () => {
   })
 
   describe('business rules', () => {
-    it('should recalculate points when importance or complexity changes', async () => {
+    it('should update importance and complexity correctly', async () => {
       const existingTask = createMockTaskWithSubtasks({
-        name: 'Task for points calculation',
-        importance: 20,
+        name: 'Task for importance update',
+        importance: 200,
         complexity: 4,
-        points: 50, // 10 * 20 / 4 = 50
         userId: 'user-1'
       })
 
       mockTaskRepository.setItems([existingTask])
 
       const updateData: UpdateTaskData = {
-        importance: 30,
+        importance: 300,
         complexity: 6,
         userId: 'user-1'
       }
@@ -364,20 +362,16 @@ describe('UpdateTaskUseCase', () => {
       const result = await updateTaskUseCase.execute(existingTask.id, updateData)
 
       expect(result.success).toBe(true)
-      expect(result.data!.importance).toBe(30)
+      expect(result.data!.importance).toBe(300)
       expect(result.data!.complexity).toBe(6)
-      // Points should be recalculated: 10 * 30 / 6 = 50
-      const expectedPoints = Math.round(10 * 30 / 6)
-      expect(result.data!.points || expectedPoints).toBe(expectedPoints)
     })
 
     it('should maintain task category consistency', async () => {
       // Test updating a collected task
       const collectedTask = createMockTaskWithSubtasks({
         name: 'Collected Task',
-        importance: 0,
+        importance: 100,
         complexity: 3,
-        points: 0,
         userId: 'user-1'
       })
 
@@ -385,7 +379,7 @@ describe('UpdateTaskUseCase', () => {
 
       // Update to make it high priority
       const updateData: UpdateTaskData = {
-        importance: 50,
+        importance: 400,
         complexity: 1,
         userId: 'user-1'
       }
@@ -393,7 +387,7 @@ describe('UpdateTaskUseCase', () => {
       const result = await updateTaskUseCase.execute(collectedTask.id, updateData)
 
       expect(result.success).toBe(true)
-      expect(result.data!.importance).toBe(50)
+      expect(result.data!.importance).toBe(400)
       expect(result.data!.complexity).toBe(1)
     })
 
@@ -440,7 +434,7 @@ describe('UpdateTaskUseCase', () => {
       const scheduledTask = createMockTaskWithSubtasks({
         name: 'Scheduled Task',
         plannedDate: new Date('2023-06-20'),
-        importance: 25,
+        importance: 250,
         complexity: 5,
         userId: 'user-1'
       })
@@ -466,7 +460,7 @@ describe('UpdateTaskUseCase', () => {
     it('should handle updates with no changes', async () => {
       const existingTask = createMockTaskWithSubtasks({
         name: 'Unchanged Task',
-        importance: 25,
+        importance: 250,
         complexity: 5,
         userId: 'user-1'
       })
@@ -482,7 +476,7 @@ describe('UpdateTaskUseCase', () => {
 
       expect(result.success).toBe(true)
       expect(result.data!.name).toBe('Unchanged Task')
-      expect(result.data!.importance).toBe(25)
+      expect(result.data!.importance).toBe(250)
       expect(result.data!.complexity).toBe(5)
     })
 
@@ -518,7 +512,7 @@ describe('UpdateTaskUseCase', () => {
     it('should handle concurrent updates', async () => {
       const existingTask = createMockTaskWithSubtasks({
         name: 'Task for concurrent updates',
-        importance: 20,
+        importance: 200,
         userId: 'user-1'
       })
 
@@ -528,7 +522,7 @@ describe('UpdateTaskUseCase', () => {
       const updatePromises = Array.from({ length: 5 }, (_, i) =>
         updateTaskUseCase.execute(existingTask.id, {
           name: `Concurrent Update ${i}`,
-          importance: 20 + i,
+          importance: 200 + i,
           userId: 'user-1'
         })
       )
@@ -540,7 +534,7 @@ describe('UpdateTaskUseCase', () => {
         expect(result).toBeDefined()
         expect(result.success).toBe(true)
         expect(result.data!.name).toBe(`Concurrent Update ${i}`)
-        expect(result.data!.importance).toBe(20 + i)
+        expect(result.data!.importance).toBe(200 + i)
       })
     })
 
@@ -589,7 +583,7 @@ describe('UpdateTaskUseCase', () => {
         name: 'Complex Task',
         link: 'https://example.com',
         note: 'Original note',
-        importance: 30,
+        importance: 300,
         complexity: 6,
         plannedDate: new Date('2023-06-20'),
         dueDate: new Date('2023-06-25'),
@@ -602,14 +596,14 @@ describe('UpdateTaskUseCase', () => {
 
       // Only update importance
       const updateData: UpdateTaskData = {
-        importance: 40,
+        importance: 400,
         userId: 'user-1'
       }
 
       const result = await updateTaskUseCase.execute(complexTask.id, updateData)
 
       expect(result.success).toBe(true)
-      expect(result.data!.importance).toBe(40) // Changed
+      expect(result.data!.importance).toBe(400) // Changed
       expect(result.data!.name).toBe('Complex Task') // Unchanged
       expect(result.data!.link).toBe('https://example.com') // Unchanged
       expect(result.data!.note).toBe('Original note') // Unchanged
@@ -638,7 +632,7 @@ describe('UpdateTaskUseCase', () => {
       const updatePromises = tasks.map((task, i) =>
         updateTaskUseCase.execute(task.id, {
           name: `Updated Task ${i}`,
-          importance: 25,
+          importance: 250,
           userId: 'user-1'
         })
       )

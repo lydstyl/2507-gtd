@@ -4,10 +4,10 @@
  */
 export class TaskValidationService {
   /**
-   * Validate importance value (0-500, integer)
+   * Validate importance value (100-499, integer)
    */
   static validateImportance(importance: number): boolean {
-    return Number.isInteger(importance) && importance >= 0 && importance <= 500
+    return Number.isInteger(importance) && importance >= 100 && importance <= 499
   }
 
   /**
@@ -18,20 +18,12 @@ export class TaskValidationService {
   }
 
   /**
-   * Validate points value (0-500, integer)
-   */
-  static validatePoints(points: number): boolean {
-    return Number.isInteger(points) && points >= 0 && points <= 500
-  }
-
-  /**
    * Get default values for new tasks
    */
   static getDefaultTaskValues() {
     return {
-      importance: 500,
+      importance: 100,
       complexity: 1,
-      points: 500,
     }
   }
 
@@ -40,9 +32,8 @@ export class TaskValidationService {
    */
   static getNewDefaultTaskValues() {
     return {
-      importance: 0,
+      importance: 100,
       complexity: 3,
-      points: 0,
       status: 'brouillon' as const,
     }
   }

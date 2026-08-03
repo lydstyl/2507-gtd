@@ -7,7 +7,7 @@ function formatTask(task: TaskDto): string {
   const lines = [
     `**${task.name}**`,
     `  ID: ${task.id}`,
-    `  Importance: ${task.importance} | Complexity: ${task.complexity} | Points: ${task.points}`,
+    `  Importance: ${task.importance} | Complexity: ${task.complexity}`,
     `  Status: ${task.isCompleted ? 'completed' : task.status}`,
   ]
   if (task.plannedDate) lines.push(`  Planned: ${task.plannedDate.split('T')[0]}`)
@@ -64,7 +64,7 @@ export function registerTaskTools(server: McpServer, getClient: () => ApiClient)
     'Create a new task.',
     {
       name: z.string().min(1).describe('Task name/title'),
-      importance: z.number().min(0).max(50).optional().default(10).describe('Importance 0–50 (default: 10)'),
+      importance: z.number().min(100).max(499).optional().default(300).describe('Importance 100–499 (default: 300)'),
       complexity: z.number().min(1).max(9).optional().default(1).describe('Complexity 1–9 (default: 1)'),
       link: z.string().url().optional().describe('URL associated with the task'),
       note: z.string().optional().describe('Notes (plain text or markdown)'),
@@ -103,7 +103,7 @@ export function registerTaskTools(server: McpServer, getClient: () => ApiClient)
       taskName: z.string().optional().describe('Task name (case-insensitive search)'),
       taskId: z.string().optional().describe('Exact task ID (takes priority over taskName)'),
       name: z.string().optional().describe('New task name'),
-      importance: z.number().min(0).max(50).optional().describe('New importance 0–50'),
+      importance: z.number().min(100).max(499).optional().describe('New importance 100–499'),
       complexity: z.number().min(1).max(9).optional().describe('New complexity 1–9'),
       link: z.string().url().nullable().optional().describe('New link (null to remove)'),
       note: z.string().nullable().optional().describe('New notes (null to remove)'),

@@ -24,7 +24,6 @@ describe('TaskEntity', () => {
         name: 'Test Task',
         importance: 30,
         complexity: 6,
-        points: 50,
         plannedDate: dates.today,
         isCompleted: false
       })
@@ -33,7 +32,6 @@ describe('TaskEntity', () => {
       expect(taskEntity.name).toBe('Test Task')
       expect(taskEntity.importance).toBe(30)
       expect(taskEntity.complexity).toBe(6)
-      expect(taskEntity.points).toBe(50)
       expect(taskEntity.plannedDate).toBe(dates.today)
       expect(taskEntity.isCompleted).toBe(false)
     })
@@ -44,7 +42,6 @@ describe('TaskEntity', () => {
         name: 'Raw Task',
         importance: 25,
         complexity: 5,
-        points: 50,
         isCompleted: false,
         createdAt: dates.today,
         updatedAt: dates.today,
@@ -75,42 +72,6 @@ describe('TaskEntity', () => {
 
       expect(taskWithoutOptionals.dueDate).toBeUndefined()
       expect(taskWithoutOptionals.plannedDate).toBeUndefined()
-    })
-  })
-
-  describe('calculatePoints', () => {
-    it('should calculate points correctly', () => {
-      const testCases = [
-        { importance: 50, complexity: 1, expected: 500 },
-        { importance: 25, complexity: 5, expected: 50 },
-        { importance: 30, complexity: 3, expected: 100 },
-        { importance: 0, complexity: 5, expected: 0 },
-        { importance: 10, complexity: 3, expected: 33 } // 10 * 10 / 3 = 33.33... -> 33
-      ]
-
-      testCases.forEach(({ importance, complexity, expected }) => {
-        const task = createMockTaskEntity({ importance, complexity })
-        expect(task.calculatePoints()).toBe(expected)
-      })
-    })
-
-    it('should handle zero complexity', () => {
-      const task = createMockTaskEntity({
-        importance: 25,
-        complexity: 0
-      })
-
-      expect(task.calculatePoints()).toBe(0)
-    })
-
-    it('should return same result as stored points for valid tasks', () => {
-      const task = createMockTaskEntity({
-        importance: 25,
-        complexity: 5,
-        points: 50
-      })
-
-      expect(task.calculatePoints()).toBe(task.points)
     })
   })
 
@@ -245,7 +206,6 @@ describe('TaskEntity', () => {
         status: 'collecte',
         importance: 0,
         complexity: 3,
-        points: 0,
         plannedDate: undefined
       })
 
@@ -256,7 +216,6 @@ describe('TaskEntity', () => {
       const highPriorityTask = createMockTaskEntity({
         importance: 50,
         complexity: 1,
-        points: 500,
         plannedDate: undefined
       })
 
@@ -267,7 +226,6 @@ describe('TaskEntity', () => {
       const scheduledTask = createMockTaskEntity({
         importance: 0,
         complexity: 3,
-        points: 0,
         plannedDate: dates.today
       })
 
@@ -278,7 +236,6 @@ describe('TaskEntity', () => {
       const mediumTask = createMockTaskEntity({
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: undefined
       })
 
@@ -304,7 +261,6 @@ describe('TaskEntity', () => {
         status: 'pret',
         importance: 50,
         complexity: 1,
-        points: 500,
         plannedDate: dates.yesterday
       })
 
@@ -509,25 +465,22 @@ describe('TaskEntity', () => {
   describe('business logic edge cases', () => {
     it('should handle tasks with extreme importance and complexity', () => {
       const extremeTask = createMockTaskEntity({
-        importance: 50,
-        complexity: 9,
-        points: 56 // Math.round(10 * 50 / 9) = 56
+        importance: 499,
+        complexity: 9
       })
 
-      expect(extremeTask.calculatePoints()).toBe(56)
-      expect(extremeTask.importance).toBe(50)
+      expect(extremeTask.importance).toBe(499)
       expect(extremeTask.complexity).toBe(9)
     })
 
-    it('should handle tasks with zero importance', () => {
-      const zeroImportanceTask = createMockTaskEntity({
-        importance: 0,
-        complexity: 5,
-        points: 0
+    it('should handle tasks with minimum importance', () => {
+      const minImportanceTask = createMockTaskEntity({
+        importance: 100,
+        complexity: 5
       })
 
-      expect(zeroImportanceTask.calculatePoints()).toBe(0)
-      expect(zeroImportanceTask.points).toBe(0)
+      expect(minImportanceTask.importance).toBe(100)
+      expect(minImportanceTask.complexity).toBe(5)
     })
 
     it('should handle completed tasks correctly', () => {
@@ -577,7 +530,6 @@ describe('TaskEntity', () => {
         status: 'pret',
         importance: 25,
         complexity: 5,
-        points: 50,
         plannedDate: dates.today
       })
 
@@ -592,11 +544,10 @@ describe('TaskEntity', () => {
         status: 'pret',
         importance: 30,
         complexity: 6,
-        points: 50,
         plannedDate: dates.today
       })
 
-      expect(testTask.calculatePoints()).toBe(50)
+      expect(testTask.importance).toBe(30)
       expect(testTask.isDueToday()).toBe(true)
       expect(testTask.getCategory()).toBe('pret-today')
     })

@@ -22,7 +22,6 @@ export interface TaskBase<TDate = Date | string> {
   note?: string
   importance: number
   complexity: number
-  points: number
   position: number
   status: TaskStatus
   plannedDate?: TDate
@@ -135,7 +134,6 @@ export interface TaskFilters {
   tagIds?: string[]
   importance?: number
   complexity?: number
-  points?: number
   search?: string
   status?: 'active' | 'completed' | 'all'
   plannedDateFrom?: Date | string

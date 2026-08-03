@@ -1,12 +1,11 @@
 import { BaseUseCase } from '../base/UseCase'
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { TaskEntity, CreateTaskData } from '../../domain/entities/Task'
-import { TaskPriorityService, SharedUseCaseValidator, TASK_CONSTANTS } from '@gtd/shared'
+import { SharedUseCaseValidator, TASK_CONSTANTS } from '@gtd/shared'
 import { OperationResult } from '../../domain/types/Common'
 
 export interface CreateTaskRequest extends CreateTaskData {
   // Additional business logic parameters
-  autoCalculatePoints?: boolean
 }
 
 export interface CreateTaskResponse {
@@ -77,26 +76,12 @@ export class CreateTaskUseCase extends BaseUseCase<CreateTaskRequest, CreateTask
       name: request.name.trim(),
       link: request.link?.trim(),
       note: request.note?.trim(),
-      importance: request.importance ?? 0, // Default to minimal importance for new tasks
+      importance: request.importance ?? 100, // Default to minimal importance (100)
       complexity: request.complexity ?? 3, // Default to medium complexity
       plannedDate: request.plannedDate,
       parentId: request.parentId,
       tagIds: request.tagIds,
       isCompleted: request.isCompleted ?? false
-    }
-
-    // Auto-calculate points if requested (default behavior)
-    if (request.autoCalculatePoints !== false) {
-      // The points will be calculated on the backend, but we can validate here
-      const calculatedPoints = TaskPriorityService.calculatePoints(
-        taskData.importance!,
-        taskData.complexity!
-      )
-
-      if (calculatedPoints > TASK_CONSTANTS.maxPoints) {
-        // Adjust complexity to stay within limits
-        taskData.complexity = Math.max(1, Math.ceil(10 * taskData.importance! / TASK_CONSTANTS.maxPoints))
-      }
     }
 
     return taskData

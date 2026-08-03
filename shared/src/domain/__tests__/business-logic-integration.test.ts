@@ -14,7 +14,6 @@ const makeTask = (
   name: 'Task',
   importance: 25,
   complexity: 5,
-  points: 50,
   position: 0,
   status: 'brouillon',
   plannedDate: undefined,
@@ -137,7 +136,6 @@ describe('Shared Domain Business Logic Integration', () => {
       status: 'pret',
       importance: 30,
       complexity: 3,
-      points: 100,
       plannedDate: '2025-01-15T15:00:00.000Z' // Today
     })
 
@@ -147,7 +145,6 @@ describe('Shared Domain Business Logic Integration', () => {
       status: 'pret',
       importance: 20,
       complexity: 5,
-      points: 40,
       plannedDate: '2025-01-16T10:00:00.000Z' // Tomorrow
     })
 
@@ -251,7 +248,6 @@ describe('Shared Domain Business Logic Integration', () => {
         status: 'pret',
         importance: 30,
         complexity: 2,
-        points: 150,
         plannedDate: '2025-01-25T10:00:00.000Z',
         dueDate: '2025-01-16T10:00:00.000Z' // Tomorrow (urgent)
       })
@@ -265,7 +261,6 @@ describe('Shared Domain Business Logic Integration', () => {
         status: 'pret',
         importance: 25,
         complexity: 4,
-        points: 62,
         plannedDate: '2025-01-17T10:00:00.000Z', // Day after tomorrow
         dueDate: '2025-01-20T10:00:00.000Z' // Non-urgent due date
       })
@@ -290,7 +285,6 @@ describe('Shared Domain Business Logic Integration', () => {
       importance,
       complexity,
       status,
-      points: TaskPriorityService.calculatePoints(importance, complexity),
       plannedDate,
       dueDate
     })

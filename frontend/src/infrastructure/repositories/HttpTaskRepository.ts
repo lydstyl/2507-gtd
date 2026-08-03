@@ -139,19 +139,6 @@ export class HttpTaskRepository implements TaskRepository {
         }
       }
 
-      // Priority (points) filter
-      if (filters.priority) {
-        if (filters.priority.type === 'exact' && task.points !== filters.priority.value) {
-          return false
-        }
-        if (filters.priority.type === 'gte' && task.points < filters.priority.value) {
-          return false
-        }
-        if (filters.priority.type === 'lte' && task.points > filters.priority.value) {
-          return false
-        }
-      }
-
       // Tag filter
       if (filters.tagIds && filters.tagIds.length > 0) {
         const taskTagIds = task.tags.map(tag => tag.id)

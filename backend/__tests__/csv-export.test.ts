@@ -113,7 +113,7 @@ describe('CSV Export Tests', () => {
 
     // Vérifier que le CSV contient les en-têtes attendus
     expect(csvContent).toContain(
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags'
+      'ID,Nom,Lien,Note,Importance,Complexité,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags'
     )
 
     // Vérifier que le CSV contient les tâches créées
@@ -125,9 +125,9 @@ describe('CSV Export Tests', () => {
     expect(csvContent).toContain('Test Tag')
 
     // Vérifier que le CSV contient les bonnes valeurs
-    expect(csvContent).toContain('40,2,200') // importance, complexité, points de la première tâche
-    expect(csvContent).toContain('25,5,50') // importance, complexité, points de la deuxième tâche
-    expect(csvContent).toContain('30,4,75') // importance, complexité, points de la tâche avec tag
+    expect(csvContent).toContain('40,2') // importance, complexité de la première tâche
+    expect(csvContent).toContain('25,5') // importance, complexité de la deuxième tâche
+    expect(csvContent).toContain('30,4') // importance, complexité de la tâche avec tag
 
     // Vérifier que le CSV contient la date limite
     expect(csvContent).toContain('2025-07-10')
@@ -177,7 +177,7 @@ describe('CSV Export Tests', () => {
     const lines = csvContent.split('\n').filter((line) => line.trim())
     expect(lines).toHaveLength(1) // Seulement l'en-tête
     expect(lines[0]).toBe(
-      'ID,Nom,Lien,Note,Importance,Complexité,Points,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags'
+      'ID,Nom,Lien,Note,Importance,Complexité,Statut,Date prévue,Date limite,Date de création,Date de modification,Tâche parente,Nom tâche parente,Tags,Couleurs tags'
     )
 
     console.log('✅ Export CSV vide validé !')

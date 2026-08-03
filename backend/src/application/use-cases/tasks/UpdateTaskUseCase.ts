@@ -59,8 +59,8 @@ export class UpdateTaskUseCase {
       }
     }
 
-    if (data.importance !== undefined && (data.importance < 0 || data.importance > 500)) {
-      throw new ValidationError(`Importance must be between 0 and 500`)
+    if (data.importance !== undefined && (data.importance < 100 || data.importance > 499)) {
+      throw new ValidationError(`Importance must be between 100 and 499`)
     }
 
     if (data.complexity !== undefined && (data.complexity < 1 || data.complexity > TASK_CONSTANTS.maxComplexity)) {

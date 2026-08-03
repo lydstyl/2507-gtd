@@ -21,9 +21,8 @@ describe('Business Rules Integration', () => {
         id: '1',
         name: 'New collected task',
         status: 'collecte',
-        importance: 50, // High importance
+        importance: 450, // High importance
         complexity: 1, // Low complexity
-        points: 500, // 10 * 50 / 1 = 500 (high priority)
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -37,7 +36,7 @@ describe('Business Rules Integration', () => {
       })
 
       expect(collectedTask.getCategory()).toBe('collected')
-      expect(collectedTask.calculatePoints()).toBe(500) // 10 * 50 / 1
+      expect(collectedTask.importance).toBe(450) // max importance in new scale
 
       // Add due date for today - should become pret-today task
       const todayTask = new TaskEntity({
@@ -70,9 +69,8 @@ describe('Business Rules Integration', () => {
           id: '1',
           name: 'Urgent overdue task',
           status: 'pret',
-          importance: 45, // High importance
+          importance: 450, // High importance
           complexity: 1, // Low complexity
-          points: 450, // 10 * 45 / 1 = 450
           plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
           dueDate: undefined,
           parentId: undefined,
@@ -89,9 +87,8 @@ describe('Business Rules Integration', () => {
           id: '2',
           name: 'Today task',
           status: 'pret',
-          importance: 25, // Medium importance
+          importance: 250, // Medium importance
           complexity: 2, // Medium complexity
-          points: 125, // 10 * 25 / 2 = 125
           plannedDate: '2025-01-15T15:00:00.000Z', // Today
           dueDate: undefined,
           parentId: undefined,
@@ -108,9 +105,8 @@ describe('Business Rules Integration', () => {
           id: '3',
           name: 'Future task',
           status: 'pret',
-          importance: 10, // Low importance
+          importance: 100, // Low importance
           complexity: 5, // Medium complexity
-          points: 20, // 10 * 10 / 5 = 20
           plannedDate: '2025-01-20T10:00:00.000Z', // Future
           dueDate: undefined,
           parentId: undefined,
@@ -144,9 +140,8 @@ describe('Business Rules Integration', () => {
         id: '1',
         name: 'High priority task',
         status: 'pret',
-        importance: 40, // High importance (35+ = Très élevée)
+        importance: 400, // High importance (35+ = Très élevée)
         complexity: 2, // Low complexity
-        points: 200, // 10 * 40 / 2 = 200
         plannedDate: '2025-01-15T15:00:00.000Z', // Today
         dueDate: undefined,
         parentId: undefined,
@@ -163,7 +158,7 @@ describe('Business Rules Integration', () => {
       const categoryStyle = TaskCategoryService.getCategoryStyle('pret-today')
 
       // High priority task should have appropriate description
-      expect(priorityDescription).toBe('Très élevée')
+      expect(priorityDescription).toBe('Importante + Urgente 🔥')
       expect(categoryStyle).toBeDefined()
       expect(categoryStyle.label).toBe("Aujourd'hui")
     })
@@ -173,9 +168,8 @@ describe('Business Rules Integration', () => {
         id: '1',
         name: 'Maximum priority overdue',
         status: 'pret',
-        importance: 50, // Maximum importance
+        importance: 450, // Maximum importance
         complexity: 1, // Minimum complexity
-        points: 500, // 10 * 50 / 1 = 500 (maximum)
         plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
         dueDate: undefined,
         parentId: undefined,
@@ -188,12 +182,12 @@ describe('Business Rules Integration', () => {
         tags: []
       })
 
-      expect(maxPriorityOverdueTask.calculatePoints()).toBe(500) // 10 * 50 / 1
+      expect(maxPriorityOverdueTask.importance).toBe(450)
       expect(maxPriorityOverdueTask.getCategory()).toBe('pret-overdue')
       expect(maxPriorityOverdueTask.isOverdue()).toBe(true)
 
-      const priorityDescription = TaskPriorityUIService.getPriorityDescription(50)
-      expect(priorityDescription).toBe('Critique')
+      const priorityDescription = TaskPriorityUIService.getPriorityDescription(450)
+      expect(priorityDescription).toBe('Importante + Urgente 🔥')
     })
 
     it('should handle edge case: minimum priority future task', () => {
@@ -201,9 +195,8 @@ describe('Business Rules Integration', () => {
         id: '1',
         name: 'Minimum priority future',
         status: 'pret',
-        importance: 1, // Minimum importance
+        importance: 100, // Minimum importance
         complexity: 9, // Maximum complexity
-        points: 2, // Math.round(10 * 1 / 9) = 1.11 -> 1, but let's use 2 for test
         plannedDate: '2025-01-20T10:00:00.000Z', // Future
         dueDate: undefined,
         parentId: undefined,
@@ -216,11 +209,11 @@ describe('Business Rules Integration', () => {
         tags: []
       })
 
-      expect(minPriorityFutureTask.calculatePoints()).toBe(1) // Math.round(10 * 1 / 9) = 1
+      expect(minPriorityFutureTask.importance).toBe(100)
       expect(minPriorityFutureTask.getCategory()).toBe('pret-future')
 
-      const priorityDescription = TaskPriorityUIService.getPriorityDescription(1)
-      expect(priorityDescription).toBe('Très faible')
+      const priorityDescription = TaskPriorityUIService.getPriorityDescription(100)
+      expect(priorityDescription).toBe('Basique 🐢')
     })
   })
 
@@ -232,9 +225,8 @@ describe('Business Rules Integration', () => {
           id: '1',
           name: 'Overdue same priority',
           status: 'pret',
-          importance: 3,
+          importance: 100,
           complexity: 5,
-          points: 150,
           plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
           dueDate: undefined,
           parentId: undefined,
@@ -250,9 +242,8 @@ describe('Business Rules Integration', () => {
           id: '2',
           name: 'Today same priority',
           status: 'pret',
-          importance: 3,
+          importance: 100,
           complexity: 5,
-          points: 150,
           plannedDate: '2025-01-15T15:00:00.000Z', // Today
           dueDate: undefined,
           parentId: undefined,
@@ -279,9 +270,8 @@ describe('Business Rules Integration', () => {
       const parentTask = new TaskEntity({
         id: 'parent',
         name: 'Parent task',
-        importance: 20, // Medium importance
+        importance: 200, // Medium importance
         complexity: 2, // Low complexity
-        points: 100, // 10 * 20 / 2 = 100
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -298,9 +288,8 @@ describe('Business Rules Integration', () => {
         new TaskEntity({
           id: 'sub1',
           name: 'Low priority subtask',
-          importance: 10, // Lower importance
+          importance: 100, // Lower importance
           complexity: 5, // Higher complexity
-          points: 20, // 10 * 10 / 5 = 20
           plannedDate: undefined,
           dueDate: undefined,
           parentId: 'parent',
@@ -315,9 +304,8 @@ describe('Business Rules Integration', () => {
         new TaskEntity({
           id: 'sub2',
           name: 'High priority subtask',
-          importance: 30, // Higher importance
+          importance: 300, // Higher importance
           complexity: 3, // Medium complexity
-          points: 100, // 10 * 30 / 3 = 100 (same as parent)
           plannedDate: undefined,
           dueDate: undefined,
           parentId: 'parent',
@@ -334,11 +322,11 @@ describe('Business Rules Integration', () => {
       const allTasks = [parentTask, ...subtasks]
       const sortedTasks = TaskSortingService.sortTasksByPriority(allTasks)
 
-      // All tasks are 'pret-no-date' category, so sorted by points DESC, then creation DESC
-      // sub2 and parent have same points (100), so sub2 (newer) comes first, then parent, then sub1
-      expect(sortedTasks[0].id).toBe('sub2') // Highest points, newest
-      expect(sortedTasks[1].id).toBe('parent') // Same points as sub2, but older
-      expect(sortedTasks[2].id).toBe('sub1') // Lowest points
+      // All tasks are 'pret-no-date' category, so sorted by importance DESC, then creation DESC
+      // sub2 (importance 300) comes first, then parent (200), then sub1 (100)
+      expect(sortedTasks[0].id).toBe('sub2') // Highest importance, newest
+      expect(sortedTasks[1].id).toBe('parent') // Medium importance
+      expect(sortedTasks[2].id).toBe('sub1') // Lowest importance
     })
 
     it('should handle empty task lists and single task edge cases', () => {
@@ -350,9 +338,8 @@ describe('Business Rules Integration', () => {
       const singleTask = new TaskEntity({
         id: '1',
         name: 'Single task',
-        importance: 3,
+        importance: 100,
         complexity: 5,
-        points: 150,
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -376,9 +363,8 @@ describe('Business Rules Integration', () => {
       const overdueTask = new TaskEntity({
         id: '1',
         name: 'Overdue low priority',
-        importance: 1,
+        importance: 100,
         complexity: 1,
-        points: 10,
         plannedDate: '2025-01-14T10:00:00.000Z', // Yesterday
         dueDate: undefined,
         parentId: undefined,
@@ -394,9 +380,8 @@ describe('Business Rules Integration', () => {
       const futureTask = new TaskEntity({
         id: '2',
         name: 'Future high priority',
-        importance: 5,
+        importance: 100,
         complexity: 9,
-        points: 450,
         plannedDate: '2025-01-20T10:00:00.000Z', // Future
         dueDate: undefined,
         parentId: undefined,
@@ -421,9 +406,8 @@ describe('Business Rules Integration', () => {
         id: '1',
         name: 'High priority collected',
         status: 'collecte',
-        importance: 50, // High importance
+        importance: 450, // High importance
         complexity: 1, // Low complexity
-        points: 500, // 10 * 50 / 1 = 500 (>= 500 for collected)
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -439,9 +423,8 @@ describe('Business Rules Integration', () => {
       const oldNoDateTask = new TaskEntity({
         id: '2',
         name: 'Old no date',
-        importance: 25, // Medium importance
+        importance: 250, // Medium importance
         complexity: 5, // Medium complexity
-        points: 50, // 10 * 25 / 5 = 50 (< 500, not collected)
         plannedDate: undefined,
         dueDate: undefined,
         parentId: undefined,
@@ -457,9 +440,8 @@ describe('Business Rules Integration', () => {
       const futureDatedTask = new TaskEntity({
         id: '3',
         name: 'Future dated',
-        importance: 25, // Medium importance
+        importance: 250, // Medium importance
         complexity: 5, // Medium complexity
-        points: 50, // 10 * 25 / 5 = 50
         plannedDate: '2025-01-17T10:00:00.000Z', // Day after tomorrow (future)
         dueDate: undefined,
         parentId: undefined,
@@ -477,22 +459,21 @@ describe('Business Rules Integration', () => {
       expect(futureDatedTask.getCategory()).toBe('pret-future') // Has future date, fallback pret
     })
 
-    it('should validate that point calculations are always positive and reasonable', () => {
+    it('should validate that importance values are always within valid bounds', () => {
       // Test various combinations
       const testCases = [
-        { importance: 1, complexity: 9, expected: 1 }, // Math.round(10 * 1 / 9) = 1
-        { importance: 50, complexity: 1, expected: 500 }, // Math.round(10 * 50 / 1) = 500
-        { importance: 25, complexity: 5, expected: 50 }, // Math.round(10 * 25 / 5) = 50
-        { importance: 30, complexity: 3, expected: 100 } // Math.round(10 * 30 / 3) = 100
+        { importance: 100, complexity: 9 }, // Minimum importance
+        { importance: 450, complexity: 1 }, // Maximum importance
+        { importance: 250, complexity: 5 }, // Medium importance
+        { importance: 300, complexity: 3 } // High importance
       ]
 
-      testCases.forEach(({ importance, complexity, expected }) => {
+      testCases.forEach(({ importance, complexity }) => {
         const task = new TaskEntity({
           id: 'test',
           name: 'Test task',
           importance,
           complexity,
-          points: expected,
           plannedDate: undefined,
           dueDate: undefined,
           parentId: undefined,
@@ -505,10 +486,9 @@ describe('Business Rules Integration', () => {
           tags: []
         })
 
-        const points = task.calculatePoints()
-        expect(points).toBe(expected)
-        expect(points).toBeGreaterThan(0)
-        expect(points).toBeLessThanOrEqual(500) // Maximum possible
+        expect(task.importance).toBe(importance)
+        expect(task.importance).toBeGreaterThanOrEqual(100)
+        expect(task.importance).toBeLessThanOrEqual(499) // Maximum possible
       })
     })
   })

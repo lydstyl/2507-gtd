@@ -47,8 +47,8 @@ export class SharedUseCaseValidator {
     if (importance !== undefined) {
       if (typeof importance !== 'number' || isNaN(importance)) {
         errors.push('Importance must be a valid number')
-      } else if (importance < 0 || importance > TASK_CONSTANTS.maxImportance) {
-        errors.push(`Importance must be between 0 and ${TASK_CONSTANTS.maxImportance}`)
+      } else if (importance < 100 || importance > TASK_CONSTANTS.maxImportance) {
+        errors.push(`Importance must be between 100 and ${TASK_CONSTANTS.maxImportance}`)
       }
     }
 

@@ -21,10 +21,6 @@ export class TaskEntity<TDate extends string | Date = string | Date> {
     return this.task.name
   }
 
-  get points(): number {
-    return this.task.points
-  }
-
   get importance(): number {
     return this.task.importance
   }
@@ -58,13 +54,6 @@ export class TaskEntity<TDate extends string | Date = string | Date> {
   }
 
   // Business Logic Methods
-
-  /**
-   * Calculate the priority points based on importance and complexity
-   */
-  calculatePoints(): number {
-    return TaskPriorityService.calculatePoints(this.task.importance, this.task.complexity)
-  }
 
   /**
    * Check if the task is overdue

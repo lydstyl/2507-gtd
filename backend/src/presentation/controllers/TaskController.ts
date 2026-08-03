@@ -12,6 +12,77 @@ import { GetCompletionStatsUseCase } from '../../usecases/tasks/GetCompletionSta
 import { GetCompletedTasksUseCase } from '../../usecases/tasks/GetCompletedTasksUseCase'
 import { TaskFilters } from '../../interfaces/repositories/TaskRepository'
 
+/**
+ * Convert basic markdown to HTML for note fields.
+ * Supports: bold, italic, headings, bullet lists, ordered lists, links, code, line breaks.
+ * If content already looks like HTML, pass through unchanged.
+ */
+function markdownToHtml(text: string): string {
+  if (!text) return text
+  // If already HTML, pass through
+  if (/^<[^>]+>/.test(text.trim()) || /<[hbpuo][^>]*>/i.test(text)) return text
+
+  let html = text
+
+  // Escape HTML special chars first
+  html = html
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  // Code blocks (```...```)
+  html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+
+  // Images ![alt](url)
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+
+  // Links [text](url)
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+
+  // Bold **text**
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+
+  // Italic *text*
+  html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
+
+  // Strike ~~text~~
+  html = html.replace(/~~([^~]+)~~/g, '<s>$1</s>')
+
+  // Headings (must be at start of line)
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>')
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>')
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>')
+
+  // Horizontal rules
+  html = html.replace(/^---+$/gm, '<hr>')
+
+  // Ordered lists
+  html = html.replace(/^\d+\.\s(.+)$/gm, '<li>$1</li>')
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, (match: string) => `<ol>${match}</ol>`)
+
+  // Bullet lists
+  html = html.replace(/^[-*]\s(.+)$/gm, '<li>$1</li>')
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, (match: string) => {
+    // Don't re-wrap if already in <ol>
+    if (/<ol>/.test(match)) return match
+    return `<ul>${match}</ul>`
+  })
+
+  // Line breaks and paragraphs
+  html = html.replace(/\n\n/g, '</p><p>')
+  html = html.replace(/\n/g, '<br>')
+
+  // Wrap in paragraph if not already wrapped
+  if (!/^<[hbpuo]/.test(html.trim())) {
+    html = `<p>${html}</p>`
+  }
+
+  return html
+}
+
 export class TaskController {
   constructor(
     private createTaskUseCase: CreateTaskUseCase,
@@ -35,6 +106,10 @@ export class TaskController {
         return
       }
       const taskData = { ...req.body, userId }
+      // Convert markdown note to HTML if needed
+      if (taskData.note && typeof taskData.note === 'string') {
+        taskData.note = markdownToHtml(taskData.note)
+      }
       const result = await this.createTaskUseCase.execute(taskData)
       if (!result.success) {
         if (result.error?.code === 'VALIDATION_ERROR') {
@@ -57,7 +132,7 @@ export class TaskController {
 
   async getTaskById(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = req.params.id as string
       const userId = (req as any).user?.userId
       const task = await this.getTaskUseCase.execute(id, userId)
       res.json(task)
@@ -93,9 +168,6 @@ export class TaskController {
       }
       if (req.query.complexity) {
         filters.complexity = parseInt(req.query.complexity as string)
-      }
-      if (req.query.points) {
-        filters.points = parseInt(req.query.points as string)
       }
       if (req.query.search) {
         filters.search = req.query.search as string
@@ -136,9 +208,6 @@ export class TaskController {
       if (req.query.complexity) {
         filters.complexity = parseInt(req.query.complexity as string)
       }
-      if (req.query.points) {
-        filters.points = parseInt(req.query.points as string)
-      }
       if (req.query.search) {
         filters.search = req.query.search as string
       }
@@ -158,13 +227,17 @@ export class TaskController {
 
   async updateTask(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = req.params.id as string
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })
         return
       }
       const taskData = { ...req.body, userId }
+      // Convert markdown note to HTML if needed
+      if (taskData.note && typeof taskData.note === 'string') {
+        taskData.note = markdownToHtml(taskData.note)
+      }
       const result = await this.updateTaskUseCase.execute({ id, data: taskData })
       if (!result.success) {
         if (result.error?.code === 'VALIDATION_ERROR') {
@@ -191,7 +264,7 @@ export class TaskController {
 
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = req.params.id as string
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })
@@ -282,7 +355,7 @@ export class TaskController {
 
   async markTaskAsCompleted(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = req.params.id as string
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })
@@ -309,7 +382,7 @@ export class TaskController {
 
   async workedOnTask(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params
+      const id = req.params.id as string
       const userId = (req as any).user?.userId
       if (!userId) {
         res.status(401).json({ error: 'User not authenticated' })

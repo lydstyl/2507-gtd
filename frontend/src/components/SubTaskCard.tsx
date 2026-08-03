@@ -149,7 +149,7 @@ export function SubTaskCard({
         {/* Row 2: I C P values and compact dates */}
         <div className='flex items-center justify-between'>
           <p className={`${level === 1 ? 'text-xs' : 'text-xs'} text-gray-500 font-medium`}>
-            I: {task.importance} | C: {task.complexity} | P: {task.points}
+            I: {task.importance} | C: {task.complexity}
           </p>
 
           {/* Compact dates display */}

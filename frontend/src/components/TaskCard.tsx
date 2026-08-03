@@ -4,7 +4,8 @@ import { TaskActions } from './TaskActions'
 import { QuickActionsMenu } from './QuickActionsMenu'
 import { SubTaskCard } from './SubTaskCard'
 import {
-  getPointsColor,
+  getPriorityColor,
+  getImportanceBadge,
   formatDate,
   isOverdue,
   isDueDateUrgent,
@@ -223,9 +224,10 @@ export function TaskCard({
               )}
             </button>
             <div
-              className={`w-3 h-3 rounded-full flex-shrink-0 ${getPointsColor(
-                task.points
+              className={`w-3 h-3 rounded-full flex-shrink-0 ${getPriorityColor(
+                task.importance
               )}`}
+              title={getImportanceBadge(task.importance)}
             ></div>
             <div className='flex-1 min-w-0'>
               <div className='flex items-start space-x-2 mb-2'>
@@ -282,7 +284,7 @@ export function TaskCard({
               </div>
 
               <p className='text-xs md:text-sm text-gray-500 mb-2'>
-                I: {task.importance} | C: {task.complexity} | P: {task.points}
+                I: {task.importance} | C: {task.complexity}
               </p>
 
               {/* Tags */}

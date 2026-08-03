@@ -325,8 +325,8 @@ describe('TaskCategoryService', () => {
 
     it('should handle multiple tasks in same category', () => {
       const collectedTasks = [
-        createMockTaskEntity({ status: 'collecte', importance: 0, complexity: 3, points: 0 }).rawTask,
-        createMockTaskEntity({ status: 'collecte', importance: 0, complexity: 3, points: 0, name: 'Another collected' }).rawTask
+        createMockTaskEntity({ status: 'collecte', importance: 100, complexity: 3 }).rawTask,
+        createMockTaskEntity({ status: 'collecte', importance: 100, complexity: 3, name: 'Another collected' }).rawTask
       ]
 
       const filtered = TaskCategoryService.filterTasksByCategory(collectedTasks, 'collected')
