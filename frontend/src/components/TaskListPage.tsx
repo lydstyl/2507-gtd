@@ -35,6 +35,34 @@ export default function TaskListPage() {
   const filterHook = useTaskFilters(tasks)
   const modalHook = useModalState()
 
+  // Lazy-load : la liste n'embarque plus les notes (split des notes API).
+  // Quand le modal note s'ouvre, on charge la tâche complète (avec sa note)
+  // via GET /api/tasks/:id. Pendant le chargement on retombe sur la version
+  // liste (sans note, avec hasNote) pour le titre + spinner.
+  const [noteTaskDetail, setNoteTaskDetail] = useState<Task | null>(null)
+  const noteTaskId = modalHook.editingNoteTask?.id
+  useEffect(() => {
+    if (!noteTaskId) {
+      setNoteTaskDetail(null)
+      return
+    }
+    let cancelled = false
+    api
+      .getTask(noteTaskId)
+      .then((detail) => {
+        if (!cancelled) setNoteTaskDetail(detail)
+      })
+      .catch((err) => {
+        console.error('Erreur chargement de la note:', err)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [noteTaskId])
+  const editingNoteTask = noteTaskId
+    ? noteTaskDetail || modalHook.editingNoteTask
+    : undefined
+
   const loadTasks = async () => {
     try {
       const tasksData = await api.getRootTasks()
@@ -444,11 +472,11 @@ export default function TaskListPage() {
         onParentAssigned={handleTaskUpdated}
       />
 
-      {modalHook.editingNoteTask && (
+      {editingNoteTask && (
         <NoteModal
           isOpen={modalHook.isNoteModalOpen}
           onClose={modalHook.handleCloseNoteModal}
-          task={modalHook.editingNoteTask}
+          task={editingNoteTask}
           onSave={handleSaveNote}
           onDelete={handleDeleteNote}
         />
