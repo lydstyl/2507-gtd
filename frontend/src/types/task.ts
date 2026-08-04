@@ -13,6 +13,9 @@ export interface Task {
   name: string
   link?: string
   note?: string
+  /** Présent dans les réponses de liste : indique si la tâche a une note
+   *  (le contenu n'est chargé qu'à l'ouverture via GET /api/tasks/:id). */
+  hasNote?: boolean
   importance: number
   complexity: number
   position: number

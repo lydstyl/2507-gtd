@@ -20,6 +20,12 @@ export interface TaskBase<TDate = Date | string> {
   name: string
   link?: string
   note?: string
+  /**
+   * True when the task has a note. Present in LIST responses (where `note`
+   * itself is omitted to keep the payload small) so the UI can still render
+   * a "has note" indicator without fetching the full task.
+   */
+  hasNote?: boolean
   importance: number
   complexity: number
   position: number

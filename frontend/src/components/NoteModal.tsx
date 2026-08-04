@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NoteEditor } from './NoteEditor'
 import type { Task } from '../types/task'
 
@@ -20,6 +20,17 @@ export function NoteModal({
   const [note, setNote] = useState(task?.note || '')
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // Synchronise l'éditeur quand la note arrive (lazy-load : la tâche passée
+  // vient d'abord de la liste sans note, puis du détail GET /api/tasks/:id).
+  // `task` est stable entre les renders (référence React Query) : pas de
+  // reset de la saisie utilisateur.
+  useEffect(() => {
+    if (isOpen && task) setNote(task.note || '')
+  }, [isOpen, task])
+
+  // La note est attendue (hasNote) mais pas encore chargée (lazy-load).
+  const isLoadingNote = Boolean(task?.hasNote) && task?.note === undefined
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -94,11 +105,36 @@ export function NoteModal({
 
         {/* Content */}
         <div className='flex-1 p-6 overflow-y-auto'>
-          <NoteEditor
-            content={note}
-            onChange={setNote}
-            placeholder='Tapez votre note ici... Vous pouvez utiliser les outils de formatage ci-dessus pour mettre en forme votre texte.'
-          />
+          {isLoadingNote ? (
+            <div className='flex items-center justify-center h-full text-gray-400'>
+              <svg
+                className='animate-spin h-6 w-6 mr-3'
+                fill='none'
+                viewBox='0 0 24 24'
+              >
+                <circle
+                  className='opacity-25'
+                  cx='12'
+                  cy='12'
+                  r='10'
+                  stroke='currentColor'
+                  strokeWidth='4'
+                ></circle>
+                <path
+                  className='opacity-75'
+                  fill='currentColor'
+                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                ></path>
+              </svg>
+              Chargement de la note...
+            </div>
+          ) : (
+            <NoteEditor
+              content={note}
+              onChange={setNote}
+              placeholder='Tapez votre note ici... Vous pouvez utiliser les outils de formatage ci-dessus pour mettre en forme votre texte.'
+            />
+          )}
         </div>
 
         {/* Footer */}
@@ -111,7 +147,7 @@ export function NoteModal({
             >
               Annuler
             </button>
-            {task.note && onDelete && (
+            {task.hasNote && onDelete && (
               <button
                 onClick={handleDelete}
                 disabled={isSaving || isDeleting}

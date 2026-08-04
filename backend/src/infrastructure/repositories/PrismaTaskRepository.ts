@@ -11,8 +11,18 @@ import {
   UpdateTaskData
 } from '../../domain/entities/Task'
 import { TaskWithTags } from '../../application/services/CsvService'
-import { TaskValidationService } from '@gtd/shared'
+import { TaskValidationService, QueryOptions } from '@gtd/shared'
 import { TaskSorting } from './TaskSorting'
+
+/**
+ * Options de formatage d'une tâche.
+ * `includeNote: false` est utilisé pour les réponses de LISTE : la note est
+ * retirée du payload (remplacée par le flag léger `hasNote`), elle n'est
+ * renvoyée que par les endpoints de détail (GET /api/tasks/:id).
+ */
+interface FormatOptions {
+  includeNote?: boolean
+}
 
 export class PrismaTaskRepository implements TaskRepository {
   constructor(private prisma: PrismaClient) {}
@@ -120,7 +130,7 @@ export class PrismaTaskRepository implements TaskRepository {
     return task ? this.formatTaskWithSubtasks(task) : null
   }
 
-  async findAll(filters: TaskFilters): Promise<TaskWithSubtasks[]> {
+  async findAll(filters: TaskFilters, options?: QueryOptions): Promise<TaskWithSubtasks[]> {
     const where: any = {}
 
     // userId est obligatoire pour la sécurité
@@ -185,13 +195,15 @@ export class PrismaTaskRepository implements TaskRepository {
 
     // Appliquer le tri personnalisé
     const sortedTasks = TaskSorting.sortTasksByPriority(
-      tasks.map((task: any) => this.formatTaskWithSubtasks(task))
+      tasks.map((task: any) => this.formatTaskWithSubtasks(task, { includeNote: false }))
     )
 
-    return sortedTasks
+    // Pagination APRÈS le tri personnalisé (le tri par catégories est fait
+    // en mémoire, un take SQL casserait l'ordre Collected → Overdue → ...).
+    return this.applyPagination(sortedTasks, options)
   }
 
-  async findAllRootTasks(filters: TaskFilters): Promise<TaskWithSubtasks[]> {
+  async findAllRootTasks(filters: TaskFilters, options?: QueryOptions): Promise<TaskWithSubtasks[]> {
     const where: any = {}
 
     // userId est obligatoire pour la sécurité
@@ -256,10 +268,23 @@ export class PrismaTaskRepository implements TaskRepository {
 
     // Appliquer le tri personnalisé
     const sortedTasks = TaskSorting.sortTasksByPriority(
-      tasks.map((task: any) => this.formatTaskWithSubtasks(task))
+      tasks.map((task: any) => this.formatTaskWithSubtasks(task, { includeNote: false }))
     )
 
-    return sortedTasks
+    // Pagination APRÈS le tri personnalisé (voir findAll)
+    return this.applyPagination(sortedTasks, options)
+  }
+
+  /**
+   * Applique limit/offset sur une liste déjà triée.
+   * Le tri par catégories étant fait en mémoire (TaskSorting), la pagination
+   * est appliquée ici et non via un `take` SQL.
+   */
+  private applyPagination<T>(tasks: T[], options?: QueryOptions): T[] {
+    if (!options?.limit && options?.offset === undefined) return tasks
+    const offset = options?.offset ?? 0
+    const end = options?.limit !== undefined ? offset + options.limit : undefined
+    return tasks.slice(offset, end)
   }
 
   async update(id: string, data: UpdateTaskData): Promise<TaskWithSubtasks> {
@@ -648,12 +673,15 @@ export class PrismaTaskRepository implements TaskRepository {
   }
 
 
-  private formatTaskWithSubtasks(task: any): TaskWithSubtasks {
+  private formatTaskWithSubtasks(task: any, options?: FormatOptions): TaskWithSubtasks {
+    const includeNote = options?.includeNote !== false
     return {
       id: task.id,
       name: task.name,
       link: task.link,
-      note: task.note,
+      // En liste, la note est omise du payload (remplacée par hasNote).
+      note: includeNote ? task.note : undefined,
+      hasNote: Boolean(task.note),
       importance: task.importance,
       complexity: task.complexity,
       position: task.position || 0,
@@ -665,11 +693,29 @@ export class PrismaTaskRepository implements TaskRepository {
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       parentId: task.parentId,
+      // userId reste présent en liste : des tests de sécurité (isolation
+      // entre users) et des clients s'appuient dessus. Le gain de payload
+      // serait marginal (-10 Ko) pour un champ d'identification de base.
       userId: task.userId,
       subtasks: (task.subtasks || []).map((subtask: any) =>
-        this.formatTaskWithSubtasks(subtask)
+        this.formatTaskWithSubtasks(subtask, options)
       ),
-      tags: (task.tags || []).map((taskTag: any) => taskTag.tag)
+      tags: (task.tags || []).map((taskTag: any) =>
+        includeNote ? taskTag.tag : this.slimTag(taskTag.tag)
+      )
     }
+  }
+
+  /**
+   * Version allégée d'un tag pour les réponses de liste : l'UI n'a besoin
+   * que de id/name/color (le reste — position, dates, userId — n'est utile
+   * que dans les endpoints de détail et la gestion des tags via /api/tags).
+   */
+  private slimTag(tag: any) {
+    return {
+      id: tag.id,
+      name: tag.name,
+      color: tag.color,
+    } as TaskWithSubtasks['tags'][number]
   }
 }

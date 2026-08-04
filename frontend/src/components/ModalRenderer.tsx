@@ -5,12 +5,19 @@ import { CreateTagModal } from './CreateTagModal'
 import { TagManagerModal } from './TagManagerModal'
 import { AssignParentModal } from './AssignParentModal'
 import { NoteModal } from './NoteModal'
- import { useAllTasks } from '../hooks/useTasks'
+import { useAllTasks, useTask } from '../hooks/useTasks'
 import { api } from '../utils/api'
 
- export function ModalRenderer() {
-   const { state, dispatch } = useApp()
-   const { data: tasks = [] } = useAllTasks()
+export function ModalRenderer() {
+  const { state, dispatch } = useApp()
+  const { data: tasks = [] } = useAllTasks()
+
+  // Lazy-load : la liste n'embarque plus les notes (split des notes API).
+  // Quand le modal note s'ouvre, on charge la tâche complète (avec sa note)
+  // via GET /api/tasks/:id. Sans ça, on écraserait la note existante par une
+  // note vide au moment de la sauvegarde.
+  const noteTaskId = state.modals.note.taskId
+  const { data: noteTaskDetail } = useTask(noteTaskId || '')
 
   const handleCloseModal = (modalType: keyof typeof state.modals) => {
     dispatch({ type: 'CLOSE_MODAL', payload: modalType })
@@ -64,9 +71,11 @@ import { api } from '../utils/api'
     ? tasks.find(t => t.id === state.modals.assignParent.taskId)
     : undefined
 
-  // Find the task whose note is being edited
-  const editingNoteTask = state.modals.note.taskId
-    ? tasks.find(t => t.id === state.modals.note.taskId)
+  // Find the task whose note is being edited.
+  // La version détail (note incluse) est prioritaire ; pendant le chargement
+  // on retombe sur la version liste (sans note, avec hasNote) pour le titre.
+  const editingNoteTask = noteTaskId
+    ? noteTaskDetail || tasks.find(t => t.id === noteTaskId)
     : undefined
 
   return (

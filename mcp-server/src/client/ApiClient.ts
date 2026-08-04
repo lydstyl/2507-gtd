@@ -109,7 +109,11 @@ export class ApiClient {
 
     if (!taskName) throw new Error('Either taskId or taskName must be provided')
 
-    const tasks = await this.listTasks({ search: taskName })
+    // limit: 200 explicite — le backend honore maintenant `limit` (avant il
+    // était ignoré et tout était renvoyé). Sans ça, le défaut du tool
+    // list-tasks (50) pourrait faire rater une tâche lors de la résolution
+    // par nom quand beaucoup de tâches matchent.
+    const tasks = await this.listTasks({ search: taskName, limit: 200 })
     const lower = taskName.toLowerCase()
     const matches = tasks.filter((t) => t.name.toLowerCase().includes(lower))
 

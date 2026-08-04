@@ -87,11 +87,11 @@ export function TaskActions({
       <button
         onClick={() => onEditNote?.(task)}
         className={`${buttonSize} rounded transition-colors ${
-          task.note
+          task.hasNote
             ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-100'
             : 'text-purple-400 hover:text-purple-600 hover:bg-purple-50'
         }`}
-        title={task.note ? 'Modifier la note' : 'Ajouter une note'}
+        title={task.hasNote ? 'Modifier la note' : 'Ajouter une note'}
       >
         <div className='relative'>
           <svg
@@ -107,7 +107,7 @@ export function TaskActions({
               d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
             />
           </svg>
-          {task.note && (
+          {task.hasNote && (
             <div className={`absolute -top-1 -right-1 bg-purple-600 rounded-full ${
               size === 'small' ? 'w-1 h-1' : 'w-1.5 h-1.5'
             }`}></div>

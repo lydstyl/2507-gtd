@@ -11,6 +11,7 @@ import { WorkedOnTaskUseCase } from '../../usecases/tasks/WorkedOnTaskUseCase'
 import { GetCompletionStatsUseCase } from '../../usecases/tasks/GetCompletionStatsUseCase'
 import { GetCompletedTasksUseCase } from '../../usecases/tasks/GetCompletedTasksUseCase'
 import { TaskFilters } from '../../interfaces/repositories/TaskRepository'
+import { QueryOptions } from '@gtd/shared'
 
 /**
  * Convert basic markdown to HTML for note fields.
@@ -183,7 +184,11 @@ export class TaskController {
         delete filters.parentId
       }
 
-      const tasks = await this.getAllTasksUseCase.execute(userId, filters)
+      const tasks = await this.getAllTasksUseCase.execute(
+        userId,
+        filters,
+        this.parseQueryOptions(req)
+      )
       res.json(tasks)
     } catch (error) {
       console.error('❌ Erreur dans getAllTasks:', error)
@@ -217,7 +222,11 @@ export class TaskController {
           : [req.query.tagIds as string]
       }
 
-      const tasks = await this.getAllTasksUseCase.executeRootTasks(userId, filters)
+      const tasks = await this.getAllTasksUseCase.executeRootTasks(
+        userId,
+        filters,
+        this.parseQueryOptions(req)
+      )
       res.json(tasks)
     } catch (error) {
       console.error('❌ Erreur dans getAllRootTasks:', error)
@@ -440,5 +449,31 @@ export class TaskController {
       console.error('❌ Erreur dans getCompletedTasks:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
+  }
+
+  /**
+   * Parse les paramètres de pagination `limit` / `offset` des requêtes de
+   * liste. Avant ce fix, `limit` était envoyé par le MCP mais ignoré par le
+   * controller — toutes les tâches étaient renvoyées, notes comprises.
+   * `limit` est plafonné à 1000 (les scripts Hermes utilisent jusqu'à 500).
+   */
+  private parseQueryOptions(req: Request): QueryOptions {
+    const options: QueryOptions = {}
+
+    if (req.query.limit !== undefined) {
+      const limit = parseInt(req.query.limit as string, 10)
+      if (!isNaN(limit) && limit > 0) {
+        options.limit = Math.min(limit, 1000)
+      }
+    }
+
+    if (req.query.offset !== undefined) {
+      const offset = parseInt(req.query.offset as string, 10)
+      if (!isNaN(offset) && offset >= 0) {
+        options.offset = offset
+      }
+    }
+
+    return options
   }
 }
