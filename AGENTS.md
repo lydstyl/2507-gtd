@@ -23,7 +23,7 @@ npm run build:shared && npm run build:backend && npm run build:frontend
 
 ### Backend (`cd backend`)
 - `npm run dev` — Nodemon with ts-node
-- `npm run test` — All Vitest tests. **Runs sequentially in a single fork** because of SQLite. `SKIP_LLM_TESTS=true` is set by default.
+- `npm run test` — All Vitest tests. **Runs sequentially in a single fork**. `SKIP_LLM_TESTS=true` is set by default.
 - `npm run test:llm` — Run LLM chat tests only (requires API key)
 - `npx vitest run __tests__/task-sorting.test.ts` — Single test file
 - `npx vitest run -t "pattern"` — Run tests by name pattern
@@ -60,7 +60,9 @@ Single `.env` file at repo root serves both local dev and Docker:
 2. `DB_PASSWORD` is used directly by Docker compose and referenced in `DATABASE_URL`
 3. Backend loads it via `config({ path: '../.env' })` because its CWD is `backend/`
 
-Key env vars: `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `LLM_PROVIDER`, `ANTHROPIC_API_KEY` (or `OPENROUTER_API_KEY` / `OPENAI_API_KEY`).
+Key env vars: `DATABASE_URL`, `DATABASE_URL_TEST`, `JWT_SECRET`, `CORS_ORIGINS`, `LLM_PROVIDER`, `ANTHROPIC_API_KEY` (or `OPENROUTER_API_KEY` / `OPENAI_API_KEY`).
+
+`DATABASE_URL_TEST` (ex: `postgresql://gtd_user:***@localhost:5436/gtd_test`) est la base **dédiée aux tests** — jamais la production.
 
 ## Ports
 
@@ -70,16 +72,18 @@ Key env vars: `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `LLM_PROVIDER`, `ANT
 
 ## Testing Quirks
 
-- **Backend tests must run sequentially** (`singleFork: true` in `vitest.config.js`) to avoid SQLite contention.
+- **Backend tests NEVER touch production.** The Vitest `globalSetup` (`__tests__/global-setup.ts`) targets `DATABASE_URL_TEST` (default: `gtd_test` derived from `DATABASE_URL`), creates the DB if missing, applies `prisma migrate deploy`, and sets `process.env.DATABASE_URL` for the whole run. A guard (`__tests__/db-test-utils.ts`, `assertNotProductionDatabase`) refuses to run if the target is `gtd_production`/`production`/`prod` — enforced in both globalSetup and setupFiles.
+- **Fallback SQLite**: if PostgreSQL is unreachable, the globalSetup generates `prisma/schema.sqlite.prisma`, runs `prisma db push` and regenerates the Prisma client for SQLite. The setup function returned by globalSetup restores the PostgreSQL client afterwards (Vitest 3 pattern — `globalTeardown` option no longer exists).
+- **Backend tests must run sequentially** (`singleFork: true` in `vitest.config.js`) to avoid DB contention.
 - Backend test timeout is **30s** for DB operations.
 - LLM tests are skipped by default (`SKIP_LLM_TESTS=true`). Run `npm run test:llm` explicitly when needed.
 - Coverage thresholds: 80% branches, functions, lines, statements.
 
 ## Prisma / Database
 
-- Schema at `backend/prisma/schema.prisma`
-- SQLite (`dev.db`) is used for development and tests inside `backend/`
-- PostgreSQL is used for the Docker production setup
+- Schema at `backend/prisma/schema.prisma` (provider: postgresql)
+- **Tests**: PostgreSQL `gtd_test` (see `DATABASE_URL_TEST`), with automatic SQLite fallback if Postgres is down
+- **Production**: PostgreSQL `gtd_production` (Docker, port 5436 on host) — never used by tests
 - Migrations live in `backend/prisma/migrations/`
 
 ## MCP Server (Optional, standalone)

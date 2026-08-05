@@ -1,57 +1,32 @@
 import { config } from 'dotenv'
 import { PrismaClient } from '@prisma/client'
+import { assertNotProductionDatabase, cleanTestDatabase } from './db-test-utils'
 
-// Load environment variables from root .env (CWD = backend/ when running tests)
+/**
+ * SetupFiles Vitest — s'exécute avant les tests dans chaque worker.
+ *
+ * Le globalSetup a déjà défini process.env.DATABASE_URL vers la base de test
+ * (gtd_test PostgreSQL, ou test.db SQLite en fallback). Ce fichier :
+ * 1. Charge le .env racine SANS écraser DATABASE_URL (dotenv ne surcharge pas).
+ * 2. Re-vérifie le garde-fou anti-production (double sécurité).
+ * 3. Nettoie entièrement la base de test pour un état vierge à chaque run.
+ */
+
+// dotenv ne surcharge PAS les variables déjà définies par le globalSetup
 config({ path: '../.env' })
+
+// Garde-fou : si DATABASE_URL pointe vers la production, on refuse de continuer.
+// Sans cette vérification, un PrismaClient créé dans les tests écrirait dans la prod.
+assertNotProductionDatabase(process.env.DATABASE_URL ?? '', 'setup.ts')
 
 const prisma = new PrismaClient()
 
-// Global test setup - ensure clean database state
+// État vierge de la base de test avant chaque run de tests
 beforeAll(async () => {
-  try {
-    // Clean up in correct order to respect foreign key constraints
-    // 1. First delete TaskTag junction table entries
-    await prisma.taskTag.deleteMany({
-      where: {
-        task: {
-          userId: {
-            startsWith: 'test-user'
-          }
-        }
-      }
-    })
-
-    // 2. Then delete tasks (including cascade delete of subtasks)
-    await prisma.task.deleteMany({
-      where: {
-        userId: {
-          startsWith: 'test-user'
-        }
-      }
-    })
-
-    // 3. Finally delete tags
-    await prisma.tag.deleteMany({
-      where: {
-        userId: {
-          startsWith: 'test-user'
-        }
-      }
-    })
-
-    console.log('✅ Test database cleanup completed successfully')
-  } catch (error) {
-    console.error('❌ Error during test database cleanup:', error)
-    throw error
-  }
+  await cleanTestDatabase(prisma)
+  console.log('✅ Base de test nettoyée (état vierge)')
 }, 30000)
 
-// Global test teardown
 afterAll(async () => {
-  try {
-    await prisma.$disconnect()
-    console.log('✅ Database connection closed')
-  } catch (error) {
-    console.error('❌ Error disconnecting from database:', error)
-  }
+  await prisma.$disconnect()
 }, 30000)

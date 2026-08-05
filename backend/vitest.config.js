@@ -13,6 +13,9 @@ export default {
     // Increase timeout for database operations
     testTimeout: 30000,
     hookTimeout: 30000,
+    // Global setup: prépare la base de test (migrations gtd_test ou fallback SQLite)
+    // Le globalSetup retourne une fonction de teardown (pattern Vitest 3)
+    globalSetup: ['__tests__/global-setup.ts'],
     // Global setup file
     setupFiles: ['__tests__/setup.ts'],
     // Coverage configuration
