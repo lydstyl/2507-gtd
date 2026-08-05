@@ -18,6 +18,7 @@ export { TaskSortingService } from './domain/services/TaskSortingService'
 export { TaskValidationService } from './domain/services/TaskValidationService'
 export { TagValidationService } from './domain/services/TagValidationService'
 export { CsvService } from './domain/services/CsvService'
+export type { CsvTaskData, CsvImportResult, CsvTaskWithTags } from './domain/services/CsvService'
 export { ParentDateSyncService } from './domain/services/ParentDateSyncService'
 export { LoggerService, LogLevel, type ILogger, type LogEntry } from './domain/services/LoggerService'
 

@@ -78,7 +78,7 @@ describe('Subtask Import/Export Fixed Tests', () => {
       }
     })
     await prisma.$disconnect()
-    if (server) server.close()
+    if (server) await new Promise<void>(resolve => server.close(() => resolve()))
   }, 15000)
 
   test('should correctly import/export subtasks between users with parent name mapping', async () => {

@@ -1,5 +1,4 @@
-import { CsvService } from '@gtd/shared'
-import { CsvImportResult, CsvTaskWithTags } from '@gtd/shared/dist/esm/domain/services/CsvService'
+import { CsvService, CsvImportResult, CsvTaskWithTags } from '@gtd/shared'
 import { TaskWithTags } from '../../application/services/CsvService'
 import { logger } from '../../shared/logger'
 
