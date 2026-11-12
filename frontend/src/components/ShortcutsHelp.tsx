@@ -48,19 +48,19 @@ export function ShortcutsHelp({
                 <b>C</b> / <b>Shift+C</b> : Complexité +2/-2
               </div>
               <div>
-                <b>D</b> / <b>Shift+D</b> : Date +1j / -1j
+                <b>D</b> / <b>Shift+D</b> : Date prévue +1j / -1j
               </div>
               <div>
-                <b>W</b> : +1 semaine à la date
+                <b>W</b> : Date prévue +1 semaine
               </div>
               <div>
-                <b>M</b> : +1 mois à la date
+                <b>M</b> : Date prévue +1 mois
               </div>
               <div>
-                <b>T</b> : Date à aujourd'hui
+                <b>T</b> : Date prévue à aujourd'hui
               </div>
               <div>
-                <b>E</b> : Enlever la date
+                <b>E</b> : Enlever la date prévue
               </div>
               <div>
                 <b>A</b> : Toutes les tâches en retard à aujourd'hui
@@ -83,6 +83,11 @@ export function ShortcutsHelp({
               <div>
                 <b>Suppr</b> : Supprimer la tâche (avec confirmation)
               </div>
+            </div>
+            <div className='mt-2 text-xs text-blue-800'>
+              Les raccourcis de date modifient la <b>date prévue</b>. La <b>date limite</b> suit
+              automatiquement la date prévue si elle deviendrait antérieure (la date limite est
+              toujours ≥ à la date prévue).
             </div>
           </div>
 

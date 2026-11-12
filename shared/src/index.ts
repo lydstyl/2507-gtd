@@ -20,6 +20,7 @@ export { TagValidationService } from './domain/services/TagValidationService'
 export { CsvService } from './domain/services/CsvService'
 export type { CsvTaskData, CsvImportResult, CsvTaskWithTags } from './domain/services/CsvService'
 export { ParentDateSyncService } from './domain/services/ParentDateSyncService'
+export { TaskDateConsistencyService } from './domain/services/TaskDateConsistencyService'
 export { LoggerService, LogLevel, type ILogger, type LogEntry } from './domain/services/LoggerService'
 
 // Constants and business rules

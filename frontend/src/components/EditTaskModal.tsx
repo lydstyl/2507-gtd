@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api, ApiError } from '../utils/api'
+import { TaskDateConsistencyService } from '@gtd/shared'
 import type { Task, UpdateTaskData, Tag, TaskStatus } from '../types/task'
 import { TASK_STATUS_LABELS } from '../types/task'
 import { ImportanceSlider } from './ImportanceSlider'
@@ -84,10 +85,16 @@ export function EditTaskModal({
     setError('')
 
     try {
+      // Une date limite ne peut pas précéder la date prévue : elle suit la date prévue
+      const alignedDueDate = TaskDateConsistencyService.alignDueDateWithPlannedDate(
+        formData.plannedDate ?? null,
+        formData.dueDate ?? null
+      )
+
       const formattedData = {
         ...formData,
         plannedDate: formData.plannedDate || null,
-        dueDate: formData.dueDate || null
+        dueDate: alignedDueDate || null
       }
 
       await api.updateTask(task.id, formattedData)
@@ -108,15 +115,28 @@ export function EditTaskModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === 'importance' || name === 'complexity'
-          ? parseInt(value)
-          : name === 'status'
-            ? value as TaskStatus
-            : value
-    }))
+    setFormData((prev) => {
+      const next: UpdateTaskData = {
+        ...prev,
+        [name]:
+          name === 'importance' || name === 'complexity'
+            ? parseInt(value)
+            : name === 'status'
+              ? value as TaskStatus
+              : value
+      }
+
+      // Ajustement immédiat : la date limite suit la date prévue si elle serait antérieure
+      if (name === 'plannedDate') {
+        next.dueDate =
+          TaskDateConsistencyService.alignDueDateWithPlannedDate(
+            next.plannedDate ?? null,
+            prev.dueDate ?? null
+          ) ?? ''
+      }
+
+      return next
+    })
   }
 
   const handleTagChange = (tagId: string, checked: boolean) => {

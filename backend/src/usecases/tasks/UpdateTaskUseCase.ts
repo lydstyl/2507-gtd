@@ -1,6 +1,6 @@
 import { TaskRepository } from '../../interfaces/repositories/TaskRepository'
 import { UpdateTaskData, TaskWithSubtasks } from '../../domain/entities/Task'
-import { BaseUseCase, SharedUseCaseValidator, AsyncOperationResult, OperationResult, ParentDateSyncService } from '@gtd/shared'
+import { BaseUseCase, SharedUseCaseValidator, AsyncOperationResult, OperationResult, ParentDateSyncService, TaskDateConsistencyService } from '@gtd/shared'
 
 export interface UpdateTaskRequest {
   id: string
@@ -32,7 +32,8 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
         throw new Error('Task not found')
       }
 
-      const updatedTask = await this.taskRepository.update(id, updateData)
+      const dataToUpdate = await this.realignDates(id, updateData)
+      const updatedTask = await this.taskRepository.update(id, dataToUpdate)
 
       // Sync parent dates if the task has a parent
       if (updatedTask.parentId) {
@@ -41,6 +42,26 @@ export class UpdateTaskUseCase extends BaseUseCase<UpdateTaskRequest, UpdateTask
 
       return updatedTask
     }, 'task update')
+  }
+
+  /**
+   * A task's deadline (dueDate) can never fall before its planned date.
+   * When plannedDate is part of the update, an earlier dueDate is realigned on
+   * the new plannedDate (rule demandée par Gabriel : date limite < date prévue
+   * → la date limite suit la nouvelle date prévue).
+   */
+  private async realignDates(id: string, updateData: UpdateTaskData): Promise<UpdateTaskData> {
+    if (updateData.plannedDate === undefined) return updateData
+
+    const existing = await this.taskRepository.findById(id)
+    if (!existing) return updateData
+
+    const plannedDate = updateData.plannedDate ?? null
+    const dueDate = updateData.dueDate !== undefined ? updateData.dueDate : existing.dueDate ?? null
+    const alignedDueDate = TaskDateConsistencyService.alignDueDateWithPlannedDate(plannedDate, dueDate)
+
+    if (alignedDueDate === dueDate) return updateData
+    return { ...updateData, dueDate: alignedDueDate ?? null }
   }
 
   /**

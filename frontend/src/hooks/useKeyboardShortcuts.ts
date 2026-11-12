@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
  import type { Task, Tag, UpdateTaskData } from '../types/task'
+import { TaskDateConsistencyService } from '@gtd/shared'
 import { api } from '../utils/api'
 
 
@@ -97,7 +98,7 @@ export function useKeyboardShortcuts({
       if (!selectedTaskId) return
       const task = findTaskById(tasks, selectedTaskId)
       if (!task) return
-       let update: Partial<Pick<UpdateTaskData, 'importance' | 'complexity' | 'plannedDate' | 'tagIds'>> = {}
+       let update: Partial<Pick<UpdateTaskData, 'importance' | 'complexity' | 'plannedDate' | 'dueDate' | 'tagIds'>> = {}
       let handled = false
 
       // Delete selected task (Delete)
@@ -205,6 +206,20 @@ export function useKeyboardShortcuts({
 
       if (handled) {
         try {
+          // Règle : la date limite ne peut pas précéder la date prévue.
+          // Si le raccourci touche la date prévue et que la date limite deviendrait
+          // antérieure, elle est réalignée sur la nouvelle date prévue.
+          if (update.plannedDate !== undefined) {
+            const alignedDueDate = TaskDateConsistencyService.alignDueDateWithPlannedDate(
+              update.plannedDate,
+              task.dueDate ?? null
+            )
+
+            if ((alignedDueDate ?? null) !== (task.dueDate ?? null)) {
+              update.dueDate = alignedDueDate ?? null
+            }
+          }
+
           await api.updateTask(task.id, update)
           await onTasksReload()
           if (timeoutRef.current) clearTimeout(timeoutRef.current)

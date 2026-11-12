@@ -18,6 +18,20 @@ describe('ParentDateSyncService', () => {
   })
 
   describe('calculateParentDates', () => {
+    it('never returns a dueDate earlier than the plannedDate', () => {
+      const children = [
+        createMockTask({
+          id: 'child-inconsistent',
+          plannedDate: '2025-02-10T00:00:00.000Z',
+          dueDate: '2025-02-01T00:00:00.000Z',
+        }),
+      ]
+
+      const result = ParentDateSyncService.calculateParentDates(children)
+
+      expect(result.plannedDate).toBe('2025-02-10T00:00:00.000Z')
+      expect(result.dueDate).toBe('2025-02-10T00:00:00.000Z')
+    })
     it('should return undefined dates when there are no children', () => {
       const result = ParentDateSyncService.calculateParentDates([])
 

@@ -645,4 +645,111 @@ describe('UpdateTaskUseCase', () => {
       expect(duration).toBeLessThan(1000) // Should complete in under 1 second
     })
   })
+
+  describe('date consistency rule (dueDate >= plannedDate)', () => {
+    const existingTaskWithDates = (plannedDate: Date | null, dueDate: Date | null) =>
+      createMockTaskWithSubtasks({
+        name: 'Task with dates',
+        plannedDate: plannedDate ?? undefined,
+        dueDate: dueDate ?? undefined,
+        userId: 'user-1'
+      })
+
+    it('realigns an earlier due date on the new planned date', async () => {
+      const existingTask = existingTaskWithDates(
+        new Date('2026-11-01T00:00:00.000Z'),
+        new Date('2026-11-01T00:00:00.000Z')
+      )
+      mockTaskRepository.setItems([existingTask])
+
+      const newPlannedDate = new Date('2026-12-01T00:00:00.000Z')
+      const result = await updateTaskUseCase.execute(existingTask.id, {
+        plannedDate: newPlannedDate,
+        userId: 'user-1'
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toEqual(newPlannedDate)
+      expect(result.data!.dueDate).toEqual(newPlannedDate)
+    })
+
+    it('keeps a due date that is already on or after the planned date', async () => {
+      const dueDate = new Date('2026-12-20T00:00:00.000Z')
+      const existingTask = existingTaskWithDates(
+        new Date('2026-11-01T00:00:00.000Z'),
+        dueDate
+      )
+      mockTaskRepository.setItems([existingTask])
+
+      const result = await updateTaskUseCase.execute(existingTask.id, {
+        plannedDate: new Date('2026-12-01T00:00:00.000Z'),
+        userId: 'user-1'
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data!.dueDate).toEqual(dueDate)
+    })
+
+    it('does not create a due date when none is set', async () => {
+      const existingTask = existingTaskWithDates(new Date('2026-11-01T00:00:00.000Z'), null)
+      mockTaskRepository.setItems([existingTask])
+
+      const result = await updateTaskUseCase.execute(existingTask.id, {
+        plannedDate: new Date('2026-12-01T00:00:00.000Z'),
+        userId: 'user-1'
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data!.dueDate ?? null).toBeNull()
+    })
+
+    it('also realigns an explicitly provided earlier due date', async () => {
+      const existingTask = existingTaskWithDates(
+        new Date('2026-11-01T00:00:00.000Z'),
+        new Date('2026-11-01T00:00:00.000Z')
+      )
+      mockTaskRepository.setItems([existingTask])
+
+      const newPlannedDate = new Date('2026-12-01T00:00:00.000Z')
+      const result = await updateTaskUseCase.execute(existingTask.id, {
+        plannedDate: newPlannedDate,
+        dueDate: new Date('2026-11-15T00:00:00.000Z'),
+        userId: 'user-1'
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data!.dueDate).toEqual(newPlannedDate)
+    })
+
+    it('leaves the due date untouched when the planned date is cleared', async () => {
+      const dueDate = new Date('2026-11-01T00:00:00.000Z')
+      const existingTask = existingTaskWithDates(new Date('2026-12-01T00:00:00.000Z'), dueDate)
+      mockTaskRepository.setItems([existingTask])
+
+      const result = await updateTaskUseCase.execute(existingTask.id, {
+        plannedDate: null,
+        userId: 'user-1'
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toBeNull()
+      expect(result.data!.dueDate).toEqual(dueDate)
+    })
+
+    it('does not touch dates when the update does not include plannedDate', async () => {
+      const plannedDate = new Date('2026-12-01T00:00:00.000Z')
+      const dueDate = new Date('2026-11-01T00:00:00.000Z')
+      const existingTask = existingTaskWithDates(plannedDate, dueDate)
+      mockTaskRepository.setItems([existingTask])
+
+      const result = await updateTaskUseCase.execute(existingTask.id, {
+        name: 'Renamed only',
+        userId: 'user-1'
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data!.plannedDate).toEqual(plannedDate)
+      expect(result.data!.dueDate).toEqual(dueDate)
+    })
+  })
 })

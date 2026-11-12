@@ -1,4 +1,5 @@
 import { GenericTask } from '../entities/TaskTypes'
+import { TaskDateConsistencyService } from './TaskDateConsistencyService'
 
 /**
  * Service for synchronizing parent task dates with their children's dates
@@ -46,7 +47,11 @@ export class ParentDateSyncService {
 
     return {
       plannedDate: mostUrgentPlannedDate,
-      dueDate: mostUrgentDueDate,
+      // La date limite d'une tâche ne peut pas précéder sa date prévue
+      dueDate: TaskDateConsistencyService.alignDueDateWithPlannedDate(
+        mostUrgentPlannedDate,
+        mostUrgentDueDate
+      ) ?? undefined,
     }
   }
 
