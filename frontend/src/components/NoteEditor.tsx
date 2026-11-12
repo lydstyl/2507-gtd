@@ -12,6 +12,18 @@ interface NoteEditorProps {
   placeholder?: string
 }
 
+/**
+ * Bloc « Réponse de Gabriel » inséré au curseur : trait de séparation + titre
+ * daté + paragraphe vide prêt à recevoir la réponse à un LLM.
+ * La date est celle du jour, au format français dd/mm/yyyy.
+ */
+export function buildResponseBlockHTML(date: Date = new Date()): string {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `<hr><h2>Réponse de Gabriel du ${day}/${month}/${year} :</h2><p></p>`
+}
+
 export function NoteEditor({
   content,
   onChange,
@@ -49,8 +61,30 @@ export function NoteEditor({
     }
   }, [content, editor])
 
+  // Raccourci Ctrl/Cmd + Alt + R : insère le bloc « Réponse de Gabriel » au curseur.
+  useEffect(() => {
+    if (!editor) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!editor.isFocused) return
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.altKey &&
+        event.key.toLowerCase() === 'r'
+      ) {
+        event.preventDefault()
+        editor.chain().focus().insertContent(buildResponseBlockHTML()).run()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [editor])
+
   if (!editor) {
     return null
+  }
+
+  const insertResponseBlock = () => {
+    editor.chain().focus().insertContent(buildResponseBlockHTML()).run()
   }
 
   const addLink = () => {
@@ -229,6 +263,30 @@ export function NoteEditor({
             </svg>
           </button>
         )}
+
+        <div className='w-px h-6 bg-gray-300 mx-1'></div>
+
+        {/* Bloc réponse à un LLM — inséré au curseur */}
+        <button
+          onClick={insertResponseBlock}
+          className='p-2 rounded hover:bg-gray-200 flex items-center gap-1 text-xs font-semibold text-blue-700'
+          title='Insérer « Réponse de Gabriel du JJ/MM/AAAA : » au curseur (Ctrl+Alt+R)'
+        >
+          <svg
+            className='w-4 h-4'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth={2}
+            viewBox='0 0 24 24'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M8 10h8M8 14h5M21 12a8 8 0 01-8 8H7l-4 3V12a8 8 0 018-8h2a8 8 0 018 8z'
+            />
+          </svg>
+          Réponse
+        </button>
       </div>
 
       {/* Editor content */}
