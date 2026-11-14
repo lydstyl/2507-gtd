@@ -1,3 +1,230 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================================
+   Thème clair/sombre — palette pilotée par variables CSS.
+   Les variables --c-* sont consommées par tailwind.config.js
+   (darkMode: 'class'). Le mode sombre = classe .dark sur <html>.
+   ============================================================ */
+:root {
+  /* gray */
+  --c-gray-50: 249 250 251;
+  --c-gray-100: 243 244 246;
+  --c-gray-200: 229 231 235;
+  --c-gray-300: 209 213 219;
+  --c-gray-400: 156 163 175;
+  --c-gray-500: 107 114 128;
+  --c-gray-600: 75 85 99;
+  --c-gray-700: 55 65 81;
+  --c-gray-800: 31 41 55;
+  --c-gray-900: 17 24 39;
+  /* blue */
+  --c-blue-50: 239 246 255;
+  --c-blue-100: 219 234 254;
+  --c-blue-200: 191 219 254;
+  --c-blue-300: 147 197 253;
+  --c-blue-400: 96 165 250;
+  --c-blue-500: 59 130 246;
+  --c-blue-600: 37 99 235;
+  --c-blue-700: 29 78 216;
+  --c-blue-800: 30 64 175;
+  --c-blue-900: 30 58 138;
+  /* red */
+  --c-red-50: 254 242 242;
+  --c-red-100: 254 226 226;
+  --c-red-200: 254 202 202;
+  --c-red-300: 252 165 165;
+  --c-red-400: 248 113 113;
+  --c-red-500: 239 68 68;
+  --c-red-600: 220 38 38;
+  --c-red-700: 185 28 28;
+  --c-red-800: 153 27 27;
+  --c-red-900: 127 29 29;
+  /* green */
+  --c-green-50: 240 253 244;
+  --c-green-100: 220 252 231;
+  --c-green-200: 187 247 208;
+  --c-green-300: 134 239 172;
+  --c-green-400: 74 222 128;
+  --c-green-500: 34 197 94;
+  --c-green-600: 22 163 74;
+  --c-green-700: 21 128 61;
+  --c-green-800: 22 101 52;
+  --c-green-900: 20 83 45;
+  /* yellow */
+  --c-yellow-50: 254 252 232;
+  --c-yellow-100: 254 249 195;
+  --c-yellow-200: 254 240 138;
+  --c-yellow-300: 253 224 71;
+  --c-yellow-400: 250 204 21;
+  --c-yellow-500: 234 179 8;
+  --c-yellow-600: 202 138 4;
+  --c-yellow-700: 161 98 7;
+  --c-yellow-800: 133 77 14;
+  --c-yellow-900: 113 63 18;
+  /* purple */
+  --c-purple-50: 250 245 255;
+  --c-purple-100: 243 232 255;
+  --c-purple-200: 233 213 255;
+  --c-purple-300: 216 180 254;
+  --c-purple-400: 192 132 252;
+  --c-purple-500: 168 85 247;
+  --c-purple-600: 147 51 234;
+  --c-purple-700: 126 34 206;
+  --c-purple-800: 107 33 168;
+  --c-purple-900: 88 28 135;
+  /* orange */
+  --c-orange-50: 255 247 237;
+  --c-orange-100: 255 237 213;
+  --c-orange-200: 254 215 170;
+  --c-orange-300: 253 186 116;
+  --c-orange-400: 251 146 60;
+  --c-orange-500: 249 115 22;
+  --c-orange-600: 234 88 12;
+  --c-orange-700: 194 65 12;
+  --c-orange-800: 154 52 18;
+  --c-orange-900: 124 45 18;
+  /* amber */
+  --c-amber-50: 255 251 235;
+  --c-amber-100: 254 243 199;
+  --c-amber-200: 253 230 138;
+  --c-amber-300: 252 211 77;
+  --c-amber-400: 251 191 36;
+  --c-amber-500: 245 158 11;
+  --c-amber-600: 217 119 6;
+  --c-amber-700: 180 83 9;
+  --c-amber-800: 146 64 14;
+  --c-amber-900: 120 53 15;
+}
+
+html.dark {
+  color-scheme: dark;
+  /* gris inversé : fonds sombres, textes clairs */
+  --c-gray-50: 15 23 42;   /* fond de page */
+  --c-gray-100: 30 41 59;  /* cartes / surfaces */
+  --c-gray-200: 51 65 85;  /* bordures, puces */
+  --c-gray-300: 51 65 85;  /* bordures inputs */
+  --c-gray-400: 148 163 184;
+  --c-gray-500: 148 163 184;
+  --c-gray-600: 203 213 225;
+  --c-gray-700: 226 232 240;
+  --c-gray-800: 241 245 249;
+  --c-gray-900: 248 250 252;
+  /* bleus : fonds teintés sombres, textes plus clairs */
+  --c-blue-50: 23 42 68;
+  --c-blue-100: 26 48 77;
+  --c-blue-200: 30 58 138;
+  --c-blue-300: 96 165 250;
+  --c-blue-400: 96 165 250;
+  --c-blue-500: 59 130 246;
+  --c-blue-600: 59 130 246;
+  --c-blue-700: 96 165 250;
+  --c-blue-800: 147 197 253;
+  --c-blue-900: 191 219 254;
+  /* rouges */
+  --c-red-50: 45 22 24;
+  --c-red-100: 63 29 32;
+  --c-red-200: 127 29 29;
+  --c-red-300: 252 165 165;
+  --c-red-400: 248 113 113;
+  --c-red-500: 239 68 68;
+  --c-red-600: 248 113 113;
+  --c-red-700: 252 165 165;
+  --c-red-800: 254 202 202;
+  --c-red-900: 254 226 226;
+  /* verts */
+  --c-green-50: 13 36 24;
+  --c-green-100: 18 53 36;
+  --c-green-200: 20 83 45;
+  --c-green-300: 134 239 172;
+  --c-green-400: 74 222 128;
+  --c-green-500: 34 197 94;
+  --c-green-600: 74 222 128;
+  --c-green-700: 134 239 172;
+  --c-green-800: 187 247 208;
+  --c-green-900: 220 252 231;
+  /* jaunes */
+  --c-yellow-50: 43 32 5;
+  --c-yellow-100: 59 44 6;
+  --c-yellow-200: 92 68 7;
+  --c-yellow-300: 253 224 71;
+  --c-yellow-400: 250 204 21;
+  --c-yellow-500: 234 179 8;
+  --c-yellow-600: 253 224 71;
+  --c-yellow-700: 253 224 71;
+  --c-yellow-800: 254 240 138;
+  --c-yellow-900: 254 249 195;
+  /* violets */
+  --c-purple-50: 34 26 51;
+  --c-purple-100: 46 36 71;
+  --c-purple-200: 76 29 149;
+  --c-purple-300: 196 181 253;
+  --c-purple-400: 167 139 250;
+  --c-purple-500: 139 92 246;
+  --c-purple-600: 167 139 250;
+  --c-purple-700: 196 181 253;
+  --c-purple-800: 221 214 254;
+  --c-purple-900: 237 233 254;
+  /* oranges */
+  --c-orange-50: 43 26 13;
+  --c-orange-100: 59 36 18;
+  --c-orange-200: 124 45 18;
+  --c-orange-300: 253 186 116;
+  --c-orange-400: 251 146 60;
+  --c-orange-500: 249 115 22;
+  --c-orange-600: 251 146 60;
+  --c-orange-700: 253 186 116;
+  --c-orange-800: 254 215 170;
+  --c-orange-900: 255 237 213;
+  /* ambrés */
+  --c-amber-50: 43 32 5;
+  --c-amber-100: 59 44 6;
+  --c-amber-200: 120 53 15;
+  --c-amber-300: 252 211 77;
+  --c-amber-400: 251 191 36;
+  --c-amber-500: 245 158 11;
+  --c-amber-600: 251 191 36;
+  --c-amber-700: 252 211 77;
+  --c-amber-800: 253 230 138;
+  --c-amber-900: 254 243 199;
+}
+
+/* Cartes blanches -> surfaces sombres (white n'est pas une variable,
+   car text-white doit rester blanc sur les boutons colorés). */
+.dark .bg-white {
+  background-color: rgb(var(--c-gray-100));
+}
+
+/* Le footer reste sombre dans les deux thèmes (bg-gray-900 y serait
+   sinon inversé en quasi-blanc). */
+.dark footer {
+  background-color: #0b1120;
+}
+
+/* Éditeur de notes (plugin typography) */
+.dark .prose {
+  --tw-prose-body: #e2e8f0;
+  --tw-prose-headings: #f8fafc;
+  --tw-prose-lead: #cbd5e1;
+  --tw-prose-links: #60a5fa;
+  --tw-prose-bold: #f1f5f9;
+  --tw-prose-counters: #94a3b8;
+  --tw-prose-bullets: #475569;
+  --tw-prose-hr: #334155;
+  --tw-prose-quotes: #e2e8f0;
+  --tw-prose-quote-borders: #334155;
+  --tw-prose-captions: #94a3b8;
+  --tw-prose-code: #f8fafc;
+  --tw-prose-pre-code: #e2e8f0;
+  --tw-prose-pre-bg: #0f172a;
+  --tw-prose-th-borders: #334155;
+  --tw-prose-td-borders: #334155;
+}
+
+/* Transition douce au changement de thème */
+html.theme-transition,
+html.theme-transition * {
+  transition: background-color 150ms ease, border-color 150ms ease,
+    color 150ms ease !important;
+}

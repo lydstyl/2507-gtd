@@ -22,6 +22,19 @@
     <meta name="apple-mobile-web-app-title" content="GTD" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="GTD" />
+
+    <!-- Applique le thème enregistré avant le rendu (évite le flash clair/sombre) -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('gtd-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            var m = document.querySelector('meta[name="theme-color"]');
+            if (m) m.setAttribute('content', '#0f172a');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

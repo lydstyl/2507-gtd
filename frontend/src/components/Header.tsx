@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import type { User } from '../types/auth'
 import { cn } from '../utils/cn'
+import { applyTheme, getStoredTheme, type Theme } from '../utils/theme'
 
 interface HeaderProps {
   user: User | null
@@ -11,6 +12,24 @@ interface HeaderProps {
 export function Header({ user, onLogout }: HeaderProps) {
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [theme, setTheme] = useState<Theme>(() => getStoredTheme())
+
+  const toggleTheme = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    applyTheme(next)
+  }
+
+  const themeButton = (
+    <button
+      onClick={toggleTheme}
+      className='p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500'
+      aria-label={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+      title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+    >
+      {theme === 'dark' ? '☀️' : '🌙'}
+    </button>
+  )
 
   const navLinks = [
     { to: '/tasks', label: 'Tâches', icon: '📋' },
@@ -55,6 +74,7 @@ export function Header({ user, onLogout }: HeaderProps) {
 
           {/* Desktop User Info */}
           <div className='hidden md:flex items-center space-x-4'>
+            {themeButton}
             <span className='text-gray-700 text-sm font-medium truncate max-w-[200px]'>
               {user?.email}
             </span>
@@ -67,7 +87,8 @@ export function Header({ user, onLogout }: HeaderProps) {
           </div>
 
           {/* Mobile menu button */}
-          <div className='md:hidden'>
+          <div className='flex items-center md:hidden'>
+            {themeButton}
             <button
               onClick={toggleMobileMenu}
               className='p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500'
