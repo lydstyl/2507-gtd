@@ -99,9 +99,11 @@ export function NoteEditor({
   }
 
   return (
-    <div className='border border-gray-300 rounded-lg overflow-hidden'>
-      {/* Toolbar */}
-      <div className='bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1'>
+    // Pas d'overflow-hidden ici : un parent en overflow:hidden devient le
+    // référentiel de la sticky et annulerait le collage au scroll (NoteModal).
+    <div className='border border-gray-300 rounded-lg'>
+      {/* Toolbar sticky : reste visible en haut du scroll de la note */}
+      <div className='sticky top-0 z-10 bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1 rounded-t-lg'>
         {/* Text formatting */}
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
