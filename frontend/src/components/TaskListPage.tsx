@@ -9,6 +9,7 @@ import { ShortcutsHelp } from './ShortcutsHelp'
 import { PinnedTaskSection } from './PinnedTaskSection'
 import { FloatingActionButton } from './FloatingActionButton'
 import { QuickAddInput } from './QuickAddInput'
+import { PromptTaskModal } from './PromptTaskModal'
 import { BottomActionBar } from './BottomActionBar'
  import type { Task, Tag, UpdateTaskData } from '../types/task'
 import { api } from '../utils/api'
@@ -27,6 +28,7 @@ export default function TaskListPage() {
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [showQuickAdd, setShowQuickAdd] = useState(false)
+  const [showPromptModal, setShowPromptModal] = useState(false)
 
   const pinnedRef = useRef<HTMLDivElement>(null)
   const taskCreatedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -292,6 +294,13 @@ export default function TaskListPage() {
             ⚡ Rapide
           </button>
           <button
+            onClick={() => setShowPromptModal(true)}
+            className='px-3 py-2 rounded-md text-sm font-medium transition-colors bg-purple-100 hover:bg-purple-200 text-purple-700'
+            title="Créer une tâche « Pour IA » à partir d'un prompt"
+          >
+            🤖 Prompter tâche
+          </button>
+          <button
             onClick={modalHook.handleCreateTask}
             className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors'
           >
@@ -309,6 +318,13 @@ export default function TaskListPage() {
         }}
         onCancel={() => setShowQuickAdd(false)}
         placeholder="Nom de la nouvelle tâche..."
+      />
+
+      {/* Prompt Task Modal (IA) */}
+      <PromptTaskModal
+        isOpen={showPromptModal}
+        onClose={() => setShowPromptModal(false)}
+        onTaskCreated={handleTaskCreated}
       />
 
       <ShortcutsHelp

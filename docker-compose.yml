@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gtd_user -d gtd_production"]
-      interval: 5s
+      interval: 30s
       timeout: 5s
       retries: 10
 
@@ -29,7 +29,8 @@ services:
       DATABASE_URL: postgresql://gtd_user:${DB_PASSWORD}@postgres:5432/gtd_production
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
-      LLM_PROVIDER: ${LLM_PROVIDER:-openrouter}
+      LLM_PROVIDER: ${LLM_PROVIDER:-local}
+      LLM_LOCAL_BASE_URL: ${LLM_LOCAL_BASE_URL:-http://192.168.3.57:8080/v1}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}

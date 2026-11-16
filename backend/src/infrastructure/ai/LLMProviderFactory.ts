@@ -2,7 +2,7 @@ import { LanguageModel } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { openai, createOpenAI } from '@ai-sdk/openai'
 
-export type LLMProviderType = 'anthropic' | 'openai' | 'openrouter'
+export type LLMProviderType = 'anthropic' | 'openai' | 'openrouter' | 'local'
 
 export interface LLMConfig {
   provider: LLMProviderType
@@ -43,6 +43,22 @@ export class LLMProviderFactory {
         return openrouter.chat(modelName)
       }
 
+      case 'local': {
+        // LLM local llama.cpp (API OpenAI-compatible, ex. PC Marie 192.168.3.57:8080)
+        // LLM_LOCAL_BASE_URL : ex. http://192.168.3.57:8080/v1
+        // LLM_MODEL          : nom exact du modèle servi (voir GET /v1/models)
+        const baseURL = process.env.LLM_LOCAL_BASE_URL || 'http://192.168.3.57:8080/v1'
+        const local = createOpenAI({
+          baseURL,
+          apiKey: 'local' // llama.cpp n'exige pas de clé
+        })
+        if (!model) {
+          throw new Error('LLM_MODEL is required for the local provider (nom exact du modèle servi, voir GET <LLM_LOCAL_BASE_URL>/models)')
+        }
+        // .chat() = endpoint chat completions (tool calling inclus)
+        return local.chat(model)
+      }
+
       default:
         throw new Error(`Unsupported LLM provider: ${provider}`)
     }
@@ -67,6 +83,12 @@ export class LLMProviderFactory {
       case 'openrouter':
         if (!process.env.OPENROUTER_API_KEY) {
           throw new Error('OPENROUTER_API_KEY environment variable is required for OpenRouter provider')
+        }
+        break
+      case 'local':
+        // Pas de clé : llama.cpp. LLM_MODEL obligatoire (nom exact du modèle servi).
+        if (!process.env.LLM_MODEL) {
+          throw new Error('LLM_MODEL environment variable is required for local provider (nom exact du modèle servi)')
         }
         break
     }
