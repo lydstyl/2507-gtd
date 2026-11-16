@@ -368,8 +368,8 @@ export default function TaskListPage() {
         setComplexityFilterType={filterHook.setComplexityFilterType}
         tagFilter={filterHook.tagFilter}
         setTagFilter={filterHook.setTagFilter}
-        dateFilter={filterHook.dateFilter}
-        setDateFilter={filterHook.setDateFilter}
+        dateFilters={filterHook.dateFilters}
+        toggleDateFilter={filterHook.toggleDateFilter}
         updatedAtFilter={filterHook.updatedAtFilter}
         setUpdatedAtFilter={filterHook.setUpdatedAtFilter}
         createdAtFilter={filterHook.createdAtFilter}

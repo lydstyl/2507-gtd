@@ -7,6 +7,15 @@ const STATUS_OPTIONS: { key: string; label: string }[] = [
   { key: 'completed', label: 'Complétée' }
 ]
 
+const DATE_OPTIONS: { key: string; label: string }[] = [
+  { key: 'overdue', label: 'En retard' },
+  { key: 'today', label: "Aujourd'hui" },
+  { key: 'tomorrow', label: 'Demain' },
+  { key: 'this-week', label: 'Cette semaine' },
+  { key: 'future', label: 'Plus loin' },
+  { key: 'no-date', label: 'Sans date' }
+]
+
 interface TaskFiltersProps {
   searchTerm: string
   setSearchTerm: (term: string) => void
@@ -20,8 +29,8 @@ interface TaskFiltersProps {
   setComplexityFilterType: (type: 'exact' | 'gte') => void
   tagFilter: string
   setTagFilter: (tagId: string) => void
-  dateFilter: string
-  setDateFilter: (filter: string) => void
+  dateFilters: string[]
+  toggleDateFilter: (category: string) => void
   updatedAtFilter: string
   setUpdatedAtFilter: (filter: string) => void
   createdAtFilter: string
@@ -50,8 +59,8 @@ export function TaskFilters({
   setComplexityFilterType,
   tagFilter,
   setTagFilter,
-  dateFilter,
-  setDateFilter,
+  dateFilters,
+  toggleDateFilter,
   updatedAtFilter,
   setUpdatedAtFilter,
   createdAtFilter,
@@ -258,24 +267,27 @@ export function TaskFilters({
             </div>
           </div>
 
-          {/* Date filter */}
+          {/* Date filter (afficher / masquer) */}
           <div className='mt-4'>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Date prévue
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
+              Date (afficher / masquer)
             </label>
-            <select
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className='w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
-            >
-              <option value=''>Toutes les dates</option>
-              <option value='overdue'>En retard</option>
-              <option value='today'>Aujourd'hui</option>
-              <option value='tomorrow'>Demain</option>
-              <option value='this-week'>Cette semaine</option>
-              <option value='future'>Plus tard</option>
-              <option value='no-date'>Sans date</option>
-            </select>
+            <div className='flex flex-wrap gap-3'>
+              {DATE_OPTIONS.map(({ key, label }) => (
+                <label
+                  key={key}
+                  className='flex items-center space-x-1.5 cursor-pointer select-none'
+                >
+                  <input
+                    type='checkbox'
+                    checked={dateFilters.includes(key)}
+                    onChange={() => toggleDateFilter(key)}
+                    className='h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+                  />
+                  <span className='text-sm text-gray-700'>{label}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           {/* Updated at filter */}

@@ -8,7 +8,7 @@ export interface FilterState {
   complexityFilter: number | ''
   complexityFilterType: 'exact' | 'gte'
   tagFilter: string
-  dateFilter: string
+  dateFilters: string[]
   updatedAtFilter: string
   createdAtFilter: string
   statusFilters: string[]
@@ -16,6 +16,11 @@ export interface FilterState {
 
 const ALL_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'completed']
 const DEFAULT_STATUS_FILTERS = ['brouillon', 'pour_ia', 'collecte', 'pret']
+
+// Catégories de date (mutuellement exclusives, couvrent toutes les tâches).
+// Checkbox "afficher / masquer" comme pour les statuts.
+export const DATE_CATEGORIES = ['overdue', 'today', 'tomorrow', 'this-week', 'future', 'no-date']
+const DEFAULT_DATE_FILTERS: string[] = [...DATE_CATEGORIES]
 
 export function useTaskFilters(tasks: Task[]) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -28,7 +33,7 @@ export function useTaskFilters(tasks: Task[]) {
     'exact' | 'gte'
   >('gte')
   const [tagFilter, setTagFilter] = useState<string>('')
-  const [dateFilter, setDateFilter] = useState<string>('')
+  const [dateFilters, setDateFilters] = useState<string[]>(DEFAULT_DATE_FILTERS)
   const [updatedAtFilter, setUpdatedAtFilter] = useState<string>('')
   const [createdAtFilter, setCreatedAtFilter] = useState<string>('')
   const [statusFilters, setStatusFilters] = useState<string[]>(DEFAULT_STATUS_FILTERS)
@@ -86,43 +91,29 @@ export function useTaskFilters(tasks: Task[]) {
       )
     }
 
-    // Date filter
-    if (dateFilter) {
+    // Date filter (checkboxes afficher / masquer)
+    if (dateFilters.length < DATE_CATEGORIES.length) {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       const tomorrow = new Date(today)
       tomorrow.setDate(tomorrow.getDate() + 1)
+      const endOfWeek = new Date(today)
+      endOfWeek.setDate(endOfWeek.getDate() + 7)
 
-      filtered = filtered.filter((task) => {
-        if (!task.plannedDate) {
-          return dateFilter === 'no-date'
-        }
-
-        if (dateFilter === 'no-date') {
-          return false
-        }
-
+      const getDateCategory = (task: Task): string => {
+        if (!task.plannedDate) return 'no-date'
         const taskDate = new Date(task.plannedDate)
         taskDate.setHours(0, 0, 0, 0)
+        if (taskDate.getTime() < today.getTime()) return 'overdue'
+        if (taskDate.getTime() === today.getTime()) return 'today'
+        if (taskDate.getTime() === tomorrow.getTime()) return 'tomorrow'
+        if (taskDate.getTime() <= endOfWeek.getTime()) return 'this-week'
+        return 'future'
+      }
 
-        switch (dateFilter) {
-          case 'overdue':
-            return taskDate < today
-          case 'today':
-            return taskDate.getTime() === today.getTime()
-          case 'tomorrow':
-            return taskDate.getTime() === tomorrow.getTime()
-          case 'this-week': {
-            const endOfWeek = new Date(today)
-            endOfWeek.setDate(today.getDate() + 7)
-            return taskDate >= today && taskDate <= endOfWeek
-          }
-          case 'future':
-            return taskDate > tomorrow
-          default:
-            return true
-        }
-      })
+      filtered = filtered.filter((task) =>
+        dateFilters.includes(getDateCategory(task))
+      )
     }
 
     // Updated at filter
@@ -178,7 +169,7 @@ export function useTaskFilters(tasks: Task[]) {
       complexityFilter,
       complexityFilterType,
       tagFilter,
-      dateFilter,
+      dateFilters,
       updatedAtFilter,
       createdAtFilter,
       statusFilters
@@ -193,12 +184,20 @@ export function useTaskFilters(tasks: Task[]) {
     )
   }
 
+  const toggleDateFilter = (category: string) => {
+    setDateFilters((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    )
+  }
+
   const clearAllFilters = () => {
     setSearchTerm('')
     setImportanceFilter('')
     setComplexityFilter('')
     setTagFilter('')
-    setDateFilter('')
+    setDateFilters(DEFAULT_DATE_FILTERS)
     setUpdatedAtFilter('')
     setCreatedAtFilter('')
     setStatusFilters(DEFAULT_STATUS_FILTERS)
@@ -209,7 +208,8 @@ export function useTaskFilters(tasks: Task[]) {
       importanceFilter !== '' ||
       complexityFilter !== '' ||
       tagFilter ||
-      dateFilter ||
+      dateFilters.length !== DATE_CATEGORIES.length ||
+      !DATE_CATEGORIES.every((c) => dateFilters.includes(c)) ||
       updatedAtFilter ||
       createdAtFilter ||
       statusFilters.length !== DEFAULT_STATUS_FILTERS.length ||
@@ -229,8 +229,8 @@ export function useTaskFilters(tasks: Task[]) {
     setComplexityFilterType,
     tagFilter,
     setTagFilter,
-    dateFilter,
-    setDateFilter,
+    dateFilters,
+    toggleDateFilter,
     updatedAtFilter,
     setUpdatedAtFilter,
     createdAtFilter,
