@@ -5,6 +5,7 @@ import { IApiKeyRepository } from '../interfaces/repositories/ApiKeyRepository'
 import { PrismaTaskRepository } from './repositories/PrismaTaskRepository'
 import { PrismaTagRepository } from './repositories/PrismaTagRepository'
 import { PrismaApiKeyRepository } from './repositories/PrismaApiKeyRepository'
+import { PrismaSettingRepository } from './repositories/PrismaSettingRepository'
 import { CreateTaskUseCase } from '../usecases/tasks/CreateTaskUseCase'
 import { GetTaskUseCase } from '../usecases/tasks/GetTaskUseCase'
 import { GetAllTasksUseCase } from '../usecases/tasks/GetAllTasksUseCase'
@@ -21,8 +22,11 @@ import { GetAllTagsUseCase } from '../usecases/tags/GetAllTagsUseCase'
 import { DeleteTagUseCase } from '../usecases/tags/DeleteTagUseCase'
 import { UpdateTagUseCase } from '../usecases/tags/UpdateTagUseCase'
 import { UpdateTagPositionsUseCase } from '../usecases/tags/UpdateTagPositionsUseCase'
+import { GetSettingsUseCase } from '../usecases/settings/GetSettingsUseCase'
+import { UpdateSettingsUseCase } from '../usecases/settings/UpdateSettingsUseCase'
 import { TaskController } from '../presentation/controllers/TaskController'
 import { TagController } from '../presentation/controllers/TagController'
+import { SettingController } from '../presentation/controllers/SettingController'
 import { ChatController } from '../presentation/controllers/ChatController'
 import { ApiKeyController } from '../presentation/controllers/ApiKeyController'
 import { ChatUseCase } from '../usecases/chat/ChatUseCase'
@@ -40,6 +44,7 @@ export class Container {
   private taskRepository: TaskRepository
   private tagRepository: TagRepository
   private apiKeyRepository: IApiKeyRepository
+  private settingRepository: PrismaSettingRepository
   private logger: LoggerService
 
   private constructor() {
@@ -48,6 +53,7 @@ export class Container {
     this.taskRepository = new PrismaTaskRepository(this.prisma)
     this.tagRepository = new PrismaTagRepository(this.prisma)
     this.apiKeyRepository = new PrismaApiKeyRepository(this.prisma)
+    this.settingRepository = new PrismaSettingRepository(this.prisma)
   }
 
   static getInstance(): Container {
@@ -110,6 +116,12 @@ export class Container {
       updateTagUseCase,
       updateTagPositionsUseCase
     )
+  }
+
+  getSettingController(): SettingController {
+    const getSettingsUseCase = new GetSettingsUseCase(this.settingRepository)
+    const updateSettingsUseCase = new UpdateSettingsUseCase(this.settingRepository)
+    return new SettingController(getSettingsUseCase, updateSettingsUseCase)
   }
 
   getChatController(): ChatController {

@@ -244,6 +244,15 @@ export const api = {
       body: JSON.stringify({ tagPositions })
     }),
 
+  // Settings (réglages applicatifs clé/valeur)
+  getSettings: () => apiCall<Record<string, string>>('/settings'),
+
+  updateSettings: (settings: Record<string, string>) =>
+    apiCall<Record<string, string>>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings)
+    }),
+
   // CSV Export/Import
   exportTasks: () =>
     apiCallBlob('/tasks/export', {

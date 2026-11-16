@@ -24,8 +24,24 @@ model User {
   tags      Tag[]
   tasks     Task[]
   apiKeys   ApiKey[]
+  settings  Setting[]
 
   @@map("users")
+}
+
+// Réglages applicatifs par utilisateur (clé/valeur).
+// Ex. `pourIaMaxWords` : nombre de mots max d'une réponse LLM sur une tâche « Pour IA ».
+model Setting {
+  id        String   @id @default(cuid())
+  key       String
+  value     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, userId])
+  @@map("settings")
 }
 
 model ApiKey {

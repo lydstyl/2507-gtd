@@ -4,6 +4,7 @@ import path from 'path'
 import { Container } from './infrastructure/container'
 import { createTaskRoutes } from './presentation/routes/taskRoutes'
 import { createTagRoutes } from './presentation/routes/tagRoutes'
+import { createSettingsRoutes } from './presentation/routes/settingsRoutes'
 import { createChatRoutes } from './presentation/routes/chatRoutes'
 import { createApiKeyRouter } from './presentation/routes/apiKeyRoutes'
 import authRoutes from './presentation/routes/authRoutes'
@@ -53,6 +54,7 @@ const container = Container.getInstance()
 // Routes API
 app.use('/api/tasks', createTaskRoutes(container.getTaskController()))
 app.use('/api/tags', createTagRoutes(container.getTagController()))
+app.use('/api/settings', createSettingsRoutes(container.getSettingController()))
 app.use('/api/chat', createChatRoutes(container.getChatController()))
 app.use('/api/auth/keys', createApiKeyRouter(container.getApiKeyController()))
 app.use('/api/auth', authRoutes)
@@ -70,6 +72,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       tasks: '/api/tasks',
       tags: '/api/tags',
+      settings: '/api/settings',
       chat: '/api/chat',
       auth: '/api/auth',
       health: '/health'

@@ -4,6 +4,7 @@ import { useIsAuthenticated, useCurrentUser, useLogout } from '../hooks/useAuth'
 import { Header } from '../components/Header'
 import { Footer } from '../components/Footer'
 import { ApiKeysSection } from '../components/ApiKeysSection'
+import { PourIaWordLimitSection } from '../components/PourIaWordLimitSection'
 import { applyTheme, getStoredTheme, type Theme } from '../utils/theme'
 
 export function SettingsPage() {
@@ -71,6 +72,11 @@ export function SettingsPage() {
               </button>
             </div>
           </div>
+        </section>
+
+        <section className="mb-10">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">🤖 Réponses Pour IA</h2>
+          <PourIaWordLimitSection />
         </section>
 
         <section className="mb-10">
