@@ -75,3 +75,48 @@ describe('NoteEditor — bouton « Réponse »', () => {
     })
   })
 })
+
+/** Harnais : une note contenant un tableau HTML (format des réponses IA). */
+function TableHarness() {
+  const [content, setContent] = useState(
+    '<p>Intro</p><table><tbody><tr><th>Indice</th><th>Valeur</th></tr><tr><td>tok/s</td><td>11.6</td></tr></tbody></table>'
+  )
+  return (
+    <>
+      <NoteEditor content={content} onChange={setContent} />
+      <output data-testid='html'>{content}</output>
+    </>
+  )
+}
+
+describe('NoteEditor — tableaux', () => {
+  afterEach(cleanup)
+
+  it('préserve le tableau des notes IA à l’ouverture (pas de strip HTML)', async () => {
+    render(<TableHarness />)
+
+    await waitFor(() => {
+      const editorEl = document.querySelector('.tiptap') as HTMLElement
+      expect(editorEl.querySelector('table')).toBeTruthy()
+      expect(editorEl.querySelector('th')?.textContent).toBe('Indice')
+      const cells = editorEl.querySelectorAll('td')
+      expect(cells[0]?.textContent).toBe('tok/s')
+      expect(cells[1]?.textContent).toBe('11.6')
+    })
+  })
+
+  it('insère un tableau 3×3 avec en-tête au clic sur le bouton toolbar', async () => {
+    render(<TableHarness />)
+
+    const button = await screen.findByTitle(/Insérer un tableau/)
+    fireEvent.click(button)
+
+    await waitFor(() => {
+      const html = screen.getByTestId('html').textContent || ''
+      expect(html).toContain('<table')
+      expect(html).toContain('<th')
+      // La note existante (avec son tableau) est conservée
+      expect(html).toContain('Indice')
+    })
+  })
+})

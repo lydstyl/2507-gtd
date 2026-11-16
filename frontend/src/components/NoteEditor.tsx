@@ -5,6 +5,10 @@ import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 import Strike from '@tiptap/extension-strike'
 import Heading from '@tiptap/extension-heading'
+import Table from '@tiptap/extension-table'
+import TableRow from '@tiptap/extension-table-row'
+import TableCell from '@tiptap/extension-table-cell'
+import TableHeader from '@tiptap/extension-table-header'
 
 interface NoteEditorProps {
   content: string
@@ -42,7 +46,15 @@ export function NoteEditor({
       Strike,
       Heading.configure({
         levels: [1, 2, 3]
-      })
+      }),
+      // Tableaux : rend les <table> des notes (réponses IA, notes manuelles)
+      // visibles et modifiables. resizable:false = pas de poignées de redimension.
+      Table.configure({
+        resizable: false
+      }),
+      TableRow,
+      TableHeader,
+      TableCell
     ],
     content: content || '',
     onUpdate: ({ editor }) => {
@@ -235,6 +247,78 @@ export function NoteEditor({
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M2 6a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6zM14 6a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V6zM14 11a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z' />
           </svg>
+        </button>
+
+        <div className='w-px h-6 bg-gray-300 mx-1'></div>
+
+        {/* Tableaux — insertion + gestion lignes/colonnes */}
+        <button
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+              .run()
+          }
+          className='p-2 rounded hover:bg-gray-200'
+          title="Insérer un tableau 3×3 avec en-tête"
+        >
+          <svg className='w-4 h-4' fill='none' stroke='currentColor' strokeWidth={2} viewBox='0 0 24 24'>
+            <rect x='3' y='4' width='18' height='16' rx='1' />
+            <path d='M3 10h18M3 15h18M9 4v16M15 4v16' />
+          </svg>
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().addRowAfter().run()}
+          className='p-2 rounded hover:bg-gray-200 text-xs'
+          title='Ajouter une ligne après la ligne courante'
+        >
+          + Ligne
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().deleteRow().run()}
+          className='p-2 rounded hover:bg-gray-200 text-xs'
+          title='Supprimer la ligne courante'
+        >
+          − Ligne
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().addColumnAfter().run()}
+          className='p-2 rounded hover:bg-gray-200 text-xs'
+          title='Ajouter une colonne après la colonne courante'
+        >
+          + Col
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().deleteColumn().run()}
+          className='p-2 rounded hover:bg-gray-200 text-xs'
+          title='Supprimer la colonne courante'
+        >
+          − Col
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+          className={`p-2 rounded text-xs ${
+            editor.isActive('table') && editor.isActive('tableHeaderRow')
+              ? 'bg-blue-100 text-blue-700'
+              : 'hover:bg-gray-200'
+          }`}
+          title="Activer/désactiver la ligne d'en-tête"
+        >
+          En-tête
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().deleteTable().run()}
+          className='p-2 rounded hover:bg-gray-200 text-xs text-red-600'
+          title='Supprimer le tableau'
+        >
+          Suppr
         </button>
 
         <div className='w-px h-6 bg-gray-300 mx-1'></div>

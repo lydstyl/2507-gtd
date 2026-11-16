@@ -222,6 +222,36 @@ html.dark {
   --tw-prose-td-borders: #334155;
 }
 
+/* Tableaux dans l'éditeur de notes (TipTap extension-table).
+   La classe `prose` style le texte, les cellules ont besoin de bordures
+   explicites pour que les <table> des notes IA soient lisibles. */
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0.75rem 0;
+}
+.tiptap th,
+.tiptap td {
+  border: 1px solid rgb(var(--c-gray-300));
+  padding: 0.4rem 0.6rem;
+  vertical-align: top;
+  min-width: 3rem;
+  overflow-wrap: break-word;
+}
+.tiptap th {
+  background-color: rgb(var(--c-gray-100));
+  font-weight: 600;
+  text-align: left;
+}
+.dark .tiptap th,
+.dark .tiptap td {
+  border-color: #334155;
+}
+.dark .tiptap th {
+  background-color: #1e293b;
+}
+
 /* Transition douce au changement de thème */
 html.theme-transition,
 html.theme-transition * {
