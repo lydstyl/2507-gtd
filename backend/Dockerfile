@@ -39,6 +39,7 @@ COPY --from=builder /app/backend/package.json ./package.json
 
 RUN addgroup -g 1001 -S nodejs \
     && adduser -S nodejs -u 1001 \
+    && mkdir -p /app/uploads \
     && chown -R nodejs:nodejs /app
 
 USER nodejs

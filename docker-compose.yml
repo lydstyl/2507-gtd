@@ -51,6 +51,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
+      - ./uploads:/app/uploads
 
   frontend:
     build:

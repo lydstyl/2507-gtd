@@ -1,14 +1,16 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 import Strike from '@tiptap/extension-strike'
 import Heading from '@tiptap/extension-heading'
+import Image from '@tiptap/extension-image'
 import Table from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
+import { uploadImage, imageSrcWithToken } from '../services/imageApi'
 
 interface NoteEditorProps {
   content: string
@@ -35,6 +37,8 @@ export function NoteEditor({
 }: NoteEditorProps) {
   const editor = useEditor({
     extensions: [
+      // Pas d'Image dans le StarterKit 2.27+ → extension Image dédiée
+      // (upload serveur, pas de data URLs base64 dans les notes).
       StarterKit,
       Link.configure({
         openOnClick: false,
@@ -46,6 +50,25 @@ export function NoteEditor({
       Strike,
       Heading.configure({
         levels: [1, 2, 3]
+      }),
+      // Image : collage d'une image → upload serveur, insertion de l'URL
+      // (plutôt que base64 dans le HTML de la note).
+      Image.configure({
+        handlePaste: async (file: File, ed) => {
+          try {
+            const { url, name } = await uploadImage(file)
+            ed
+              .chain()
+              .focus()
+              .setImage({ src: imageSrcWithToken(url), alt: name })
+              .run()
+            return true
+          } catch (err) {
+            console.error('Échec upload image (paste):', err)
+            alert(`Échec de l'upload de l'image : ${(err as Error).message}`)
+            return false
+          }
+        }
       }),
       // Tableaux : rend les <table> des notes (réponses IA, notes manuelles)
       // visibles et modifiables. resizable:false = pas de poignées de redimension.
@@ -72,6 +95,72 @@ export function NoteEditor({
       editor.commands.setContent(content || '')
     }
   }, [content, editor])
+
+  // État upload (bouton Image + drop)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Bouton « Image » : sélection multiple → upload → insertion au curseur.
+  const onFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = ''
+    if (files.length === 0 || !editor) return
+    setUploadingImage(true)
+    try {
+      for (const file of files) {
+        const { url, name } = await uploadImage(file)
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: imageSrcWithToken(url), alt: name })
+          .run()
+      }
+    } catch (err) {
+      console.error('Échec upload image (bouton):', err)
+      alert(`Échec de l'upload de l'image : ${(err as Error).message}`)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  // Glisser-déposer d'images dans l'éditeur → upload (capture avant ProseMirror).
+  useEffect(() => {
+    if (!editor) return
+    const dom = editor.view.dom
+    const onDrop = (e: DragEvent) => {
+      const files = Array.from(e.dataTransfer?.files ?? []).filter((f) =>
+        f.type.startsWith('image/')
+      )
+      if (files.length === 0) return
+      e.preventDefault()
+      e.stopPropagation()
+      const coords = editor.view.posAtCoords({ left: e.clientX, top: e.clientY })
+      const insertPos = coords?.pos ?? editor.state.selection.from
+      setUploadingImage(true)
+      void (async () => {
+        try {
+          for (const file of files) {
+            const { url, name } = await uploadImage(file)
+            editor
+              .chain()
+              .focus()
+              .insertContentAt(
+                insertPos,
+                `<img src="${imageSrcWithToken(url)}" alt="${name}">`
+              )
+              .run()
+          }
+        } catch (err) {
+          console.error('Échec upload image (drop):', err)
+          alert(`Échec de l'upload de l'image : ${(err as Error).message}`)
+        } finally {
+          setUploadingImage(false)
+        }
+      })()
+    }
+    dom.addEventListener('drop', onDrop, true)
+    return () => dom.removeEventListener('drop', onDrop, true)
+  }, [editor])
 
   // Raccourci Ctrl/Cmd + Alt + R : insère le bloc « Réponse de Gabriel » au curseur.
   useEffect(() => {
@@ -373,6 +462,39 @@ export function NoteEditor({
           </svg>
           Réponse
         </button>
+
+        <div className='w-px h-6 bg-gray-300 mx-1'></div>
+
+        {/* Images — bouton multiple + coller + glisser-déposer */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploadingImage}
+          className='p-2 rounded hover:bg-gray-200 flex items-center gap-1 text-xs font-semibold text-blue-700 disabled:opacity-50'
+          title='Ajouter des images (bouton, collage Ctrl+V, ou glisser-déposer)'
+        >
+          <svg
+            className='w-4 h-4'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth={2}
+            viewBox='0 0 24 24'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+            />
+          </svg>
+          {uploadingImage ? '…' : 'Image'}
+        </button>
+        <input
+          ref={fileInputRef}
+          type='file'
+          accept='image/*'
+          multiple
+          className='hidden'
+          onChange={onFilesSelected}
+        />
       </div>
 
       {/* Editor content */}
