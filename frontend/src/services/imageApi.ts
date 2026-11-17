@@ -50,3 +50,25 @@ export function imageSrcWithToken(url: string): string {
   const sep = url.includes('?') ? '&' : '?'
   return `${url}${sep}token=${token}`
 }
+
+/**
+ * HTML d'insertion dans la note selon le type de fichier :
+ *  - audio  → <audio controls>
+ *  - vidéo  → <video controls>
+ *  - PDF    → <a target="_blank"> (ouvert dans un nouvel onglet)
+ * Le token est ajouté en query string (cf imageSrcWithToken), comme pour les <img>.
+ */
+export function fileEmbedHtml(file: File, url: string): string {
+  const src = imageSrcWithToken(url)
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+  const name = esc(file.name || 'fichier')
+  if (file.type.startsWith('audio/')) {
+    return `<audio controls src="${src}" title="${name}"></audio>`
+  }
+  if (file.type.startsWith('video/')) {
+    return `<video controls src="${src}" style="max-width:100%"></video>`
+  }
+  // PDF (ou tout le reste) → lien cliquable, nouvel onglet
+  return `<a href="${src}" target="_blank" rel="noopener">${name}</a>`
+}

@@ -8,16 +8,37 @@ import multer from 'multer'
 // Environnement UPLOADS_DIR pour surcharger (tests, dev local).
 export const UPLOAD_DIR = process.env.UPLOADS_DIR || '/app/uploads'
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 Mo par image
+// 100 Mo : assez pour de courtes vidéos / gros audio (les images restent minuscules).
+const MAX_FILE_SIZE = 100 * 1024 * 1024
 const MAX_FILES = 10 // par requête
 
 const EXT_BY_MIME: Record<string, string> = {
+  // Images
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/gif': 'gif',
   'image/webp': 'webp',
   'image/svg+xml': 'svg',
-  'image/bmp': 'bmp'
+  'image/bmp': 'bmp',
+  // Audio
+  'audio/mpeg': 'mp3',
+  'audio/mp3': 'mp3',
+  'audio/wav': 'wav',
+  'audio/x-wav': 'wav',
+  'audio/ogg': 'ogg',
+  'audio/webm': 'webm',
+  'audio/m4a': 'm4a',
+  'audio/aac': 'aac',
+  'audio/flac': 'flac',
+  // Vidéo
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'video/ogg': 'ogg',
+  'video/x-matroska': 'mkv',
+  'video/mpeg': 'mpg',
+  'video/quicktime': 'mov',
+  // PDF
+  'application/pdf': 'pdf'
 }
 
 /**
@@ -95,10 +116,16 @@ export const imageUpload = multer({
   }),
   limits: { fileSize: MAX_FILE_SIZE, files: MAX_FILES },
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    const m = file.mimetype
+    const ok =
+      m.startsWith('image/') ||
+      m.startsWith('audio/') ||
+      m.startsWith('video/') ||
+      m === 'application/pdf'
+    if (ok) {
       cb(null, true)
     } else {
-      cb(new Error(`Type non autorisé: ${file.mimetype} (images uniquement)`))
+      cb(new Error(`Type non autorisé: ${m} (images, audio, vidéo, PDF uniquement)`))
     }
   }
 })

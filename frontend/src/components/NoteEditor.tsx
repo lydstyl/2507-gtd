@@ -10,7 +10,7 @@ import Table from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
-import { uploadImage, imageSrcWithToken } from '../services/imageApi'
+import { uploadImage, imageSrcWithToken, fileEmbedHtml } from '../services/imageApi'
 
 interface NoteEditorProps {
   content: string
@@ -96,9 +96,11 @@ export function NoteEditor({
     }
   }, [content, editor])
 
-  // État upload (bouton Image + drop)
+  // État upload (bouton Image + bouton Fichier + drop)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingFile, setUploadingFile] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileAnyRef = useRef<HTMLInputElement>(null)
 
   // Bouton « Image » : sélection multiple → upload → insertion au curseur.
   const onFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,13 +125,39 @@ export function NoteEditor({
     }
   }
 
+  // Bouton « Fichier » : audio / vidéo / PDF → upload → insertion au curseur.
+  const onFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = ''
+    if (files.length === 0 || !editor) return
+    setUploadingFile(true)
+    try {
+      for (const file of files) {
+        const { url } = await uploadImage(file)
+        editor
+          .chain()
+          .focus()
+          .insertContent(fileEmbedHtml(file, url))
+          .run()
+      }
+    } catch (err) {
+      console.error('Échec upload fichier (bouton):', err)
+      alert(`Échec de l'upload du fichier : ${(err as Error).message}`)
+    } finally {
+      setUploadingFile(false)
+    }
+  }
+
   // Glisser-déposer d'images dans l'éditeur → upload (capture avant ProseMirror).
   useEffect(() => {
     if (!editor) return
     const dom = editor.view.dom
     const onDrop = (e: DragEvent) => {
       const files = Array.from(e.dataTransfer?.files ?? []).filter((f) =>
-        f.type.startsWith('image/')
+        f.type.startsWith('image/') ||
+        f.type.startsWith('audio/') ||
+        f.type.startsWith('video/') ||
+        f.type === 'application/pdf'
       )
       if (files.length === 0) return
       e.preventDefault()
@@ -141,13 +169,13 @@ export function NoteEditor({
         try {
           for (const file of files) {
             const { url, name } = await uploadImage(file)
+            const html = file.type.startsWith('image/')
+              ? `<img src="${imageSrcWithToken(url)}" alt="${name}">`
+              : fileEmbedHtml(file, url)
             editor
               .chain()
               .focus()
-              .insertContentAt(
-                insertPos,
-                `<img src="${imageSrcWithToken(url)}" alt="${name}">`
-              )
+              .insertContentAt(insertPos, html)
               .run()
           }
         } catch (err) {
@@ -494,6 +522,37 @@ export function NoteEditor({
           multiple
           className='hidden'
           onChange={onFilesSelected}
+        />
+
+        {/* Fichiers — audio / vidéo / PDF (bouton + glisser-déposer) */}
+        <button
+          onClick={() => fileAnyRef.current?.click()}
+          disabled={uploadingFile}
+          className='p-2 rounded hover:bg-gray-200 flex items-center gap-1 text-xs font-semibold text-blue-700 disabled:opacity-50'
+          title='Ajouter un fichier : audio, vidéo ou PDF (bouton ou glisser-déposer)'
+        >
+          <svg
+            className='w-4 h-4'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth={2}
+            viewBox='0 0 24 24'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.171 7'
+            />
+          </svg>
+          {uploadingFile ? '…' : 'Fichier'}
+        </button>
+        <input
+          ref={fileAnyRef}
+          type='file'
+          accept='audio/*,video/*,application/pdf'
+          multiple
+          className='hidden'
+          onChange={onFileSelected}
         />
       </div>
 
