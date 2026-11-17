@@ -291,6 +291,17 @@ export default function TaskListPage() {
     }
   }
 
+  const handleSaveNoteName = async (taskId: string, name: string) => {
+    try {
+      await api.updateTask(taskId, { name })
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde du titre:', err)
+      alert('Erreur lors de la sauvegarde du titre')
+      throw err
+    }
+  }
+
   const handleDeleteNote = async (taskId: string) => {
     try {
       await api.deleteTaskNote(taskId)
@@ -530,6 +541,7 @@ export default function TaskListPage() {
           onClose={modalHook.handleCloseNoteModal}
           task={editingNoteTask}
           onSave={handleSaveNote}
+          onSaveName={handleSaveNoteName}
           onDelete={handleDeleteNote}
         />
       )}

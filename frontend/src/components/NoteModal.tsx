@@ -7,6 +7,7 @@ interface NoteModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (taskId: string, note: string) => void
+  onSaveName?: (taskId: string, name: string) => Promise<void>
   onDelete?: (taskId: string) => void
 }
 
@@ -15,9 +16,11 @@ export function NoteModal({
   isOpen,
   onClose,
   onSave,
+  onSaveName,
   onDelete
 }: NoteModalProps) {
   const [note, setNote] = useState(task?.note || '')
+  const [name, setName] = useState(task?.name || '')
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -26,7 +29,10 @@ export function NoteModal({
   // `task` est stable entre les renders (référence React Query) : pas de
   // reset de la saisie utilisateur.
   useEffect(() => {
-    if (isOpen && task) setNote(task.note || '')
+    if (isOpen && task) {
+      setNote(task.note || '')
+      setName(task.name || '')
+    }
   }, [isOpen, task])
 
   // La note est attendue (hasNote) mais pas encore chargée (lazy-load).
@@ -36,6 +42,11 @@ export function NoteModal({
     setIsSaving(true)
     try {
       await onSave(task.id, note)
+      // Titre modifié dans le header ? Sauvegardé avec la note.
+      const trimmedName = name.trim()
+      if (onSaveName && trimmedName && trimmedName !== task.name) {
+        await onSaveName(task.id, trimmedName)
+      }
       onClose()
     } catch (error) {
       console.error('Erreur lors de la sauvegarde de la note:', error)
@@ -64,6 +75,7 @@ export function NoteModal({
 
   const handleClose = () => {
     setNote(task?.note || '')
+    setName(task?.name || '')
     onClose()
   }
 
@@ -74,13 +86,22 @@ export function NoteModal({
       <div className='bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col'>
         {/* Header */}
         <div className='flex items-center justify-between p-6 border-b border-gray-200'>
-          <div>
-            <h2 className='text-xl font-semibold text-gray-900'>
-              Note pour "{task.name}"
-            </h2>
+          <div className='flex-1 min-w-0 pr-4'>
+            <input
+              type='text'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleSave()
+                }
+              }}
+              aria-label='Titre de la tâche (modifiable)'
+              className='w-full bg-transparent text-xl font-semibold text-gray-900 border-b-2 border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none transition-colors'
+            />
             <p className='text-sm text-gray-500 mt-1'>
-              Utilisez l'éditeur ci-dessous pour ajouter ou modifier la note de
-              cette tâche
+              Titre modifiable (Entrée = sauvegarder) — puis la note en dessous.
             </p>
           </div>
           <button

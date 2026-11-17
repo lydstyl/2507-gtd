@@ -51,6 +51,16 @@ export function ModalRenderer() {
     }
   }
 
+  const handleSaveNoteName = async (taskId: string, name: string) => {
+    try {
+      await api.updateTask(taskId, { name })
+    } catch (error) {
+      console.error('Error saving task name from note modal:', error)
+      alert('Erreur lors de la sauvegarde du titre')
+      throw error
+    }
+  }
+
   const handleDeleteNote = async (taskId: string) => {
     try {
       await api.deleteTaskNote(taskId)
@@ -128,6 +138,7 @@ export function ModalRenderer() {
           onClose={() => handleCloseModal('note')}
           task={editingNoteTask}
           onSave={handleSaveNote}
+          onSaveName={handleSaveNoteName}
           onDelete={handleDeleteNote}
         />
       )}
