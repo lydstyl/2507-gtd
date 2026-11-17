@@ -54,6 +54,10 @@ export function NoteEditor({
       // Image : collage d'une image → upload serveur, insertion de l'URL
       // (plutôt que base64 dans le HTML de la note).
       Image.configure({
+        HTMLAttributes: {
+          // Curseur pointer : signale que l'image est cliquable (→ nouvel onglet).
+          style: 'cursor: pointer'
+        },
         handlePaste: async (file: File, ed) => {
           try {
             const { url, name } = await uploadImage(file)
@@ -188,6 +192,23 @@ export function NoteEditor({
     }
     dom.addEventListener('drop', onDrop, true)
     return () => dom.removeEventListener('drop', onDrop, true)
+  }, [editor])
+
+  // Clic sur une image → l'ouvre dans un nouvel onglet (vue pleine taille).
+  // Délégué sur le DOM de l'éditeur : couvre toutes les images (bouton,
+  // collage, glisser-déposer) sans toucher aux chemins d'insertion.
+  useEffect(() => {
+    if (!editor) return
+    const dom = editor.view.dom
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null
+      if (t && t.tagName === 'IMG') {
+        e.preventDefault()
+        window.open((t as HTMLImageElement).src, '_blank', 'noopener')
+      }
+    }
+    dom.addEventListener('click', onClick)
+    return () => dom.removeEventListener('click', onClick)
   }, [editor])
 
   // Raccourci Ctrl/Cmd + Alt + R : insère le bloc « Réponse de Gabriel » au curseur.
