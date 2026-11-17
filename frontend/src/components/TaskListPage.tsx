@@ -543,6 +543,10 @@ export default function TaskListPage() {
           onSave={handleSaveNote}
           onSaveName={handleSaveNoteName}
           onDelete={handleDeleteNote}
+          onOpenEdit={(task) => {
+            modalHook.handleCloseNoteModal()
+            modalHook.handleEditTask(task)
+          }}
         />
       )}
 

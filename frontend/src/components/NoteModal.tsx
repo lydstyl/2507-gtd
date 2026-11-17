@@ -9,6 +9,7 @@ interface NoteModalProps {
   onSave: (taskId: string, note: string) => void
   onSaveName?: (taskId: string, name: string) => Promise<void>
   onDelete?: (taskId: string) => void
+  onOpenEdit?: (task: Task) => void
 }
 
 export function NoteModal({
@@ -17,7 +18,8 @@ export function NoteModal({
   onClose,
   onSave,
   onSaveName,
-  onDelete
+  onDelete,
+  onOpenEdit
 }: NoteModalProps) {
   const [note, setNote] = useState(task?.note || '')
   const [name, setName] = useState(task?.name || '')
@@ -104,24 +106,48 @@ export function NoteModal({
               Titre modifiable (Entrée = sauvegarder) — puis la note en dessous.
             </p>
           </div>
-          <button
-            onClick={handleClose}
-            className='text-gray-400 hover:text-gray-600 transition-colors'
-          >
-            <svg
-              className='w-6 h-6'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
+          <div className='flex items-center space-x-2 shrink-0'>
+            {onOpenEdit && (
+              <button
+                onClick={() => onOpenEdit(task)}
+                className='px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex items-center space-x-1.5'
+                title='Ouvrir la modale de modification de la tâche (titre, tags, dates…)'
+              >
+                <svg
+                  className='w-4 h-4'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                  />
+                </svg>
+                <span>Éditer la tâche</span>
+              </button>
+            )}
+            <button
+              onClick={handleClose}
+              className='text-gray-400 hover:text-gray-600 transition-colors'
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M6 18L18 6M6 6l12 12'
-              />
-            </svg>
-          </button>
+              <svg
+                className='w-6 h-6'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M6 18L18 6M6 6l12 12'
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Content */}

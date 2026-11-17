@@ -140,6 +140,13 @@ export function ModalRenderer() {
           onSave={handleSaveNote}
           onSaveName={handleSaveNoteName}
           onDelete={handleDeleteNote}
+          onOpenEdit={(task) => {
+            dispatch({ type: 'CLOSE_MODAL', payload: 'note' })
+            dispatch({
+              type: 'OPEN_MODAL',
+              payload: { modal: 'editTask', data: { taskId: task.id } },
+            })
+          }}
         />
       )}
     </>
