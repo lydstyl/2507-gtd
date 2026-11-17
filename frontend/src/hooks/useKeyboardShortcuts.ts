@@ -1,7 +1,28 @@
 import { useEffect, useRef } from 'react'
- import type { Task, Tag, UpdateTaskData } from '../types/task'
-import { TaskDateConsistencyService } from '@gtd/shared'
+ import type { Task, Tag, TaskStatus, UpdateTaskData } from '../types/task'
 import { api } from '../utils/api'
+import {
+  computeImportanceUpdate,
+  computeComplexityUpdate,
+  computeDateUpdate,
+  computeStatusUpdate,
+  toggleTagUpdate,
+  withDateConsistency,
+} from '../utils/shortcutActions'
+
+/**
+ * Raccourcis « statuts » — une lettre par statut. Fonctionnent sur la tâche
+ * sélectionnée de la liste /tasks, et aussi pendant la LECTURE de la note
+ * (modal note ouvert, focus hors de l'éditeur).
+ */
+const STATUS_KEYS: Record<string, TaskStatus> = {
+  b: 'brouillon',
+  p: 'pour_ia',
+  l: 'collecte',
+  r: 'pret',
+  u: 'un_jour_peut_etre',
+  v: 'termine_par_ia',
+}
 
 
 interface UseKeyboardShortcutsProps {
@@ -11,6 +32,8 @@ interface UseKeyboardShortcutsProps {
   tasks: Task[]
   tags: Tag[]
   isModalOpen: boolean
+  isNoteModalOpen: boolean
+  noteTaskId: string | null
   onTaskDeleted: (taskId: string) => Promise<void>
   onTasksReload: () => Promise<void>
   setPinnedTaskId: (id: string | null | ((prev: string | null) => string | null)) => void
@@ -37,6 +60,8 @@ export function useKeyboardShortcuts({
   tasks,
   tags,
   isModalOpen,
+  isNoteModalOpen,
+  noteTaskId,
   onTaskDeleted,
   onTasksReload,
   setPinnedTaskId,
@@ -48,12 +73,49 @@ export function useKeyboardShortcuts({
 
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      const inField =
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.contentEditable === 'true'
+
+      // Statuts (B/P/L/R/U/V) — sur la tâche sélectionnée de la liste, et
+      // aussi pendant la LECTURE de la note (modal note ouvert, focus hors de
+      // l'éditeur). Si le focus est DANS l'éditeur de la note, les lettres
+      // tapent du texte : on n'intercepte pas.
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const status = STATUS_KEYS[e.key.toLowerCase()]
+        if (status) {
+          const readingNote = isNoteModalOpen && !!noteTaskId && !inField
+          const onList = !isModalOpen && !inField
+          if (readingNote || onList) {
+            e.preventDefault()
+            const targetId = readingNote ? noteTaskId : selectedTaskId
+            if (targetId) {
+              const targetTask = findTaskById(tasks, targetId)
+              if (targetTask) {
+                const update = computeStatusUpdate(targetTask, status)
+                if (Object.keys(update).length > 0) {
+                  try {
+                    await api.updateTask(targetTask.id, update)
+                    await onTasksReload()
+                  } catch {
+                    alert('Erreur lors du changement de statut de la tâche')
+                  }
+                }
+              }
+            }
+            return
+          }
+        }
+      }
+
       // Disable shortcuts if modal is open
       if (isModalOpen) return
 
       // Disable shortcuts if user is typing in input fields
-      const target = e.target as HTMLElement
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.contentEditable === 'true') {
+      if (inField) {
         return
       }
 
@@ -113,114 +175,69 @@ export function useKeyboardShortcuts({
       // Importance (I: +10, Shift+I: -10)
       if (e.key.toLowerCase() === "i") {
         e.preventDefault()
-        if (e.shiftKey) {
-          update.importance = Math.max(100, task.importance - 10)
-        } else {
-          update.importance = Math.min(499, task.importance + 10)
-        }
+        Object.assign(update, computeImportanceUpdate(task, e.shiftKey ? 'down' : 'up'))
         handled = true
       }
 
       // Complexity (C: +2, Shift+C: -2)
       if (e.key.toLowerCase() === "c") {
         e.preventDefault()
-        if (e.shiftKey) {
-          update.complexity = Math.max(1, task.complexity - 2)
-        } else {
-          update.complexity = Math.min(9, task.complexity + 2)
-        }
+        Object.assign(update, computeComplexityUpdate(task, e.shiftKey ? 'down' : 'up'))
         handled = true
       }
 
        // Due date +1j/-1j
        if (e.key.toLowerCase() === "d") {
          e.preventDefault()
-          const baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
-         if (e.shiftKey) {
-           baseDate.setDate(baseDate.getDate() - 1)
-         } else {
-           baseDate.setDate(baseDate.getDate() + 1)
-         }
-         // Format as YYYY-MM-DD to avoid timezone issues
-         update.plannedDate = baseDate.getFullYear() + '-' +
-           String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-           String(baseDate.getDate()).padStart(2, '0')
+         Object.assign(update, computeDateUpdate(task, e.shiftKey ? 'yesterday' : 'tomorrow'))
          handled = true
        }
 
         // Due date +1 week
         if (e.key.toLowerCase() === "w") {
           e.preventDefault()
-          const baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
-          baseDate.setDate(baseDate.getDate() + 7)
-          // Format as YYYY-MM-DD in local timezone
-          update.plannedDate = baseDate.getFullYear() + '-' +
-            String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-            String(baseDate.getDate()).padStart(2, '0')
+          Object.assign(update, computeDateUpdate(task, 'week'))
           handled = true
         }
 
         // Due date +1 month
         if (e.key.toLowerCase() === "m") {
           e.preventDefault()
-          const baseDate = task.plannedDate ? new Date(task.plannedDate) : new Date()
-          baseDate.setMonth(baseDate.getMonth() + 1)
-          // Format as YYYY-MM-DD in local timezone
-          update.plannedDate = baseDate.getFullYear() + '-' +
-            String(baseDate.getMonth() + 1).padStart(2, '0') + '-' +
-            String(baseDate.getDate()).padStart(2, '0')
+          Object.assign(update, computeDateUpdate(task, 'month'))
           handled = true
         }
 
         // Set date to today (T)
         if (e.key.toLowerCase() === "t") {
           e.preventDefault()
-          const today = new Date()
-          // Format as YYYY-MM-DD in local timezone for "today"
-          update.plannedDate = today.getFullYear() + '-' +
-            String(today.getMonth() + 1).padStart(2, '0') + '-' +
-            String(today.getDate()).padStart(2, '0')
+          Object.assign(update, computeDateUpdate(task, 'today'))
           handled = true
         }
 
       // Remove date (E)
       if (e.key.toLowerCase() === "e") {
         e.preventDefault()
-        update.plannedDate = null
+        Object.assign(update, computeDateUpdate(task, 'remove'))
         handled = true
       }
 
       // Tags 1-9
       if (/^[1-9]$/.test(e.key)) {
         e.preventDefault()
-        const idx = parseInt(e.key, 10) - 1
-        if (tags[idx]) {
-          const tagId = tags[idx].id
-          const hasTag = task.tags.some((t) => t.id === tagId)
-          update.tagIds = hasTag
-            ? task.tags.filter((t) => t.id !== tagId).map((t) => t.id)
-            : [...task.tags.map((t) => t.id), tagId]
+        const tag = tags[parseInt(e.key, 10) - 1]
+        if (tag) {
+          Object.assign(update, toggleTagUpdate(task, tag))
           handled = true
         }
       }
 
       if (handled) {
         try {
-          // Règle : la date limite ne peut pas précéder la date prévue.
-          // Si le raccourci touche la date prévue et que la date limite deviendrait
-          // antérieure, elle est réalignée sur la nouvelle date prévue.
-          if (update.plannedDate !== undefined) {
-            const alignedDueDate = TaskDateConsistencyService.alignDueDateWithPlannedDate(
-              update.plannedDate,
-              task.dueDate ?? null
-            )
+          // Règle « date limite ≥ date prévue » : réalignée si la date prévue change
+          // (logique partagée clavier + boutons via shortcutActions).
+          const finalUpdate = withDateConsistency(update, task)
 
-            if ((alignedDueDate ?? null) !== (task.dueDate ?? null)) {
-              update.dueDate = alignedDueDate ?? null
-            }
-          }
-
-          await api.updateTask(task.id, update)
+          await api.updateTask(task.id, finalUpdate)
           await onTasksReload()
           if (timeoutRef.current) clearTimeout(timeoutRef.current)
           timeoutRef.current = setTimeout(() => {
@@ -285,6 +302,8 @@ export function useKeyboardShortcuts({
     tasks,
     tags,
     isModalOpen,
+    isNoteModalOpen,
+    noteTaskId,
     onTaskDeleted,
     onTasksReload,
     setPinnedTaskId,

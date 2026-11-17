@@ -42,6 +42,24 @@ export function ShortcutsHelp({
             </div>
             <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
               <div>
+                <b>B</b> : Statut → Brouillon
+              </div>
+              <div>
+                <b>P</b> : Statut → Pour IA
+              </div>
+              <div>
+                <b>L</b> : Statut → Collecté
+              </div>
+              <div>
+                <b>R</b> : Statut → Prêt
+              </div>
+              <div>
+                <b>U</b> : Statut → Un jour peut-être
+              </div>
+              <div>
+                <b>V</b> : Statut → Terminé par IA
+              </div>
+              <div>
                 <b>I</b> / <b>Shift+I</b> : Importance +10/-10
               </div>
               <div>
@@ -88,6 +106,9 @@ export function ShortcutsHelp({
               Les raccourcis de date modifient la <b>date prévue</b>. La <b>date limite</b> suit
               automatiquement la date prévue si elle deviendrait antérieure (la date limite est
               toujours ≥ à la date prévue).
+              <br />
+              Les raccourcis de <b>statut (B/P/L/R/U/V)</b> marchent aussi en lisant la note d'une
+              tâche (modal ouvert, focus hors de l'éditeur de la note).
             </div>
           </div>
 

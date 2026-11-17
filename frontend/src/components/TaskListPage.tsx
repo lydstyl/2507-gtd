@@ -16,6 +16,13 @@ import { api } from '../utils/api'
 import { useTaskFilters } from '../hooks/useTaskFilters'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { useModalState } from '../hooks/useModalState'
+import {
+  computeImportanceUpdate,
+  computeComplexityUpdate,
+  computeDateUpdate,
+  toggleTagUpdate,
+  withDateConsistency,
+} from '../utils/shortcutActions'
 
 export default function TaskListPage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -140,6 +147,8 @@ export default function TaskListPage() {
     tasks,
     tags,
     isModalOpen: modalHook.isAnyModalOpen,
+    isNoteModalOpen: modalHook.isNoteModalOpen,
+    noteTaskId: noteTaskId ?? null,
     onTaskDeleted: handleTaskDeleted,
     onTasksReload: loadTasks,
     setPinnedTaskId,
@@ -164,52 +173,70 @@ export default function TaskListPage() {
     setPinnedTaskId(prev => prev === taskId ? null : taskId)
   }
 
-  // Mobile quick actions handler
+  // Boutons d'action rapide — clavier et boutons partagent la MÊME logique
+  // (shortcutActions) : zéro duplication. Gère les tags (tag:<id>) et toutes
+  // les dates (aujourd'hui / +1j / -1j / +1 sem / +1 mois / enlever).
   const handleQuickAction = async (taskId: string, action: string) => {
     const task = findTaskById(tasks, taskId)
     if (!task) return
 
-     let update: Partial<UpdateTaskData> = {}
-    let shouldDelete = false
+    if (action === 'delete') {
+      try {
+        await handleTaskDeleted(taskId)
+      } catch {
+        alert("Erreur lors de l'action rapide")
+      }
+      return
+    }
 
-    switch (action) {
-      case 'importance-up':
-        update.importance = Math.min(499, task.importance + 10)
-        break
-      case 'importance-down':
-        update.importance = Math.max(100, task.importance - 10)
-        break
-      case 'complexity-up':
-        update.complexity = Math.min(9, task.complexity + 2)
-        break
-      case 'complexity-down':
-        update.complexity = Math.max(1, task.complexity - 2)
-        break
-       case 'date-today': {
-         const today = new Date()
-         update.plannedDate = today.getFullYear() + '-' +
-           String(today.getMonth() + 1).padStart(2, '0') + '-' +
-           String(today.getDate()).padStart(2, '0')
-         break
-       }
-      case 'date-remove':
-        update.plannedDate = null
-        break
-      case 'delete':
-        shouldDelete = true
-        break
+    let update: Partial<UpdateTaskData>
+    if (action.startsWith('tag:')) {
+      const tag = tags.find((t) => t.id === action.slice(4))
+      if (!tag) return
+      update = toggleTagUpdate(task, tag)
+    } else {
+      switch (action) {
+        case 'importance-up': update = computeImportanceUpdate(task, 'up'); break
+        case 'importance-down': update = computeImportanceUpdate(task, 'down'); break
+        case 'complexity-up': update = computeComplexityUpdate(task, 'up'); break
+        case 'complexity-down': update = computeComplexityUpdate(task, 'down'); break
+        case 'date-today': update = computeDateUpdate(task, 'today'); break
+        case 'date-tomorrow': update = computeDateUpdate(task, 'tomorrow'); break
+        case 'date-yesterday': update = computeDateUpdate(task, 'yesterday'); break
+        case 'date-week': update = computeDateUpdate(task, 'week'); break
+        case 'date-month': update = computeDateUpdate(task, 'month'); break
+        case 'date-remove': update = computeDateUpdate(task, 'remove'); break
+        default: return
+      }
     }
 
     try {
-      if (shouldDelete) {
-        await handleTaskDeleted(taskId)
-      } else {
-        await api.updateTask(taskId, update)
-        await loadTasks()
-      }
+      // Règle « date limite ≥ date prévue » (partagée clavier + boutons).
+      await api.updateTask(taskId, withDateConsistency(update, task))
+      await loadTasks()
      } catch {
        alert("Erreur lors de l'action rapide")
      }
+  }
+
+  // Raccourci global (clavier A) → bouton : toutes les tâches en retard →
+  // aujourd'hui (avec confirmation). Visible sur toutes les tailles d'écran.
+  const handleOverdueToToday = async () => {
+    if (!window.confirm("Mettre toutes les tâches en retard à aujourd'hui ?")) return
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const overdueTasks = tasks.filter(t => t.plannedDate && new Date(t.plannedDate) < today)
+    const todayFormatted = today.getFullYear() + '-' +
+      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+      String(today.getDate()).padStart(2, '0')
+    try {
+      for (const t of overdueTasks) {
+        await api.updateTask(t.id, { plannedDate: todayFormatted })
+      }
+      await loadTasks()
+    } catch {
+      alert("Erreur lors de la mise à jour des tâches en retard")
+    }
   }
 
   const handleMarkCompleted = async (taskId: string) => {
@@ -282,6 +309,13 @@ export default function TaskListPage() {
       <div className='flex justify-between items-center mb-6'>
         <h1 className='text-2xl font-bold'>Toutes les tâches</h1>
         <div className='flex items-center space-x-2'>
+          <button
+            onClick={handleOverdueToToday}
+            className='px-3 py-2 rounded-md text-sm font-medium transition-colors bg-amber-100 hover:bg-amber-200 text-amber-700'
+            title="Toutes les tâches en retard → aujourd'hui (raccourci A)"
+          >
+            ⏰ En retard → aujourd'hui
+          </button>
           <button
             onClick={() => setShowQuickAdd(!showQuickAdd)}
             className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -428,6 +462,7 @@ export default function TaskListPage() {
                 onSelectTask={handleSelectTask}
                 selectedTaskId={selectedTaskId ?? undefined}
                 onQuickAction={handleQuickAction}
+                tags={tags}
                 onPin={handlePin}
                 isPinned={pinnedTaskId === task.id}
               />
@@ -454,6 +489,7 @@ export default function TaskListPage() {
             onSelectTask={handleSelectTask}
             selectedTaskId={selectedTaskId ?? undefined}
             onQuickAction={handleQuickAction}
+            tags={tags}
             onPin={handlePin}
             isPinned={pinnedTaskId === focusTaskId}
           />
