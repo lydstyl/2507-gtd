@@ -29,6 +29,12 @@ export function NoteModal({
   const [note, setNote] = useState(task?.note || '')
   const [name, setName] = useState(task?.name || '')
   const [status, setStatus] = useState<TaskStatus>(task?.status || 'brouillon')
+  // Dernier statut effectivement PERSISTÉ en base. Le prop `task.status` peut
+  // rester stale (le détail n'est pas re-fetché à chaque save) : la garde
+  // anti-PUT-redundant et le rollback doivent comparer à cet état, pas au prop.
+  const [lastSavedStatus, setLastSavedStatus] = useState<TaskStatus>(
+    task?.status || 'brouillon'
+  )
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isCompleting, setIsCompleting] = useState(false)
@@ -43,6 +49,7 @@ export function NoteModal({
       setNote(task.note || '')
       setName(task.name || '')
       setStatus(task.status || 'brouillon')
+      setLastSavedStatus(task.status || 'brouillon')
     }
   }, [isOpen, task])
 
@@ -88,23 +95,26 @@ export function NoteModal({
     setNote(task?.note || '')
     setName(task?.name || '')
     setStatus(task?.status || 'brouillon')
+    setLastSavedStatus(task?.status || 'brouillon')
     onClose()
   }
 
   // Changer le statut depuis la note : sauvegarde IMMÉDIATE au changement
   // (indépendante de « Sauvegarder », qui gère la note). Rollback local si
-  // l'appel échoue.
+  // l'appel échoue. La garde compare à `lastSavedStatus` (dernière valeur en
+  // base) et non au prop `task.status` — celui-ci reste stale entre deux saves.
   const handleStatusChange = async (e: ChangeEvent<HTMLSelectElement>) => {
     const next = e.target.value as TaskStatus
     setStatus(next)
-    if (!onSaveStatus || next === task.status) return
+    if (!onSaveStatus || next === lastSavedStatus) return
     setIsStatusSaving(true)
     try {
       await onSaveStatus(task.id, next)
+      setLastSavedStatus(next)
     } catch (error) {
       console.error('Erreur lors de la modification du statut:', error)
       alert('Erreur lors de la modification du statut')
-      setStatus(task.status)
+      setStatus(lastSavedStatus)
     } finally {
       setIsStatusSaving(false)
     }

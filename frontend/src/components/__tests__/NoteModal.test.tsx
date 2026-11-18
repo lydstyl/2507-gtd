@@ -160,3 +160,67 @@ describe('NoteModal — bouton Terminer', () => {
     expect(onClose).not.toHaveBeenCalled()
   })
 })
+
+describe('NoteModal — sélecteur de statut (sauvegarde immédiate)', () => {
+  it('changement de statut : PUT immédiat avec le nouveau statut', async () => {
+    const user = userEvent.setup()
+    const onSaveStatus = vi.fn(async () => {})
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={noop}
+        onSave={noop}
+        onSaveStatus={onSaveStatus}
+      />
+    )
+    await user.selectOptions(screen.getByLabelText('Statut'), 'pret')
+    expect(onSaveStatus).toHaveBeenCalledWith('task-1', 'pret')
+  })
+
+  it('re-sélection du statut d\'origine (prop stale) : le PUT part bien (régr. garde stale)', async () => {
+    const user = userEvent.setup()
+    // Le prop `task` n'est PAS re-fetché après le 1er PUT (comportement réel :
+    // noteTaskDetail reste stale). Avant le fix, la 2e sélection était ignorée
+    // car `next === task.status` → divergence UI/DB.
+    const onSaveStatus = vi.fn(async () => {})
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }} // status: 'brouillon' (stale ensuite)
+        isOpen
+        onClose={noop}
+        onSave={noop}
+        onSaveStatus={onSaveStatus}
+      />
+    )
+    await user.selectOptions(screen.getByLabelText('Statut'), 'pret')
+    expect(onSaveStatus).toHaveBeenCalledTimes(1)
+    // Re-sélection de 'brouillon' alors que task.status est encore 'brouillon'
+    await user.selectOptions(screen.getByLabelText('Statut'), 'brouillon')
+    expect(onSaveStatus).toHaveBeenCalledTimes(2)
+    expect(onSaveStatus).toHaveBeenLastCalledWith('task-1', 'brouillon')
+  })
+
+  it('échec du PUT : rollback du select sur le dernier statut persisté', async () => {
+    const user = userEvent.setup()
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    const onSaveStatus = vi.fn(async () => {
+      throw new Error('boom')
+    })
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={noop}
+        onSave={noop}
+        onSaveStatus={onSaveStatus}
+      />
+    )
+    await user.selectOptions(screen.getByLabelText('Statut'), 'pret')
+    expect(onSaveStatus).toHaveBeenCalled()
+    expect(
+      (screen.getByLabelText('Statut') as HTMLSelectElement).value
+    ).toBe('brouillon')
+    alertSpy.mockRestore()
+  })
+})
