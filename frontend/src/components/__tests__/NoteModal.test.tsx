@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { NoteModal } from '../NoteModal'
 import type { Task } from '../../types/task'
 
@@ -86,5 +87,76 @@ describe('NoteModal — lazy-load de la note', () => {
     render(<NoteModal task={task} isOpen onClose={noop} onSave={noop} onDelete={noop} />)
 
     expect(screen.getByText('Supprimer la note')).toBeInTheDocument()
+  })
+})
+
+describe('NoteModal — bouton Terminer', () => {
+  it('visible quand onMarkCompleted fourni et tâche non terminée', () => {
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={noop}
+        onSave={noop}
+        onMarkCompleted={noop}
+      />
+    )
+    expect(screen.getByText('Terminer')).toBeInTheDocument()
+  })
+
+  it('absent si onMarkCompleted non fourni ou tâche déjà terminée', () => {
+    const { rerender } = render(
+      <NoteModal task={{ ...baseTask, note: '<p>x</p>' }} isOpen onClose={noop} onSave={noop} />
+    )
+    expect(screen.queryByText('Terminer')).not.toBeInTheDocument()
+
+    rerender(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>', isCompleted: true }}
+        isOpen
+        onClose={noop}
+        onSave={noop}
+        onMarkCompleted={noop}
+      />
+    )
+    expect(screen.queryByText('Terminer')).not.toBeInTheDocument()
+  })
+
+  it('clic : complète la tâche PUIS ferme la modale', async () => {
+    const calls: string[] = []
+    const onMarkCompleted = vi.fn(async () => {
+      calls.push('complete')
+    })
+    const onClose = vi.fn(() => calls.push('close'))
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={onClose}
+        onSave={noop}
+        onMarkCompleted={onMarkCompleted}
+      />
+    )
+    await userEvent.click(screen.getByText('Terminer'))
+    expect(onMarkCompleted).toHaveBeenCalledWith('task-1')
+    expect(calls).toEqual(['complete', 'close'])
+  })
+
+  it('échec de complétion : la modale ne se ferme pas', async () => {
+    const onClose = vi.fn()
+    const onMarkCompleted = vi.fn(async () => {
+      throw new Error('boom')
+    })
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={onClose}
+        onSave={noop}
+        onMarkCompleted={onMarkCompleted}
+      />
+    )
+    await userEvent.click(screen.getByText('Terminer'))
+    expect(onClose).not.toHaveBeenCalled()
   })
 })

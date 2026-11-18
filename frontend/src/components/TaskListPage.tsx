@@ -542,7 +542,15 @@ export default function TaskListPage() {
           task={editingNoteTask}
           onSave={handleSaveNote}
           onSaveName={handleSaveNoteName}
+          onSaveStatus={async (taskId, newStatus) => {
+            await api.updateTask(taskId, { status: newStatus })
+            await loadTasks()
+          }}
           onDelete={handleDeleteNote}
+          onMarkCompleted={async (taskId) => {
+            await api.markTaskCompleted(taskId)
+            await loadTasks()
+          }}
           onOpenEdit={(task) => {
             modalHook.handleCloseNoteModal()
             modalHook.handleEditTask(task)

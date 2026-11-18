@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ChangeEvent } from 'react'
 import { NoteEditor } from './NoteEditor'
-import type { Task } from '../types/task'
+import type { Task, TaskStatus } from '../types/task'
+import { TASK_STATUS_LABELS } from '../types/task'
 
 interface NoteModalProps {
   task: Task
@@ -8,8 +9,10 @@ interface NoteModalProps {
   onClose: () => void
   onSave: (taskId: string, note: string) => void
   onSaveName?: (taskId: string, name: string) => Promise<void>
+  onSaveStatus?: (taskId: string, status: TaskStatus) => Promise<void> | void
   onDelete?: (taskId: string) => void
   onOpenEdit?: (task: Task) => void
+  onMarkCompleted?: (taskId: string) => Promise<void> | void
 }
 
 export function NoteModal({
@@ -18,13 +21,18 @@ export function NoteModal({
   onClose,
   onSave,
   onSaveName,
+  onSaveStatus,
   onDelete,
-  onOpenEdit
+  onOpenEdit,
+  onMarkCompleted
 }: NoteModalProps) {
   const [note, setNote] = useState(task?.note || '')
   const [name, setName] = useState(task?.name || '')
+  const [status, setStatus] = useState<TaskStatus>(task?.status || 'brouillon')
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isCompleting, setIsCompleting] = useState(false)
+  const [isStatusSaving, setIsStatusSaving] = useState(false)
 
   // Synchronise l'éditeur quand la note arrive (lazy-load : la tâche passée
   // vient d'abord de la liste sans note, puis du détail GET /api/tasks/:id).
@@ -34,6 +42,7 @@ export function NoteModal({
     if (isOpen && task) {
       setNote(task.note || '')
       setName(task.name || '')
+      setStatus(task.status || 'brouillon')
     }
   }, [isOpen, task])
 
@@ -78,7 +87,42 @@ export function NoteModal({
   const handleClose = () => {
     setNote(task?.note || '')
     setName(task?.name || '')
+    setStatus(task?.status || 'brouillon')
     onClose()
+  }
+
+  // Changer le statut depuis la note : sauvegarde IMMÉDIATE au changement
+  // (indépendante de « Sauvegarder », qui gère la note). Rollback local si
+  // l'appel échoue.
+  const handleStatusChange = async (e: ChangeEvent<HTMLSelectElement>) => {
+    const next = e.target.value as TaskStatus
+    setStatus(next)
+    if (!onSaveStatus || next === task.status) return
+    setIsStatusSaving(true)
+    try {
+      await onSaveStatus(task.id, next)
+    } catch (error) {
+      console.error('Erreur lors de la modification du statut:', error)
+      alert('Erreur lors de la modification du statut')
+      setStatus(task.status)
+    } finally {
+      setIsStatusSaving(false)
+    }
+  }
+
+  // Terminer la tâche depuis la note : complète puis ferme la modale.
+  const handleMarkCompleted = async () => {
+    if (!onMarkCompleted) return
+    setIsCompleting(true)
+    try {
+      await onMarkCompleted(task.id)
+      onClose()
+    } catch (error) {
+      console.error("Erreur lors de la complétion de la tâche:", error)
+      alert('Erreur lors de la modification du statut de la tâche')
+    } finally {
+      setIsCompleting(false)
+    }
   }
 
   if (!isOpen || !task) return null
@@ -105,6 +149,37 @@ export function NoteModal({
             <p className='text-sm text-gray-500 mt-1'>
               Titre modifiable (Entrée = sauvegarder) — puis la note en dessous.
             </p>
+            {onSaveStatus && (
+              <div className='flex items-center gap-2 mt-3'>
+                <label
+                  htmlFor='note-status'
+                  className='text-sm font-medium text-gray-700'
+                >
+                  Statut
+                </label>
+                <select
+                  id='note-status'
+                  value={status}
+                  onChange={handleStatusChange}
+                  disabled={isStatusSaving}
+                  title='Changer le statut de la tâche (sauvegarde immédiate)'
+                  className='px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50'
+                >
+                  {(
+                    Object.entries(TASK_STATUS_LABELS) as [TaskStatus, string][]
+                  ).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                {isStatusSaving && (
+                  <span className='text-xs text-gray-500'>
+                    Sauvegarde…
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <div className='flex items-center space-x-2 shrink-0'>
             {onOpenEdit && (
@@ -185,11 +260,11 @@ export function NoteModal({
         </div>
 
         {/* Footer */}
-        <div className='flex items-center justify-between p-6 border-t border-gray-200'>
-          <div className='flex items-center space-x-3'>
+        <div className='grid grid-cols-2 gap-2 p-6 border-t border-gray-200 md:flex md:flex-row md:items-center md:justify-between'>
+          <div className='contents md:flex md:flex-row md:items-center md:gap-3'>
             <button
               onClick={handleClose}
-              className='px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors'
+              className='order-1 md:order-none w-full px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors md:w-auto'
               disabled={isSaving || isDeleting}
             >
               Annuler
@@ -198,7 +273,7 @@ export function NoteModal({
               <button
                 onClick={handleDelete}
                 disabled={isSaving || isDeleting}
-                className='px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2'
+                className='order-3 md:order-none w-full px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 md:w-auto'
               >
                 {isDeleting ? (
                   <>
@@ -244,38 +319,90 @@ export function NoteModal({
               </button>
             )}
           </div>
-          <button
-            onClick={handleSave}
-            disabled={isSaving || isDeleting}
-            className='px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2'
-          >
-            {isSaving ? (
-              <>
-                <svg
-                  className='animate-spin h-4 w-4'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <circle
-                    className='opacity-25'
-                    cx='12'
-                    cy='12'
-                    r='10'
-                    stroke='currentColor'
-                    strokeWidth='4'
-                  ></circle>
-                  <path
-                    className='opacity-75'
-                    fill='currentColor'
-                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                  ></path>
-                </svg>
-                <span>Sauvegarde...</span>
-              </>
-            ) : (
-              <span>Sauvegarder</span>
+          <div className='contents md:flex md:flex-row md:items-center md:gap-3'>
+            {onMarkCompleted && !task.isCompleted && (
+              <button
+                onClick={handleMarkCompleted}
+                disabled={isSaving || isDeleting || isCompleting}
+                className='order-4 md:order-none w-full px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 md:w-auto'
+                title='Marquer la tâche comme terminée et fermer la note'
+              >
+                {isCompleting ? (
+                  <>
+                    <svg
+                      className='animate-spin h-4 w-4'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                    >
+                      <circle
+                        className='opacity-25'
+                        cx='12'
+                        cy='12'
+                        r='10'
+                        stroke='currentColor'
+                        strokeWidth='4'
+                      ></circle>
+                      <path
+                        className='opacity-75'
+                        fill='currentColor'
+                        d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                      ></path>
+                    </svg>
+                    <span>En cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className='w-4 h-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M5 13l4 4L19 7'
+                      />
+                    </svg>
+                    <span>Terminer</span>
+                  </>
+                )}
+              </button>
             )}
-          </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving || isDeleting || isCompleting}
+              className='order-2 md:order-none w-full px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 md:w-auto'
+            >
+              {isSaving ? (
+                <>
+                  <svg
+                    className='animate-spin h-4 w-4'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                  >
+                    <circle
+                      className='opacity-25'
+                      cx='12'
+                      cy='12'
+                      r='10'
+                      stroke='currentColor'
+                      strokeWidth='4'
+                    ></circle>
+                    <path
+                      className='opacity-75'
+                      fill='currentColor'
+                      d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                    ></path>
+                  </svg>
+                  <span>Sauvegarde...</span>
+                </>
+              ) : (
+                <span>Sauvegarder</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

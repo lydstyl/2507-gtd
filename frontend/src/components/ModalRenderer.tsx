@@ -139,7 +139,13 @@ export function ModalRenderer() {
           task={editingNoteTask}
           onSave={handleSaveNote}
           onSaveName={handleSaveNoteName}
+          onSaveStatus={async (taskId, newStatus) => {
+            await api.updateTask(taskId, { status: newStatus })
+          }}
           onDelete={handleDeleteNote}
+          onMarkCompleted={async (taskId) => {
+            await api.markTaskCompleted(taskId)
+          }}
           onOpenEdit={(task) => {
             dispatch({ type: 'CLOSE_MODAL', payload: 'note' })
             dispatch({
