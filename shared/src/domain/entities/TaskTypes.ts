@@ -2,9 +2,9 @@
  * Shared types and enums for the GTD domain
  */
 
-export type TaskStatus = 'brouillon' | 'pour_ia' | 'collecte' | 'pret' | 'un_jour_peut_etre'
+export type TaskStatus = 'brouillon' | 'pour_ia' | 'collecte' | 'pret' | 'un_jour_peut_etre' | 'termine_par_ia'
 
-export type TaskCategory = 'brouillon' | 'pour-ia' | 'collected' | 'pret-overdue' | 'pret-today' | 'pret-tomorrow' | 'pret-no-date' | 'pret-future' | 'un-jour'
+export type TaskCategory = 'brouillon' | 'pour-ia' | 'collected' | 'pret-overdue' | 'pret-today' | 'pret-tomorrow' | 'pret-no-date' | 'pret-future' | 'un-jour' | 'termine-par-ia'
 
 export interface DateContext {
   today: Date

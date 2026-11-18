@@ -181,7 +181,7 @@ describe('Shared Domain Business Logic Integration', () => {
     })
 
     it('should have pret-future as second-to-last priority', () => {
-      expect(TaskPriorityService.getCategoryPriority('pret-future')).toBe(8)
+      expect(TaskPriorityService.getCategoryPriority('pret-future')).toBe(9)
     })
 
     it('should maintain correct category priority ordering', () => {
@@ -189,12 +189,13 @@ describe('Shared Domain Business Logic Integration', () => {
         ['brouillon', 1],
         ['pour-ia', 2],
         ['collected', 3],
-        ['pret-overdue', 4],
-        ['pret-today', 5],
-        ['pret-tomorrow', 6],
-        ['pret-no-date', 7],
-        ['pret-future', 8],
-        ['un-jour', 9]
+        ['termine-par-ia', 4],
+        ['pret-overdue', 5],
+        ['pret-today', 6],
+        ['pret-tomorrow', 7],
+        ['pret-no-date', 8],
+        ['pret-future', 9],
+        ['un-jour', 10]
       ]
       expected.forEach(([category, priority]) => {
         expect(TaskPriorityService.getCategoryPriority(category as any)).toBe(priority)

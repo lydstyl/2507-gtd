@@ -152,7 +152,7 @@ export class CsvService {
     //  - 16 cols (legacy): ... Importance, Complexité, Points, Statut, Date prévue, ...
     //  - 15 cols (new):     ... Importance, Complexité, Statut, Date prévue, ...  (no Points)
     //  - 15 cols (legacy):  ... Importance, Complexité, Points, Date prévue, ...  (no Statut)
-    const KNOWN_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'completed']
+    const KNOWN_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'termine_par_ia', 'completed']
     const col6 = columns[6] ? columns[6].trim() : ''
 
     // Detect format: if column 7 (index 6) is a known status → new 15-col format (Statut without Points)

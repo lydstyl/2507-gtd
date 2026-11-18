@@ -73,6 +73,13 @@ export class TaskCategoryService {
          backgroundColor: 'bg-sky-50',
          textColor: 'text-sky-700',
          icon: '🌙'
+       },
+       'termine-par-ia': {
+         label: 'Terminé par IA',
+         borderColor: 'border-l-emerald-500',
+         backgroundColor: 'bg-emerald-50',
+         textColor: 'text-emerald-700',
+         icon: '🤖✅'
        }
      }
 
@@ -114,7 +121,8 @@ export class TaskCategoryService {
       'pret-tomorrow': [],
       'pret-no-date': [],
       'pret-future': [],
-      'un-jour': []
+      'un-jour': [],
+      'termine-par-ia': []
     }
 
     // Use TaskPriorityService for categorization
@@ -144,7 +152,8 @@ export class TaskCategoryService {
       'pret-tomorrow': groups['pret-tomorrow'].length,
       'pret-no-date': groups['pret-no-date'].length,
       'pret-future': groups['pret-future'].length,
-      'un-jour': groups['un-jour'].length
+      'un-jour': groups['un-jour'].length,
+      'termine-par-ia': groups['termine-par-ia'].length
     }
   }
 

@@ -119,6 +119,7 @@ export class TaskPriorityService {
     if (status === 'brouillon') return 'brouillon'
     if (status === 'pour_ia') return 'pour-ia'
     if (status === 'collecte') return 'collected'
+    if (status === 'termine_par_ia') return 'termine-par-ia'
     if (status === 'un_jour_peut_etre') return 'un-jour'
 
     // 'pret' status tasks are categorized by date
@@ -147,12 +148,13 @@ export class TaskPriorityService {
       brouillon: 1,
       'pour-ia': 2,
       collected: 3,
-      'pret-overdue': 4,
-      'pret-today': 5,
-      'pret-tomorrow': 6,
-      'pret-no-date': 7,
-      'pret-future': 8,
-      'un-jour': 9
+      'termine-par-ia': 4,
+      'pret-overdue': 5,
+      'pret-today': 6,
+      'pret-tomorrow': 7,
+      'pret-no-date': 8,
+      'pret-future': 9,
+      'un-jour': 10
     }
     return priorities[category]
   }
@@ -246,6 +248,7 @@ export class TaskPriorityService {
       case 'collected':
       case 'pret-no-date':
       case 'un-jour':
+      case 'termine-par-ia':
         // Sort by importance only
         return this.compareByImportance(a, b)
 
