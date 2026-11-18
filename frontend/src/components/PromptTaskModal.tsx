@@ -27,6 +27,7 @@ export function PromptTaskModal({
 }: PromptTaskModalProps) {
   const [prompt, setPrompt] = useState('')
   const [tags, setTags] = useState<Tag[]>([])
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -42,6 +43,16 @@ export function PromptTaskModal({
     } catch (err) {
       console.error('Erreur lors du chargement des tags:', err)
     }
+  }
+
+  // Tags « métier » (hors tags de champs IA_) : ceux que l'utilisateur coche à la
+  // main. Les tags IA_ sont toujours appliqués en plus (voir handleSubmit).
+  const pickableTags = tags.filter((t) => !IA_FIELD_TAG_NAMES.includes(t.name))
+
+  const handleTagChange = (tagId: string, checked: boolean) => {
+    setSelectedTagIds((prev) =>
+      checked ? [...prev, tagId] : prev.filter((id) => id !== tagId)
+    )
   }
 
   // Titre provisoire : les 8 premiers mots du prompt (l'IA le remplacera via IA_nom).
@@ -64,14 +75,17 @@ export function PromptTaskModal({
       const iaTagIds = tags
         .filter((t) => IA_FIELD_TAG_NAMES.includes(t.name))
         .map((t) => t.id)
+      // Union des tags IA_ (auto) et des tags « métier » cochés par l'utilisateur.
+      const allTagIds = Array.from(new Set([...iaTagIds, ...selectedTagIds]))
 
       await api.createTask({
         name: buildProvisionalTitle(text),
         note: text,
         status: 'pour_ia',
-        tagIds: iaTagIds
+        tagIds: allTagIds
       })
       setPrompt('')
+      setSelectedTagIds([])
       onTaskCreated()
       onClose()
     } catch (err) {
@@ -141,10 +155,38 @@ export function PromptTaskModal({
             />
             <p className='mt-2 text-xs text-gray-500'>
               La tâche sera créée au statut «&nbsp;Pour IA&nbsp;» avec tous les
-              tags&nbsp;IA_ cochés : le LLM local remplacera le titre provisoire
+              tags&nbsp;IA_ (auto) : le LLM local remplacera le titre provisoire
               et remplira priorité, dates et tags au prochain dispatch.
             </p>
           </div>
+
+          {pickableTags.length > 0 && (
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
+                Tags de la tâche
+                <span className='ml-1 font-normal text-gray-400'>
+                  (optionnel, en plus des tags&nbsp;IA_)
+                </span>
+              </label>
+              <div className='grid grid-cols-2 gap-x-4 gap-y-2 max-h-32 overflow-y-auto'>
+                {pickableTags.map((tag) => (
+                  <label key={tag.id} className='flex items-center'>
+                    <input
+                      type='checkbox'
+                      checked={selectedTagIds.includes(tag.id)}
+                      onChange={(e) =>
+                        handleTagChange(tag.id, e.target.checked)
+                      }
+                      className='h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded'
+                    />
+                    <span className='ml-2 text-sm text-gray-700'>
+                      {tag.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className='flex justify-end space-x-3 pt-2'>
             <button
