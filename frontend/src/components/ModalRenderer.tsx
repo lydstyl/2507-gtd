@@ -105,6 +105,13 @@ export function ModalRenderer() {
           onClose={() => handleCloseModal('editTask')}
           onTaskUpdated={handleTaskUpdated}
           task={editingTask}
+          onOpenNote={(task) => {
+            dispatch({ type: 'CLOSE_MODAL', payload: 'editTask' })
+            dispatch({
+              type: 'OPEN_MODAL',
+              payload: { modal: 'note', data: { taskId: task.id } },
+            })
+          }}
         />
       )}
 

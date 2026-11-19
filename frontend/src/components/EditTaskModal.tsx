@@ -10,13 +10,15 @@ interface EditTaskModalProps {
   onClose: () => void
   onTaskUpdated: () => void
   task: Task | null
+  onOpenNote?: (task: Task) => void
 }
 
 export function EditTaskModal({
   isOpen,
   onClose,
   onTaskUpdated,
-  task
+  task,
+  onOpenNote
 }: EditTaskModalProps) {
   const [formData, setFormData] = useState<UpdateTaskData>({
     name: '',
@@ -158,24 +160,48 @@ export function EditTaskModal({
             <h3 className='text-lg font-semibold text-gray-900'>
               Modifier la tâche
             </h3>
-            <button
-              onClick={onClose}
-              className='text-gray-400 hover:text-gray-600'
-            >
-              <svg
-                className='w-6 h-6'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
+            <div className='flex items-center space-x-2'>
+              {onOpenNote && task.hasNote && (
+                <button
+                  onClick={() => onOpenNote(task)}
+                  className='px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex items-center space-x-1.5'
+                  title='Retourner à la note de la tâche pour la consulter et la modifier'
+                >
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                    />
+                  </svg>
+                  <span>Retour à la note</span>
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className='text-gray-400 hover:text-gray-600'
               >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M6 18L18 6M6 6l12 12'
-                />
-              </svg>
-            </button>
+                <svg
+                  className='w-6 h-6'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M6 18L18 6M6 6l12 12'
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
