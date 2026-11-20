@@ -14,8 +14,8 @@ export interface FilterState {
   statusFilters: string[]
 }
 
-const ALL_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'completed']
-const DEFAULT_STATUS_FILTERS = ['brouillon', 'pour_ia', 'collecte', 'pret']
+const ALL_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'ia_en_cours', 'completed']
+const DEFAULT_STATUS_FILTERS = ['brouillon', 'pour_ia', 'collecte', 'pret', 'ia_en_cours']
 
 // Catégories de date (mutuellement exclusives, couvrent toutes les tâches).
 // Checkbox "afficher / masquer" comme pour les statuts.

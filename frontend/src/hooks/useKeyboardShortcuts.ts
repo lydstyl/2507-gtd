@@ -21,6 +21,7 @@ const STATUS_KEYS: Record<string, TaskStatus> = {
   l: 'collecte',
   r: 'pret',
   u: 'un_jour_peut_etre',
+  n: 'ia_en_cours',
   v: 'termine_par_ia',
 }
 

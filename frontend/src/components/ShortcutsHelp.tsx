@@ -57,6 +57,9 @@ export function ShortcutsHelp({
                 <b>U</b> : Statut → Un jour peut-être
               </div>
               <div>
+                <b>N</b> : Statut → IA en cours
+              </div>
+              <div>
                 <b>V</b> : Statut → Terminé par IA
               </div>
               <div>

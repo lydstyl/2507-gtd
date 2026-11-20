@@ -285,7 +285,7 @@ export function CSVImportExport({ onImportSuccess }: CSVImportExportProps) {
                 <strong>Complexité</strong> : 1-9 (1 = simple, 9 = complexe)
               </li>
               <li>
-                <strong>Statut</strong> : brouillon, pret, collecte, pour_ia, un_jour_peut_etre
+                <strong>Statut</strong> : brouillon, pret, collecte, pour_ia, un_jour_peut_etre, ia_en_cours, termine_par_ia
               </li>
               <li>
                 <strong>Date prévue</strong> : YYYY-MM-DD (optionnel)
