@@ -5,6 +5,22 @@ import type { Task, UpdateTaskData, Tag, TaskStatus } from '../types/task'
 import { TASK_STATUS_LABELS } from '../types/task'
 import { ImportanceSlider } from './ImportanceSlider'
 
+// Formater une date ISO pour un input date (YYYY-MM-DD) en gardant la date
+// locale (méthodes locales pour éviter les décalages de timezone).
+const formatDateForInput = (dateString: string): string => {
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  } catch (error) {
+    console.error('Erreur de formatage de date:', error)
+    return ''
+  }
+}
+
 interface EditTaskModalProps {
   isOpen: boolean
   onClose: () => void
@@ -32,30 +48,13 @@ export function EditTaskModal({
   })
   const [tags, setTags] = useState<Tag[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isSavingBeforeNote, setIsSavingBeforeNote] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (isOpen) {
       loadTags()
       if (task) {
-        // Formater la date pour l'input date (YYYY-MM-DD) en gardant la date locale
-        const formatDateForInput = (dateString: string) => {
-          try {
-            const date = new Date(dateString)
-            if (isNaN(date.getTime())) return ''
-            
-            // Utiliser les méthodes locales pour éviter les problèmes de timezone
-            const year = date.getFullYear()
-            const month = String(date.getMonth() + 1).padStart(2, '0')
-            const day = String(date.getDate()).padStart(2, '0')
-            
-            return `${year}-${month}-${day}`
-          } catch (error) {
-            console.error('Erreur de formatage de date:', error)
-            return ''
-          }
-        }
-
         setFormData({
           name: task.name,
           link: task.link || '',
@@ -79,6 +78,40 @@ export function EditTaskModal({
     }
   }
 
+  // Payload de mise à jour : date limite alignée sur la date prévue, champs
+  // vides → null. Source unique utilisée par « Modifier la tâche » ET par
+  // « Retour à la note » (sauvegarde avant bascule).
+  const buildUpdateData = (): UpdateTaskData => {
+    const alignedDueDate = TaskDateConsistencyService.alignDueDateWithPlannedDate(
+      formData.plannedDate ?? null,
+      formData.dueDate ?? null
+    )
+    return {
+      ...formData,
+      plannedDate: formData.plannedDate || null,
+      dueDate: alignedDueDate || null
+    }
+  }
+
+  // Le formulaire contient-il des modifications non sauvegardées par rapport
+  // à la tâche ? (dates comparées en format local, comme à l'init du form)
+  const isFormDirty = (): boolean => {
+    if (!task) return false
+    return (
+      formData.name !== task.name ||
+      (formData.link || '') !== (task.link || '') ||
+      formData.importance !== task.importance ||
+      formData.complexity !== task.complexity ||
+      (formData.status ?? 'brouillon') !== (task.status ?? 'brouillon') ||
+      (formData.plannedDate || '') !==
+        (task.plannedDate ? formatDateForInput(task.plannedDate) : '') ||
+      (formData.dueDate || '') !==
+        (task.dueDate ? formatDateForInput(task.dueDate) : '') ||
+      (formData.tagIds ?? []).slice().sort().join(',') !==
+        (task.tags ?? []).map((tag) => tag.id).sort().join(',')
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!task) return
@@ -87,19 +120,7 @@ export function EditTaskModal({
     setError('')
 
     try {
-      // Une date limite ne peut pas précéder la date prévue : elle suit la date prévue
-      const alignedDueDate = TaskDateConsistencyService.alignDueDateWithPlannedDate(
-        formData.plannedDate ?? null,
-        formData.dueDate ?? null
-      )
-
-      const formattedData = {
-        ...formData,
-        plannedDate: formData.plannedDate || null,
-        dueDate: alignedDueDate || null
-      }
-
-      await api.updateTask(task.id, formattedData)
+      await api.updateTask(task.id, buildUpdateData())
       onTaskUpdated()
       onClose()
     } catch (err) {
@@ -111,6 +132,31 @@ export function EditTaskModal({
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Clic sur « Retour à la note » : sauvegarder d'abord les modifications du
+  // formulaire, SINON on ouvrirait la modale de note en abandonnant les
+  // changements saisis. En cas d'échec, on ne bascule pas (pas de perte).
+  const handleOpenNote = async () => {
+    if (!onOpenNote || !task) return
+    if (isFormDirty()) {
+      setIsSavingBeforeNote(true)
+      setError('')
+      try {
+        await api.updateTask(task.id, buildUpdateData())
+        onTaskUpdated()
+      } catch (err) {
+        if (err instanceof ApiError) {
+          setError(err.message)
+        } else {
+          setError("Une erreur inattendue s'est produite")
+        }
+        return
+      } finally {
+        setIsSavingBeforeNote(false)
+      }
+    }
+    onOpenNote(task)
   }
 
   const handleChange = (
@@ -163,24 +209,31 @@ export function EditTaskModal({
             <div className='flex items-center space-x-2'>
               {onOpenNote && (
                 <button
-                  onClick={() => onOpenNote(task)}
-                  className='px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex items-center space-x-1.5'
-                  title='Retourner à la note de la tâche pour la consulter et la modifier'
+                  onClick={handleOpenNote}
+                  disabled={isSavingBeforeNote}
+                  className='px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex items-center space-x-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
+                  title="Retourner à la note de la tâche — les modifications de la tâche sont sauvegardées d'abord"
                 >
-                  <svg
-                    className='w-4 h-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                    />
-                  </svg>
-                  <span>Retour à la note</span>
+                  {isSavingBeforeNote ? (
+                    <span>Sauvegarde…</span>
+                  ) : (
+                    <>
+                      <svg
+                        className='w-4 h-4'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                        />
+                      </svg>
+                      <span>Retour à la note</span>
+                    </>
+                  )}
                 </button>
               )}
               <button
