@@ -161,7 +161,7 @@ export function EditTaskModal({
               Modifier la tâche
             </h3>
             <div className='flex items-center space-x-2'>
-              {onOpenNote && task.hasNote && (
+              {onOpenNote && (
                 <button
                   onClick={() => onOpenNote(task)}
                   className='px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex items-center space-x-1.5'

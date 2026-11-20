@@ -56,7 +56,7 @@ describe('EditTaskModal — bouton "Retour à la note"', () => {
     expect(screen.queryByText('Retour à la note')).not.toBeInTheDocument()
   })
 
-  it("absent si la tâche n'a pas de note", () => {
+  it("visible même si la tâche n'a pas de note (pour en créer une)", () => {
     render(
       <EditTaskModal
         task={{ ...baseTask, hasNote: false }}
@@ -66,7 +66,7 @@ describe('EditTaskModal — bouton "Retour à la note"', () => {
         onOpenNote={noop}
       />
     )
-    expect(screen.queryByText('Retour à la note')).not.toBeInTheDocument()
+    expect(screen.getByText('Retour à la note')).toBeInTheDocument()
   })
 
   it('clic : appelle onOpenNote avec la tâche', async () => {
