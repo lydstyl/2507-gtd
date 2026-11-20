@@ -5,10 +5,24 @@ import { NoteModal } from '../NoteModal'
 import type { Task } from '../../types/task'
 
 // Mock de l'éditeur TipTap (lourd à monter en jsdom) : on expose le contenu
-// reçu pour vérifier que le lazy-load synchronise bien l'éditeur.
+// reçu pour vérifier que le lazy-load synchronise bien l'éditeur, et un
+// input pour simuler des modifications (onChange) dans les tests.
 vi.mock('../NoteEditor', () => ({
-  NoteEditor: ({ content }: { content: string }) => (
-    <div data-testid="note-editor">{content}</div>
+  NoteEditor: ({
+    content,
+    onChange
+  }: {
+    content: string
+    onChange: (value: string) => void
+  }) => (
+    <div data-testid="note-editor">
+      <span>{content}</span>
+      <input
+        data-testid="note-editor-input"
+        value={content}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
   ),
 }))
 
@@ -221,6 +235,105 @@ describe('NoteModal — sélecteur de statut (sauvegarde immédiate)', () => {
     expect(
       (screen.getByLabelText('Statut') as HTMLSelectElement).value
     ).toBe('brouillon')
+    alertSpy.mockRestore()
+  })
+})
+
+describe('NoteModal — bouton « Éditer la tâche » (sauvegarde avant bascule)', () => {
+  it('note/titre non modifiés : ouvre l’édition sans aucun PUT', async () => {
+    const onSave = vi.fn(async () => {})
+    const onSaveName = vi.fn(async () => {})
+    const onOpenEdit = vi.fn()
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={noop}
+        onSave={onSave}
+        onSaveName={onSaveName}
+        onOpenEdit={onOpenEdit}
+      />
+    )
+    await userEvent.click(screen.getByText('Éditer la tâche'))
+    expect(onSave).not.toHaveBeenCalled()
+    expect(onSaveName).not.toHaveBeenCalled()
+    expect(onOpenEdit).toHaveBeenCalledTimes(1)
+  })
+
+  it('note modifiée : sauvegarde la note AVANT d’ouvrir l’édition', async () => {
+    const calls: string[] = []
+    const onSave = vi.fn(async () => {
+      calls.push('save')
+    })
+    const onOpenEdit = vi.fn(() => calls.push('open'))
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={noop}
+        onSave={onSave}
+        onOpenEdit={onOpenEdit}
+      />
+    )
+    await userEvent.clear(screen.getByTestId('note-editor-input'))
+    await userEvent.type(
+      screen.getByTestId('note-editor-input'),
+      '<p>modifié</p>'
+    )
+    await userEvent.click(screen.getByText('Éditer la tâche'))
+    expect(onSave).toHaveBeenCalledWith('task-1', '<p>modifié</p>')
+    expect(calls).toEqual(['save', 'open'])
+  })
+
+  it('titre modifié : sauvegarde le titre (trimmé) AVANT d’ouvrir l’édition', async () => {
+    const calls: string[] = []
+    const onSave = vi.fn(async () => {})
+    const onSaveName = vi.fn(async () => {
+      calls.push('saveName')
+    })
+    const onOpenEdit = vi.fn(() => calls.push('open'))
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={noop}
+        onSave={onSave}
+        onSaveName={onSaveName}
+        onOpenEdit={onOpenEdit}
+      />
+    )
+    await userEvent.type(
+      screen.getByLabelText('Titre de la tâche (modifiable)'),
+      ' (complément)'
+    )
+    await userEvent.click(screen.getByText('Éditer la tâche'))
+    expect(onSave).not.toHaveBeenCalled()
+    expect(onSaveName).toHaveBeenCalledWith(
+      'task-1',
+      'Tâche avec note (complément)'
+    )
+    expect(calls).toEqual(['saveName', 'open'])
+  })
+
+  it('échec de la sauvegarde : ne bascule PAS sur l’édition', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    const onSave = vi.fn(async () => {
+      throw new Error('boom')
+    })
+    const onOpenEdit = vi.fn()
+    render(
+      <NoteModal
+        task={{ ...baseTask, note: '<p>x</p>' }}
+        isOpen
+        onClose={noop}
+        onSave={onSave}
+        onOpenEdit={onOpenEdit}
+      />
+    )
+    await userEvent.clear(screen.getByTestId('note-editor-input'))
+    await userEvent.type(screen.getByTestId('note-editor-input'), 'y')
+    await userEvent.click(screen.getByText('Éditer la tâche'))
+    expect(onOpenEdit).not.toHaveBeenCalled()
     alertSpy.mockRestore()
   })
 })

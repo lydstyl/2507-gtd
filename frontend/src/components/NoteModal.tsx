@@ -39,6 +39,7 @@ export function NoteModal({
   const [isDeleting, setIsDeleting] = useState(false)
   const [isCompleting, setIsCompleting] = useState(false)
   const [isStatusSaving, setIsStatusSaving] = useState(false)
+  const [isSavingForEdit, setIsSavingForEdit] = useState(false)
 
   // Synchronise l'éditeur quand la note arrive (lazy-load : la tâche passée
   // vient d'abord de la liste sans note, puis du détail GET /api/tasks/:id).
@@ -70,6 +71,41 @@ export function NoteModal({
       console.error('Erreur lors de la sauvegarde de la note:', error)
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  // Clic sur « Éditer la tâche » : sauvegarder d'abord la note et le titre si
+  // modifiés, SINON on ouvrirait la modale d'édition en abandonnant les
+  // changements saisis. En cas d'échec, on ne bascule pas (pas de perte).
+  const handleOpenEdit = async () => {
+    if (!onOpenEdit) return
+    const noteDirty = note !== (task.note || '')
+    const trimmedName = name.trim()
+    const nameDirty =
+      Boolean(onSaveName) && trimmedName !== '' && trimmedName !== task.name
+    if (!noteDirty && !nameDirty) {
+      onOpenEdit(task)
+      return
+    }
+    setIsSavingForEdit(true)
+    try {
+      if (noteDirty) {
+        await onSave(task.id, note)
+      }
+      if (nameDirty) {
+        await onSaveName!(task.id, trimmedName)
+      }
+      onOpenEdit(task)
+    } catch (error) {
+      console.error(
+        "Erreur lors de la sauvegarde avant d'éditer la tâche:",
+        error
+      )
+      alert(
+        "Erreur lors de la sauvegarde : impossible d'ouvrir l'édition de la tâche"
+      )
+    } finally {
+      setIsSavingForEdit(false)
     }
   }
 
@@ -194,24 +230,31 @@ export function NoteModal({
           <div className='flex items-center space-x-2 shrink-0'>
             {onOpenEdit && (
               <button
-                onClick={() => onOpenEdit(task)}
-                className='px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex items-center space-x-1.5'
-                title='Ouvrir la modale de modification de la tâche (titre, tags, dates…)'
+                onClick={handleOpenEdit}
+                disabled={isSavingForEdit}
+                className='px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex items-center space-x-1.5 disabled:opacity-50 disabled:cursor-not-allowed'
+                title="Ouvrir la modale de modification de la tâche (titre, tags, dates…) — la note et le titre sont sauvegardés d'abord"
               >
-                <svg
-                  className='w-4 h-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
-                  />
-                </svg>
-                <span>Éditer la tâche</span>
+                {isSavingForEdit ? (
+                  <span>Sauvegarde…</span>
+                ) : (
+                  <>
+                    <svg
+                      className='w-4 h-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                      />
+                    </svg>
+                    <span>Éditer la tâche</span>
+                  </>
+                )}
               </button>
             )}
             <button
