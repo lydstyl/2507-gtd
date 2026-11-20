@@ -10,9 +10,9 @@
     "preview": "vite preview",
     "test": "vitest --config vite.config.test.ts",
     "test:watch": "vitest --config vite.config.test.ts --watch",
-    "test:domain": "vitest run src/domain",
-    "test:usecases": "vitest run src/usecases",
-    "test:components": "vitest run src/components",
+    "test:domain": "vitest --config vite.config.test.ts run src/domain",
+    "test:usecases": "vitest --config vite.config.test.ts run src/usecases",
+    "test:components": "vitest --config vite.config.test.ts run src/components",
     "serve": "serve -s dist -l 3002"
   },
   "dependencies": {

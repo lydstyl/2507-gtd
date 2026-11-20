@@ -5,12 +5,14 @@ import { CreateTagModal } from './CreateTagModal'
 import { TagManagerModal } from './TagManagerModal'
 import { AssignParentModal } from './AssignParentModal'
 import { NoteModal } from './NoteModal'
-import { useAllTasks, useTask } from '../hooks/useTasks'
+import { useAllTasks, useTask, useUpdateTask, useUpdateTaskNote } from '../hooks/useTasks'
 import { api } from '../utils/api'
 
 export function ModalRenderer() {
   const { state, dispatch } = useApp()
   const { data: tasks = [] } = useAllTasks()
+  const updateTask = useUpdateTask()
+  const updateTaskNote = useUpdateTaskNote()
 
   // Lazy-load : la liste n'embarque plus les notes (split des notes API).
   // Quand le modal note s'ouvre, on charge la tâche complète (avec sa note)
@@ -41,9 +43,12 @@ export function ModalRenderer() {
 
 
 
+  // Mutations (et non api bruts) : le cache React Query est invalidé après
+  // chaque sauvegarde, sinon la modale d'édition s'ouvre avec la tâche stale
+  // (useAllTasks, staleTime 2 min) et peut ré-écraser le titre sauvegardé.
   const handleSaveNote = async (taskId: string, note: string) => {
     try {
-      await api.updateTaskNote(taskId, note)
+      await updateTaskNote.mutateAsync({ id: taskId, note })
       handleCloseModal('note')
     } catch (error) {
       console.error('Error saving note:', error)
@@ -53,7 +58,7 @@ export function ModalRenderer() {
 
   const handleSaveNoteName = async (taskId: string, name: string) => {
     try {
-      await api.updateTask(taskId, { name })
+      await updateTask.mutateAsync({ id: taskId, data: { name } })
     } catch (error) {
       console.error('Error saving task name from note modal:', error)
       alert('Erreur lors de la sauvegarde du titre')

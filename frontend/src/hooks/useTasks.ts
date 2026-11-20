@@ -74,8 +74,9 @@ export function useUpdateTask() {
         TASKS_QUERY_KEYS.detail(updatedTask.id),
         updatedTask
       )
-      // Invalidate lists to ensure consistency
-      queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEYS.lists() })
+      // Invalidate ALL task queries (lists() alone misses the withSubtasks
+      // query used by useAllTasks → prop task stale dans ModalRenderer)
+      queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEYS.all })
     },
   })
 }
@@ -92,7 +93,7 @@ export function useUpdateTaskNote() {
         TASKS_QUERY_KEYS.detail(updatedTask.id),
         updatedTask
       )
-      queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEYS.all })
     },
   })
 }
@@ -108,7 +109,7 @@ export function useDeleteTaskNote() {
         TASKS_QUERY_KEYS.detail(updatedTask.id),
         updatedTask
       )
-      queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEYS.all })
     },
   })
 }
