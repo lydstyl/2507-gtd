@@ -13,6 +13,7 @@ enum TaskStatus {
   collecte
   pret
   un_jour_peut_etre
+  ia_en_cours
   termine_par_ia
 }
 

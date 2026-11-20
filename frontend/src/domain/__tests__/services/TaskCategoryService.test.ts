@@ -73,7 +73,7 @@ describe('TaskCategoryService', () => {
     })
 
     it('should return consistent style objects for all categories', () => {
-      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'ia-en-cours', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
 
       categories.forEach(category => {
         const style = TaskCategoryService.getCategoryStyle(category)
@@ -100,17 +100,18 @@ describe('TaskCategoryService', () => {
       expect(TaskCategoryService.getCategoryPriority('brouillon')).toBe(1)
       expect(TaskCategoryService.getCategoryPriority('pour-ia')).toBe(2)
       expect(TaskCategoryService.getCategoryPriority('collected')).toBe(3)
-      expect(TaskCategoryService.getCategoryPriority('termine-par-ia')).toBe(4)
-      expect(TaskCategoryService.getCategoryPriority('pret-overdue')).toBe(5)
-      expect(TaskCategoryService.getCategoryPriority('pret-today')).toBe(6)
-      expect(TaskCategoryService.getCategoryPriority('pret-tomorrow')).toBe(7)
-      expect(TaskCategoryService.getCategoryPriority('pret-no-date')).toBe(8)
-      expect(TaskCategoryService.getCategoryPriority('pret-future')).toBe(9)
-      expect(TaskCategoryService.getCategoryPriority('un-jour')).toBe(10)
+      expect(TaskCategoryService.getCategoryPriority('ia-en-cours')).toBe(4)
+      expect(TaskCategoryService.getCategoryPriority('termine-par-ia')).toBe(5)
+      expect(TaskCategoryService.getCategoryPriority('pret-overdue')).toBe(6)
+      expect(TaskCategoryService.getCategoryPriority('pret-today')).toBe(7)
+      expect(TaskCategoryService.getCategoryPriority('pret-tomorrow')).toBe(8)
+      expect(TaskCategoryService.getCategoryPriority('pret-no-date')).toBe(9)
+      expect(TaskCategoryService.getCategoryPriority('pret-future')).toBe(10)
+      expect(TaskCategoryService.getCategoryPriority('un-jour')).toBe(11)
     })
 
     it('should maintain consistent priority ordering', () => {
-      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'ia-en-cours', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
       const priorities = categories.map(cat => TaskCategoryService.getCategoryPriority(cat))
 
       // Check that priorities are in ascending order
@@ -120,7 +121,7 @@ describe('TaskCategoryService', () => {
     })
 
     it('should return unique priorities for each category', () => {
-      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'ia-en-cours', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
       const priorities = categories.map(cat => TaskCategoryService.getCategoryPriority(cat))
       const uniquePriorities = new Set(priorities)
 
@@ -128,7 +129,7 @@ describe('TaskCategoryService', () => {
     })
 
     it('should return positive integers for all categories', () => {
-      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
+      const categories: TaskCategory[] = ['brouillon', 'pour-ia', 'collected', 'ia-en-cours', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour']
 
       categories.forEach(category => {
         const priority = TaskCategoryService.getCategoryPriority(category)

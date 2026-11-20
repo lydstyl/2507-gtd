@@ -25,6 +25,13 @@ export class TaskCategoryService {
          textColor: 'text-violet-700',
          icon: '🤖'
        },
+       'ia-en-cours': {
+         label: 'IA en cours',
+         borderColor: 'border-l-indigo-500',
+         backgroundColor: 'bg-indigo-50',
+         textColor: 'text-indigo-700',
+         icon: '🤖⚙️'
+       },
        collected: {
          label: 'Collecté',
          borderColor: 'border-l-purple-500',
@@ -115,6 +122,7 @@ export class TaskCategoryService {
     const groups: Record<TaskCategory, GenericTaskWithSubtasks<TDate>[]> = {
       brouillon: [],
       'pour-ia': [],
+      'ia-en-cours': [],
       collected: [],
       'pret-overdue': [],
       'pret-today': [],
@@ -146,6 +154,7 @@ export class TaskCategoryService {
     return {
       brouillon: groups.brouillon.length,
       'pour-ia': groups['pour-ia'].length,
+      'ia-en-cours': groups['ia-en-cours'].length,
       collected: groups.collected.length,
       'pret-overdue': groups['pret-overdue'].length,
       'pret-today': groups['pret-today'].length,

@@ -256,7 +256,7 @@ describe('Frontend Domain Consistency', () => {
 
   describe('Category Priority Ordering', () => {
     it('should maintain correct category priority ordering', () => {
-      const categories = ['brouillon', 'pour-ia', 'collected', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour'] as const
+      const categories = ['brouillon', 'pour-ia', 'collected', 'ia-en-cours', 'termine-par-ia', 'pret-overdue', 'pret-today', 'pret-tomorrow', 'pret-no-date', 'pret-future', 'un-jour'] as const
 
       categories.forEach((category, index) => {
         const priority = TaskPriorityService.getCategoryPriority(category)
@@ -269,7 +269,7 @@ describe('Frontend Domain Consistency', () => {
     })
 
     it('should have un-jour as lowest priority', () => {
-      expect(TaskPriorityService.getCategoryPriority('un-jour')).toBe(10)
+      expect(TaskPriorityService.getCategoryPriority('un-jour')).toBe(11)
     })
   })
 

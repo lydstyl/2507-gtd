@@ -107,6 +107,7 @@ export class TaskPriorityService {
    * - brouillon → always 'brouillon' (dates ignored)
    * - pour_ia → always 'pour-ia' (dates ignored)
    * - collecte → always 'collected' (dates ignored)
+   * - ia_en_cours → always 'ia-en-cours' (dates ignored)
    * - pret → categorized by date into 'pret-*' categories
    * - un_jour_peut_etre → always 'un-jour' (dates ignored)
    */
@@ -119,6 +120,7 @@ export class TaskPriorityService {
     if (status === 'brouillon') return 'brouillon'
     if (status === 'pour_ia') return 'pour-ia'
     if (status === 'collecte') return 'collected'
+    if (status === 'ia_en_cours') return 'ia-en-cours'
     if (status === 'termine_par_ia') return 'termine-par-ia'
     if (status === 'un_jour_peut_etre') return 'un-jour'
 
@@ -148,13 +150,14 @@ export class TaskPriorityService {
       brouillon: 1,
       'pour-ia': 2,
       collected: 3,
-      'termine-par-ia': 4,
-      'pret-overdue': 5,
-      'pret-today': 6,
-      'pret-tomorrow': 7,
-      'pret-no-date': 8,
-      'pret-future': 9,
-      'un-jour': 10
+      'ia-en-cours': 4,
+      'termine-par-ia': 5,
+      'pret-overdue': 6,
+      'pret-today': 7,
+      'pret-tomorrow': 8,
+      'pret-no-date': 9,
+      'pret-future': 10,
+      'un-jour': 11
     }
     return priorities[category]
   }
@@ -246,6 +249,7 @@ export class TaskPriorityService {
       case 'brouillon':
       case 'pour-ia':
       case 'collected':
+      case 'ia-en-cours':
       case 'pret-no-date':
       case 'un-jour':
       case 'termine-par-ia':
