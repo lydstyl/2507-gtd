@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { TaskCard } from './TaskCard'
 import { useHapticFeedback } from '../hooks/useHapticFeedback'
-import type { Task } from '../types/task'
+import type { Task, Tag } from '../types/task'
 
 interface SwipeableTaskCardProps {
   task: Task
@@ -19,8 +19,10 @@ interface SwipeableTaskCardProps {
   onSelectTask?: (taskId: string) => void
   selectedTaskId?: string
   onQuickAction?: (taskId: string, action: string) => void
+  tags?: Tag[]
   onPin?: (taskId: string) => void
   isPinned?: boolean
+  onRemoveTag?: (taskId: string, tagId: string) => void
 }
 
 interface SwipeState {

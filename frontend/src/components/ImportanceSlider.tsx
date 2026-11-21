@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { IMPORTANCE_MIN, IMPORTANCE_MAX, IMPORTANCE_QUADRANTS, getImportanceQuadrant } from '../utils/taskUtils'
+import { PriorityMatrixModal } from './PriorityMatrixModal'
 
 interface ImportanceSliderProps {
   value: number
@@ -9,9 +10,11 @@ interface ImportanceSliderProps {
 /**
  * Importance slider with quadrant indicator (100-499)
  * Shows live urgency/importance status while dragging
+ * + bouton "Matrice" : matrice urgence × importance pour choisir la priorité
  */
 export function ImportanceSlider({ value, onChange }: ImportanceSliderProps) {
   const quadrant = getImportanceQuadrant(value)
+  const [matrixOpen, setMatrixOpen] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(parseInt(e.target.value))
@@ -24,13 +27,23 @@ export function ImportanceSlider({ value, onChange }: ImportanceSliderProps) {
     <div>
       <div className='flex items-center justify-between mb-1'>
         <label htmlFor='importance' className='block text-sm font-medium text-gray-700'>
-          Importance: <span className='font-bold'>{value}</span>
+          Priorité : <span className='font-bold'>{value}</span>
         </label>
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${quadrant.badgeClass}`}
-        >
-          {quadrant.emoji} {quadrant.shortLabel}
-        </span>
+        <div className='flex items-center gap-2'>
+          <button
+            type='button'
+            onClick={() => setMatrixOpen(true)}
+            className='text-xs px-2 py-0.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md text-gray-700 transition-colors'
+            title='Ouvrir la matrice urgence / importance'
+          >
+            🎯 Matrice
+          </button>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${quadrant.badgeClass}`}
+          >
+            {quadrant.emoji} {quadrant.shortLabel}
+          </span>
+        </div>
       </div>
       <input
         type='range'
@@ -56,6 +69,12 @@ export function ImportanceSlider({ value, onChange }: ImportanceSliderProps) {
           </div>
         ))}
       </div>
+      <PriorityMatrixModal
+        isOpen={matrixOpen}
+        onClose={() => setMatrixOpen(false)}
+        currentValue={value}
+        onSelect={onChange}
+      />
     </div>
   )
 }

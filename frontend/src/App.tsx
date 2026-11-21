@@ -5,6 +5,7 @@ import { AppRouter } from './router/AppRouter'
 import { ModalRenderer } from './components/ModalRenderer'
 import { OfflineIndicator } from './components/OfflineIndicator'
 import { PWAInstallPrompt } from './components/PWAInstallPrompt'
+import { ToastHost } from './components/ui/ToastHost'
 import { queryClient } from './services/queryClient'
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AppProvider>
         <OfflineIndicator />
+        <ToastHost />
         <AppRouter />
         <ModalRenderer />
         <PWAInstallPrompt />

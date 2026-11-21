@@ -1,4 +1,4 @@
-import type { Task } from '../types/task'
+import type { Task, Tag as TagData } from '../types/task'
 import { Tag } from './Tag'
 import { TaskActions } from './TaskActions'
 import { QuickActionsMenu } from './QuickActionsMenu'
@@ -48,8 +48,10 @@ interface TaskCardProps {
   onSelectTask?: (taskId: string) => void // Ajouté pour la sélection par clic
   selectedTaskId?: string // Ajouté pour la sélection profonde
   onQuickAction?: (taskId: string, action: string) => void // Ajouté pour les actions rapides
+  tags?: TagData[] // Tags globaux pour les boutons de toggle dans le menu actions rapides
   onPin?: (taskId: string) => void // Ajouté pour épingler/désépingler la tâche
   isPinned?: boolean // Ajouté pour indiquer si la tâche est épinglée
+  onRemoveTag?: (taskId: string, tagId: string) => void // Détacher un tag de la tâche (bouton × au survol)
 }
 
 export function TaskCard({
@@ -68,8 +70,10 @@ export function TaskCard({
   onSelectTask,
   selectedTaskId,
   onQuickAction, // Ajouté
+  tags, // Tags globaux
   onPin, // Ajouté
-  isPinned = false // Ajouté
+  isPinned = false, // Ajouté
+  onRemoveTag // Détacher un tag de la tâche
 }: TaskCardProps) {
   const [showSubtasks, setShowSubtasks] = useState(false)
   const [showQuickActions, setShowQuickActions] = useState(false)
@@ -291,7 +295,11 @@ export function TaskCard({
               {task.tags && task.tags.length > 0 && (
                 <div className='flex flex-wrap gap-1 mb-3'>
                   {task.tags.map((tag) => (
-                    <Tag key={tag.id} tag={tag} />
+                    <Tag
+                      key={tag.id}
+                      tag={tag}
+                      onRemove={onRemoveTag ? () => onRemoveTag(task.id, tag.id) : undefined}
+                    />
                   ))}
                 </div>
               )}
@@ -481,6 +489,7 @@ export function TaskCard({
             onPin={onPin}
             isPinned={isPinned}
             onQuickAction={onQuickAction}
+            tags={tags}
             onToggleSubtasks={() => setShowSubtasks(!showSubtasks)}
             onClose={() => setShowQuickActions(false)}
             onEdit={onEdit}

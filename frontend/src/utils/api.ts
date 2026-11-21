@@ -7,6 +7,7 @@ import type {
   CompletionStats
 } from '../types/task'
 import { BaseError } from '@gtd/shared'
+import { toastForMutation } from './toast'
 
 // Détecter automatiquement l'environnement et l'URL de base
 const isProduction = import.meta.env.PROD
@@ -65,6 +66,9 @@ async function apiCall<T>(
 
     throw new ApiError(response.status, errorData.error || 'Request failed')
   }
+
+  // Notification éphémère sur les mutations réussies (tâches/tags).
+  toastForMutation(options.method, endpoint)
 
   // Pour les réponses vides (comme DELETE 204), ne pas essayer de parser du JSON
   if (response.status === 204) {

@@ -7,6 +7,7 @@ import type {
 } from '../types/task'
 import type { User, LoginCredentials, RegisterCredentials, ApiKey, ApiKeyCreated } from '../types/auth'
 import { BaseError } from '@gtd/shared'
+import { toastForMutation } from '../utils/toast'
 
 // Detect environment and API base URL
 const isProduction = import.meta.env.PROD
@@ -74,6 +75,9 @@ async function apiCall<T>(
     }
     throw new ApiError(response.status, errorMessage)
   }
+
+  // Notification éphémère sur les mutations réussies (tâches/tags).
+  toastForMutation(options.method, endpoint)
 
   // Handle empty responses (like DELETE 204)
   if (response.status === 204 || response.headers.get('content-length') === '0') {

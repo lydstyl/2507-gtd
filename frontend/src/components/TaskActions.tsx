@@ -317,16 +317,16 @@ export function TaskActions({
         </button>
       )}
 
-      {/* Mobile quick actions button */}
+      {/* Quick actions button — toutes tailles d'écran (mobile, tablette, desktop) */}
       {onQuickAction && setShowQuickActions && (
         <button
           onClick={() => setShowQuickActions(!showQuickActions)}
-          className={`p-2 rounded transition-colors md:hidden ${
+          className={`p-2 rounded transition-colors ${
             showQuickActions
               ? 'text-blue-600 bg-blue-100 hover:text-blue-800 hover:bg-blue-200'
               : 'text-blue-400 hover:text-blue-600 hover:bg-blue-50'
           }`}
-          title='Actions rapides'
+          title='Actions rapides (clavier : I/C/T/D/W/M/E, tags 1-9)'
         >
           <svg
             className='w-4 h-4'

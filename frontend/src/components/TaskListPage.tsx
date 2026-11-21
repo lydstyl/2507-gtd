@@ -312,6 +312,20 @@ export default function TaskListPage() {
     }
   }
 
+  // Détacher un tag d'une tâche depuis la liste (bouton × au survol du tag)
+  const handleRemoveTag = async (taskId: string, tagId: string) => {
+    const task = findTaskById(tasks, taskId)
+    if (!task) return
+    const newTagIds = (task.tags || []).map((t) => t.id).filter((id) => id !== tagId)
+    try {
+      await api.updateTask(taskId, { tagIds: newTagIds })
+      loadTasks()
+    } catch (err) {
+      console.error('Erreur lors du retrait du tag:', err)
+      alert("Erreur lors du retrait du tag")
+    }
+  }
+
   if (loading) return <div className='p-8 text-center'>Chargement…</div>
   if (error) return <div className='p-8 text-red-500'>{error}</div>
 
@@ -476,6 +490,7 @@ export default function TaskListPage() {
                 tags={tags}
                 onPin={handlePin}
                 isPinned={pinnedTaskId === task.id}
+                onRemoveTag={handleRemoveTag}
               />
             ))}
         </div>
@@ -503,6 +518,7 @@ export default function TaskListPage() {
             tags={tags}
             onPin={handlePin}
             isPinned={pinnedTaskId === focusTaskId}
+            onRemoveTag={handleRemoveTag}
           />
           <button
             className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"

@@ -1,14 +1,33 @@
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChatMessage } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 
 // Use relative URL in production, localhost in development
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
+interface LlmInfo {
+  provider: string
+  model: string
+  baseURL: string
+  label: string
+}
+
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [llm, setLlm] = useState<LlmInfo | null>(null)
+
+  // Show which local LLM the chatbot is currently connected to
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    fetch(`${API_BASE_URL}/api/chat/llm`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setLlm(d))
+      .catch(() => {})
+  }, [])
 
   const { messages, sendMessage, isLoading } = useChat({
     transport: new DefaultChatTransport({
@@ -39,7 +58,17 @@ export function ChatInterface() {
     <div className="flex flex-col h-full bg-white rounded-lg shadow-lg">
       {/* Header */}
       <div className="border-b border-gray-200 p-4 bg-gray-50">
-        <h2 className="text-xl font-semibold text-gray-900">Task Assistant</h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-xl font-semibold text-gray-900">Task Assistant</h2>
+          {llm && (
+            <span
+              className="text-xs font-mono px-2 py-1 bg-indigo-50 border border-indigo-200 rounded text-indigo-700 whitespace-nowrap"
+              title={`Provider: ${llm.provider}${llm.baseURL ? '\nServeur: ' + llm.baseURL : ''}${llm.model ? '\nModèle: ' + llm.model : ''}`}
+            >
+              🤖 {llm.label}
+            </span>
+          )}
+        </div>
         <p className="text-sm text-gray-600 mt-1">
           Ask me to create tasks, list your tasks, or help manage your workflow
         </p>

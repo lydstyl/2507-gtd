@@ -16,6 +16,22 @@ const DATE_OPTIONS: { key: string; label: string }[] = [
   { key: 'no-date', label: 'Sans date' }
 ]
 
+// Options relatives courtes pour « Création » / « Dernière modification ».
+const SHORT_RELATIVE_OPTIONS: { key: string; label: string }[] = [
+  { key: 'lt-5-min', label: 'Moins de 5 minutes' },
+  { key: 'lt-1-hour', label: "Moins d'une heure" },
+  { key: 'lt-5-hours', label: 'Moins de 5 heures' },
+  { key: 'lt-1-day', label: "Moins d'un jour" },
+  { key: 'lt-2-days', label: 'Moins de 2 jours' },
+  { key: 'lt-1-week', label: "Moins d'une semaine" }
+]
+
+const LONG_RELATIVE_OPTIONS: { key: string; label: string }[] = [
+  { key: '1-month', label: 'Plus de 1 mois' },
+  { key: '3-months', label: 'Plus de 3 mois' },
+  { key: '6-months', label: 'Plus de 6 mois' }
+]
+
 interface TaskFiltersProps {
   searchTerm: string
   setSearchTerm: (term: string) => void
@@ -88,6 +104,13 @@ export function TaskFilters({
         >
           {showFilters ? 'Cacher les filtres' : 'Afficher les filtres'}
         </button>
+        {/* Compteur de résultats toujours visible (hors panneau replié) */}
+        {(hasActiveFilters || filteredTasksCount !== totalTasksCount) && (
+          <span className='text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-0.5 whitespace-nowrap'>
+            {filteredTasksCount} tâche{filteredTasksCount !== 1 ? 's' : ''}
+            {filteredTasksCount !== totalTasksCount && ` / ${totalTasksCount}`}
+          </span>
+        )}
       </div>
 
       {/* Search bar */}
@@ -301,9 +324,16 @@ export function TaskFilters({
               className='w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
             >
               <option value=''>Toutes</option>
-              <option value='1-month'>Plus de 1 mois</option>
-              <option value='3-months'>Plus de 3 mois</option>
-              <option value='6-months'>Plus de 6 mois</option>
+              {SHORT_RELATIVE_OPTIONS.map(({ key, label }) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+              {LONG_RELATIVE_OPTIONS.map(({ key, label }) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -318,21 +348,18 @@ export function TaskFilters({
               className='w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
             >
               <option value=''>Toutes</option>
-              <option value='1-month'>Plus de 1 mois</option>
-              <option value='3-months'>Plus de 3 mois</option>
-              <option value='6-months'>Plus de 6 mois</option>
+              {SHORT_RELATIVE_OPTIONS.map(({ key, label }) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+              {LONG_RELATIVE_OPTIONS.map(({ key, label }) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
             </select>
           </div>
-
-          {/* Results counter */}
-          {(hasActiveFilters || filteredTasksCount !== totalTasksCount) && (
-            <div className='mt-4 text-sm text-gray-600'>
-              {filteredTasksCount} tâche{filteredTasksCount !== 1 ? 's' : ''}{' '}
-              trouvée{filteredTasksCount !== 1 ? 's' : ''}
-              {filteredTasksCount !== totalTasksCount &&
-                ` sur ${totalTasksCount}`}
-            </div>
-          )}
         </div>
       )}
     </>

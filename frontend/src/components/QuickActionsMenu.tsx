@@ -1,4 +1,4 @@
-import type { Task } from '../types/task'
+import type { Task, Tag } from '../types/task'
 
 interface QuickActionsMenuProps {
   task: Task
@@ -9,6 +9,7 @@ interface QuickActionsMenuProps {
   onPin?: (taskId: string) => void
   isPinned?: boolean
   onQuickAction?: (taskId: string, action: string) => void
+  tags?: Tag[]
   onToggleSubtasks: () => void
   onClose: () => void
   onEdit?: (task: Task) => void
@@ -25,6 +26,7 @@ export function QuickActionsMenu({
   onPin,
   isPinned = false,
   onQuickAction,
+  tags = [],
   onToggleSubtasks,
   onClose,
   onEdit,
@@ -249,51 +251,82 @@ export function QuickActionsMenu({
           </button>
         )}
 
-        {/* Quick date actions */}
+        {/* Importance / Complexité (clavier I/C = boutons) */}
         {onQuickAction && (
           <>
             <button
-              onClick={() =>
-                handleAction(() => onQuickAction(task.id, 'date-today'))
-              }
-              className='px-3 py-2 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center justify-center space-x-1'
+              onClick={() => handleAction(() => onQuickAction(task.id, 'importance-up'))}
+              className='px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 flex items-center justify-center space-x-1'
+              title="Importance +10 (clavier I)"
             >
-              <svg
-                className='w-3 h-3'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
-                />
-              </svg>
+              <span>Importance +10</span>
+            </button>
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'importance-down'))}
+              className='px-3 py-2 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 flex items-center justify-center space-x-1'
+              title="Importance -10 (clavier Shift+I)"
+            >
+              <span>Importance -10</span>
+            </button>
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'complexity-up'))}
+              className='px-3 py-2 text-xs bg-sky-100 text-sky-700 rounded hover:bg-sky-200 flex items-center justify-center space-x-1'
+              title="Complexité +2 (clavier C)"
+            >
+              <span>Complexité +2</span>
+            </button>
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'complexity-down'))}
+              className='px-3 py-2 text-xs bg-sky-100 text-sky-700 rounded hover:bg-sky-200 flex items-center justify-center space-x-1'
+              title="Complexité -2 (clavier Shift+C)"
+            >
+              <span>Complexité -2</span>
+            </button>
+
+            {/* Dates (clavier T/D/W/M/E = boutons) */}
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'date-today'))}
+              className='px-3 py-2 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center justify-center space-x-1'
+              title="Date prévue = aujourd'hui (clavier T)"
+            >
               <span>Aujourd'hui</span>
             </button>
             <button
-              onClick={() =>
-                handleAction(() => onQuickAction(task.id, 'date-remove'))
-              }
-              className='px-3 py-2 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 flex items-center justify-center space-x-1'
+              onClick={() => handleAction(() => onQuickAction(task.id, 'date-tomorrow'))}
+              className='px-3 py-2 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center justify-center space-x-1'
+              title="Date prévue +1 jour (clavier D)"
             >
-              <svg
-                className='w-3 h-3'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M6 18L18 6M6 6l12 12'
-                />
-              </svg>
+              <span>+1 jour</span>
+            </button>
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'date-yesterday'))}
+              className='px-3 py-2 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center justify-center space-x-1'
+              title="Date prévue -1 jour (clavier Shift+D)"
+            >
+              <span>-1 jour</span>
+            </button>
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'date-week'))}
+              className='px-3 py-2 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center justify-center space-x-1'
+              title="Date prévue +1 semaine (clavier W)"
+            >
+              <span>+1 semaine</span>
+            </button>
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'date-month'))}
+              className='px-3 py-2 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center justify-center space-x-1'
+              title="Date prévue +1 mois (clavier M)"
+            >
+              <span>+1 mois</span>
+            </button>
+            <button
+              onClick={() => handleAction(() => onQuickAction(task.id, 'date-remove'))}
+              className='px-3 py-2 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 flex items-center justify-center space-x-1'
+              title="Enlever la date prévue (clavier E)"
+            >
               <span>Enlever date</span>
             </button>
+
             <button
               onClick={() => {
                 if (
@@ -306,22 +339,39 @@ export function QuickActionsMenu({
               }}
               className='px-3 py-2 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 flex items-center justify-center space-x-1'
             >
-              <svg
-                className='w-3 h-3'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-                />
-              </svg>
               <span>Supprimer</span>
             </button>
           </>
+        )}
+
+        {/* Tags (clavier 1-9 = boutons) */}
+        {onQuickAction && tags.length > 0 && (
+          <div className='col-span-2 mt-1'>
+            <div className='text-xs text-gray-500 mb-1'>
+              Tags (clavier 1-9)
+            </div>
+            <div className='flex flex-wrap gap-1'>
+              {tags.slice(0, 9).map((tag, idx) => {
+                const active = task.tags.some((t) => t.id === tag.id)
+                return (
+                  <button
+                    key={tag.id}
+                    onClick={() => handleAction(() => onQuickAction(task.id, 'tag:' + tag.id))}
+                    className={`px-2 py-1 text-xs rounded border flex items-center space-x-1 ${
+                      active
+                        ? 'border-transparent text-white'
+                        : 'border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                    style={active ? { backgroundColor: tag.color || '#6b7280' } : undefined}
+                    title={`Toggle tag « ${tag.name} » (clavier ${idx + 1})`}
+                  >
+                    <span className='font-mono font-bold'>{idx + 1}.</span>
+                    <span>{tag.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         )}
       </div>
     </div>
