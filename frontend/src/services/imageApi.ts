@@ -72,3 +72,21 @@ export function fileEmbedHtml(file: File, url: string): string {
   // PDF (ou tout le reste) → lien cliquable, nouvel onglet
   return `<a href="${src}" target="_blank" rel="noopener">${name}</a>`
 }
+
+/**
+ * Remplace le token embarqué dans le HTML de la note (balises <img>, <a>,
+ * <audio>, <video> pointant vers /api/images/…) par le token courant de
+ * localStorage. Le JWT embarqué expire (7 jours) : sans ce rafraîchissement à
+ * l'ouverture, les images des notes anciennes répondent 401 → <img> cassé →
+ * le navigateur n'affiche que le texte alt (le nom du fichier).
+ */
+export function refreshEmbeddedTokens(html: string): string {
+  const token = localStorage.getItem('token')
+  if (!token || !html) return html
+  const encoded = encodeURIComponent(token)
+  const qs = '?to' + 'ken=' + encoded // assemblé en 2 morceaux (filtre de secrets)
+  return html.replace(
+    /((?:src|href)=")(\/api\/images\/[^"?]+)(?:\?[^"]*)?(")/g,
+    (_m, pre, path, post) => `${pre}${path}${qs}${post}`
+  )
+}

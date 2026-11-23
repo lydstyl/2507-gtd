@@ -10,7 +10,7 @@ import Table from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
-import { uploadImage, imageSrcWithToken, fileEmbedHtml } from '../services/imageApi'
+import { uploadImage, imageSrcWithToken, fileEmbedHtml, refreshEmbeddedTokens } from '../services/imageApi'
 
 interface NoteEditorProps {
   content: string
@@ -83,7 +83,7 @@ export function NoteEditor({
       TableHeader,
       TableCell
     ],
-    content: content || '',
+    content: refreshEmbeddedTokens(content || ''),
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
     },
@@ -96,7 +96,9 @@ export function NoteEditor({
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content || '')
+      // Tokens embarqués rafraîchis : les images des notes anciennes
+      // (JWT de 7 jours expiré dans le src) rechargent au lieu de casser.
+      editor.commands.setContent(refreshEmbeddedTokens(content || ''))
     }
   }, [content, editor])
 
