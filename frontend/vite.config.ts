@@ -58,6 +58,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // navigateFallback: null → SUPPRIME la NavigationRoute par défaut.
+        // Sans ça, vite-plugin-pwa génère une NavigationRoute qui intercepte
+        // TOUTES les navigations (y compris le nouvel onglet /api/images/*.png
+        // du clic image) → sert index.html → router React → /tasks. Avec null,
+        // le SW ne gère plus les navigations : un nouvel onglet sur /api/images
+        // passe direct au réseau (nginx → image). On garde precache + runtime
+        // cache /api/ (NetworkFirst) pour les sous-ressources.
+        navigateFallback: null,
         runtimeCaching: [
           {
             urlPattern: /^\/api\/.*/i,
