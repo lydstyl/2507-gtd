@@ -288,7 +288,7 @@ export function TaskCard({
               </div>
 
               <p className='text-xs md:text-sm text-gray-500 mb-2'>
-                I: {task.importance} | C: {task.complexity}
+                I: {task.importance}
               </p>
 
               {/* Tags */}
