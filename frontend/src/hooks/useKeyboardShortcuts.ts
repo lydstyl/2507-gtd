@@ -157,6 +157,15 @@ export function useKeyboardShortcuts({
         return
       }
 
+      // Open selected task in a new tab (O) — page plein écran /task/:id
+      // (même URL que le bouton « nouvel onglet » des cartes)
+      if (e.key.toLowerCase() === "o") {
+        e.preventDefault()
+        if (!selectedTaskId) return
+        window.open(`/task/${selectedTaskId}`, "_blank")
+        return
+      }
+
       // Quick edit shortcuts - only if a task is selected
       if (!selectedTaskId) return
       const task = findTaskById(tasks, selectedTaskId)

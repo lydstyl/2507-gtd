@@ -93,6 +93,9 @@ export function ShortcutsHelp({
                 <b>F</b> : Fixer/défixer la tâche sélectionnée en haut
               </div>
               <div>
+                <b>O</b> : Ouvrir la tâche en plein écran (nouvel onglet)
+              </div>
+              <div>
                 <b>H</b> : Afficher/cacher cette aide
               </div>
               <div>
