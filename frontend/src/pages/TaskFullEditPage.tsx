@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TaskDateConsistencyService } from '@gtd/shared'
 import { useTask, useUpdateTask, useUpdateTaskNote } from '../hooks/useTasks'
+import { useTaskDetailShortcuts } from '../hooks/useTaskDetailShortcuts'
 import { api, ApiError } from '../utils/api'
 import { NoteEditor } from '../components/NoteEditor'
 import { ImportanceSlider } from '../components/ImportanceSlider'
+import { TagPickerModal } from '../components/TagPickerModal'
+import { CompleteConfirmModal } from '../components/CompleteConfirmModal'
+import { ShortcutsHelp } from '../components/ShortcutsHelp'
 import type { Tag, Task, TaskStatus, UpdateTaskData } from '../types/task'
 import { TASK_STATUS_LABELS } from '../types/task'
 
@@ -45,11 +49,25 @@ const formFromTask = (task: Task): FormState => ({
   tagIds: task.tags?.map((tag) => tag.id) || []
 })
 
+/** Élément <kbd> pour afficher un raccourci clavier sur un bouton/champ. */
+function Kbd({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className='ml-1.5 px-1.5 py-0.5 text-[10px] bg-gray-100 border border-gray-300 rounded font-mono text-gray-500 select-none'>
+      {children}
+    </kbd>
+  )
+}
+
 /**
  * Page plein écran « tâche » : toutes les options de la modale d'édition de la
  * tâche (titre, lien, statut, importance, dates, tags) ET de la modale de note
  * (titre, statut, éditeur de note) au même endroit. Ouverte via le bouton
  * « Ouvrir en plein écran » des cartes de tâche (nouvel onglet).
+ *
+ * Raccourcis clavier (H pour afficher l'aide) :
+ *   Ctrl+S → sauvegarder · Escape → retour
+ *   B/P/L/R/U/N/V → statut · I/⇧I → importance · C/⇧C → complexité
+ *   D/⇧D/W/M/T/E → dates · 1-9 → tags
  */
 export function TaskFullEditPage() {
   const { id = '' } = useParams<{ id: string }>()
@@ -65,6 +83,9 @@ export function TaskFullEditPage() {
   const [isCompleting, setIsCompleting] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [savedAt, setSavedAt] = useState<number | null>(null)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
+  const [showTagPicker, setShowTagPicker] = useState(false)
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
 
   const updateTask = useUpdateTask()
   const updateTaskNote = useUpdateTaskNote()
@@ -84,6 +105,44 @@ export function TaskFullEditPage() {
   useEffect(() => {
     api.getTags().then(setTags).catch(console.error)
   }, [])
+
+  // ── Touche H : afficher/cacher l'aide raccourcis ──
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'h' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const target = e.target as HTMLElement
+        const inField =
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.contentEditable === 'true'
+        if (!inField) {
+          e.preventDefault()
+          setShowShortcutsHelp((v) => !v)
+        }
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
+  // ── Refs pour les fonctions passées au hook (définies après les early returns) ──
+  const handleSaveRef = useRef<() => Promise<void>>(async () => {})
+  const handleBackRef = useRef<() => void>(() => {})
+
+  // ── Hook raccourcis clavier (appelé avant les early returns, règle React) ──
+  useTaskDetailShortcuts({
+    taskId: id,
+    form,
+    setForm,
+    setBaseline,
+    tags,
+    onSave: () => handleSaveRef.current(),
+    onBack: () => handleBackRef.current(),
+    isSaving,
+    onRequestComplete: () => setShowCompleteConfirm(true),
+    onOpenTagPicker: () => setShowTagPicker(true),
+    modalOpen: showTagPicker || showCompleteConfirm,
+  })
 
   if (error) {
     return (
@@ -191,6 +250,7 @@ export function TaskFullEditPage() {
       setIsSaving(false)
     }
   }
+  handleSaveRef.current = handleSave
 
   const handleMarkCompleted = async () => {
     setSaveError('')
@@ -217,6 +277,12 @@ export function TaskFullEditPage() {
     }
   }
 
+  const handleBack = () => {
+    if (window.opener) window.close()
+    else navigate('/tasks')
+  }
+  handleBackRef.current = handleBack
+
   const inputClass =
     'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500'
 
@@ -226,16 +292,14 @@ export function TaskFullEditPage() {
       <header className='bg-white border-b border-gray-200 px-4 md:px-8 py-3 flex items-center justify-between gap-3 sticky top-0 z-10'>
         <div className='flex items-center gap-3 min-w-0'>
           <button
-            onClick={() => {
-              if (window.opener) window.close()
-              else navigate('/tasks')
-            }}
+            onClick={handleBack}
             className='text-gray-500 hover:text-gray-800 shrink-0'
-            title='Fermer cet onglet / retour à la liste'
+            title='Retour à la liste (Esc)'
           >
             <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
             </svg>
+            <Kbd>Esc</Kbd>
           </button>
           <h1 className='text-lg font-semibold text-gray-900 truncate'>
             {form.name || '(sans titre)'}
@@ -251,18 +315,21 @@ export function TaskFullEditPage() {
             <button
               onClick={handleMarkCompleted}
               disabled={isSaving || isCompleting}
-              className='px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50'
-              title='Sauvegarder puis marquer la tâche comme terminée'
+              className='px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center'
+              title='Sauvegarder puis marquer la tâche comme terminée (X, avec confirmation)'
             >
               {isCompleting ? '...' : 'Terminer'}
+              <Kbd>X</Kbd>
             </button>
           )}
           <button
             onClick={handleSave}
             disabled={isSaving || (!formDirty && !noteDirty)}
-            className='px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50'
+            className='px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center'
+            title='Sauvegarder (Ctrl+S)'
           >
             {isSaving ? 'Sauvegarde…' : 'Sauvegarder'}
+            <Kbd>Ctrl+S</Kbd>
           </button>
         </div>
       </header>
@@ -276,9 +343,27 @@ export function TaskFullEditPage() {
       <div className='flex-1 grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-4 p-4 md:p-8 items-start'>
         {/* Colonne gauche : champs de la tâche (modale d'édition) */}
         <div className='bg-white rounded-lg shadow p-6 space-y-4'>
-          <h2 className='text-sm font-semibold text-gray-500 uppercase tracking-wide'>
-            Tâche
-          </h2>
+          <div className='flex items-center justify-between'>
+            <h2 className='text-sm font-semibold text-gray-500 uppercase tracking-wide'>
+              Tâche
+            </h2>
+            <button
+              onClick={() => setShowShortcutsHelp((v) => !v)}
+              className='text-xs text-blue-600 hover:text-blue-800 flex items-center'
+              title='Afficher/cacher les raccourcis clavier (H)'
+            >
+              ⌨ Raccourcis <Kbd>H</Kbd>
+            </button>
+          </div>
+
+          {/* Aide raccourcis clavier (composant partagé, groupé + codé en couleur) */}
+          <ShortcutsHelp
+            showShortcutsHelp={showShortcutsHelp}
+            setShowShortcutsHelp={setShowShortcutsHelp}
+            tags={tags}
+            context='detail'
+            showToggle={false}
+          />
 
           <div>
             <label htmlFor='name' className='block text-sm font-medium text-gray-700 mb-1'>
@@ -329,13 +414,21 @@ export function TaskFullEditPage() {
                   )
                 )}
               </select>
+              <div className='mt-1 text-[10px] text-gray-400'>
+                Raccourcis : B · P · L · R · U · N · V
+              </div>
             </div>
           </div>
 
-          <ImportanceSlider
-            value={form.importance}
-            onChange={(value) => setForm((prev) => prev && { ...prev, importance: value })}
-          />
+          <div>
+            <ImportanceSlider
+              value={form.importance}
+              onChange={(value) => setForm((prev) => prev && { ...prev, importance: value })}
+            />
+            <div className='mt-1 text-[10px] text-gray-400'>
+              Raccourcis : I (+10) · ⇧I (−10)
+            </div>
+          </div>
 
           <div>
             <label className='block text-sm font-medium text-gray-700 mb-1'>Dates</label>
@@ -369,18 +462,30 @@ export function TaskFullEditPage() {
                     setForm((prev) => prev && { ...prev, plannedDate: '', dueDate: '' })
                   }
                   className='px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-300 rounded-md whitespace-nowrap'
-                  title='Effacer les dates'
+                  title='Effacer les dates (E)'
                 >
                   Effacer
                 </button>
               )}
             </div>
+            <div className='mt-1 text-[10px] text-gray-400'>
+              Raccourcis : D (+1j) · ⇧D (−1j) · W (+1 sem) · M (+1 mois) · T (auj.) · E (effacer)
+            </div>
           </div>
 
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Tags</label>
-            <div className='grid grid-cols-2 gap-x-4 gap-y-2 max-h-48 overflow-y-auto'>
-              {tags.map((tag) => (
+            <div className='flex items-center justify-between mb-2'>
+              <label className='block text-sm font-medium text-gray-700'>Tags</label>
+              <button
+                onClick={() => setShowTagPicker(true)}
+                className='text-[10px] text-gray-400 hover:text-blue-600'
+                title="Ouvrir le sélecteur de tags (touche ` — tous les tags)"
+              >
+                Raccourcis : 1-9 · <kbd className='px-1 py-0 text-[9px] bg-gray-100 border border-gray-200 rounded font-mono text-gray-400'>`</kbd> tous
+              </button>
+            </div>
+            <div className='grid grid-cols-2 gap-x-4 gap-y-2'>
+              {tags.map((tag, idx) => (
                 <label key={tag.id} className='flex items-center'>
                   <input
                     type='checkbox'
@@ -394,6 +499,11 @@ export function TaskFullEditPage() {
                       style={{ backgroundColor: tag.color || '#6b7280' }}
                     ></span>
                     <span>{tag.name}</span>
+                    {idx < 9 && (
+                      <kbd className='px-1 py-0 text-[9px] bg-gray-100 border border-gray-200 rounded font-mono text-gray-400'>
+                        {idx + 1}
+                      </kbd>
+                    )}
                   </span>
                 </label>
               ))}
@@ -421,6 +531,23 @@ export function TaskFullEditPage() {
           )}
         </div>
       </div>
+
+      {/* Modals : confirmation « Terminer » + sélecteur de tags */}
+      <CompleteConfirmModal
+        open={showCompleteConfirm}
+        onConfirm={() => {
+          setShowCompleteConfirm(false)
+          void handleMarkCompleted()
+        }}
+        onCancel={() => setShowCompleteConfirm(false)}
+      />
+      <TagPickerModal
+        open={showTagPicker}
+        tags={tags}
+        selectedIds={form.tagIds}
+        onToggle={(tagId) => handleTagChange(tagId, !form.tagIds.includes(tagId))}
+        onClose={() => setShowTagPicker(false)}
+      />
     </div>
   )
 }
