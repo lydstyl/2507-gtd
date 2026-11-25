@@ -95,6 +95,7 @@ const NAV_ITEMS_LIST: ShortcutItem[] = [
   { key: 'Suppr', label: 'Supprimer (confirmation)' },
   { key: 'F', label: 'Fixer / défixer en haut' },
   { key: 'O', label: 'Plein écran (nouvel onglet)' },
+  { key: 'S', label: 'Afficher / masquer les filtres' },
   { key: 'H', label: 'Cette aide' },
 ]
 

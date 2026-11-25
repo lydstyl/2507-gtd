@@ -100,9 +100,11 @@ export function TaskFilters({
       <div className='flex items-center justify-between mb-2'>
         <button
           className='text-xs text-gray-700 underline'
+          title='Raccourci clavier : S'
           onClick={() => setShowFilters((v) => !v)}
         >
-          {showFilters ? 'Cacher les filtres' : 'Afficher les filtres'}
+          {showFilters ? 'Cacher les filtres' : 'Afficher les filtres'}{' '}
+          <kbd className='font-mono text-[10px] bg-gray-100 border border-gray-300 rounded px-1'>S</kbd>
         </button>
         {/* Compteur de résultats toujours visible (hors panneau replié) */}
         {(hasActiveFilters || filteredTasksCount !== totalTasksCount) && (

@@ -39,6 +39,7 @@ interface UseKeyboardShortcutsProps {
   onTasksReload: () => Promise<void>
   setPinnedTaskId: (id: string | null | ((prev: string | null) => string | null)) => void
   setShowShortcutsHelp: (show: boolean | ((prev: boolean) => boolean)) => void
+  setShowFilters: (show: boolean | ((prev: boolean) => boolean)) => void
   setFocusTaskId: (id: string | null) => void
   applyFilters: (tasks: Task[]) => Task[]
 }
@@ -67,6 +68,7 @@ export function useKeyboardShortcuts({
   onTasksReload,
   setPinnedTaskId,
   setShowShortcutsHelp,
+  setShowFilters,
   setFocusTaskId,
   applyFilters
 }: UseKeyboardShortcutsProps) {
@@ -163,6 +165,13 @@ export function useKeyboardShortcuts({
         e.preventDefault()
         if (!selectedTaskId) return
         window.open(`/task/${selectedTaskId}`, "_blank")
+        return
+      }
+
+      // Toggle filter panel (S)
+      if (e.key.toLowerCase() === "s") {
+        e.preventDefault()
+        setShowFilters((v) => !v)
         return
       }
 
@@ -318,6 +327,7 @@ export function useKeyboardShortcuts({
     onTasksReload,
     setPinnedTaskId,
     setShowShortcutsHelp,
+    setShowFilters,
     setFocusTaskId,
     applyFilters,
     setSelectedTaskId

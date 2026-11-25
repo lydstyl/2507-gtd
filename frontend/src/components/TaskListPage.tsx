@@ -39,6 +39,9 @@ export default function TaskListPage() {
 
   const pinnedRef = useRef<HTMLDivElement>(null)
   const taskCreatedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // true une fois que l'auto-sélection du refresh a eu lieu (évite de re-forcer
+  // la sélection après une déselection manuelle ou un rechargement des tâches).
+  const didAutoSelectRef = useRef(false)
 
   // Custom hooks
   const filterHook = useTaskFilters(tasks)
@@ -94,6 +97,18 @@ export default function TaskListPage() {
     setLoading(true)
     Promise.all([loadTasks(), loadTags()]).finally(() => setLoading(false))
   }, [])
+
+  // Auto-sélection de la 1ʳᵉ tâche (haut à gauche) au premier chargement / refresh,
+  // sans clic ni flèches. Une seule fois par montage : le ref empêche de re-forcer
+  // la sélection après une déselection manuelle ou un rechargement des tâches.
+  // filteredTasks vide = pas encore chargé → on attend (le ref n'est pas posé).
+  useEffect(() => {
+    if (didAutoSelectRef.current) return
+    if (selectedTaskId) return
+    if (filterHook.filteredTasks.length === 0) return
+    setSelectedTaskId(filterHook.filteredTasks[0].id)
+    didAutoSelectRef.current = true
+  }, [filterHook.filteredTasks, selectedTaskId])
 
   useEffect(() => {
     return () => {
@@ -153,6 +168,7 @@ export default function TaskListPage() {
     onTasksReload: loadTasks,
     setPinnedTaskId,
     setShowShortcutsHelp,
+    setShowFilters,
     setFocusTaskId,
     applyFilters
   })
