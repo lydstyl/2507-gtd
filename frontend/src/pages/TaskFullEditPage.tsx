@@ -479,9 +479,9 @@ export function TaskFullEditPage() {
               <button
                 onClick={() => setShowTagPicker(true)}
                 className='text-[10px] text-gray-400 hover:text-blue-600'
-                title="Ouvrir le sélecteur de tags (touche ` — tous les tags)"
+                title="Ouvrir le sélecteur de tags (touche A — tous les tags)"
               >
-                Raccourcis : 1-9 · <kbd className='px-1 py-0 text-[9px] bg-gray-100 border border-gray-200 rounded font-mono text-gray-400'>`</kbd> tous
+                Raccourcis : 1-9 · <kbd className='px-1 py-0 text-[9px] bg-gray-100 border border-gray-200 rounded font-mono text-gray-400'>A</kbd> tous
               </button>
             </div>
             <div className='grid grid-cols-2 gap-x-4 gap-y-2'>

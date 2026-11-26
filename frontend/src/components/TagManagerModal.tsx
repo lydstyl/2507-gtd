@@ -185,7 +185,7 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-hidden'>
-      <div className='bg-white rounded-lg shadow-xl max-w-md w-full mx-4'>
+      <div className='bg-white rounded-lg shadow-xl max-w-md w-full mx-4 flex flex-col' style={{ maxHeight: '85vh' }}>
         <div className='px-6 py-4 border-b border-gray-200 flex items-center justify-between'>
           <h3 className='text-lg font-semibold text-gray-900'>Gérer les tags</h3>
           <button onClick={onClose} className='text-gray-400 hover:text-gray-600'>
@@ -194,7 +194,7 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
             </svg>
           </button>
         </div>
-        <div className='px-6 py-4'>
+        <div className='px-6 py-4 flex-1 min-h-0 overflow-y-auto'>
           {error && (
             <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4'>
               {error}
@@ -221,7 +221,7 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
                   onTouchStart={(e) => handleTouchStart(e, tag)}
-                  className={`flex items-center justify-between py-2 cursor-move transition-all duration-200 touch-none select-none ${
+                  className={`flex items-center justify-between py-2 cursor-move transition-all duration-200 touch-pan-y select-none ${
                     draggedTag?.id === tag.id ? 'opacity-50' : ''
                   } ${
                     dragOverIndex === index ? 'bg-blue-50 border-blue-200' : ''
@@ -231,9 +231,11 @@ export function TagManagerModal({ isOpen, onClose }: TagManagerModalProps) {
                     <span className='text-gray-400 text-sm' title='Position'>
                       {index + 1}.
                     </span>
-                    <svg className='w-4 h-4 text-gray-400' fill='currentColor' viewBox='0 0 24 24'>
-                      <path d='M9 5h2v14H9zm4 0h2v14h-2z' />
-                    </svg>
+                    <span className='touch-none cursor-grab'>
+                      <svg className='w-4 h-4 text-gray-400' fill='currentColor' viewBox='0 0 24 24'>
+                        <path d='M9 5h2v14H9zm4 0h2v14h-2z' />
+                      </svg>
+                    </span>
                     <span
                       className='inline-block w-4 h-4 rounded-full border border-gray-300'
                       style={{ backgroundColor: tag.color || '#e5e7eb' }}

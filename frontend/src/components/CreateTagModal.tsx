@@ -17,6 +17,7 @@ export function CreateTagModal({
     name: '',
     color: '#3B82F6' // Couleur par défaut (bleu)
   })
+  const [colorTouched, setColorTouched] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -26,7 +27,13 @@ export function CreateTagModal({
     setError('')
 
     try {
-      await api.createTag(formData)
+      // Si le sélecteur n'a pas été modifié, on n'envoie pas de couleur :
+      // le backend attribue alors une couleur aléatoire de la palette.
+      const payload: CreateTagData = { name: formData.name.trim() }
+      if (colorTouched) {
+        payload.color = formData.color
+      }
+      await api.createTag(payload)
       onTagCreated()
       onClose()
       // Reset form
@@ -34,6 +41,7 @@ export function CreateTagModal({
         name: '',
         color: '#3B82F6'
       })
+      setColorTouched(false)
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message)
@@ -49,6 +57,9 @@ export function CreateTagModal({
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target
+    if (name === 'color') {
+      setColorTouched(true)
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: value
@@ -129,7 +140,7 @@ export function CreateTagModal({
                 className='w-12 h-10 border border-gray-300 rounded-md cursor-pointer'
               />
               <span className='text-sm text-gray-500'>
-                Choisissez une couleur pour identifier facilement ce tag
+                Choisissez une couleur — sans modification, une couleur aléatoire sera attribuée
               </span>
             </div>
           </div>

@@ -200,7 +200,7 @@ export function EditTaskModal({
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-      <div className='bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto'>
+      <div className='bg-white shadow-xl w-full h-full md:rounded-lg md:max-w-4xl md:mx-4 md:max-h-[90vh] overflow-y-auto'>
         <div className='px-6 py-4 border-b border-gray-200'>
           <div className='flex items-center justify-between'>
             <h3 className='text-lg font-semibold text-gray-900'>
@@ -401,7 +401,7 @@ export function EditTaskModal({
             <label className='block text-sm font-medium text-gray-700 mb-2'>
               Tags
             </label>
-            <div className='grid grid-cols-2 gap-x-4 gap-y-2 max-h-32 overflow-y-auto'>
+            <div className='grid grid-cols-3 gap-x-3 gap-y-2 max-h-[60vh] overflow-y-auto'>
               {tags.map((tag) => (
                 <label key={tag.id} className='flex items-center'>
                   <input

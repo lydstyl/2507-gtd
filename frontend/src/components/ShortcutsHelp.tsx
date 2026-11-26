@@ -80,6 +80,7 @@ const TAGS_ITEMS_LIST: ShortcutItem[] = [{ key: '1-9', label: 'Ajouter / enlever
 
 const TAGS_ITEMS_DETAIL: ShortcutItem[] = [
   { key: '1-9', label: 'Toggle tag n° (9 premiers)' },
+  { key: 'A', label: 'Chercher un tag (tous) — alias `' },
 ]
 
 const GENERAL_ITEMS_DETAIL: ShortcutItem[] = [
@@ -89,8 +90,9 @@ const GENERAL_ITEMS_DETAIL: ShortcutItem[] = [
   { key: 'H', label: 'Cette aide' },
 ]
 
-// Mise en forme de la note — actifs QUE quand le focus est dans l'éditeur
-// (ils ne collisionnent pas avec les raccourcis de la page, inactifs dans un champ).
+// Mise en forme de la note — mutateurs actifs QUE quand le focus est dans
+// l'éditeur (ils ne collisionnent pas avec les raccourcis de la page,
+// inactifs dans un champ). Haut/Bas/Lecture : actifs sans clic dans la note.
 const NOTE_FORMAT_ITEMS: ShortcutItem[] = [
   { key: 'Ctrl+B', label: 'Gras' },
   { key: 'Ctrl+I', label: 'Italique' },
@@ -112,6 +114,7 @@ const NAV_ITEMS_LIST: ShortcutItem[] = [
   { key: 'F', label: 'Fixer / défixer en haut' },
   { key: 'O', label: 'Plein écran (nouvel onglet)' },
   { key: 'S', label: 'Afficher / masquer les filtres' },
+  { key: 'K', label: 'Prompter une tâche (ouvrir / fermer le modal IA)' },
   { key: 'H', label: 'Cette aide' },
 ]
 

@@ -240,58 +240,43 @@ export function NoteEditor({
   }, [editor])
 
   // Raccourcis clavier des boutons de mise en forme de la note.
-  // Gérés ici (pas dans les raccourcis globaux) : ils ne s'activent QUE quand
-  // le focus est DANS l'éditeur (editor.isFocused). Quand le focus est dans
+  // Gérés ici (pas dans les raccourcis globaux) : quand le focus est dans
   // l'éditeur, les raccourcis de la page (B/P/L/R/…, D/W/M/T/E, 1-9…) sont
   // inactifs (focus dans un champ) → aucun doublon possible.
   // Gras (Ctrl+B), Italique (Ctrl+I) et Barré (Ctrl+Shift+S) sont déjà gérés
   // nativement par TipTap → on ne les redéfinit PAS (double toggle = nul).
+  // Touches de chiffres : testées sur event.code (touche PHYSIQUE marquée
+  // 1/2/3/7/8, identique AZERTY et QWERTY) — event.key est inutilisable en
+  // AZERTY : Ctrl+Alt+<touche marquée 1> renvoie « & » (et non « 1 ») →
+  // parseInt = NaN → les titres ne se déclenchaient jamais.
+  // Haut / Bas / Lecture : NON mutateurs → actifs sans clic dans la note
+  // (il suffit que le focus ne soit pas dans un AUTRE champ de saisie).
+  // Le reste (mutateurs) exige le focus dans l'éditeur (position du curseur).
   // Évite volontairement Ctrl+S (sauvegarde) et Escape (retour), qui marchent
   // partout y compris dans l'éditeur.
   useEffect(() => {
     if (!editor) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!editor.isFocused) return
       const mod = event.ctrlKey || event.metaKey
+      if (!mod) return
+
+      const target = event.target as HTMLElement | null
+      const inEditor =
+        !!target &&
+        (target === editor.view.dom || editor.view.dom.contains(target))
+      const inOtherField =
+        !!target &&
+        !inEditor &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.contentEditable === 'true')
+      if (inOtherField) return
+
       const key = event.key.toLowerCase()
 
-      // Souligné : Ctrl+U
-      if (mod && !event.altKey && !event.shiftKey && key === 'u') {
-        event.preventDefault()
-        editor.chain().focus().toggleUnderline().run()
-        return
-      }
-
-      // Lien : Ctrl+K
-      if (mod && !event.altKey && !event.shiftKey && key === 'k') {
-        event.preventDefault()
-        const url = window.prompt("Entrez l'URL du lien:")
-        if (url) editor.chain().focus().setLink({ href: url }).run()
-        return
-      }
-
-      // Listes (convention Word) : Ctrl+Shift+8 = puces, Ctrl+Shift+7 = numérotée.
-      if (mod && event.shiftKey && !event.altKey) {
-        if (event.key === '8') {
-          event.preventDefault()
-          editor.chain().focus().toggleBulletList().run()
-          return
-        }
-        if (event.key === '7') {
-          event.preventDefault()
-          editor.chain().focus().toggleOrderedList().run()
-          return
-        }
-      }
-
-      // Famille Ctrl+Alt : Titres 1-3 · Haut/Bas · Lecture · Réponse
-      if (mod && event.altKey) {
-        const level = parseInt(event.key, 10)
-        if (level >= 1 && level <= 3) {
-          event.preventDefault()
-          editor.chain().focus().toggleHeading({ level }).run()
-          return
-        }
+      // ── Ctrl+Alt+↑ / ↓ : haut / bas de la note (sans clic dans la note) ──
+      if (event.altKey) {
         if (event.key === 'ArrowUp') {
           event.preventDefault()
           containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -302,12 +287,73 @@ export function NoteEditor({
           bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
           return
         }
-        if (key === 'l') {
+        // ── Ctrl+Alt+L : mode lecture (sans clic dans la note) ──
+        if (key === 'l' && !event.shiftKey) {
           event.preventDefault()
           setComfortMode((v) => !v)
           return
         }
-        if (key === 'r') {
+      }
+
+      // ── Dès ici : focus requis DANS l'éditeur (position du curseur) ──
+      if (!editor.isFocused) return
+
+      // Souligné : Ctrl+U
+      if (!event.altKey && !event.shiftKey && key === 'u') {
+        event.preventDefault()
+        editor.chain().focus().toggleUnderline().run()
+        return
+      }
+
+      // Lien : Ctrl+K
+      if (!event.altKey && !event.shiftKey && key === 'k') {
+        event.preventDefault()
+        const url = window.prompt("Entrez l'URL du lien:")
+        if (url) editor.chain().focus().setLink({ href: url }).run()
+        return
+      }
+
+      // Listes (convention Word) : Ctrl+Shift+8 = puces, Ctrl+Shift+7 = numérotée.
+      // event.code = touche physique (AZERTY/QWERTY indifférent).
+      // defaultPrevented : le keymap intégré TipTap (Mod-Shift-7/8, matching sur event.key)
+      // a déjà géré la touche sur QWERTY → on ne doit pas double-togguer.
+      // Sur AZERTY le keymap intégré ne matche pas (key = '&', '"', …) → notre branch prend le relais.
+      if (event.shiftKey && !event.altKey && !event.defaultPrevented) {
+        if (event.code === 'Digit8') {
+          event.preventDefault()
+          editor.chain().focus().toggleBulletList().run()
+          return
+        }
+        if (event.code === 'Digit7') {
+          event.preventDefault()
+          editor.chain().focus().toggleOrderedList().run()
+          return
+        }
+      }
+
+      // Famille Ctrl+Alt : Titres 1-3 (touches physiques marquées 1/2/3) · Réponse
+      if (event.altKey) {
+        // Même logique que les listes : le keymap intégré TipTap (Mod-Alt-1/2/3) matche
+        // sur event.key ('1', '2', '3') → QWERTY seulement. Sur AZERTY (key = '&', 'é', '"')
+        // il ne matche pas : c'est event.code (touche physique) qui fait la différence.
+        if (!event.defaultPrevented) {
+          if (event.code === 'Digit1') {
+            event.preventDefault()
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+            return
+          }
+          if (event.code === 'Digit2') {
+            event.preventDefault()
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+            return
+          }
+          if (event.code === 'Digit3') {
+            event.preventDefault()
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+            return
+          }
+        }
+        if (key === 'r' && !event.shiftKey) {
           event.preventDefault()
           editor.chain().focus().insertContent(buildResponseBlockHTML()).run()
           return

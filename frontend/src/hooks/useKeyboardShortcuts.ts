@@ -41,6 +41,7 @@ interface UseKeyboardShortcutsProps {
   setShowShortcutsHelp: (show: boolean | ((prev: boolean) => boolean)) => void
   setShowFilters: (show: boolean | ((prev: boolean) => boolean)) => void
   setFocusTaskId: (id: string | null) => void
+  onOpenPromptModal: () => void
   applyFilters: (tasks: Task[]) => Task[]
 }
 
@@ -70,6 +71,7 @@ export function useKeyboardShortcuts({
   setShowShortcutsHelp,
   setShowFilters,
   setFocusTaskId,
+  onOpenPromptModal,
   applyFilters
 }: UseKeyboardShortcutsProps) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -172,6 +174,13 @@ export function useKeyboardShortcuts({
       if (e.key.toLowerCase() === "s") {
         e.preventDefault()
         setShowFilters((v) => !v)
+        return
+      }
+
+      // Open the « Prompter tâche » modal (K) — même action que le bouton 🤖
+      if (e.key.toLowerCase() === "k") {
+        e.preventDefault()
+        onOpenPromptModal()
         return
       }
 
@@ -329,6 +338,7 @@ export function useKeyboardShortcuts({
     setShowShortcutsHelp,
     setShowFilters,
     setFocusTaskId,
+    onOpenPromptModal,
     applyFilters,
     setSelectedTaskId
   ])

@@ -170,6 +170,7 @@ export default function TaskListPage() {
     setShowShortcutsHelp,
     setShowFilters,
     setFocusTaskId,
+    onOpenPromptModal: () => setShowPromptModal((v) => !v),
     applyFilters
   })
 
@@ -371,9 +372,9 @@ export default function TaskListPage() {
           <button
             onClick={() => setShowPromptModal(true)}
             className='px-3 py-2 rounded-md text-sm font-medium transition-colors bg-purple-100 hover:bg-purple-200 text-purple-700'
-            title="Créer une tâche « Pour IA » à partir d'un prompt"
+            title="Créer une tâche « Pour IA » à partir d'un prompt (raccourci K)"
           >
-            🤖 Prompter tâche
+            🤖 Prompter tâche <kbd className='ml-1 px-1 py-0.5 text-[10px] bg-purple-200 border border-purple-300 rounded font-mono text-purple-700 select-none'>K</kbd>
           </button>
           <button
             onClick={modalHook.handleCreateTask}

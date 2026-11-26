@@ -21,7 +21,7 @@ import { TaskDateConsistencyService } from '@gtd/shared'
  *   D / Shift+D   → date prévue ±1j
  *   W / M / T / E → date prévue (+sem / +mois / aujourd'hui / effacer)
  *   1-9           → toggle tag (9 premiers)
- *   ` (Backquote) → sélecteur de tags (tous les tags, recherche)
+ *   A             → sélecteur de tags (tous les tags, recherche) · alias `
  *   X             → Terminer (ouvre une confirmation)
  *   Ctrl+S        → sauvegarder (marche même dans un champ)
  *   Escape        → retour
@@ -64,7 +64,7 @@ interface UseTaskDetailShortcutsProps {
   isSaving: boolean
   /** Ouvre la confirmation « Terminer » (touche X). */
   onRequestComplete?: () => void
-  /** Ouvre le sélecteur de tags (touche ` / Backquote). */
+  /** Ouvre le sélecteur de tags (touche A — alias ` / Backquote). */
   onOpenTagPicker?: () => void
   /** Si un modal (picker / confirmation) est ouvert : désactiver les raccourcis globaux. */
   modalOpen?: boolean
@@ -159,10 +159,17 @@ export function useTaskDetailShortcuts({
 
       const currentTags = tagsRef.current
 
-      // ── Sélecteur de tags : ` (Backquote) ──
-      // e.code = position PHYSIQUE de la touche → indépendant du layout
-      // (AZERTY / QWERTY). Sur AZERTY cette touche est l'apostrophe.
-      if (e.code === 'Backquote') {
+      // ── Sélecteur de tags : A (alias ` / Backquote) ──
+      // A = lettre claire et mémorisable, présente sur tous les claviers
+      // (pas de pavé numérique requis). Le Backquote reste en alias silencieux.
+      const isTagPickerKey =
+        e.code === 'Backquote' ||
+        (e.key.length === 1 &&
+          e.key.toLowerCase() === 'a' &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.altKey)
+      if (isTagPickerKey) {
         e.preventDefault()
         onOpenTagPickerRef.current?.()
         return

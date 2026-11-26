@@ -19,7 +19,7 @@ function normalize(s: string): string {
 
 /**
  * Sélecteur de tags accessible au clavier — solution scalable à 30, 100… tags.
- * Ouvert par la touche ` (Backquote). Tape pour filtrer, ↑↓ pour naviguer,
+ * Ouvert par la touche A (alias ` / Backquote). Tape pour filtrer, ↑↓ pour naviguer,
  * Entrée pour toggler le tag, Esc pour fermer. On peut en toggler plusieurs
  * avant de fermer.
  */

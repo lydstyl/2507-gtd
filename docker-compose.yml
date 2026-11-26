@@ -52,6 +52,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./uploads:/app/uploads
+      - ./frontend/dist:/frontend/dist:ro
 
   frontend:
     build:
