@@ -105,8 +105,34 @@ export function NoteEditor({
   // État upload (bouton Image + bouton Fichier + drop)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingFile, setUploadingFile] = useState(false)
+
+  // Mode lecture : note centrée, largeur max ~600 px (confort de lecture).
+  // Préférence persistée (localStorage) — identique pour toutes les notes.
+  const [comfortMode, setComfortMode] = useState(() => {
+    try {
+      return localStorage.getItem('gtd-note-comfort') === '1'
+    } catch {
+      return false
+    }
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem('gtd-note-comfort', comfortMode ? '1' : '0')
+    } catch {
+      /* stockage indisponible : le mode reste actif pour la session */
+    }
+  }, [comfortMode])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileAnyRef = useRef<HTMLInputElement>(null)
+
+  // Raccourcis de navigation de note : boutons « ↑ Haut » / « ↓ Bas » qui
+  // scrollent la fenêtre tout en haut / tout en bas de la note (sans scroller).
+  const containerRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollToTop = () =>
+    containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const scrollToBottom = () =>
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 
   // Bouton « Image » : sélection multiple → upload → insertion au curseur.
   const onFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,7 +279,7 @@ export function NoteEditor({
   return (
     // Pas d'overflow-hidden ici : un parent en overflow:hidden devient le
     // référentiel de la sticky et annulerait le collage au scroll (NoteModal).
-    <div className='border border-gray-300 rounded-lg'>
+    <div ref={containerRef} className='border border-gray-300 rounded-lg'>
       {/* Toolbar sticky : reste visible en haut du scroll de la note */}
       <div className='sticky top-0 z-10 bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1 rounded-t-lg'>
         {/* Text formatting */}
@@ -577,11 +603,61 @@ export function NoteEditor({
           className='hidden'
           onChange={onFileSelected}
         />
+
+        <div className='w-px h-6 bg-gray-300 mx-1'></div>
+
+        {/* Navigation de note : sauter tout en haut / tout en bas (sans scroller) */}
+        <button
+          onClick={scrollToTop}
+          className='p-2 rounded hover:bg-gray-200 flex items-center gap-1 text-xs font-semibold text-gray-700'
+          title='Aller tout en haut de la note'
+        >
+          <svg className='w-4 h-4' fill='none' stroke='currentColor' strokeWidth={2} viewBox='0 0 24 24'>
+            <path strokeLinecap='round' strokeLinejoin='round' d='M5 15l7-7 7 7M5 19l7-7 7 7' />
+          </svg>
+          Haut
+        </button>
+        <button
+          onClick={scrollToBottom}
+          className='p-2 rounded hover:bg-gray-200 flex items-center gap-1 text-xs font-semibold text-gray-700'
+          title='Aller tout en bas de la note'
+        >
+          <svg className='w-4 h-4' fill='none' stroke='currentColor' strokeWidth={2} viewBox='0 0 24 24'>
+            <path strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7M19 5l-7 7-7-7' />
+          </svg>
+          Bas
+        </button>
+
+        <div className='w-px h-6 bg-gray-300 mx-1'></div>
+
+        {/* Mode lecture : note centrée, largeur max ~600 px (confort de lecture) */}
+        <button
+          onClick={() => setComfortMode((v) => !v)}
+          className={`p-2 rounded flex items-center gap-1 text-xs font-semibold ${
+            comfortMode
+              ? 'bg-blue-100 text-blue-700'
+              : 'hover:bg-gray-200 text-gray-700'
+          }`}
+          title='Mode lecture : note centrée, largeur max ~600 px — plus agréable à lire'
+        >
+          <svg
+            className='w-4 h-4'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth={2}
+            viewBox='0 0 24 24'
+          >
+            <path strokeLinecap='round' strokeLinejoin='round' d='M4 6h16M7 12h10M10 18h4' />
+          </svg>
+          Lecture
+        </button>
       </div>
 
-      {/* Editor content */}
-      <div className='bg-white'>
+      {/* Editor content — mode lecture : colonne centrée ~600 px */}
+      <div className={`bg-white ${comfortMode ? 'mx-auto max-w-[600px]' : ''}`}>
         <EditorContent editor={editor} />
+        {/* Ancre bas de note : cible du bouton « ↓ Bas » (scrollIntoView block:end). */}
+        <div ref={bottomRef} aria-hidden='true'></div>
         {!content && placeholder && (
           <div className='absolute top-0 left-0 p-4 text-gray-400 pointer-events-none'>
             {placeholder}
