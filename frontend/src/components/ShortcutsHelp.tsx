@@ -20,7 +20,7 @@ interface ShortcutItem {
   label: string
 }
 
-type GroupColor = 'blue' | 'amber' | 'green' | 'purple' | 'gray'
+type GroupColor = 'blue' | 'amber' | 'green' | 'purple' | 'gray' | 'red'
 
 interface ShortcutGroup {
   id: string
@@ -39,6 +39,7 @@ const GROUP_STYLES: Record<GroupColor, { border: string; badge: string }> = {
   green: { border: 'border-l-green-500', badge: 'bg-green-100 text-green-700' },
   purple: { border: 'border-l-purple-500', badge: 'bg-purple-100 text-purple-700' },
   gray: { border: 'border-l-gray-400', badge: 'bg-gray-100 text-gray-700' },
+  red: { border: 'border-l-red-500', badge: 'bg-red-100 text-red-700' },
 }
 
 // ── Familles de touches partagées ────────────────────────────────────────────
@@ -79,7 +80,6 @@ const TAGS_ITEMS_LIST: ShortcutItem[] = [{ key: '1-9', label: 'Ajouter / enlever
 
 const TAGS_ITEMS_DETAIL: ShortcutItem[] = [
   { key: '1-9', label: 'Toggle tag n° (9 premiers)' },
-  { key: '`', label: 'Chercher un tag (tous)' },
 ]
 
 const GENERAL_ITEMS_DETAIL: ShortcutItem[] = [
@@ -87,6 +87,22 @@ const GENERAL_ITEMS_DETAIL: ShortcutItem[] = [
   { key: 'Esc', label: 'Retour' },
   { key: 'X', label: 'Terminer (confirmation)' },
   { key: 'H', label: 'Cette aide' },
+]
+
+// Mise en forme de la note — actifs QUE quand le focus est dans l'éditeur
+// (ils ne collisionnent pas avec les raccourcis de la page, inactifs dans un champ).
+const NOTE_FORMAT_ITEMS: ShortcutItem[] = [
+  { key: 'Ctrl+B', label: 'Gras' },
+  { key: 'Ctrl+I', label: 'Italique' },
+  { key: 'Ctrl+U', label: 'Souligné' },
+  { key: 'Ctrl+Shift+S', label: 'Barré' },
+  { key: 'Ctrl+Alt+1 / 2 / 3', label: 'Titre 1 / 2 / 3' },
+  { key: 'Ctrl+Shift+8', label: 'Liste à puces' },
+  { key: 'Ctrl+Shift+7', label: 'Liste numérotée' },
+  { key: 'Ctrl+K', label: 'Ajouter un lien' },
+  { key: 'Ctrl+Alt+↑ / ↓', label: 'Haut / bas de la note' },
+  { key: 'Ctrl+Alt+L', label: 'Mode lecture (centré, 600 px)' },
+  { key: 'Ctrl+Alt+R', label: 'Bloc « Réponse de Gabriel »' },
 ]
 
 const NAV_ITEMS_LIST: ShortcutItem[] = [
@@ -105,6 +121,7 @@ const GROUPS: Record<ShortcutsContext, ShortcutGroup[]> = {
     { id: 'impact', title: 'Importance & complexité', color: 'amber', items: IMPACT_ITEMS },
     { id: 'dates', title: 'Dates', color: 'green', items: DATE_ITEMS_DETAIL },
     { id: 'tags', title: 'Tags', color: 'purple', items: TAGS_ITEMS_DETAIL },
+    { id: 'note', title: 'Mise en forme de la note', color: 'red', items: NOTE_FORMAT_ITEMS },
     { id: 'general', title: 'Général', color: 'gray', items: GENERAL_ITEMS_DETAIL },
   ],
   list: [

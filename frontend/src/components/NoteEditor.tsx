@@ -239,18 +239,79 @@ export function NoteEditor({
     return () => dom.removeEventListener('click', onClick)
   }, [editor])
 
-  // Raccourci Ctrl/Cmd + Alt + R : insère le bloc « Réponse de Gabriel » au curseur.
+  // Raccourcis clavier des boutons de mise en forme de la note.
+  // Gérés ici (pas dans les raccourcis globaux) : ils ne s'activent QUE quand
+  // le focus est DANS l'éditeur (editor.isFocused). Quand le focus est dans
+  // l'éditeur, les raccourcis de la page (B/P/L/R/…, D/W/M/T/E, 1-9…) sont
+  // inactifs (focus dans un champ) → aucun doublon possible.
+  // Gras (Ctrl+B), Italique (Ctrl+I) et Barré (Ctrl+Shift+S) sont déjà gérés
+  // nativement par TipTap → on ne les redéfinit PAS (double toggle = nul).
+  // Évite volontairement Ctrl+S (sauvegarde) et Escape (retour), qui marchent
+  // partout y compris dans l'éditeur.
   useEffect(() => {
     if (!editor) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (!editor.isFocused) return
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        event.altKey &&
-        event.key.toLowerCase() === 'r'
-      ) {
+      const mod = event.ctrlKey || event.metaKey
+      const key = event.key.toLowerCase()
+
+      // Souligné : Ctrl+U
+      if (mod && !event.altKey && !event.shiftKey && key === 'u') {
         event.preventDefault()
-        editor.chain().focus().insertContent(buildResponseBlockHTML()).run()
+        editor.chain().focus().toggleUnderline().run()
+        return
+      }
+
+      // Lien : Ctrl+K
+      if (mod && !event.altKey && !event.shiftKey && key === 'k') {
+        event.preventDefault()
+        const url = window.prompt("Entrez l'URL du lien:")
+        if (url) editor.chain().focus().setLink({ href: url }).run()
+        return
+      }
+
+      // Listes (convention Word) : Ctrl+Shift+8 = puces, Ctrl+Shift+7 = numérotée.
+      if (mod && event.shiftKey && !event.altKey) {
+        if (event.key === '8') {
+          event.preventDefault()
+          editor.chain().focus().toggleBulletList().run()
+          return
+        }
+        if (event.key === '7') {
+          event.preventDefault()
+          editor.chain().focus().toggleOrderedList().run()
+          return
+        }
+      }
+
+      // Famille Ctrl+Alt : Titres 1-3 · Haut/Bas · Lecture · Réponse
+      if (mod && event.altKey) {
+        const level = parseInt(event.key, 10)
+        if (level >= 1 && level <= 3) {
+          event.preventDefault()
+          editor.chain().focus().toggleHeading({ level }).run()
+          return
+        }
+        if (event.key === 'ArrowUp') {
+          event.preventDefault()
+          containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          return
+        }
+        if (event.key === 'ArrowDown') {
+          event.preventDefault()
+          bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+          return
+        }
+        if (key === 'l') {
+          event.preventDefault()
+          setComfortMode((v) => !v)
+          return
+        }
+        if (key === 'r') {
+          event.preventDefault()
+          editor.chain().focus().insertContent(buildResponseBlockHTML()).run()
+          return
+        }
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -290,7 +351,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Gras'
+          title='Gras (Ctrl+B)'
         >
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M12.6 18H6V2h4.5a4.5 4.5 0 0 1 3.5 1.5 4.5 4.5 0 0 1 1.5 3.5 4.5 4.5 0 0 1-1.5 3.5A4.5 4.5 0 0 1 12.6 18zm0-12a2.5 2.5 0 0 0-2.5-2.5H8v5h2.1a2.5 2.5 0 0 0 2.5-2.5z' />
@@ -304,7 +365,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Italique'
+          title='Italique (Ctrl+I)'
         >
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M8 2h8v2h-3l-1 6h4v2H6V2h2z' />
@@ -318,7 +379,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Souligné'
+          title='Souligné (Ctrl+U)'
         >
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M3 17.25V21h14v-3.75H3zM5 2v10h2V9h6v3h2V2H5z' />
@@ -332,7 +393,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Barré'
+          title='Barré (Ctrl+Shift+S)'
         >
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M7.24 8.75a6 6 0 0 0 2.24 4.61l1.36-1.36a4 4 0 0 1-1.84-3.25H7.24zm8.52-1.5H9.5a4 4 0 0 1 1.84-3.25l1.36 1.36a6 6 0 0 0-2.24 4.61h2.24z' />
@@ -351,7 +412,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Titre 1'
+          title='Titre 1 (Ctrl+Alt+1)'
         >
           H1
         </button>
@@ -365,7 +426,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Titre 2'
+          title='Titre 2 (Ctrl+Alt+2)'
         >
           H2
         </button>
@@ -379,7 +440,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Titre 3'
+          title='Titre 3 (Ctrl+Alt+3)'
         >
           H3
         </button>
@@ -394,7 +455,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Liste à puces'
+          title='Liste à puces (Ctrl+Shift+8)'
         >
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z' />
@@ -408,7 +469,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Liste numérotée'
+          title='Liste numérotée (Ctrl+Shift+7)'
         >
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M2 6a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6zM14 6a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V6zM14 11a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z' />
@@ -497,7 +558,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200'
           }`}
-          title='Ajouter un lien'
+          title='Ajouter un lien (Ctrl+K)'
         >
           <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path d='M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5.5 5.5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z' />
@@ -610,7 +671,7 @@ export function NoteEditor({
         <button
           onClick={scrollToTop}
           className='p-2 rounded hover:bg-gray-200 flex items-center gap-1 text-xs font-semibold text-gray-700'
-          title='Aller tout en haut de la note'
+          title='Aller tout en haut de la note (Ctrl+Alt+↑)'
         >
           <svg className='w-4 h-4' fill='none' stroke='currentColor' strokeWidth={2} viewBox='0 0 24 24'>
             <path strokeLinecap='round' strokeLinejoin='round' d='M5 15l7-7 7 7M5 19l7-7 7 7' />
@@ -620,7 +681,7 @@ export function NoteEditor({
         <button
           onClick={scrollToBottom}
           className='p-2 rounded hover:bg-gray-200 flex items-center gap-1 text-xs font-semibold text-gray-700'
-          title='Aller tout en bas de la note'
+          title='Aller tout en bas de la note (Ctrl+Alt+↓)'
         >
           <svg className='w-4 h-4' fill='none' stroke='currentColor' strokeWidth={2} viewBox='0 0 24 24'>
             <path strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7M19 5l-7 7-7-7' />
@@ -638,7 +699,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200 text-gray-700'
           }`}
-          title='Mode lecture : note centrée, largeur max ~600 px — plus agréable à lire'
+          title='Mode lecture : note centrée, largeur max ~600 px (Ctrl+Alt+L)'
         >
           <svg
             className='w-4 h-4'
