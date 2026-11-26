@@ -43,6 +43,9 @@ export function createTaskRoutes(taskController: TaskController): Router {
   // POST /api/tasks/:id/worked-on - Create a completed copy of a task with only its title
   router.post('/:id/worked-on', taskController.workedOnTask.bind(taskController))
 
+  // POST /api/tasks/:id/stop-ia - Stop a task being processed by an IA agent (marker file watched by the host wrapper)
+  router.post('/:id/stop-ia', taskController.stopIaTask.bind(taskController))
+
   // DELETE /api/tasks/:id - Delete a specific task
   router.delete('/:id', taskController.deleteTask.bind(taskController))
 

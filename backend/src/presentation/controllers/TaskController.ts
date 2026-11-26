@@ -1,4 +1,6 @@
 import { Request, Response } from 'express'
+import * as fs from 'fs/promises'
+import * as path from 'path'
 import { CreateTaskUseCase } from '../../usecases/tasks/CreateTaskUseCase'
 import { GetTaskUseCase } from '../../usecases/tasks/GetTaskUseCase'
 import { GetAllTasksUseCase } from '../../usecases/tasks/GetAllTasksUseCase'
@@ -12,6 +14,7 @@ import { GetCompletionStatsUseCase } from '../../usecases/tasks/GetCompletionSta
 import { GetCompletedTasksUseCase } from '../../usecases/tasks/GetCompletedTasksUseCase'
 import { TaskFilters } from '../../interfaces/repositories/TaskRepository'
 import { QueryOptions } from '@gtd/shared'
+import { UPLOAD_DIR } from './ImageController'
 
 /**
  * Convert basic markdown to HTML for note fields.
@@ -408,6 +411,48 @@ export class TaskController {
         } else {
           res.status(400).json({ error: error.message })
         }
+      } else {
+        res.status(500).json({ error: 'Internal server error' })
+      }
+    }
+  }
+
+  async stopIaTask(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id as string
+      const userId = (req as any).user?.userId
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' })
+        return
+      }
+
+      const task = await this.getTaskUseCase.execute(id, userId)
+
+      // Seule une tâche en cours de traitement IA peut être arrêtée.
+      if (!task || (task as { status?: string }).status !== 'ia_en_cours') {
+        res
+          .status(409)
+          .json({ error: 'La tâche n\'est pas en cours de traitement IA (statut != ia_en_cours)' })
+        return
+      }
+
+      // Marqueur de stop : le wrapper hôte (pour-ia-agent-loop.sh) le poll tous
+      // les 2 s pendant que l'agent tourne, SIGTERM le child, passe la tâche en
+      // « ia_arretee » (deterministe, sans cooldown) et libère le slot.
+      // Le volume ./uploads (hôte) est monté en /app/uploads (container).
+      const markerPath = path.join(UPLOAD_DIR, `pour-ia-stop-${id}`)
+      await fs.mkdir(UPLOAD_DIR, { recursive: true })
+      await fs.writeFile(markerPath, new Date().toISOString(), 'utf-8')
+
+      res.status(202).json({
+        ok: true,
+        taskId: id,
+        message: 'Arrêt demandé — l\'agent sera stoppé dans quelques secondes'
+      })
+    } catch (error) {
+      console.error('❌ Erreur dans stopIaTask:', error)
+      if (error instanceof Error && (error.message.includes('not found') || error.message.includes('Access denied'))) {
+        res.status(404).json({ error: error.message })
       } else {
         res.status(500).json({ error: 'Internal server error' })
       }
