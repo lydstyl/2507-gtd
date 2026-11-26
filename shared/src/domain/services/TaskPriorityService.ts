@@ -121,6 +121,7 @@ export class TaskPriorityService {
     if (status === 'pour_ia') return 'pour-ia'
     if (status === 'collecte') return 'collected'
     if (status === 'ia_en_cours') return 'ia-en-cours'
+    if (status === 'ia_arretee') return 'ia-arretee'
     if (status === 'termine_par_ia') return 'termine-par-ia'
     if (status === 'un_jour_peut_etre') return 'un-jour'
 
@@ -157,7 +158,8 @@ export class TaskPriorityService {
       'pret-tomorrow': 8,
       'pret-no-date': 9,
       'pret-future': 10,
-      'un-jour': 11
+      'un-jour': 11,
+      'ia-arretee': 12
     }
     return priorities[category]
   }

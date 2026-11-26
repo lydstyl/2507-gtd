@@ -14,6 +14,7 @@ enum TaskStatus {
   pret
   un_jour_peut_etre
   ia_en_cours
+  ia_arretee
   termine_par_ia
 }
 

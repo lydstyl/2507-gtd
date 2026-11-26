@@ -81,6 +81,13 @@ export class TaskCategoryService {
          textColor: 'text-sky-700',
          icon: '🌙'
        },
+       'ia-arretee': {
+         label: 'IA arrêtée',
+         borderColor: 'border-l-red-500',
+         backgroundColor: 'bg-red-50',
+         textColor: 'text-red-700',
+         icon: '⏹'
+       },
        'termine-par-ia': {
          label: 'Terminé par IA',
          borderColor: 'border-l-emerald-500',
@@ -130,6 +137,7 @@ export class TaskCategoryService {
       'pret-no-date': [],
       'pret-future': [],
       'un-jour': [],
+      'ia-arretee': [],
       'termine-par-ia': []
     }
 
@@ -162,6 +170,7 @@ export class TaskCategoryService {
       'pret-no-date': groups['pret-no-date'].length,
       'pret-future': groups['pret-future'].length,
       'un-jour': groups['un-jour'].length,
+      'ia-arretee': groups['ia-arretee'].length,
       'termine-par-ia': groups['termine-par-ia'].length
     }
   }
