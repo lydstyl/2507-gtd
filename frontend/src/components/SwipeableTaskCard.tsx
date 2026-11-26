@@ -23,6 +23,7 @@ interface SwipeableTaskCardProps {
   onPin?: (taskId: string) => void
   isPinned?: boolean
   onRemoveTag?: (taskId: string, tagId: string) => void
+  onStopIa?: (taskId: string) => void
 }
 
 interface SwipeState {

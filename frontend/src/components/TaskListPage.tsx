@@ -286,6 +286,28 @@ export default function TaskListPage() {
     }
   }
 
+  // Arrêt du traitement IA : l'endpoint pose un marqueur, le wrapper hôte tue
+  // l'agent et passe la tâche en « ia_arretee » (~2 s). On rechargé la liste
+  // une fois + après un court délai pour capter le changement de statut.
+  const handleStopIa = async (taskId: string) => {
+    const task = findTaskById(tasks, taskId)
+    if (!task) return
+
+    const confirmed = window.confirm(
+      `Arrêter le traitement IA de la tâche « ${task.name} » ?\nElle passera en « IA arrêtée ».`
+    )
+    if (!confirmed) return
+
+    try {
+      await api.stopIaTask(taskId)
+      loadTasks()
+      setTimeout(() => loadTasks(), 3000)
+    } catch (err) {
+      console.error("Erreur lors de l'arrêt IA de la tâche:", err)
+      alert("Erreur lors de l'arrêt IA de la tâche")
+    }
+  }
+
   const handleReorderSubtasks = async (taskId: string, newPosition: number) => {
     try {
       await api.updateTask(taskId, {
@@ -508,6 +530,7 @@ export default function TaskListPage() {
                 onPin={handlePin}
                 isPinned={pinnedTaskId === task.id}
                 onRemoveTag={handleRemoveTag}
+                onStopIa={handleStopIa}
               />
             ))}
         </div>
@@ -536,6 +559,7 @@ export default function TaskListPage() {
             onPin={handlePin}
             isPinned={pinnedTaskId === focusTaskId}
             onRemoveTag={handleRemoveTag}
+            onStopIa={handleStopIa}
           />
           <button
             className="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"

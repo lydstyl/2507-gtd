@@ -52,6 +52,7 @@ interface TaskCardProps {
   onPin?: (taskId: string) => void // Ajouté pour épingler/désépingler la tâche
   isPinned?: boolean // Ajouté pour indiquer si la tâche est épinglée
   onRemoveTag?: (taskId: string, tagId: string) => void // Détacher un tag de la tâche (bouton × au survol)
+  onStopIa?: (taskId: string) => void // Arrêter le traitement IA en cours (bouton ⏹)
 }
 
 export function TaskCard({
@@ -73,7 +74,8 @@ export function TaskCard({
   tags, // Tags globaux
   onPin, // Ajouté
   isPinned = false, // Ajouté
-  onRemoveTag // Détacher un tag de la tâche
+  onRemoveTag, // Détacher un tag de la tâche
+  onStopIa // Arrêter le traitement IA en cours
 }: TaskCardProps) {
   const [showSubtasks, setShowSubtasks] = useState(false)
   const [showQuickActions, setShowQuickActions] = useState(false)
@@ -284,6 +286,19 @@ export function TaskCard({
                     </svg>
                     <span>Lien</span>
                   </a>
+                )}
+                {task.status === 'ia_en_cours' && !task.isCompleted && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onStopIa?.(task.id)
+                    }}
+                    className='text-red-600 hover:text-red-800 text-sm flex items-center space-x-1 flex-shrink-0 font-medium'
+                    title='Arrêter le traitement IA de cette tâche (elle passera en « IA arrêtée »)'
+                  >
+                    <span>⏹</span>
+                    <span>Arrêter</span>
+                  </button>
                 )}
               </div>
 

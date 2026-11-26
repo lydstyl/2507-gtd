@@ -277,5 +277,10 @@ export const api = {
   workedOnTask: (id: string) =>
     apiCall<Task>(`/tasks/${id}/worked-on`, {
       method: 'POST'
+    }),
+
+  stopIaTask: (id: string) =>
+    apiCall<{ ok: boolean; taskId: string; message: string }>(`/tasks/${id}/stop-ia`, {
+      method: 'POST'
     })
 }
