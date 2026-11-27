@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { TaskActions } from '../TaskActions'
 import type { Task } from '../../types/task'
 
@@ -26,7 +27,9 @@ describe('TaskActions — badge note basé sur hasNote', () => {
   it('affiche "Modifier la note" et le point violet quand hasNote est true (sans note chargée)', () => {
     const task: Task = { ...baseTask, hasNote: true, note: undefined }
     render(
-      <TaskActions task={task} onEditNote={() => {}} />
+      <MemoryRouter>
+        <TaskActions task={task} onEditNote={() => {}} />
+      </MemoryRouter>
     )
 
     const noteButton = screen.getByTitle('Modifier la note')
@@ -38,7 +41,9 @@ describe('TaskActions — badge note basé sur hasNote', () => {
   it('affiche "Ajouter une note" sans point quand hasNote est false', () => {
     const task: Task = { ...baseTask, hasNote: false, note: undefined }
     render(
-      <TaskActions task={task} onEditNote={() => {}} />
+      <MemoryRouter>
+        <TaskActions task={task} onEditNote={() => {}} />
+      </MemoryRouter>
     )
 
     expect(screen.getByTitle('Ajouter une note')).toBeInTheDocument()
@@ -50,7 +55,9 @@ describe('TaskActions — badge note basé sur hasNote', () => {
     // Ancien client / données sans hasNote : on retombe sur "Ajouter une note"
     const task: Task = { ...baseTask, note: '<p>note héritée</p>' }
     render(
-      <TaskActions task={task} onEditNote={() => {}} />
+      <MemoryRouter>
+        <TaskActions task={task} onEditNote={() => {}} />
+      </MemoryRouter>
     )
 
     expect(screen.getByTitle('Ajouter une note')).toBeInTheDocument()

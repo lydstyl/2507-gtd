@@ -1,5 +1,5 @@
+import { useNavigate } from 'react-router-dom'
 import type { Task } from '../types/task'
-import { useState } from 'react'
 
 interface TaskActionsProps {
   task: Task
@@ -22,13 +22,11 @@ interface TaskActionsProps {
 
 export function TaskActions({
   task,
-  onEdit,
   onDelete,
   onCreateSubtask,
   onAssignParent,
   onEditNote,
   onMarkCompleted,
-  onWorkedOn,
   onPin,
   isPinned = false,
    onQuickAction,
@@ -37,25 +35,10 @@ export function TaskActions({
   size = 'medium',
   hideOnDesktop = false
 }: TaskActionsProps) {
-  const [workedOnState, setWorkedOnState] = useState<'idle' | 'loading' | 'success'>('idle')
-
+  const navigate = useNavigate()
   const iconSize = size === 'small' ? 'w-3 h-3' : size === 'large' ? 'w-5 h-5' : 'w-4 h-4'
   const buttonSize = size === 'small' ? 'p-1.5' : 'p-2'
   const visibilityClass = hideOnDesktop ? 'hidden md:block' : ''
-
-  const handleWorkedOnClick = async () => {
-    if (!onWorkedOn || workedOnState !== 'idle') return
-
-    setWorkedOnState('loading')
-    try {
-      await onWorkedOn(task.id)
-      setWorkedOnState('success')
-      // Reset to idle after success animation
-      setTimeout(() => setWorkedOnState('idle'), 1500)
-     } catch {
-       setWorkedOnState('idle')
-     }
-  }
 
   return (
     <div className='flex items-center flex-wrap gap-1'>
@@ -115,11 +98,11 @@ export function TaskActions({
         </div>
       </button>
 
-      {/* Open full-screen page button (nouvel onglet) */}
+      {/* Open full-screen page button (même fenêtre — navigation SPA) */}
       <button
-        onClick={() => window.open(`/task/${task.id}`, '_blank')}
+        onClick={() => navigate(`/task/${task.id}`)}
         className={`${buttonSize} text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors`}
-        title='Ouvrir la tâche en plein écran dans un nouvel onglet'
+        title='Ouvrir la tâche en plein écran (même fenêtre)'
       >
         <svg
           className={iconSize}
@@ -191,95 +174,6 @@ export function TaskActions({
                 d='M5 13l4 4L19 7'
               />
             )}
-          </svg>
-        </button>
-      )}
-
-      {/* Worked on button - only show for incomplete tasks */}
-      {onWorkedOn && !task.isCompleted && (
-        <button
-          onClick={handleWorkedOnClick}
-          disabled={workedOnState !== 'idle'}
-          className={`${buttonSize} rounded transition-all duration-300 ${visibilityClass} ${
-            workedOnState === 'idle'
-              ? 'text-orange-400 hover:text-orange-600 hover:bg-orange-50'
-              : workedOnState === 'loading'
-              ? 'text-orange-500 bg-orange-100 animate-pulse'
-              : 'text-green-500 bg-green-100 animate-bounce'
-          } ${workedOnState === 'success' ? 'scale-110' : 'scale-100'}`}
-          title={
-            workedOnState === 'idle'
-              ? "J'ai travaillé dessus"
-              : workedOnState === 'loading'
-              ? 'Création en cours...'
-              : 'Tâche ajoutée aux statistiques!'
-          }
-        >
-          {workedOnState === 'loading' ? (
-            <svg
-              className={`${iconSize} animate-spin`}
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
-              />
-            </svg>
-          ) : workedOnState === 'success' ? (
-            <svg
-              className={iconSize}
-              fill='currentColor'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M5 13l4 4L19 7'
-              />
-            </svg>
-          ) : (
-            <svg
-              className={iconSize}
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
-              />
-            </svg>
-          )}
-        </button>
-      )}
-
-      {/* Edit button */}
-      {onEdit && (
-        <button
-          onClick={() => onEdit(task)}
-          className={`${buttonSize} text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors`}
-          title='Modifier la tâche'
-        >
-          <svg
-            className={iconSize}
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
-            />
           </svg>
         </button>
       )}

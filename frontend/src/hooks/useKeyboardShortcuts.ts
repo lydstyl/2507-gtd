@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
- import type { Task, Tag, TaskStatus, UpdateTaskData } from '../types/task'
+ import { useNavigate } from 'react-router-dom'
+import type { Task, Tag, TaskStatus, UpdateTaskData } from '../types/task'
 import { api } from '../utils/api'
 import {
   computeImportanceUpdate,
@@ -74,6 +75,7 @@ export function useKeyboardShortcuts({
   onOpenPromptModal,
   applyFilters
 }: UseKeyboardShortcutsProps) {
+  const navigate = useNavigate()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -161,12 +163,12 @@ export function useKeyboardShortcuts({
         return
       }
 
-      // Open selected task in a new tab (O) — page plein écran /task/:id
-      // (même URL que le bouton « nouvel onglet » des cartes)
+      // Open selected task in the SAME window (O) — page plein écran /task/:id
+      // (même URL que le bouton « ouvrir » des cartes, navigation SPA)
       if (e.key.toLowerCase() === "o") {
         e.preventDefault()
         if (!selectedTaskId) return
-        window.open(`/task/${selectedTaskId}`, "_blank")
+        navigate(`/task/${selectedTaskId}`)
         return
       }
 
