@@ -27,6 +27,10 @@ export default {
         purple: varScale('purple'),
         orange: varScale('orange'),
         amber: varScale('amber'),
+        // indigo : statuts « IA en cours » (TaskCategoryService) — la palette
+        // n'était pas pilotée par variables, d'où un fond indigo-50 clair
+        // illisible en mode sombre (27/11/2026).
+        indigo: varScale('indigo'),
       },
     }
   },

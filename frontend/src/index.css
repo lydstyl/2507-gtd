@@ -85,6 +85,17 @@
   --c-orange-700: 194 65 12;
   --c-orange-800: 154 52 18;
   --c-orange-900: 124 45 18;
+  /* indigo (statuts IA) */
+  --c-indigo-50: 238 242 255;
+  --c-indigo-100: 224 231 255;
+  --c-indigo-200: 199 210 254;
+  --c-indigo-300: 165 180 252;
+  --c-indigo-400: 129 140 248;
+  --c-indigo-500: 99 102 241;
+  --c-indigo-600: 79 70 229;
+  --c-indigo-700: 67 56 202;
+  --c-indigo-800: 55 48 163;
+  --c-indigo-900: 49 46 129;
   /* amber */
   --c-amber-50: 255 251 235;
   --c-amber-100: 254 243 199;
@@ -188,6 +199,17 @@ html.dark {
   --c-amber-700: 252 211 77;
   --c-amber-800: 253 230 138;
   --c-amber-900: 254 243 199;
+  /* indigo : fonds sombres, textes clairs (statuts IA) */
+  --c-indigo-50: 30 27 75;
+  --c-indigo-100: 40 36 100;
+  --c-indigo-200: 55 48 163;
+  --c-indigo-300: 165 180 252;
+  --c-indigo-400: 129 140 248;
+  --c-indigo-500: 99 102 241;
+  --c-indigo-600: 129 140 248;
+  --c-indigo-700: 165 180 252;
+  --c-indigo-800: 199 210 254;
+  --c-indigo-900: 224 231 255;
 }
 
 /* Cartes blanches -> surfaces sombres (white n'est pas une variable,
