@@ -15,7 +15,7 @@ export interface FilterState {
   statusFilters: string[]
 }
 
-const ALL_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'termine_par_ia', 'completed']
+const ALL_STATUSES = ['brouillon', 'pour_ia', 'collecte', 'pret', 'un_jour_peut_etre', 'ia_en_cours', 'ia_arretee', 'termine_par_ia', 'completed']
 const DEFAULT_STATUS_FILTERS = ['brouillon', 'pour_ia', 'collecte', 'pret', 'termine_par_ia']
 
 // Catégories de date (mutuellement exclusives, couvrent toutes les tâches).

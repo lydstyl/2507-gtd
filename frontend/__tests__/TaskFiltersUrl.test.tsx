@@ -86,4 +86,19 @@ describe("Filtres /tasks dans l'URL (partageables)", () => {
       expect(window.location.search).toContain('q=Test')
     })
   })
+
+  test("les statuts IA (en cours / arrêtée) persistent dans l'URL au refresh", async () => {
+    vi.mocked(api.getRootTasks).mockResolvedValue([])
+    vi.mocked(api.getTags).mockResolvedValue([])
+    // URL partagée / refresh : les deux statuts IA sont cochés
+    window.history.replaceState(null, '', '/tasks?st=brouillon,ia_en_cours,ia_arretee')
+    renderPage()
+    const user = userEvent.setup()
+    // Attend la fin du chargement (le bouton filtre n'existe qu'après)
+    await user.click(await screen.findByText('Afficher les filtres'))
+    // Sans le fix, parseFiltersFromUrl éjectait ia_en_cours + ia_arretee
+    // (absents de ALL_STATUSES) → cases décochées après refresh.
+    expect(((await screen.findByLabelText('IA en cours')) as HTMLInputElement).checked).toBe(true)
+    expect((screen.getByLabelText('IA arrêtée') as HTMLInputElement).checked).toBe(true)
+  })
 })
