@@ -63,3 +63,25 @@ describe('TaskActions — badge note basé sur hasNote', () => {
     expect(screen.getByTitle('Ajouter une note')).toBeInTheDocument()
   })
 })
+
+/**
+ * Deux boutons « ouvrir » : la tâche s'ouvre soit dans la fenêtre en cours
+ * (navigation SPA), soit dans un nouvel onglet. Les deux doivent rester
+ * visibles et cliquables (demande Gabriel 27/11).
+ */
+describe('TaskActions — boutons ouvrir (même fenêtre + nouvel onglet)', () => {
+  it('affiche « Ouvrir » (même fenêtre) et « Nouvel onglet » avec leurs libellés', () => {
+    render(
+      <MemoryRouter>
+        <TaskActions task={baseTask} onEditNote={() => {}} />
+      </MemoryRouter>
+    )
+
+    const sameWindow = screen.getByTitle('Ouvrir la tâche dans la fenêtre en cours (raccourci O)')
+    const newTab = screen.getByTitle('Ouvrir la tâche dans un nouvel onglet')
+    expect(sameWindow).toBeInTheDocument()
+    expect(newTab).toBeInTheDocument()
+    expect(screen.getByText('Ouvrir')).toBeInTheDocument()
+    expect(screen.getByText('Nouvel onglet')).toBeInTheDocument()
+  })
+})

@@ -98,11 +98,11 @@ export function TaskActions({
         </div>
       </button>
 
-      {/* Open full-screen page button (même fenêtre — navigation SPA) */}
+      {/* Open buttons — deux cibles : même fenêtre (SPA) ou nouvel onglet */}
       <button
         onClick={() => navigate(`/task/${task.id}`)}
-        className={`${buttonSize} text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors`}
-        title='Ouvrir la tâche en plein écran (même fenêtre)'
+        className={`flex items-center gap-1 ${buttonSize} text-indigo-600 hover:bg-indigo-50 rounded transition-colors`}
+        title='Ouvrir la tâche dans la fenêtre en cours (raccourci O)'
       >
         <svg
           className={iconSize}
@@ -117,6 +117,27 @@ export function TaskActions({
             d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'
           />
         </svg>
+        <span className='text-xs font-semibold'>Ouvrir</span>
+      </button>
+      <button
+        onClick={() => window.open(`/task/${task.id}`, '_blank')}
+        className={`flex items-center gap-1 ${buttonSize} text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors`}
+        title='Ouvrir la tâche dans un nouvel onglet'
+      >
+        <svg
+          className={iconSize}
+          fill='none'
+          stroke='currentColor'
+          viewBox='0 0 24 24'
+        >
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            strokeWidth={2}
+            d='M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6m4-3h6v6m-11 5L21 3'
+          />
+        </svg>
+        <span className='text-xs font-semibold'>Nouvel onglet</span>
       </button>
 
       {/* Assign parent button */}
