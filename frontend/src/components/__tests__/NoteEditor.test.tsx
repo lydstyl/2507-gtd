@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 import { useState } from 'react'
 import { NoteEditor, buildResponseBlockHTML } from '../NoteEditor'
@@ -67,7 +67,8 @@ describe('NoteEditor — bouton « Réponse »', () => {
     fireEvent.focus(editable)
     fireEvent.click(editable)
 
-    fireEvent.keyDown(window, { key: 'r', ctrlKey: true, altKey: true })
+    // En vrai, un keydown a pour target l'élément focalisé (pas window)
+    fireEvent.keyDown(editable, { key: 'r', ctrlKey: true, altKey: true })
 
     await waitFor(() => {
       const html = screen.getByTestId('html').textContent || ''
@@ -118,5 +119,57 @@ describe('NoteEditor — tableaux', () => {
       // La note existante (avec son tableau) est conservée
       expect(html).toContain('Indice')
     })
+  })
+})
+
+/** Harnais : une note contenant un lien (scénario du rapport de bug). */
+function LinkHarness() {
+  const [content, setContent] = useState(
+    '<p>Voir <a href="https://example.com/ressource">la ressource</a></p>'
+  )
+  return (
+    <>
+      <NoteEditor content={content} onChange={setContent} />
+      <output data-testid='html'>{content}</output>
+    </>
+  )
+}
+
+describe('NoteEditor — liens : clic gauche ouvre dans un nouvel onglet', () => {
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+  })
+
+  it('appelle window.open(href, _blank, noopener) au clic sur un lien', async () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+    render(<LinkHarness />)
+
+    await waitFor(() => {
+      const editorEl = document.querySelector('.tiptap') as HTMLElement
+      expect(editorEl.querySelector('a')).toBeTruthy()
+    })
+    const a = document.querySelector('.tiptap a') as HTMLAnchorElement
+    fireEvent.click(a)
+
+    expect(openSpy).toHaveBeenCalledWith(
+      'https://example.com/ressource',
+      '_blank',
+      'noopener'
+    )
+  })
+
+  it('ne casse pas les clics hors lien (pas de window.open)', async () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+    render(<LinkHarness />)
+
+    await waitFor(() => {
+      const editorEl = document.querySelector('.tiptap') as HTMLElement
+      expect(editorEl.querySelector('a')).toBeTruthy()
+    })
+    const p = document.querySelector('.tiptap p') as HTMLElement
+    fireEvent.click(p)
+
+    expect(openSpy).not.toHaveBeenCalled()
   })
 })

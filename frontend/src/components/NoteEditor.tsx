@@ -223,16 +223,31 @@ export function NoteEditor({
   }, [editor])
 
   // Clic sur une image → l'ouvre dans un nouvel onglet (vue pleine taille).
-  // Délégué sur le DOM de l'éditeur : couvre toutes les images (bouton,
-  // collage, glisser-déposer) sans toucher aux chemins d'insertion.
+  // Clic sur un lien → l'ouvre dans un nouvel onglet. L'éditeur est
+  // contentEditable (ProseMirror) + Link en openOnClick:false → le clic
+  // gauche « normal » sur un <a> ne fait rien (le navigateur reste dans
+  // la zone éditable) ; c'est ce handler qui ouvre l'URL.
+  // Délégué sur le DOM de l'éditeur : couvre toutes les images et tous
+  // les liens (bouton, collage, glisser-déposer, notes collées) sans
+  // toucher aux chemins d'insertion.
   useEffect(() => {
     if (!editor) return
     const dom = editor.view.dom
     const onClick = (e: MouseEvent) => {
       const t = e.target as HTMLElement | null
-      if (t && t.tagName === 'IMG') {
+      if (!t) return
+      if (t.tagName === 'IMG') {
         e.preventDefault()
         window.open((t as HTMLImageElement).src, '_blank', 'noopener')
+        return
+      }
+      const a = t.tagName === 'A' ? (t as HTMLAnchorElement) : t.closest('a')
+      if (a) {
+        const href = a.getAttribute('href')
+        if (href && !href.startsWith('javascript:')) {
+          e.preventDefault()
+          window.open(href, '_blank', 'noopener')
+        }
       }
     }
     dom.addEventListener('click', onClick)
@@ -261,8 +276,11 @@ export function NoteEditor({
       if (!mod) return
 
       const target = event.target as HTMLElement | null
+      // Garde-fou : certains événements synthétiques ont target = window (non-Node)
+      // → contains() throwerait. En vrai, target est toujours un Node (Element/Document).
       const inEditor =
         !!target &&
+        target instanceof Node &&
         (target === editor.view.dom || editor.view.dom.contains(target))
       const inOtherField =
         !!target &&
