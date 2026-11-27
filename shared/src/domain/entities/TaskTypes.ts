@@ -45,6 +45,9 @@ export interface TaskBase<TDate = Date | string> {
    */
   activity?: string
   activityAt?: TDate
+  /** Agent qui travaille la tâche (statut `ia_en_cours`) : posé par le
+   *  dispatch à la prise (« Luna », « Harry »…), effacé en quittant le statut. */
+  agent?: string
   createdAt: TDate
   updatedAt: TDate
 }
@@ -139,6 +142,7 @@ export interface UpdateTaskData {
   isCompleted?: boolean
   completedAt?: Date | string | null
   activity?: string | null
+  agent?: string | null
 }
 
 /**

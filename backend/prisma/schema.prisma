@@ -76,6 +76,7 @@ model Task {
   completedAt DateTime?
   activity    String?
   activityAt  DateTime?
+  agent       String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   userId      String

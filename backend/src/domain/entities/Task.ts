@@ -51,6 +51,7 @@ export interface UpdateTaskData {
    completedAt?: Date | null
    activity?: string | null
    activityAt?: Date | null
+   agent?: string | null
    }
 
 export interface TaskFilters {

@@ -34,6 +34,9 @@ export interface Task {
    *  horodatage serveur du dernier update. */
   activity?: string
   activityAt?: string
+  /** Agent qui travaille la tâche (statut `ia_en_cours`) — posé par le
+   *  dispatch à la prise (« Luna », « Harry »…), effacé en quittant le statut. */
+  agent?: string
   createdAt: string
   updatedAt: string
   subtasks: Task[]

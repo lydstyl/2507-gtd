@@ -253,8 +253,12 @@ export class TaskController {
       if (taskData.activity !== undefined) {
         taskData.activityAt = new Date()
       }
+      // Agent en cours (27/11/2026) : posé par le dispatch à la prise de la tâche.
+      // En quittant `ia_en_cours` (PUT final termine_par_ia / collecte / ia_arretee),
+      // l'agent est effacé de façon déterministe.
       if (taskData.status && taskData.status !== 'ia_en_cours') {
         taskData.activity = null
+        taskData.agent = null
       }
       // Convert markdown note to HTML if needed
       if (taskData.note && typeof taskData.note === 'string') {

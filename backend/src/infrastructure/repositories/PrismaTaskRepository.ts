@@ -711,6 +711,7 @@ export class PrismaTaskRepository implements TaskRepository {
       // tâches « IA en cours » (l'agent + le heartbeat wrapper la mettent à jour).
       activity: task.activity,
       activityAt: task.activityAt ? task.activityAt.toISOString() : undefined,
+      agent: task.agent,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       parentId: task.parentId,
