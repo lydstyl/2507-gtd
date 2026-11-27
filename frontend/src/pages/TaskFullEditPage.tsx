@@ -11,6 +11,7 @@ import { CompleteConfirmModal } from '../components/CompleteConfirmModal'
 import { ShortcutsHelp } from '../components/ShortcutsHelp'
 import type { Tag, Task, TaskStatus, UpdateTaskData } from '../types/task'
 import { TASK_STATUS_LABELS } from '../types/task'
+import { resolveSaveForm } from '../utils/saveFormOverride'
 
 // Formater une date ISO pour un input date (YYYY-MM-DD) en heure locale
 // (mêmes règles que EditTaskModal pour éviter les décalages de timezone).
@@ -240,8 +241,11 @@ export function TaskFullEditPage() {
   // nouveau) avant le commit de setForm — sans ça, saveAll recevait le form
   // périmé du closure : aucun PUT (si form == baseline) ou PUT avec l'ancien
   // statut. C'est le bug « le changement de statut ne persiste pas ».
+  // resolveSaveForm : tout autre argument (typiquement un événement de clic
+  // si un bouton est câblé `onClick={handleSave}`) est ignoré au profit du
+  // form vivant — l'événement React n'est pas sérialisable (cycle).
   const handleSave = async (formOverride?: FormState): Promise<boolean> =>
-    saveAll(formOverride ?? form, note)
+    saveAll(resolveSaveForm(formOverride, form), note)
   handleSaveRef.current = handleSave
 
   const handleChange = (
@@ -351,7 +355,11 @@ export function TaskFullEditPage() {
             </button>
           )}
           <button
-            onClick={handleSave}
+            // Arrow wrapper REQUIRED: onClick={handleSave} passait l'événement
+            // React comme 1er arg → interprété comme `formOverride` dans
+            // handleSave → saveAll(event) → PUT corrompu / erreur inattendue.
+            // Le raccourci Ctrl+S passe bien un FormState (voir useTaskDetailShortcuts).
+            onClick={() => handleSave()}
             disabled={isSaving || (!formDirty && !noteDirty)}
             className='px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center'
             title='Sauvegarder (Ctrl+S)'
