@@ -49,7 +49,9 @@ export interface UpdateTaskData {
    dueDate?: Date | null
    isCompleted?: boolean
    completedAt?: Date | null
-}
+   activity?: string | null
+   activityAt?: Date | null
+   }
 
 export interface TaskFilters {
   userId: string

@@ -1,6 +1,7 @@
 import type { Task, Tag as TagData } from '../types/task'
 import { Tag } from './Tag'
 import { TaskActions } from './TaskActions'
+import { IaActivityLine } from './IaActivityLine'
 import { QuickActionsMenu } from './QuickActionsMenu'
 import { SubTaskCard } from './SubTaskCard'
 import {
@@ -206,29 +207,6 @@ export function TaskCard({
           </div>
 
           <div className='flex items-start space-x-3 mb-3'>
-            {/* Mobile-first completion checkbox */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onMarkCompleted?.(task.id)
-              }}
-              className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                task.isCompleted
-                  ? 'bg-green-500 border-green-500 text-white'
-                  : 'bg-white border-gray-300 hover:border-green-400 hover:bg-green-50'
-              }`}
-              title={task.isCompleted ? 'Marquer comme non terminé' : 'Marquer comme terminé'}
-            >
-              {task.isCompleted && (
-                <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
-                  <path
-                    fillRule='evenodd'
-                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                    clipRule='evenodd'
-                  />
-                </svg>
-              )}
-            </button>
             <div
               className={`w-3 h-3 rounded-full flex-shrink-0 ${getPriorityColor(
                 task.importance
@@ -305,6 +283,9 @@ export function TaskCard({
               <p className='text-xs md:text-sm text-gray-500 mb-2'>
                 I: {task.importance}
               </p>
+
+              {/* Activité agent en direct (tâche « IA en cours ») — 27/11/2026 */}
+              <IaActivityLine task={task} />
 
               {/* Tags */}
               {task.tags && task.tags.length > 0 && (

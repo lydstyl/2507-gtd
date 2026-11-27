@@ -126,7 +126,9 @@ export function TaskFullEditPage() {
   }, [])
 
   // ── Refs pour les fonctions passées au hook (définies après les early returns) ──
-  const handleSaveRef = useRef<() => Promise<void>>(async () => {})
+  const handleSaveRef = useRef<(f?: FormState) => Promise<boolean>>(
+    async () => false
+  )
   const handleBackRef = useRef<() => void>(() => {})
 
   // ── Hook raccourcis clavier (appelé avant les early returns, règle React) ──
@@ -136,7 +138,7 @@ export function TaskFullEditPage() {
     setForm,
     setBaseline,
     tags,
-    onSave: () => handleSaveRef.current(),
+    onSave: (f) => handleSaveRef.current(f),
     onBack: () => handleBackRef.current(),
     isSaving,
     onRequestComplete: () => setShowCompleteConfirm(true),
@@ -166,20 +168,20 @@ export function TaskFullEditPage() {
     )
   }
 
-  const buildUpdateData = (): UpdateTaskData => {
+  const buildUpdateDataFor = (f: FormState): UpdateTaskData => {
     const alignedDueDate = TaskDateConsistencyService.alignDueDateWithPlannedDate(
-      form.plannedDate || null,
-      form.dueDate || null
+      f.plannedDate || null,
+      f.dueDate || null
     )
     return {
-      name: form.name,
-      link: form.link,
-      importance: form.importance,
-      complexity: form.complexity,
-      status: form.status,
-      plannedDate: form.plannedDate || null,
+      name: f.name,
+      link: f.link,
+      importance: f.importance,
+      complexity: f.complexity,
+      status: f.status,
+      plannedDate: f.plannedDate || null,
       dueDate: alignedDueDate || null,
-      tagIds: form.tagIds
+      tagIds: f.tagIds
     }
   }
 
@@ -187,30 +189,89 @@ export function TaskFullEditPage() {
     JSON.stringify(form) !== JSON.stringify(baseline)
   const noteDirty = note !== noteBaseline
 
+  /**
+   * Sauvegarde COMPLÈTE (tâche + note) avec les valeurs explicites passées en
+   * argument — évite l'état périmé d'un setForm pas encore commité.
+   * Retourne true si la sauvegarde a réussi (false → banner d'erreur).
+   */
+  const saveAll = async (
+    nextForm: FormState,
+    nextNote: string
+  ): Promise<boolean> => {
+    setSaveError('')
+    setIsSaving(true)
+    try {
+      let sent = false
+      if (JSON.stringify(nextForm) !== JSON.stringify(baseline)) {
+        await updateTask.mutateAsync({
+          id: task.id,
+          data: buildUpdateDataFor(nextForm)
+        })
+        sent = true
+      }
+      if (nextNote !== noteBaseline) {
+        await updateTaskNote.mutateAsync({ id: task.id, note: nextNote })
+        sent = true
+      }
+      setBaseline(nextForm)
+      setNoteBaseline(nextNote)
+      // Indicateur uniquement si un PUT a réellement été envoyé — sinon
+      // « Enregistré ✓ » mentait quand rien n'était à sauvegarder (le
+      // raccourci statut avec form périmé affichait la confirmation sans
+      // écrire sur le serveur).
+      if (sent) {
+        setSavedAt(Date.now())
+        setTimeout(() => setSavedAt(null), 2000)
+      }
+      return true
+    } catch (err) {
+      setSaveError(
+        err instanceof ApiError
+          ? err.message
+          : "Une erreur inattendue s'est produite"
+      )
+      return false
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // formOverride : le raccourci de statut passe le form DÉJÀ modifié (statut
+  // nouveau) avant le commit de setForm — sans ça, saveAll recevait le form
+  // périmé du closure : aucun PUT (si form == baseline) ou PUT avec l'ancien
+  // statut. C'est le bug « le changement de statut ne persiste pas ».
+  const handleSave = async (formOverride?: FormState): Promise<boolean> =>
+    saveAll(formOverride ?? form, note)
+  handleSaveRef.current = handleSave
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
-    setForm((prev) => {
-      if (!prev) return prev
-      const next: FormState = {
-        ...prev,
-        [name]:
-          name === 'importance' || name === 'complexity'
-            ? parseInt(value)
-            : name === 'status'
-              ? (value as TaskStatus)
-              : value
-      }
-      if (name === 'plannedDate') {
-        next.dueDate =
-          TaskDateConsistencyService.alignDueDateWithPlannedDate(
-            next.plannedDate || null,
-            prev.dueDate || null
-          ) ?? ''
-      }
-      return next
-    })
+    const prev = form
+    if (!prev) return
+    const next: FormState = {
+      ...prev,
+      [name]:
+        name === 'importance' || name === 'complexity'
+          ? parseInt(value)
+          : name === 'status'
+            ? (value as TaskStatus)
+            : value
+    }
+    if (name === 'plannedDate') {
+      next.dueDate =
+        TaskDateConsistencyService.alignDueDateWithPlannedDate(
+          next.plannedDate || null,
+          prev.dueDate || null
+        ) ?? ''
+    }
+    setForm(next)
+    // Changement de statut → sauvegarde complète automatique (note, tags,
+    // tous les champs modifiés) : plus besoin de cliquer « Sauvegarder ».
+    if (name === 'status' && next.status !== prev.status) {
+      void saveAll(next, note)
+    }
   }
 
   const handleTagChange = (tagId: string, checked: boolean) => {
@@ -226,45 +287,12 @@ export function TaskFullEditPage() {
     )
   }
 
-  const handleSave = async () => {
-    setSaveError('')
-    setIsSaving(true)
-    try {
-      if (formDirty) {
-        await updateTask.mutateAsync({ id: task.id, data: buildUpdateData() })
-      }
-      if (noteDirty) {
-        await updateTaskNote.mutateAsync({ id: task.id, note })
-      }
-      if (baseline) setBaseline(form)
-      setNoteBaseline(note)
-      setSavedAt(Date.now())
-      setTimeout(() => setSavedAt(null), 2000)
-    } catch (err) {
-      setSaveError(
-        err instanceof ApiError
-          ? err.message
-          : "Une erreur inattendue s'est produite"
-      )
-    } finally {
-      setIsSaving(false)
-    }
-  }
-  handleSaveRef.current = handleSave
-
   const handleMarkCompleted = async () => {
     setSaveError('')
     setIsCompleting(true)
     try {
       // Sauvegarder d'abord pour ne rien perdre.
-      if (formDirty) {
-        await updateTask.mutateAsync({ id: task.id, data: buildUpdateData() })
-        setBaseline(form)
-      }
-      if (noteDirty) {
-        await updateTaskNote.mutateAsync({ id: task.id, note })
-        setNoteBaseline(note)
-      }
+      await saveAll(form, note)
       await api.markTaskCompleted(task.id)
       window.close()
       navigate('/tasks')
@@ -394,6 +422,17 @@ export function TaskFullEditPage() {
                 placeholder='https://...'
                 className={inputClass}
               />
+              {form.link && (
+                <a
+                  href={form.link}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  title={form.link}
+                  className='mt-1 block truncate text-sm text-blue-600 hover:text-blue-800'
+                >
+                  {form.link} ↗
+                </a>
+              )}
             </div>
             <div>
               <label htmlFor='status' className='block text-sm font-medium text-gray-700 mb-1'>

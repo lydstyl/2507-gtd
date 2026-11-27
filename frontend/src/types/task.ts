@@ -29,6 +29,11 @@ export interface Task {
   userId: string
   isCompleted: boolean
   completedAt?: string
+  /** Activité agent en cours (tâche `ia_en_cours`) — mise à jour par
+   *  l'agent à chaque étape + heartbeat wrapper (60 s). `activityAt` =
+   *  horodatage serveur du dernier update. */
+  activity?: string
+  activityAt?: string
   createdAt: string
   updatedAt: string
   subtasks: Task[]

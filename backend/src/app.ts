@@ -8,6 +8,8 @@ import { createSettingsRoutes } from './presentation/routes/settingsRoutes'
 import { createChatRoutes } from './presentation/routes/chatRoutes'
 import { createApiKeyRouter } from './presentation/routes/apiKeyRoutes'
 import { createImageRoutes } from './presentation/routes/imageRoutes'
+import { createMaintenanceRoutes } from './presentation/routes/maintenanceRoutes'
+import { MaintenanceController } from './presentation/controllers/MaintenanceController'
 import authRoutes from './presentation/routes/authRoutes'
 import { loadEnvironment } from './config/env'
 
@@ -60,6 +62,7 @@ app.use('/api/chat', createChatRoutes(container.getChatController()))
 app.use('/api/auth/keys', createApiKeyRouter(container.getApiKeyController()))
 app.use('/api/auth', authRoutes)
 app.use('/api/images', createImageRoutes())
+app.use('/api/maintenance', createMaintenanceRoutes(new MaintenanceController()))
 
 // Route de santé
 app.get('/health', (req, res) => {

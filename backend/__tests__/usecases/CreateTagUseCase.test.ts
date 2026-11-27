@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { CreateTagUseCase } from '../../src/usecases/tags/CreateTagUseCase'
+import { TAG_CONSTANTS } from '@gtd/shared'
 import { createMockTag } from '../utils/test-helpers'
 
 describe('CreateTagUseCase', () => {
@@ -28,10 +29,11 @@ describe('CreateTagUseCase', () => {
       })
 
       expect(result.success).toBe(true)
-      expect(mockTagRepository.create).toHaveBeenCalledWith({
-        name: 'actif',
-        userId: 'user-1',
-      })
+      // Pas de couleur fournie → le use case en assigne une aléatoire de la palette
+      const createArgs = mockTagRepository.create.mock.calls[0][0]
+      expect(createArgs.name).toBe('actif')
+      expect(createArgs.userId).toBe('user-1')
+      expect(TAG_CONSTANTS.allowedColors).toContain(createArgs.color)
     })
 
     it('rejette un nom vide (validation partagée)', async () => {

@@ -297,17 +297,21 @@ export function NoteEditor({
       if (event.altKey) {
         if (event.key === 'ArrowUp') {
           event.preventDefault()
+          event.stopPropagation()
           containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
           return
         }
         if (event.key === 'ArrowDown') {
           event.preventDefault()
+          event.stopPropagation()
           bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
           return
         }
-        // ── Ctrl+Alt+L : mode lecture (sans clic dans la note) ──
-        if (key === 'l' && !event.shiftKey) {
+        // ── Ctrl+Alt+O : mode lecture (sans clic dans la note) ──
+        // (Liberation de Ctrl+Alt+L : réservé au statut « Collecté » du panneau gauche.)
+        if (key === 'o' && !event.shiftKey) {
           event.preventDefault()
+          event.stopPropagation()
           setComfortMode((v) => !v)
           return
         }
@@ -357,22 +361,26 @@ export function NoteEditor({
         if (!event.defaultPrevented) {
           if (event.code === 'Digit1') {
             event.preventDefault()
+            event.stopPropagation()
             editor.chain().focus().toggleHeading({ level: 1 }).run()
             return
           }
           if (event.code === 'Digit2') {
             event.preventDefault()
+            event.stopPropagation()
             editor.chain().focus().toggleHeading({ level: 2 }).run()
             return
           }
           if (event.code === 'Digit3') {
             event.preventDefault()
+            event.stopPropagation()
             editor.chain().focus().toggleHeading({ level: 3 }).run()
             return
           }
         }
         if (key === 'r' && !event.shiftKey) {
           event.preventDefault()
+          event.stopPropagation()
           editor.chain().focus().insertContent(buildResponseBlockHTML()).run()
           return
         }
@@ -763,7 +771,7 @@ export function NoteEditor({
               ? 'bg-blue-100 text-blue-700'
               : 'hover:bg-gray-200 text-gray-700'
           }`}
-          title='Mode lecture : note centrée, largeur max ~600 px (Ctrl+Alt+L)'
+          title='Mode lecture : note centrée, largeur max ~600 px (Ctrl+Alt+O)'
         >
           <svg
             className='w-4 h-4'

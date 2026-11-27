@@ -54,9 +54,25 @@ const STATUS_ITEMS: ShortcutItem[] = [
   { key: 'V', label: 'Terminé par IA' },
 ]
 
+// Page détail : famille Ctrl+Alt → actifs même en écrivant dans la note.
+const STATUS_ITEMS_DETAIL: ShortcutItem[] = [
+  { key: 'Ctrl+Alt+B', label: 'Brouillon' },
+  { key: 'Ctrl+Alt+P', label: 'Pour IA' },
+  { key: 'Ctrl+Alt+L', label: 'Collecté' },
+  { key: 'Ctrl+Alt+R', label: 'Prêt' },
+  { key: 'Ctrl+Alt+U', label: 'Un jour peut-être' },
+  { key: 'Ctrl+Alt+N', label: 'IA en cours' },
+  { key: 'Ctrl+Alt+V', label: 'Terminé par IA' },
+]
+
 const IMPACT_ITEMS: ShortcutItem[] = [
   { key: 'I / ⇧I', label: 'Importance ±10' },
   { key: 'C / ⇧C', label: 'Complexité ±2' },
+]
+
+const IMPACT_ITEMS_DETAIL: ShortcutItem[] = [
+  { key: 'Ctrl+Alt+I / +⇧', label: 'Importance ±10' },
+  { key: 'Ctrl+Alt+C / +⇧', label: 'Complexité ±2' },
 ]
 
 const DATE_ITEMS_LIST: ShortcutItem[] = [
@@ -69,24 +85,24 @@ const DATE_ITEMS_LIST: ShortcutItem[] = [
 ]
 
 const DATE_ITEMS_DETAIL: ShortcutItem[] = [
-  { key: 'D / ⇧D', label: 'Date ±1 j' },
-  { key: 'W', label: 'Date +1 semaine' },
-  { key: 'M', label: 'Date +1 mois' },
-  { key: 'T', label: "Date = aujourd'hui" },
-  { key: 'E', label: 'Effacer les dates' },
+  { key: 'Ctrl+Alt+D / +⇧', label: 'Date ±1 j' },
+  { key: 'Ctrl+Alt+W', label: 'Date +1 semaine' },
+  { key: 'Ctrl+Alt+M', label: 'Date +1 mois' },
+  { key: 'Ctrl+Alt+T', label: "Date = aujourd'hui" },
+  { key: 'Ctrl+Alt+E', label: 'Effacer les dates' },
 ]
 
 const TAGS_ITEMS_LIST: ShortcutItem[] = [{ key: '1-9', label: 'Ajouter / enlever tag' }]
 
 const TAGS_ITEMS_DETAIL: ShortcutItem[] = [
-  { key: '1-9', label: 'Toggle tag n° (9 premiers)' },
-  { key: 'A', label: 'Chercher un tag (tous) — alias `' },
+  { key: 'Ctrl+Alt+1-9', label: 'Toggle tag n° (9 premiers)' },
+  { key: 'Ctrl+Alt+A', label: 'Chercher un tag (tous) — alias ` hors champ' },
 ]
 
 const GENERAL_ITEMS_DETAIL: ShortcutItem[] = [
   { key: 'Ctrl+S', label: 'Sauvegarder' },
   { key: 'Esc', label: 'Retour' },
-  { key: 'X', label: 'Terminer (confirmation)' },
+  { key: 'Ctrl+Alt+X', label: 'Terminer (confirmation)' },
   { key: 'H', label: 'Cette aide' },
 ]
 
@@ -103,8 +119,8 @@ const NOTE_FORMAT_ITEMS: ShortcutItem[] = [
   { key: 'Ctrl+Shift+7', label: 'Liste numérotée' },
   { key: 'Ctrl+K', label: 'Ajouter un lien' },
   { key: 'Ctrl+Alt+↑ / ↓', label: 'Haut / bas de la note' },
-  { key: 'Ctrl+Alt+L', label: 'Mode lecture (centré, 600 px)' },
-  { key: 'Ctrl+Alt+R', label: 'Bloc « Réponse de Gabriel »' },
+  { key: 'Ctrl+Alt+O', label: 'Mode lecture (centré, 600 px)' },
+  { key: 'Ctrl+Alt+R', label: 'Bloc « Réponse de Gabriel » (curseur dans la note)' },
 ]
 
 const NAV_ITEMS_LIST: ShortcutItem[] = [
@@ -120,8 +136,8 @@ const NAV_ITEMS_LIST: ShortcutItem[] = [
 
 const GROUPS: Record<ShortcutsContext, ShortcutGroup[]> = {
   detail: [
-    { id: 'statut', title: 'Statut', color: 'blue', items: STATUS_ITEMS },
-    { id: 'impact', title: 'Importance & complexité', color: 'amber', items: IMPACT_ITEMS },
+    { id: 'statut', title: 'Statut', color: 'blue', items: STATUS_ITEMS_DETAIL },
+    { id: 'impact', title: 'Importance & complexité', color: 'amber', items: IMPACT_ITEMS_DETAIL },
     { id: 'dates', title: 'Dates', color: 'green', items: DATE_ITEMS_DETAIL },
     { id: 'tags', title: 'Tags', color: 'purple', items: TAGS_ITEMS_DETAIL },
     { id: 'note', title: 'Mise en forme de la note', color: 'red', items: NOTE_FORMAT_ITEMS },
@@ -229,8 +245,11 @@ export function ShortcutsHelp({
                 </>
               ) : (
                 <>
-                  Mêmes lettres que la page /tasks. Inactifs quand le focus est dans un champ de saisie
-                  (sauf Ctrl+S et Esc).
+                  Raccourcis du panneau gauche = <b>Ctrl+Alt + lettre</b> : ils marchent{' '}
+                  <b>même en écrivant dans la note</b> (le texte n'est plus écrasé).
+                  <br />
+                  Dans la note, <b>Ctrl+Alt+1/2/3</b> reste « Titre 1/2/3 » et <b>Ctrl+Alt+R</b>{' '}
+                  « Bloc Réponse » quand le curseur y est ; <b>Ctrl+Alt+O</b> = mode lecture.
                 </>
               )}
             </div>

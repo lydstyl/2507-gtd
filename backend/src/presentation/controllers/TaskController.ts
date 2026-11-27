@@ -246,6 +246,16 @@ export class TaskController {
         return
       }
       const taskData = { ...req.body, userId }
+      // Activité agent (27/11/2026) : l'agent (ou le heartbeat wrapper) envoie
+      // seulement le texte — `activityAt` est horodaté côté serveur. En quittant
+      // `ia_en_cours` (PUT final termine_par_ia / collecte), l'activité est
+      // effacée de façon déterministe.
+      if (taskData.activity !== undefined) {
+        taskData.activityAt = new Date()
+      }
+      if (taskData.status && taskData.status !== 'ia_en_cours') {
+        taskData.activity = null
+      }
       // Convert markdown note to HTML if needed
       if (taskData.note && typeof taskData.note === 'string') {
         taskData.note = markdownToHtml(taskData.note)

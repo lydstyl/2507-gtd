@@ -672,6 +672,23 @@ export class PrismaTaskRepository implements TaskRepository {
     return result.count
   }
 
+  async clearOldTaskNotes(cutoffDate: Date): Promise<number> {
+    const result = await this.prisma.task.updateMany({
+      where: {
+        isCompleted: true,
+        completedAt: {
+          lt: cutoffDate
+        },
+        note: { not: null }
+      },
+      data: {
+        note: null
+      }
+    })
+
+    return result.count
+  }
+
 
   private formatTaskWithSubtasks(task: any, options?: FormatOptions): TaskWithSubtasks {
     const includeNote = options?.includeNote !== false
@@ -690,6 +707,10 @@ export class PrismaTaskRepository implements TaskRepository {
       dueDate: task.dueDate ? task.dueDate.toISOString() : undefined,
       isCompleted: task.isCompleted,
       completedAt: task.completedAt ? task.completedAt.toISOString() : undefined,
+      // Activité agent en cours (27/11/2026) : visible dans l'app sur les
+      // tâches « IA en cours » (l'agent + le heartbeat wrapper la mettent à jour).
+      activity: task.activity,
+      activityAt: task.activityAt ? task.activityAt.toISOString() : undefined,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       parentId: task.parentId,

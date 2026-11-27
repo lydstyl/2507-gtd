@@ -36,6 +36,15 @@ export interface TaskBase<TDate = Date | string> {
   userId: string
   isCompleted: boolean
   completedAt?: TDate
+  /**
+   * Activité agent en cours (tâche `ia_en_cours`) : texte court posé par
+   * l'agent à chaque étape (« lit la source », « teste l'API »…), complété
+   * par un heartbeat wrapper (60 s) si l'agent ne le met pas à jour.
+   * `activityAt` = horodatage serveur du dernier update (le backend le pose,
+   * l'agent n'envoie que le texte).
+   */
+  activity?: string
+  activityAt?: TDate
   createdAt: TDate
   updatedAt: TDate
 }
@@ -129,6 +138,7 @@ export interface UpdateTaskData {
   dueDate?: Date | string | null
   isCompleted?: boolean
   completedAt?: Date | string | null
+  activity?: string | null
 }
 
 /**

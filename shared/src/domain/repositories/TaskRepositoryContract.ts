@@ -126,6 +126,14 @@ export interface BackendTaskRepositoryContract<TDate = Date> extends TaskReposit
    * @returns Number of deleted tasks
    */
   deleteOldCompletedTasks(cutoffDate: Date): Promise<number>
+
+  /**
+   * Clear notes of old completed tasks (data retention, stage 1)
+   * The task itself is kept; only its note is removed to reduce DB size.
+   * @param cutoffDate - Clear notes of tasks completed before this date
+   * @returns Number of tasks whose note was cleared
+   */
+  clearOldTaskNotes(cutoffDate: Date): Promise<number>
 }
 
 /**
